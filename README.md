@@ -6,9 +6,9 @@
 
 # 👉 [Установить n8n Master в Edge](https://microsoftedge.microsoft.com/addons/detail/n8n-master-workflow-ass/edkfpkbmekfhdbeaicagkbioeicbpkeo)
 
-\<a href="https://chromewebstore.google.com/detail/n8n-master-workflow-assis/jikahkldllpmocjlfcmjkpecjjipbfmj"\>
-  \<img src="img/banner.png" alt="n8n" style="max-height: 300px;"\>
-\</a\>
+<a href="https://chromewebstore.google.com/detail/n8n-master-workflow-assis/jikahkldllpmocjlfcmjkpecjjipbfmj">
+  <img src="img/banner.png" alt="n8n" style="max-height: 300px;">
+</a>
 
 -----
 
