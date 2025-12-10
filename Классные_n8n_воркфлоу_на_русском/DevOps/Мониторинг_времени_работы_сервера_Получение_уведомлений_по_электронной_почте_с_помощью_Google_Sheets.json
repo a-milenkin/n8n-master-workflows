@@ -1,0 +1,328 @@
+{
+  "id": "t85wJ1VqMI1aKfJW",
+  "meta": {
+    "instanceId": "93615c98cc4dfaa9c4c6b44440a7bd24c702eda40e66b45db2523eb5fb7b2160",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "веб-сервер-монитор-пинг-уведомление-журнал",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "f5f18e39-37fb-4849-902f-e356a0aff085",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -640,
+        -420
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 540,
+        "content": "📘 Описания узлов для вашего рабочего процесса мониторинга веб-сервера\n\n⏰ 1. Запуск по расписанию  \nЗапускает рабочий процесс каждую минуту для регулярной проверки доступности сервера.\n\n📄 2. Список веб-серверов (Google Sheets)  \nПолучает список имен хостов или IP-адресов серверов из Google Sheets.  \nКаждая строка рассматривается как один сервер. Это упрощает управление серверами — нет необходимости редактировать рабочий процесс для добавления/удаления серверов.\n\n🌐 3. Проверка доступности сервера (HTTP)  \nОтправляет HTTP GET-запрос на каждый сервер (например, http://your-server.com).  \nЕсли запрос не удался, срабатывает путь ошибки.\n\n📝 4. Журнал доступности веб-сервера (Google Sheets)  \nЗаписывает успешные проверки серверов в отдельный лист с отметкой времени.  \nЭтот журнал помогает отслеживать историю времени работы, проверять состояние сервера и генерировать отчеты о доступности.\n\n🚨📧 5. Уведомление о недоступности сервера (Gmail)  \nОтправляет уведомление по электронной почте, если сервер не отвечает или возвращает ошибку.  \nВключает адрес сервера и отметку времени сбоя.\n\n📝 6. Журнал недоступности веб-сервера (Google Sheets)  \nЗаписывает неудачные проверки серверов в другой лист с отметкой времени.  \nПолезно для отчетности по времени работы, отладки и отслеживания аудита."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "70535580-3a1a-44b7-9b4e-ce6ab6c93f0d",
+      "name": "1. Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "9d288602-6a87-464d-9f10-7ad82d554c6f",
+      "name": "2. Web Servers List",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 524060827,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OiwBkf3bs3tcfi5cAIrOl_GrXw2EfQLdcPbh6SaBFKQ/edit#gid=524060827",
+          "cachedResultName": "Server_List"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1OiwBkf3bs3tcfi5cAIrOl_GrXw2EfQLdcPbh6SaBFKQ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OiwBkf3bs3tcfi5cAIrOl_GrXw2EfQLdcPbh6SaBFKQ/edit?usp=drivesdk",
+          "cachedResultName": "Server-Monitor"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "8ix6yW9q4QwFg1Kk",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "d35db04a-a74e-4069-b7d6-1cec899b8af9",
+      "name": "5. Server Down Notification",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        720,
+        160
+      ],
+      "webhookId": "e6849c10-43ae-4d44-9290-e2a098f255eb",
+      "parameters": {
+        "sendTo": "automation0.n8n@gmail.com",
+        "message": "=Hi Team,\n\nAt {{$now.format('yyyy-MM-dd HH:mm:ss')}}, the following server failed to respond to ping:\n\n🔻 Server Down: {{ $json[\"Server\"] }}  \n\nPlease investigate immediately to prevent service disruption. \n\nAutomated Monitoring System\n",
+        "options": {
+          "appendAttribution": true
+        },
+        "subject": "=🔻 Server Down: {{ $json[\"Server\"] }}: {{ $today.format('yyyy-MM-dd') }}",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "F56djR2DRNwX0vAt",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "c4cf3acb-0994-456b-b592-c669e1d9bea6",
+      "name": "4. Web Server Alive Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        720,
+        -140
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Status": "Alive",
+            "TimeStamp": "={{$now.format('yyyy-MM-dd HH:mm:ss')}}",
+            "Server IP Address": "={{ $('2. Web Servers List').item.json.Server }}"
+          },
+          "schema": [
+            {
+              "id": "TimeStamp",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "TimeStamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Server IP Address",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Server IP Address",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 303958634,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OiwBkf3bs3tcfi5cAIrOl_GrXw2EfQLdcPbh6SaBFKQ/edit#gid=303958634",
+          "cachedResultName": "Server_Status_Alive"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1OiwBkf3bs3tcfi5cAIrOl_GrXw2EfQLdcPbh6SaBFKQ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OiwBkf3bs3tcfi5cAIrOl_GrXw2EfQLdcPbh6SaBFKQ/edit?usp=drivesdk",
+          "cachedResultName": "Server-Monitor"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "8ix6yW9q4QwFg1Kk",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "207d1b00-def5-41c2-8043-c1f3086f90e2",
+      "name": "6. Web Server Down Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        960,
+        160
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Status": "Down",
+            "TimeStamp": "={{$now.format('yyyy-MM-dd HH:mm:ss')}}",
+            "Server IP Address": "={{ $('3. Servers Alive Check (HTTP)').item.json.Server }}"
+          },
+          "schema": [
+            {
+              "id": "TimeStamp",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "TimeStamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Server IP Address",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Server IP Address",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OiwBkf3bs3tcfi5cAIrOl_GrXw2EfQLdcPbh6SaBFKQ/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1OiwBkf3bs3tcfi5cAIrOl_GrXw2EfQLdcPbh6SaBFKQ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OiwBkf3bs3tcfi5cAIrOl_GrXw2EfQLdcPbh6SaBFKQ/edit?usp=drivesdk",
+          "cachedResultName": "Server Log"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "8ix6yW9q4QwFg1Kk",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "b67ac75d-7044-428d-ad6a-84dbcddd1286",
+      "name": "3. Servers Alive Check (HTTP)",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "url": "=http://{{ $json.Server }}",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "43f2e865-fd3d-4612-9f01-432339176e34",
+  "connections": {
+    "1. Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "2. Web Servers List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. Web Servers List": {
+      "main": [
+        [
+          {
+            "node": "3. Servers Alive Check (HTTP)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5. Server Down Notification": {
+      "main": [
+        [
+          {
+            "node": "6. Web Server Down Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3. Servers Alive Check (HTTP)": {
+      "main": [
+        [
+          {
+            "node": "4. Web Server Alive Log",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "5. Server Down Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

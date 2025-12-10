@@ -1,0 +1,372 @@
+{
+  "id": "8owN5INh7X8vZtVY",
+  "meta": {
+    "instanceId": "84ad02d6104594179f43f1ce9cfe3a81637b2faedb57dafcb9e649b7542988db",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Этот узел запускает весь рабочий процесс **автоматически каждое понедельник в 9 утра** — никакой ручной работы не требуется!",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "94dc7e06-7eae-429a-a7ac-a732452b430f",
+      "name": "Extract Tech Stack Info",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        900,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const result = $json.Results?.[0];\nconst domain = result?.Lookup || null;\nconst path = result?.Result?.Paths?.[0];\nconst url = path?.Url || null;\n\nlet extracted = null;\n\n// Loop through Groups to find the first available Tech entry\nfor (const group of path?.Groups || []) {\n  const category = group.Name;\n  const tech = group.Tech?.[0];\n  \n  if (tech) {\n    extracted = {\n      Technology: tech.Name,\n      Category: category,\n      \"First Detected\": tech.FirstDetected,\n      \"Last Detected\": tech.LastDetected,\n      Domain: domain,\n      URL: url\n    };\n    break; // Stop after first match\n  }\n}\n\nreturn extracted ? [extracted] : [];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "609233cd-e8d6-4896-8e63-f065305022e5",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1200,
+        220
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "wYwTjEv45IzlAOAu",
+          "name": "OpenAi account 2"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "7a9ebaf7-2abf-4e1b-ad9a-bed19adc9bd5",
+      "name": "Weekly Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        180,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "0750f0ed-8dd0-4a67-815a-dbb6c5d0c45d",
+      "name": "Fetch Domain List",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        380,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1byVKIR8vdDYc8HbrKVlIXw48dVMvcU23SMczwt4E8S8/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1byVKIR8vdDYc8HbrKVlIXw48dVMvcU23SMczwt4E8S8",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1byVKIR8vdDYc8HbrKVlIXw48dVMvcU23SMczwt4E8S8/edit?usp=drivesdk",
+          "cachedResultName": "BuiltWith weekly ecommerce summary"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Rp7XiR3hxJfv03ZO",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "d5f6b578-a70f-4768-86c8-76dac077c99a",
+      "name": "Get Tech Stack (BuiltWith API)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        680,
+        0
+      ],
+      "parameters": {
+        "url": "https://api.builtwith.com/v21/api.json",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "KEY",
+              "value": "YOUR_API_KEY"
+            },
+            {
+              "name": "LOOKUP",
+              "value": "={{ $json['Domain '] }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "7a85fed1-df8e-4fb2-bcf9-aed9fdbf86af",
+      "name": "Generate Stack Summary (AI)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1220,
+        0
+      ],
+      "parameters": {
+        "text": "=Provide summary of the data that is scraped from BuiltWith\n\nDomain: {{ $json.Domain }}\nTechnology: {{ $json.Technology }}\nCategory: {{ $json.Category }}\nFirst Detected: {{ $json['First Detected'] }}\nLast Detected: {{ $json['Last Detected'] }}\nURL: {{ $json.URL }}",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "3057b031-183a-4f84-be77-0ce53418203b",
+      "name": "Send Summary Email",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1580,
+        0
+      ],
+      "webhookId": "05291794-346e-453c-985a-7c4fd12620f2",
+      "parameters": {
+        "sendTo": "shahkar.genai@gmail.com",
+        "message": "={{ $json.output }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "Weekly BuitlWith Ecommerce Platform Summary",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "noKcKj5FEpHHvboL",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "fe050e42-81ae-43e2-bb7f-899f9a0f1029",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        120,
+        -1380
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 440,
+        "height": 1560,
+        "content": "## 📦 **Раздел 1: Этап Сбора Данных**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "55d142da-8cf6-4f84-bb38-d9311eb8e094",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        620,
+        -1380
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 440,
+        "height": 1560,
+        "content": "**(Узлы: 1️⃣ Запланировать Триггер + 2️⃣ Получить Список Доменов)**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ddb1135e-3bd4-4b80-aa00-c070ed7722a7",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1120,
+        -1100
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 620,
+        "height": 1460,
+        "content": "### 🔁 1. Еженедельный Автоматический Триггер"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b2c9dc89-87f5-4921-8f98-4dd20601e46a",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1560,
+        -1360
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 320,
+        "content": "🕘 **Имя Узла: `Еженедельный Триггер Сводки`**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0603059d-4e1b-4fa1-b9c5-17b75a40ba56",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1560,
+        -1020
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1289,
+        "height": 3398,
+        "content": "⏰ **Что он делает:**"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {
+    "Get Tech Stack (BuiltWith API)": [
+      {
+        "json": {
+          "Results": [
+            {
+              "Lookup": "webflow.com",
+              "Result": {
+                "Paths": [
+                  {
+                    "Url": "http://webflow.com",
+                    "Groups": [
+                      {
+                        "Name": "Web Hosting Providers",
+                        "Tech": [
+                          {
+                            "Name": "Amazon Web Services",
+                            "LastDetected": "2025-06-06",
+                            "FirstDetected": "2022-01-10"
+                          }
+                        ]
+                      },
+                      {
+                        "Name": "JavaScript Libraries",
+                        "Tech": [
+                          {
+                            "Name": "React",
+                            "LastDetected": "2025-06-06",
+                            "FirstDetected": "2021-05-01"
+                          },
+                          {
+                            "Name": "jQuery",
+                            "LastDetected": "2024-12-01",
+                            "FirstDetected": "2020-09-15"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5f270319-ac54-4ce9-9230-c6debfc01927",
+  "connections": {
+    "Weekly Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Domain List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Domain List": {
+      "main": [
+        [
+          {
+            "node": "Get Tech Stack (BuiltWith API)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Stack Summary (AI)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Tech Stack Info": {
+      "main": [
+        [
+          {
+            "node": "Generate Stack Summary (AI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Stack Summary (AI)": {
+      "main": [
+        [
+          {
+            "node": "Send Summary Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Tech Stack (BuiltWith API)": {
+      "main": [
+        [
+          {
+            "node": "Extract Tech Stack Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

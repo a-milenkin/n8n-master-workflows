@@ -1,0 +1,125 @@
+{
+  "meta": {
+    "instanceId": "cd59eaaeb7b34d06e24511380db94cdb7fbce6037cc4de22e539c5158ab9cdfc"
+  },
+  "nodes": [
+    {
+      "id": "892c292d-f509-4a1d-b778-74d924e992f1",
+      "name": "Workflow Overview 0",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1460,
+        -160
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 800,
+        "content": "## 🛠️ Mocean Tool MCP Server"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "024a878d-6365-4153-af2f-af1e3627e2bb",
+      "name": "Mocean Tool MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        -840,
+        -100
+      ],
+      "webhookId": "4166e0a4-dfe8-427b-8d18-92d3a3142b47",
+      "parameters": {
+        "path": "mocean-tool-mcp"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a0cba658-3979-4c7b-8a4a-a2e0010c9f65",
+      "name": "Sticky Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1000,
+        120
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 400,
+        "content": "### 📋 Доступные операции (всего 2)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6003a56c-5d5c-4f3b-bba9-9a328526a6a1",
+      "name": "Sticky Note 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1000,
+        360
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 400,
+        "content": "**Sms**: отправить"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8b2b84bf-a961-4f71-9c45-0d598e704194",
+      "name": "Send SMS",
+      "type": "n8n-nodes-base.moceanTool",
+      "position": [
+        -820,
+        140
+      ],
+      "parameters": {
+        "to": "={{ $fromAI('To', ``, 'string') }}",
+        "from": "={{ $fromAI('From', ``, 'string') }}",
+        "message": "={{ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "credentials": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "4ba03a00-32df-41dc-8d37-bd711fbe366d",
+      "name": "Send Voice",
+      "type": "n8n-nodes-base.moceanTool",
+      "position": [
+        -820,
+        380
+      ],
+      "parameters": {
+        "to": "={{ $fromAI('To', ``, 'string') }}",
+        "from": "={{ $fromAI('From', ``, 'string') }}",
+        "message": "={{ $fromAI('Message', ``, 'string') }}",
+        "language": null,
+        "resource": "voice"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Send SMS": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mocean Tool MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Voice": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mocean Tool MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

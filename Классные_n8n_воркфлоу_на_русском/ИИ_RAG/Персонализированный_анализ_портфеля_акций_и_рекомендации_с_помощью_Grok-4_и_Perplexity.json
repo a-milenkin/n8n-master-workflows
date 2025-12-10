@@ -1,0 +1,375 @@
+{
+  "id": "",
+  "meta": {},
+  "name": "Grok-4 Аналитик по инвестициям в акции",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "0b2f04c2-967e-4ca1-bfd8-10f7e36c2acd",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -120,
+        20
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 10
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "a46fcb0f-d668-4203-aa8b-b76ffd731ef6",
+      "name": "Grok-4 Stock Analyst Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        120,
+        20
+      ],
+      "parameters": {
+        "text": "As a stock analyst agent:\n1. Please use the Google Sheet tool titled \"Stock Holdings Portfolio\" for my current stock holdings information\n\n2. Please research the latest stock market news in the last 24 hours using the Perplexity tool, and tell me how the latest stock market news affected my portfolio\n\n3. Give some analyst insights + buy/sell recommendations based on the news\n",
+        "options": {},
+        "promptType": "define"
+      },
+      "retryOnFail": false,
+      "typeVersion": 2
+    },
+    {
+      "id": "027b6215-647a-40a0-9341-0a199c61ffc8",
+      "name": "xAI Grok Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatXAiGrok",
+      "position": [
+        80,
+        240
+      ],
+      "parameters": {
+        "model": "grok-4-0709",
+        "options": {}
+      },
+      "credentials": {
+        "xAiApi": {
+          "id": "",
+          "name": "YOUR_XAIAPI_CREDENTIAL"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "43e3bbc7-7f17-4755-902d-c6ab122845ab",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        220,
+        240
+      ],
+      "parameters": {
+        "sessionKey": "={{ $workflow.id }}",
+        "sessionIdType": "customKey"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "a779c609-3c10-48f9-b06d-6989bc42c40d",
+      "name": "Perplexity",
+      "type": "n8n-nodes-base.perplexityTool",
+      "position": [
+        380,
+        240
+      ],
+      "parameters": {
+        "options": {
+          "searchRecency": "day"
+        },
+        "messages": {
+          "message": [
+            {
+              "content": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('message0_Text', ``, 'string') }}"
+            }
+          ]
+        },
+        "simplify": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Simplify_Output', ``, 'boolean') }}",
+        "requestOptions": {}
+      },
+      "credentials": {
+        "perplexityApi": {
+          "id": "",
+          "name": "YOUR_PERPLEXITYAPI_CREDENTIAL"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e46bf600-7e37-4eb5-b438-775626f310c9",
+      "name": "Stock Holdings Portfolio",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "position": [
+        500,
+        240
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit",
+          "cachedResultName": "Your Google Sheet"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "YOUR_GOOGLESHEETSOAUTH2API_CREDENTIAL"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "5eb16e68-fe5a-41a5-9ea2-5957b13c9f31",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1000,
+        20
+      ],
+      "webhookId": "e09fb831-ef69-465e-be84-b7ef204ccdc5",
+      "parameters": {
+        "sendTo": "youremail@example.com",
+        "message": "={{ $json.output }}",
+        "options": {},
+        "subject": "Stock Updates",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "",
+          "name": "YOUR_GMAILOAUTH2_CREDENTIAL"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "acbc233d-91bb-40f6-9431-4c589c797043",
+      "name": "xAI Grok Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatXAiGrok",
+      "position": [
+        680,
+        240
+      ],
+      "parameters": {
+        "model": "grok-4-0709",
+        "options": {}
+      },
+      "credentials": {
+        "xAiApi": {
+          "id": "",
+          "name": "YOUR_XAIAPI_CREDENTIAL"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1987513e-da25-47d0-8ef6-5181be09f907",
+      "name": "Summary Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        660,
+        20
+      ],
+      "parameters": {
+        "text": "={{ $json.output }}",
+        "options": {
+          "systemMessage": "You are a helpful summary assistant, summarize the information received from user and output easily readable email format of the summary."
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d07a6f28-00a3-41e5-855e-ebf6a88d03b2",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -220,
+        -120
+      ],
+      "parameters": {
+        "height": 580,
+        "content": "По расписанию триггер"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a029bfb4-21bb-4639-9ea4-2d9d159f3832",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        40,
+        -120
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 580,
+        "height": 580,
+        "content": "Grok-4 Аналитик Акций"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1a7d0e1d-bd98-43fc-bf45-8353f45401b2",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        640,
+        -120
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 300,
+        "height": 580,
+        "content": "Grok-4 Резюме Агент"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ac347c55-7834-4a61-9967-513472c89b2b",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        960,
+        -120
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 300,
+        "height": 580,
+        "content": "Электронная почта Выход"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7553afe2-a0f8-4ee1-adec-5d94fd6f0b6a",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -880,
+        -120
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 560,
+        "height": 840,
+        "content": "📊 Grok-4 с аналитиком фондового рынка Perplexity – персонализированные ежедневные рыночные инсайты\n\nЭтот рабочий процесс действует как ваш личный AI-аналитик акций — на базе Grok-4, Perplexity и Google Sheets — чтобы предоставить вам ежедневные, адаптированные рыночные инсайты на основе вашего фактического инвестиционного портфеля.\n\nКаждое утро рабочий процесс:\n\nПолучает ваши текущие акции из подключенной таблицы Google\n\nИспользует Perplexity для поиска и обобщения последних новостей фондового рынка, относящихся к вашему портфелю\n\nИспользует AI Grok-4 для анализа того, как эти новостные события влияют на ваши акции\n\nПредоставляет рекомендации по покупке/продаже/удержанию и инвестиционные инсайты на основе AI\n\nОтправляет вам чистое, легкочитаемое резюме — идеально для занятых инвесторов\n\nЧтобы посмотреть пошаговое руководство по созданию этого рабочего процесса, посетите: https://youtu.be/OXzsh-Ba-8Y\n\nШаблон Google Sheets:\nhttps://docs.google.com/spreadsheets/d/1074dZk-vhwz6LML5zoiwHdxg89Z8u_mgl7wwzqf3A98/edit?usp=sharing\n\n\n🧠 Что внутри:\nAI-агент: Grok-4 Аналитик акций (через xAI Grok-4)\n\nИнтеграции инструментов:\n 📄 Google Sheets (ввод портфеля)\n 🔍 Perplexity (поиск новостей)\n ✍️ Агент резюме GPT (читаемый вывод)\n 📧 Gmail (автоматическая доставка)\n\nРасписание: Запускается ежедневно в 10:00 по умолчанию (настраиваемое)\n\n💡 Сценарии использования:\nРозничные инвесторы, ищущие персонализированные резюме новостей\n\nУправляющие портфелями, автоматизирующие рыночный анализ\n\nФинансовые стартапы, прототипирующие интеллектуальных инвестиционных консультантов\n\nВсе, кто хочет получать актуальные обновления по акциям, не читая 10+ статей"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "",
+  "connections": {
+    "Perplexity": {
+      "ai_tool": [
+        [
+          {
+            "node": "Grok-4 Stock Analyst Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Grok-4 Stock Analyst Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summary Agent": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Grok-4 Stock Analyst Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "xAI Grok Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Grok-4 Stock Analyst Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "xAI Grok Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summary Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stock Holdings Portfolio": {
+      "ai_tool": [
+        [
+          {
+            "node": "Grok-4 Stock Analyst Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Grok-4 Stock Analyst Agent": {
+      "main": [
+        [
+          {
+            "node": "Summary Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

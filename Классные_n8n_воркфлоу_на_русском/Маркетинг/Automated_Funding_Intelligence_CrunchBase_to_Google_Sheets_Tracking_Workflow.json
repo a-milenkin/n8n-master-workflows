@@ -1,0 +1,400 @@
+{
+  "id": "guoSdgPOMDBnq6GW",
+  "meta": {
+    "instanceId": "84ad02d6104594179f43f1ce9cfe3a81637b2faedb57dafcb9e649b7542988db",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "**Имя узла:** `Ежедневная проверка новых раундов финансирования`",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "b2bee19f-4033-4473-a78c-3463b4b56e79",
+      "name": "Daily Check for New Funding Rounds",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -100,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "bfeff292-40aa-4a3b-81bf-bd237463abe9",
+      "name": "Fetch Crunchbase Funding Rounds",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        120,
+        0
+      ],
+      "parameters": {
+        "url": "https://api.crunchbase.com/api/v4/entities/funding_rounds",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "locations",
+              "value": "United States"
+            },
+            {
+              "name": "industry",
+              "value": "Fintech,Healthtech"
+            },
+            {
+              "name": "sort_order",
+              "value": "created_at DESC"
+            },
+            {
+              "name": "page",
+              "value": "1"
+            },
+            {
+              "name": "items_per_page",
+              "value": "25"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-cb-user-key",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "aaf02cbe-e85d-4575-b570-2758289cbcb9",
+      "name": "Extract & Format Funding Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const baseUrl = \"https://www.crunchbase.com/funding-round/\";\n\nconst output = [];\n\nfor (const item of items[0].json.data.entities) {\n  const props = item.properties;\n  const id = item.identifier;\n\n  const companyName = props.funded_organization_identifier?.value || \"N/A\";\n  const industry = props.industry_group_identifiers?.map(ind => ind.value).join(\", \") || \"N/A\";\n  const fundingType = props.funding_type || \"N/A\";\n  const date = props.announced_on || \"N/A\";\n  const amount = props.money_raised_usd || 0;\n  const investors = props.investor_identifiers?.map(inv => inv.value).join(\", \") || \"N/A\";\n  const url = baseUrl + id.permalink;\n\n  output.push({\n    json: {\n      company_name: companyName,\n      industry: industry,\n      funding_round_type: fundingType,\n      announced_date: date,\n      money_raised_usd: amount,\n      investors: investors,\n      crunchbase_url: url\n    }\n  });\n}\n\nreturn output;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a2bd1e77-c88c-4d0f-b66b-1d83cb756831",
+      "name": "Log to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "industry": "={{ $json.industry }}",
+            "investors": "={{ $json.investors }}",
+            "company name": "={{ $json.company_name }}",
+            "announced date": "={{ $json.announced_date }}",
+            "crunchbase url": "={{ $json.crunchbase_url }}",
+            "money raised usd": "={{ $json.money_raised_usd }}",
+            "funding round type": "={{ $json.funding_round_type }}"
+          },
+          "schema": [
+            {
+              "id": "company name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "company name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "industry",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "industry",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "funding round type",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "funding round type",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "announced date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "announced date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "money raised usd",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "money raised usd",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "investors",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "investors",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "crunchbase url",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "crunchbase url",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11bGAwfhLtR1FZwEZUAi-pddixpJintqFXAT1eWp_QQ0/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "11bGAwfhLtR1FZwEZUAi-pddixpJintqFXAT1eWp_QQ0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11bGAwfhLtR1FZwEZUAi-pddixpJintqFXAT1eWp_QQ0/edit?usp=drivesdk",
+          "cachedResultName": "Crunchbase funding rounds"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Rp7XiR3hxJfv03ZO",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "b821dc48-3503-4688-b3f1-3eb9744cb0dc",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -160,
+        -1660
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 440,
+        "height": 1860,
+        "content": "## 🔶 **РАЗДЕЛ ПЕРВЫЙ: Получение данных и триггеры**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bf867540-540e-484a-bebc-d2df5d24c273",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        360,
+        -1240
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 460,
+        "height": 1440,
+        "content": "### 🕒 + 🌐 `Ежедневная проверка новых раундов финансирования` + `Получить раунды финансирования Crunchbase`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "24591384-2b6a-4e7d-9061-62b97a2216b0",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1720,
+        -1660
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 320,
+        "content": "---"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "543f43e7-8fc7-4b67-8b75-7948d07a331e",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1720,
+        -1320
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1289,
+        "height": 3318,
+        "content": "### 1️⃣ 🕒 **Триггер по расписанию**"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {
+    "Fetch Crunchbase Funding Rounds": [
+      {
+        "json": {
+          "data": {
+            "paging": {
+              "total_items": 2,
+              "current_page": 1,
+              "items_per_page": 25
+            },
+            "entities": [
+              {
+                "identifier": {
+                  "uuid": "1234-abcd-funding-0001",
+                  "permalink": "fintech-startup-series-a"
+                },
+                "properties": {
+                  "announced_on": "2025-06-05",
+                  "funding_type": "series_a",
+                  "investment_stage": "early_stage",
+                  "money_raised_usd": 15000000,
+                  "short_description": "A fintech company revolutionizing small business loans.",
+                  "investor_identifiers": [
+                    {
+                      "uuid": "inv-111",
+                      "value": "Big VC Partners"
+                    }
+                  ],
+                  "location_identifiers": [
+                    {
+                      "uuid": "loc-123",
+                      "value": "United States"
+                    }
+                  ],
+                  "industry_group_identifiers": [
+                    {
+                      "uuid": "ind-456",
+                      "value": "Fintech"
+                    }
+                  ],
+                  "funded_organization_identifier": {
+                    "uuid": "org-uuid-5678",
+                    "value": "Fintech Startup Inc."
+                  }
+                }
+              },
+              {
+                "identifier": {
+                  "uuid": "5678-wxyz-funding-0002",
+                  "permalink": "healthtech-ai-round"
+                },
+                "properties": {
+                  "announced_on": "2025-06-04",
+                  "funding_type": "seed",
+                  "investment_stage": "seed",
+                  "money_raised_usd": 3000000,
+                  "short_description": "AI diagnostics for remote patient care.",
+                  "investor_identifiers": [
+                    {
+                      "uuid": "inv-222",
+                      "value": "Startup Angels"
+                    },
+                    {
+                      "uuid": "inv-333",
+                      "value": "Health VC"
+                    }
+                  ],
+                  "location_identifiers": [
+                    {
+                      "uuid": "loc-124",
+                      "value": "United States"
+                    }
+                  ],
+                  "industry_group_identifiers": [
+                    {
+                      "uuid": "ind-789",
+                      "value": "Healthtech"
+                    }
+                  ],
+                  "funded_organization_identifier": {
+                    "uuid": "org-uuid-9012",
+                    "value": "HealthAI Diagnostics"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "519faa6a-5105-4743-9661-75b5bf1aade3",
+  "connections": {
+    "Extract & Format Funding Data": {
+      "main": [
+        [
+          {
+            "node": "Log to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Crunchbase Funding Rounds": {
+      "main": [
+        [
+          {
+            "node": "Extract & Format Funding Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Check for New Funding Rounds": {
+      "main": [
+        [
+          {
+            "node": "Fetch Crunchbase Funding Rounds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,318 @@
+{
+  "id": "Xy6Z4ILzWvspQx9A",
+  "meta": {
+    "instanceId": "96dc772dec50f4b3e9db480fd23a2dd3197bc6a1ccc3bc733e2d5ea6d97363ea"
+  },
+  "name": "- Активный экземпляр n8n (самостоятельно размещенный или облачный) с поддержкой HTTP-запросов и отправки форм.",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "c023c89f-d3ec-4903-b655-417229115049",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -640,
+        -1020
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 780,
+        "height": 780,
+        "content": "## Обзор"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "90dbb64f-cf81-4336-ab05-791d95a00bf9",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        280,
+        -1060
+      ],
+      "parameters": {
+        "width": 640,
+        "height": 120,
+        "content": "Этот рабочий процесс позволяет пользователям генерировать музыку с помощью ИИ, используя API KIE.ai, интегрированный с моделью Suno V3.5. Он предоставляет простой интерфейс формы для ввода параметров, таких как музыкальные подсказки, стили и названия. Система автоматически отправляет запрос к API, отслеживает статус генерации в реальном времени до завершения и получает финальный музыкальный выход. Это идеально подходит для музыкантов, создателей контента или разработчиков, стремящихся автоматизировать создание пользовательской музыки с поддержкой различных режимов и интеллектуальной генерации."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3a1b8f97-5961-454b-bc07-e89592bdcd72",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        280,
+        -920
+      ],
+      "parameters": {
+        "width": 640,
+        "height": 180,
+        "content": "## Предварительные условия"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "28acd80e-afe7-4b5e-9c6e-961ede22a0c5",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        280,
+        -720
+      ],
+      "parameters": {
+        "width": 640,
+        "height": 500,
+        "content": "- Учетная запись KIE.ai и API-ключ: создайте учетную запись на [KIE.ai](https://kie.ai) и получите свой API-ключ."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fabb015f-e732-46a0-b86e-696f3a9f6b70",
+      "name": "Submit Music Generation Parameters",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        -320,
+        -140
+      ],
+      "webhookId": "791b190b-2acc-4d10-b593-c1929e67686c",
+      "parameters": {
+        "options": {},
+        "formTitle": "AI music generator",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "prompt"
+            },
+            {
+              "fieldLabel": "style"
+            },
+            {
+              "fieldLabel": "title"
+            },
+            {
+              "fieldLabel": "api_key"
+            }
+          ]
+        },
+        "formDescription": "Please fill in the following information to generate your music"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "a9fbbb31-9479-4594-85bb-f0e5b2f57c82",
+      "name": "Send Music Generation Request to KIE.ai API",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -100,
+        -140
+      ],
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/generate",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "{\n  \"prompt\": \"{{$json.prompt}}\",\n  \"style\": \"{{$json.style}}\",\n  \"title\": \"{{$json.title}}\",\n  \"customMode\": true,\n  \"instrumental\": false,\n  \"model\": \"V3_5\",\n  \"callBackUrl\": \"https://api.example.com/callback\",\n  \"negativeTags\": \"\"\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$json.api_key}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b6d1e752-d1ad-42fc-a1c5-ead97f4b39e9",
+      "name": "Wait for Music Processing",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        140,
+        -140
+      ],
+      "webhookId": "efca324d-e98a-469c-90f6-41082f44fb75",
+      "parameters": {
+        "amount": 10
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "48da77f5-6c09-46e6-a465-6a67040cbeb0",
+      "name": "Poll Music Generation Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        500,
+        -140
+      ],
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/generate/record-info",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{$json.data.taskId}}"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$node[\"Submit Music Generation Parameters\"].json[\"api_key\"]}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "dbfa987d-7342-432a-97a5-078b7dc9d6d2",
+      "name": "Check if Music Generation Complete",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        320,
+        80
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "faf4bf4c-8a8e-49a3-b62a-14a4af0b7dfb",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "true",
+              "rightValue": "={{$json.data.status == \"SUCCESS\"}}"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "239877dd-a026-45b2-a09a-de430c0bb982",
+      "name": "Format and Display Music Results",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        600,
+        60
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "73bdb28d-6b86-47d5-98d2-4647600a11bd",
+              "name": "audioUrl1",
+              "type": "string",
+              "value": "={{$json.data.response.sunoData[0].audioUrl}}"
+            },
+            {
+              "id": "3f468fe2-189d-40a1-805d-9090b93bfe6e",
+              "name": "audioUrl2",
+              "type": "string",
+              "value": "={{ $json.data.response.sunoData[1].audioUrl }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a65abf3d-dfef-4b6d-ada0-399c9631d13d",
+  "connections": {
+    "Wait for Music Processing": {
+      "main": [
+        [
+          {
+            "node": "Poll Music Generation Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Poll Music Generation Status": {
+      "main": [
+        [
+          {
+            "node": "Check if Music Generation Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Music Generation Complete": {
+      "main": [
+        [
+          {
+            "node": "Format and Display Music Results",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait for Music Processing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Submit Music Generation Parameters": {
+      "main": [
+        [
+          {
+            "node": "Send Music Generation Request to KIE.ai API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Music Generation Request to KIE.ai API": {
+      "main": [
+        [
+          {
+            "node": "Wait for Music Processing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

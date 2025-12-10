@@ -1,0 +1,334 @@
+{
+  "id": "zjl4xwZIDr6Ks1Zv",
+  "meta": {
+    "instanceId": "a1ae5c8dc6c65e674f9c3947d083abcc749ef2546dff9f4ff01de4d6a36ebfe6",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Этот рабочий процесс превращает видео на YouTube в черновики информационных бюллетеней с помощью Dumpling AI и GPT-4o.",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "1088af3c-161d-40ff-b69e-32cf609f214f",
+      "name": " Manual Trigger: Start Workflow",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -80,
+        -20
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "5a8863d7-d13b-471e-900f-acdfa320fa42",
+      "name": "Read YouTube Links from Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        140,
+        -20
+      ],
+      "parameters": {
+        "options": {
+          "returnFirstMatch": true
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "blog post"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/182LztuSnqcPeYLtUOIG4LjDs2Nj7sDYS-sjMY90O3PM/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/182LztuSnqcPeYLtUOIG4LjDs2Nj7sDYS-sjMY90O3PM/edit?usp=drivesdk",
+          "cachedResultName": "Youtube"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GaJqJHuS5mQxap7q",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "81804ea4-ad1c-4c57-ad40-28645967da32",
+      "name": "Loop: Process Each YouTube Link",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        360,
+        -20
+      ],
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "5ec6ef71-4ca0-4ebc-b878-084337cafc3f",
+      "name": " Dumpling AI: Get YouTube Transcript",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        580,
+        -20
+      ],
+      "parameters": {
+        "url": "https://app.dumplingai.com/api/v1/get-youtube-transcript",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "videoUrl",
+              "value": "={{ $json.link }}"
+            }
+          ]
+        },
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "RLFzAcGRepr5eXZB",
+          "name": "Dumpling AI-n8n"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "facdab3c-bbca-4acb-862a-5179708d90e8",
+      "name": "GPT-4o: Write Newsletter Draft from Transcript",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        800,
+        -20
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "chatgpt-4o-latest",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "\"Вот расшифровка из видео на YouTube. Пожалуйста, напишите ясный и увлекательный информационный бюллетень на основе этой расшифровки. Подведите итоги ключевых идей, инсайтов и советов, представленных в видео. Начните с короткого и запоминающегося введения, которое привлечет внимание. Структурируйте основную часть бюллетеня короткими, читаемыми абзацами, которые подчеркивают самые ценные моменты. Завершите простым призывом к действию, связанным с темой видео. Сохраняйте дружелюбный и профессиональный тон, и убедитесь, что содержание естественно течет для читателей электронной почты. Не включайте временные метки или метки спикеров из расшифровки. Сосредоточьтесь на ясности и ценности.\""
+            },
+            {
+              "content": "=Расшифровка: {{ $json.transcript }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "dd8NvMC6rvx8RITo",
+          "name": "OpenAi account 2"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "07b75a54-ceef-4ff7-8187-5fa49ecc84e4",
+      "name": "Log Newsletter Draft to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1176,
+        55
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "link": "={{ $('Read YouTube Links from Google Sheets').item.json.link }}",
+            "blog post": "={{ $json.message.content }}"
+          },
+          "schema": [
+            {
+              "id": "link",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "link",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "blog post",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "blog post",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "link"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/182LztuSnqcPeYLtUOIG4LjDs2Nj7sDYS-sjMY90O3PM/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/182LztuSnqcPeYLtUOIG4LjDs2Nj7sDYS-sjMY90O3PM/edit?usp=drivesdk",
+          "cachedResultName": "Youtube"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GaJqJHuS5mQxap7q",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "b7062444-db63-4e20-ae47-adea20a49289",
+      "name": " Send Email Notification When Draft is Ready",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        580,
+        -220
+      ],
+      "webhookId": "e1f729ca-f0ef-4b1e-9399-7cd7993baff3",
+      "parameters": {
+        "sendTo": "example@gmail.com",
+        "message": "=Hello,  \nThe newsletter based on the latest YouTube transcript has just been created successfully. You can now review, edit, or schedule it for distribution.  Please check the draft and let me know if anything needs to be adjusted before it goes live.",
+        "options": {},
+        "subject": "Newsletter Draft Created from YouTube Transcript",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "j70r3RTMED1pgN3R",
+          "name": "Gmail account 2"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "2e8320d4-655b-4dc1-afb7-47ff88c3cb19",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -560,
+        -340
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 580,
+        "content": "### 📨 YouTube → Автоматизация информационного бюллетеня"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7910aaf8-f177-4b3a-af80-56c03d9a987b",
+  "connections": {
+    " Manual Trigger: Start Workflow": {
+      "main": [
+        [
+          {
+            "node": "Read YouTube Links from Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop: Process Each YouTube Link": {
+      "main": [
+        [
+          {
+            "node": " Send Email Notification When Draft is Ready",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": " Dumpling AI: Get YouTube Transcript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    " Dumpling AI: Get YouTube Transcript": {
+      "main": [
+        [
+          {
+            "node": "GPT-4o: Write Newsletter Draft from Transcript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Newsletter Draft to Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Loop: Process Each YouTube Link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read YouTube Links from Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Loop: Process Each YouTube Link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GPT-4o: Write Newsletter Draft from Transcript": {
+      "main": [
+        [
+          {
+            "node": "Log Newsletter Draft to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,525 @@
+{
+  "meta": {
+    "instanceId": "YOUR_INSTANCE_ID"
+  },
+  "name": "Создать лист в новой таблице",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "workflow-overview-sheets",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1450,
+        -50
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 350,
+        "height": 320,
+        "content": "# 📊 Рабочий процесс дублирования Google Sheets"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "start-create-note",
+      "name": "Start & Create",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1100,
+        -50
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 280,
+        "height": 200,
+        "content": "**Цель:** Дублировать листы из главной таблицы в новую таблицу"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "discovery-note",
+      "name": "Sheet Discovery",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        -50
+      ],
+      "parameters": {
+        "color": 1,
+        "width": 280,
+        "height": 200,
+        "content": "**Обзор процесса:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "loop-note",
+      "name": "Loop Processing",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -220,
+        -50
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 280,
+        "height": 200,
+        "content": "Создать новую таблицу"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "operations-note",
+      "name": "Sheet Operations",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        -50
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 280,
+        "height": 200,
+        "content": "Получить все листы из главной"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "important-notes",
+      "name": "Important Notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -220,
+        420
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 300,
+        "height": 150,
+        "content": "Пройтись по каждому листу"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "21b7267c-eac9-4f90-b345-614bd6d5a276",
+      "name": "When clicking 'Test workflow'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "notes": "Manual trigger - click to start the spreadsheet duplication process",
+      "position": [
+        -1100,
+        200
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "26e0f233-e990-4b98-8184-599583a64498",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Gets spreadsheet metadata - replace YOUR_MASTER_SPREADSHEET_ID with actual ID",
+      "position": [
+        -660,
+        200
+      ],
+      "parameters": {
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/YOUR_MASTER_SPREADSHEET_ID",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "predefinedCredentialType",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "nodeCredentialType": "googleSheetsOAuth2Api"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "HTTP_HEADER_CREDENTIAL_ID",
+          "name": "API Header Auth"
+        },
+        "googleSheetsOAuth2Api": {
+          "id": "GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets Account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d8a02c3f-8b31-4bb1-9052-33963c09da16",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "notes": "Extracts sheet names and IDs from API response",
+      "position": [
+        -440,
+        200
+      ],
+      "parameters": {
+        "jsCode": "const spreadsheet = $input.first().json;\nconst sheets = spreadsheet.sheets;\n\n// Create array of sheet names\nconst sheetList = sheets.map(sheet => ({\n  json: {\n    sheetName: sheet.properties.title,\n    sheetId: sheet.properties.sheetId,\n    index: sheet.properties.index\n  }\n}));\n\nreturn sheetList;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d45b8f9a-47ad-4280-ba95-d8b10b0351a2",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "notes": "Processes sheets one by one - output 1 when done, output 2 for each iteration",
+      "position": [
+        -220,
+        200
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "aaff5289-8658-4f5c-b3de-15630e25c537",
+      "name": "Create Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "notes": "Creates new sheet in destination spreadsheet with original name",
+      "position": [
+        0,
+        200
+      ],
+      "parameters": {
+        "title": "={{ $('Loop Over Items').item.json.sheetName }}",
+        "options": {},
+        "operation": "create",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Create New Spreadsheet').item.json.spreadsheetId }}"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets Account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "e33a1701-8a90-4e71-8f1a-f517d26894be",
+      "name": "Write sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "notes": "Writes data to new sheet - preserves all columns from master",
+      "position": [
+        440,
+        275
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "Column1",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Column 1",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Column2",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Column 2",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Column3",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Column 3",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Column4",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Column 4",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Column5",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Column 5",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Column6",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Column 6",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Column7",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Column 7",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Column8",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Column 8",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Column9",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Column 9",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Loop Over Items').item.json.sheetName }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ $('Create New Spreadsheet').item.json.spreadsheetUrl }}"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets Account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "a46aad80-34cf-4f19-aec6-1896296b40d3",
+      "name": "Google Sheets2",
+      "type": "n8n-nodes-base.googleSheets",
+      "notes": "Removes default 'Sheet1' after all sheets are created",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "operation": "remove",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ $('Create New Spreadsheet').item.json.spreadsheetUrl }}"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets Account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "c8439289-b353-4ac5-a0f2-601e66ddf6fb",
+      "name": "Read Spreadsheet1",
+      "type": "n8n-nodes-base.googleSheets",
+      "notes": "Reads data from master spreadsheet - one sheet at a time",
+      "position": [
+        220,
+        200
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Loop Over Items').item.json.sheetName }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_MASTER_SPREADSHEET_ID",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_MASTER_SPREADSHEET_ID/edit",
+          "cachedResultName": "Master Spreadsheet"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets Account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "2de35627-e071-4f39-9ea7-2e1fa0d56f7c",
+      "name": "Create New Spreadsheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "notes": "Creates new destination spreadsheet - update title as needed",
+      "position": [
+        -880,
+        200
+      ],
+      "parameters": {
+        "title": "Copy of Master Spreadsheet",
+        "options": {},
+        "resource": "spreadsheet"
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets Account"
+        }
+      },
+      "typeVersion": 4.5
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "YOUR_VERSION_ID",
+  "connections": {
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Sheets": {
+      "main": [
+        [
+          {
+            "node": "Read Spreadsheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Spreadsheet1": {
+      "main": [
+        [
+          {
+            "node": "Write sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create New Spreadsheet": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking 'Test workflow'": {
+      "main": [
+        [
+          {
+            "node": "Create New Spreadsheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,488 @@
+{
+  "id": "wRFk4MmXtL2en4zX",
+  "meta": {
+    "instanceId": "60046904b104f0f72b2629a9d88fe9f676be4035769f1f08dad1dd38a76b9480",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "* Узел **Триггер расписания** настроен на автоматический запуск — например, **каждый понедельник в 10 утра** — для проверки последних отзывов о удовлетворенности клиентов с конкретного сайта, такого как Trustpilot.",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "5418cb29-421a-4087-9206-af79d036fd7f",
+      "name": "⏰ Run Weekly NPS Tracker",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "aed37f9d-27db-4123-9f05-01bb5164f7d3",
+      "name": "✏️ Set Survey Page URL",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        200,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "96319b57-b99b-460e-ae2c-9927de713274",
+              "name": "url",
+              "type": "string",
+              "value": "https://www.trustpilot.com/review/shopify.com"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "eb159575-b6d9-49ef-af47-05f7dac4d818",
+      "name": "🧠 Scrape Reviews with Agent (MCP)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "text": "=Extract Customer reviews, Star ratings (1 to 5 stars), Comments (optional for deeper insight) and Date of review from the following url\n\nURL: {{ $json.url }}",
+        "options": {},
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ba4c9999-6ff5-4cb8-a882-5adfe19ca5a0",
+      "name": "📊 Calculate NPS from Ratings",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        920,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const reviews = items[0].json.output; // The agent output you provided\nlet promoters = 0;\nlet passives = 0;\nlet detractors = 0;\n\nfor (const review of reviews) {\n  const starRating = review.rating;\n\n  // Convert 1–5 stars to 0–10 scale\n  const score = starRating * 2;\n\n  // Categorize into NPS groups\n  if (score >= 9) {\n    promoters += 1;\n  } else if (score >= 7) {\n    passives += 1;\n  } else {\n    detractors += 1;\n  }\n}\n\n// NPS Calculation\nconst total = promoters + passives + detractors;\nconst nps = total > 0 ? ((promoters - detractors) / total) * 100 : 0;\n\nreturn [\n  {\n    json: {\n      totalResponses: total,\n      promoters,\n      passives,\n      detractors,\n      nps: Math.round(nps),\n      message: `NPS Score is ${Math.round(nps)} based on ${total} responses.`\n    }\n  }\n];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "533563dd-4258-4e18-bd94-ecbfead0416f",
+      "name": "📄 Log NPS to Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1100,
+        0
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "NPS": "={{ $json.nps }}",
+            "Passive": "={{ $json.passives }}",
+            "summary": "={{ $json.message }}",
+            "Detractor": "={{ $json.detractors }}",
+            "Promoters": "={{ $json.promoters }}",
+            "Total Responses": "={{ $json.totalResponses }}"
+          },
+          "schema": [
+            {
+              "id": "Total Responses",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Total Responses",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Promoters",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Promoters",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Passive",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Passive",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Detractor",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Detractor",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "NPS",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "NPS",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "summary",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "summary",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SuIKadXmZ-vUga75VsTMK7CgURsXn6KYh7j5_eM6m7k/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1SuIKadXmZ-vUga75VsTMK7CgURsXn6KYh7j5_eM6m7k",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SuIKadXmZ-vUga75VsTMK7CgURsXn6KYh7j5_eM6m7k/edit?usp=drivesdk",
+          "cachedResultName": "NPS Score"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "r2mDaisH6e9VkwHl",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "19e2572a-9823-4520-9de5-abb3bac64d85",
+      "name": "🎯 Prompt & Guide Agent",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        400,
+        260
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8sEyPDkC5p4w4Jha",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "101f8b62-352e-4e28-b5ef-da401e626750",
+      "name": "🌐 Execute Web Scrape (Bright Data)",
+      "type": "n8n-nodes-mcp.mcpClientTool",
+      "position": [
+        580,
+        260
+      ],
+      "parameters": {
+        "toolName": "scrape_as_markdown",
+        "operation": "executeTool",
+        "toolParameters": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Tool_Parameters', ``, 'json') }}"
+      },
+      "credentials": {
+        "mcpClientApi": {
+          "id": "eqq94k789oJCd6jU",
+          "name": "MCP Client (STDIO) account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ac4346c1-57fa-402e-ab9f-2a94ca5125e5",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -20,
+        -840
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 360,
+        "height": 1020,
+        "content": "## 🔶 **Раздел 1: Установите целевую страницу опроса**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3d7ce000-5de1-4c4f-a15b-f10fc1f68010",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        400,
+        -1100
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 340,
+        "height": 1280,
+        "content": "### 🧩 Узлы:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1c2c8d84-137a-490a-b178-67a831c94a40",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        880,
+        -860
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 360,
+        "height": 1040,
+        "content": "* `⏰ Запускать еженедельный трекер NPS` *(Триггер расписания)*"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2d67aa1b-4816-4177-b12f-fa317f183fb2",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1720,
+        -840
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 320,
+        "content": "* `✏️ Установить URL страницы опроса` *(Редактировать поля)*"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e28e886d-519d-4941-99cf-ee546cb28944",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1720,
+        -500
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1289,
+        "height": 2778,
+        "content": "### 📝 Что это делает:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9f4ab1c3-7645-41db-88de-a909f2dc3eb1",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1340,
+        -860
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 380,
+        "height": 240,
+        "content": "Этот раздел контролирует **когда** и **где** начинать."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "01b5ab5b-d3f3-4c26-8d27-7a360f51b91f",
+      "name": "Auto-fixing Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "position": [
+        720,
+        260
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "67963b9e-df9f-49c2-957b-b3c698bbfb7c",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        700,
+        480
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8sEyPDkC5p4w4Jha",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "00af00b9-e6c0-4106-ba81-cc60d52ce2d7",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        860,
+        480
+      ],
+      "parameters": {
+        "jsonSchemaExample": "[\n  {\n    \"rating\": 1,\n    \"comment\": \"Avoid at all costs they don’t support businesses from fraud, they always side with customer chargebacks! And charge fees for nothing, your loss of stock, money, time, postage, and fees!\",\n    \"date\": \"2 days ago\",\n    \"user\": \"Monisha\"\n  },\n  {\n    \"rating\": 2,\n    \"comment\": \"Shopify is too big of a company to hold payments or not payout next day; with Shopify you will only get two deposits a week.\",\n    \"date\": \"13 hours ago\",\n    \"user\": \"Komplex Fitness\"\n  },\n  {\n    \"rating\": 1,\n    \"comment\": \"Shopify requires access to reading my email messages, cannot do anything without it.\",\n    \"date\": \"2 days ago\",\n    \"user\": \"Andre Tuseyev\"\n  },\n  {\n    \"rating\": 1,\n    \"comment\": \"Bought a pair of Hugo Italian design black leather trainers. Opened the package and my utter disappointment, they were not leather, they are certainly not Italian design.\",\n    \"date\": \"6 days ago\",\n    \"user\": \"ROGER EGERTON\"\n  },\n  {\n    \"rating\": 3,\n    \"comment\": \"Despite many negative reviews, we’ve been using Shopify for nearly 10 years.\",\n    \"date\": \"6 days ago\",\n    \"user\": \"Mandy\"\n  },\n  {\n    \"rating\": 5,\n    \"comment\": \"Great platform to manage my online store efficiently.\",\n    \"date\": \"1 week ago\",\n    \"user\": \"Sarah H.\"\n  }\n]\n"
+      },
+      "typeVersion": 1.2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e8e2c0a0-956b-4b35-96a3-882f6d618498",
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-fixing Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "🧠 Scrape Reviews with Agent (MCP)",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🎯 Prompt & Guide Agent": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "🧠 Scrape Reviews with Agent (MCP)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⏰ Run Weekly NPS Tracker": {
+      "main": [
+        [
+          {
+            "node": "✏️ Set Survey Page URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "✏️ Set Survey Page URL": {
+      "main": [
+        [
+          {
+            "node": "🧠 Scrape Reviews with Agent (MCP)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📊 Calculate NPS from Ratings": {
+      "main": [
+        [
+          {
+            "node": "📄 Log NPS to Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 Scrape Reviews with Agent (MCP)": {
+      "main": [
+        [
+          {
+            "node": "📊 Calculate NPS from Ratings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🌐 Execute Web Scrape (Bright Data)": {
+      "ai_tool": [
+        [
+          {
+            "node": "🧠 Scrape Reviews with Agent (MCP)",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

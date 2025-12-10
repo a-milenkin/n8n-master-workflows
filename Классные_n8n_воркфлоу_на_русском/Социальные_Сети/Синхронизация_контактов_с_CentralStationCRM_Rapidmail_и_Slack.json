@@ -1,0 +1,500 @@
+{
+  "id": "Gb148LV3fQumTIib",
+  "meta": {
+    "instanceId": "68ab8a7bd891eafb85f915471f38591da0135936f93fdf7e27d0ebea24fea950"
+  },
+  "name": "*Чтобы редактировать узлы: просто дважды щелкните!*",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "2554daa2-472b-4b11-a085-f41099a04c44",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "width": 460,
+        "height": 600,
+        "content": "![CSCRM Logo](https://s3.42he.com/cscrm-marketing-page-production/Logo_Central_Station_CRM_0dd02e23d2.jpeg)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1656ee49-2fff-4546-b6d7-beae921fb1df",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        500,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 420,
+        "height": 900,
+        "content": "# Синхронизация новых контактов CentralStationCRM с Rapidmail с одобрением в Slack"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "82d0791a-06e9-4290-8761-41843b1baf9c",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1460,
+        280
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 220,
+        "height": 620,
+        "content": "В этом рабочем процессе вы записываете вновь созданных людей в CRM в список рассылки. Также есть встроенный запрос через Slack."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a784ef35-0049-4b45-9bbc-74782f63dce7",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        940,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 900,
+        "content": "* Рабочий процесс запускается ежедневно в 17:00 (настраиваемый)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e97f9fc6-aea9-4338-8fff-8808c6da845d",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        640
+      ],
+      "parameters": {
+        "width": 460,
+        "height": 260,
+        "content": "* запрашиваются люди, созданные в CRM в этот день"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7d0a24d7-ec4c-4ef6-bbc9-0ef06e9df75d",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1740,
+        280
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 620,
+        "content": "* проверяются наличие тега «Рассылка»"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "73f5ec89-44ef-4a66-95ae-db8b7132a5c2",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2240,
+        280
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 260,
+        "height": 620,
+        "content": "* если тег присутствует, человек записывается в список Rapidmail"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d7532ad9-3d99-46d0-92bd-b72954fc52bd",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2720,
+        280
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 300,
+        "height": 620,
+        "content": "* если нет, в Slack задается вопрос, следует ли назначить тег"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6a8f6aae-20e4-42a7-a48c-065786a761f2",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3080,
+        -40
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 420,
+        "height": 940,
+        "content": "* если да, тег назначается, и человек записывается в список Rapidmail"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6a448ff0-4471-4518-a65f-77793c113d5e",
+      "name": "Workflow triggers daily at 5PM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        1520,
+        660
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 17
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "06c21060-8716-4ad3-8322-a266921d6266",
+      "name": "Does a person have a \"Newsletter\" tag?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2060,
+        660
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "4b075c94-c553-4dee-a4f0-d0f501982c53",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "leftValue": "={{ $json.person.tags }}",
+              "rightValue": "\"Newsletter\""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "26b86935-fdf9-408e-9bc5-21d90b288f2a",
+      "name": "Get new people per day from CentralStationCRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1800,
+        660
+      ],
+      "parameters": {
+        "url": "https://api.centralstationcrm.net/api/people",
+        "options": {},
+        "jsonQuery": "={\"filter\" : {\"created_at\": {\"larger_than\": \"{{ new Date().beginningOf('day') }}\"}},\n\"includes\" : \"tags addrs companies emails\"}",
+        "sendQuery": true,
+        "sendHeaders": true,
+        "specifyQuery": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pqUNcvQBnqpxmMAD",
+          "name": "Header Auth CSCRM test16"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "dfa74ddb-d737-4aaa-85f7-057feae4b7c2",
+      "name": "ask in Slack: add \"Newsletter\" tag?",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2320,
+        720
+      ],
+      "webhookId": "b3074b49-edc1-4fc4-95a8-ad3b44dc06f2",
+      "parameters": {
+        "user": {
+          "__rl": true,
+          "mode": "username",
+          "value": "@Christian"
+        },
+        "message": "=Hey! \n\nWould you like to add\n\n{{ $('Get new people per day from CentralStationCRM').item.json.person.first_name }} {{ $('Get new people per day from CentralStationCRM').item.json.person.name }}\n\nto your Newsletter?",
+        "options": {},
+        "operation": "sendAndWait",
+        "authentication": "oAuth2",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "Ja",
+            "disapproveLabel": "Nein"
+          }
+        }
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "5zdDeP9mj00DoND3",
+          "name": "Slack account 2"
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "b538acb5-0aec-466a-8628-15cd426931e6",
+      "name": "Did the user click the \"Yes\" button?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2560,
+        720
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "46a4026a-17ef-4db0-92c5-3e2d9b333565",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "a7eb00a7-2b13-48cd-af60-4d3261c28c8b",
+      "name": "end Workflow",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        2820,
+        940
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "c8ebeafa-0a8d-483c-b1d2-f961e412487a",
+      "name": "give person a \"Newsletter\" tag",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2820,
+        760
+      ],
+      "parameters": {
+        "url": "=https://api.centralstationcrm.net/api/people/{{ $('Does a person have a \"Newsletter\" tag?').item.json.person.id }}/tags",
+        "method": "POST",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        },
+        "jsonBody": "{\n  \"tag\": {\n    \"name\": \"Newsletter\"}\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "=json",
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pqUNcvQBnqpxmMAD",
+          "name": "Header Auth CSCRM test16"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "1247d9f4-5524-4333-acce-1404fb336966",
+      "name": "Write person to Rapidmail list",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        3240,
+        640
+      ],
+      "parameters": {
+        "url": "https://apiv3.emailsys.net/v1/recipients",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n\"status\": \"active\",\n\"recipientlist_id\": ENTER-RAPIDMAIL-LIST-ID,\n\"email\": \"{{ $json.person.emails[0].name }}\",\n\"firstname\": \"{{ $json.person.first_name }}\",\n  \"lastname\": \"{{ $json.person.name }}\"\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "KQ2iia1wATkcAOK6",
+          "name": "Christian Rapidmail"
+        },
+        "httpHeaderAuth": {
+          "id": "pqUNcvQBnqpxmMAD",
+          "name": "Header Auth CSCRM test16"
+        }
+      },
+      "typeVersion": 4.2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9e0ee432-5ede-429f-9b08-3bbee620c6c9",
+  "connections": {
+    "Workflow triggers daily at 5AM": {
+      "main": [
+        [
+          {
+            "node": "Get new people per day from CentralStationCRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "give person a \"Newsletter\" tag": {
+      "main": [
+        [
+          {
+            "node": "Write person to Rapidmail list",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ask in Slack: add \"Newsletter\" tag?": {
+      "main": [
+        [
+          {
+            "node": "Did the user click the \"Yes\" button?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Did the user click the \"Yes\" button?": {
+      "main": [
+        [
+          {
+            "node": "give person a \"Newsletter\" tag",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "end Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Does a person have a \"Newsletter\" tag?": {
+      "main": [
+        [
+          {
+            "node": "Write person to Rapidmail list",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ask in Slack: add \"Newsletter\" tag?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get new people per day from CentralStationCRM": {
+      "main": [
+        [
+          {
+            "node": "Does a person have a \"Newsletter\" tag?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

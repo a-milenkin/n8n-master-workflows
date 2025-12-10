@@ -1,0 +1,592 @@
+{
+  "id": "hqMRsze38RaTmgQh",
+  "meta": {
+    "instanceId": "f21406c1aebdcd02925535f333c258bfa61f9b4107a822ced8462b5dd631899b",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Настройте ваш API-ключ Zyphra в узле \"Вызов API клонирования Zyphra\" в разделе заголовков → Заголовок X-API-Key",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "76f2c278-c769-443f-8aa5-541713323b51",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -560,
+        60
+      ],
+      "webhookId": "zyphra-voice-clone",
+      "parameters": {
+        "path": "voice-clone",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0772d98e-7cd8-487d-a3db-26c3d6d50304",
+      "name": "Set Clone Parameters",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -340,
+        60
+      ],
+      "parameters": {
+        "values": {
+          "number": [
+            {
+              "name": "happiness",
+              "value": "={{ $json.body.emotion.happiness || 0.6}}"
+            },
+            {
+              "name": "neutral",
+              "value": "={{ $json.body.emotion.neutral || 0.6}}"
+            },
+            {
+              "name": "sadness",
+              "value": "={{ $json.body.emotion.sadness || 0.05}}"
+            },
+            {
+              "name": "disgust",
+              "value": "={{ $json.body.emotion.disgust || 0.05}}"
+            },
+            {
+              "name": "fear",
+              "value": "={{ $json.body.emotion.fear || 0.05}}"
+            },
+            {
+              "name": "surprise",
+              "value": "={{ $json.body.emotion.surprise || 0.05}}"
+            },
+            {
+              "name": "anger",
+              "value": "={{ $json.body.emotion.anger || 0.05}}"
+            },
+            {
+              "name": "other",
+              "value": "={{ $json.body.emotion.other || 0.5}}"
+            }
+          ],
+          "string": [
+            {
+              "name": "text",
+              "value": "={{ $json.body.text || 'Hello, this is a test of voice cloning!' }}"
+            },
+            {
+              "name": "speaking_rate",
+              "value": "={{ $json.body.speaking_rate || 15 }}"
+            },
+            {
+              "name": "language_iso_code",
+              "value": "={{ $json.body.language_iso_code || 'en-us' }}"
+            },
+            {
+              "name": "mime_type",
+              "value": "={{ $json.body.mime_type || 'audio/wav'}}"
+            },
+            {
+              "name": "sample_voice_path",
+              "value": "={{ $json.body.sample_voice_path }}"
+            },
+            {
+              "name": "model",
+              "value": "={{ $json.body.model || 'zonos-v0.1-transformer' }}"
+            },
+            {
+              "name": "output_path",
+              "value": "={{ $json.body.output_path }}"
+            }
+          ]
+        },
+        "options": {},
+        "keepOnlySet": true
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b3dc1528-90d7-4397-83e6-18c5f2dbf495",
+      "name": "Read Sample Voice",
+      "type": "n8n-nodes-base.readWriteFile",
+      "onError": "continueErrorOutput",
+      "position": [
+        40,
+        60
+      ],
+      "parameters": {
+        "options": {
+          "mimeType": "={{ $json.mime_type }}",
+          "dataPropertyName": ""
+        },
+        "fileSelector": "={{ $json.sample_voice_path }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "86e0f9bf-ccec-4bb1-b9ce-7d1b94fdfcca",
+      "name": "Check File Loaded",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        560,
+        -80
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "file-exists-check",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $ifEmpty($binary.data, false) !== false }}\n",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2980ae94-30e3-4065-8d2c-b607c73c3c5f",
+      "name": "Call Zyphra Clone API",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        980,
+        -120
+      ],
+      "parameters": {
+        "url": "http://api.zyphra.com/v1/audio/text-to-speech",
+        "method": "POST",
+        "options": {
+          "response": {
+            "response": {}
+          }
+        },
+        "jsonBody": "={\n  \"text\": \"{{ $('Set Clone Parameters').item.json.text }}\",\n  \"speaking_rate\": {{ parseFloat($('Set Clone Parameters').item.json.speaking_rate) }},\n  \"language_iso_code\": \"{{ $('Set Clone Parameters').item.json.language_iso_code }}\",\n  \"mime_type\": \"{{ $('Set Clone Parameters').item.json.mime_type }}\",\n  \"model\": \"{{ $('Set Clone Parameters').item.json.model }}\",\n  \"emotion\": {\n    \"happiness\": {{ $('Set Clone Parameters').item.json.happiness }},\n    \"neutral\": {{ $('Set Clone Parameters').item.json.neutral }},\n    \"sadness\": {{ $('Set Clone Parameters').item.json.sadness }},\n    \"disgust\": {{ $('Set Clone Parameters').item.json.disgust }},\n    \"fear\": {{ $('Set Clone Parameters').item.json.fear }},\n    \"surprise\": {{ $('Set Clone Parameters').item.json.surprise }},\n    \"anger\": {{ $('Set Clone Parameters').item.json.anger }},\n    \"other\": {{ $('Set Clone Parameters').item.json.other }}\n  },\n  \"speaker_audio\": \"{{ $json.base64_content }}\"\n}\n",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "put-your-API-key-here"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "0f896518-98ce-4176-8977-1f0380b54469",
+      "name": "Save Cloned Audio",
+      "type": "n8n-nodes-base.readWriteFile",
+      "position": [
+        1440,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "fileName": "={{ $('Set Clone Parameters').item.json.output_path }}{{ 'cloned_voice_' + new Date().getTime() + '.webm' }}",
+        "operation": "write"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "02f1b766-953a-4834-8d93-4cc596ffe77c",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1660,
+        0
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "success",
+              "value": "true"
+            },
+            {
+              "name": "message",
+              "value": "Voice cloning completed successfully!"
+            },
+            {
+              "name": "filename",
+              "value": "={{ $json.fileName }}"
+            },
+            {
+              "name": "text_processed",
+              "value": "={{ $('Set Clone Parameters').item.json.text }}"
+            },
+            {
+              "name": "sample_voice_used",
+              "value": "={{ $('Set Clone Parameters').item.json.sample_voice_path }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7da98d65-08e3-4d6e-9957-ead2c8f1133f",
+      "name": "File Error Response",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        860,
+        480
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "success",
+              "value": "false"
+            },
+            {
+              "name": "error_type",
+              "value": "file_not_found"
+            },
+            {
+              "name": "message",
+              "value": "Sample voice file could not be read from: {{ $('Set Clone Parameters').item.json.sample_voice_path }}"
+            },
+            {
+              "name": "suggestion",
+              "value": "Please check the file path and ensure the file exists"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "44006f98-4241-436d-b8cf-1c586271a35a",
+      "name": "API Error Response",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1100,
+        480
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "success",
+              "value": "false"
+            },
+            {
+              "name": "error_type",
+              "value": "api_error"
+            },
+            {
+              "name": "message",
+              "value": "Voice cloning API request failed"
+            },
+            {
+              "name": "error_details",
+              "value": "={{ $json.error ? $json.error.message : 'Unknown API error' }}"
+            },
+            {
+              "name": "suggestion",
+              "value": "Please check your API key and try again"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e2c14808-e209-4daf-93dd-9c7049261e60",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1880,
+        100
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8268fd4a-fd84-4462-9ad1-9af8152d0cf3",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -960,
+        -1200
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 780,
+        "height": 340,
+        "content": "🎙️ РАБОЧИЙ ПРОЦЕСС КЛОНИРОВАНИЯ ГОЛОСА - ZONOS API"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cdbb775f-8408-43a9-89b1-1039315c6678",
+      "name": "Base64 convertor",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        400,
+        -80
+      ],
+      "parameters": {
+        "jsCode": "// Get binary data from previous node\nconst binaryData = $input.first().binary?.data;\n\nif (!binaryData) {\n  throw new Error(\"No binary data found\");\n}\n\n// Binary data in n8n is already base64 encoded\nconst base64String = binaryData.data;\n\nreturn {\n  json: {\n    base64_content: base64String,\n    // Add other fields as needed\n  }\n};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "88b0131c-f93b-4593-9c88-ed4f91b74c88",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -960,
+        -740
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 780,
+        "height": 1020,
+        "content": "═══════════════════════════════════════"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3be24130-054d-4435-9aac-d5ad9c7b92d0",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        820,
+        -380
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 480,
+        "height": 460,
+        "content": "Этот рабочий процесс клонирует голоса с использованием Zonos API от Zyphra"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "08780e5a-4663-4a0d-aeff-69f4059495ce",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        -280
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 740,
+        "height": 560,
+        "content": "📋 Входные данные: Текст + файл образца голоса + параметры"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "223743b2-aeb2-45cc-8094-9bef48fc815e",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        820,
+        180
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 480,
+        "height": 480,
+        "content": "🎵 Выходные данные: Сгенерированный аудиофайл с клонированным голосом"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "939714c2-9feb-4ccb-b3b6-fd133c65c56a",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1400,
+        -220
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 660,
+        "height": 540,
+        "content": "⚡ Триггер: Webhook POST на конечную точку /voice-clone"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0a90485e-417a-415e-a9a4-f128aea6b9f1",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -940,
+        -440
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 700,
+        "height": 440,
+        "content": "Основная настройка и использование:"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c4a644b3-3029-47ed-9dad-6396d22a9841",
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Clone Parameters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Base64 convertor": {
+      "main": [
+        [
+          {
+            "node": "Check File Loaded",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Success Response": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check File Loaded": {
+      "main": [
+        [
+          {
+            "node": "Call Zyphra Clone API",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "File Error Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Sample Voice": {
+      "main": [
+        [
+          {
+            "node": "Base64 convertor",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "File Error Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Cloned Audio": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API Error Response": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "File Error Response": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Clone Parameters": {
+      "main": [
+        [
+          {
+            "node": "Read Sample Voice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Zyphra Clone API": {
+      "main": [
+        [
+          {
+            "node": "Save Cloned Audio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "API Error Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

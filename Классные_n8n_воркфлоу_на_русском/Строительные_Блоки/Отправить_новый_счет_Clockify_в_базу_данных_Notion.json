@@ -1,0 +1,88 @@
+{
+  "meta": {
+    "instanceId": "237600ca44303ce91fa31ee72babcdc8493f55ee2c0e8aa2b78b3b4ce6f70bd9"
+  },
+  "nodes": [
+    {
+      "id": "cc514d10-89cc-4fcf-8c1f-b65395cd168a",
+      "name": "On new invoice in Clockify",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        460,
+        460
+      ],
+      "webhookId": "8af31ab8-e16a-4401-84b7-b246c65ba6a9",
+      "parameters": {
+        "path": "8af31ab8-e16a-4401-84b7-b246c65ba6a9",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ef9e5ce6-cb3e-4cb9-b33d-3b05a2ab589d",
+      "name": "Create database page",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        680,
+        460
+      ],
+      "parameters": {
+        "title": "={{ $json[\"body\"][\"number\"] }}",
+        "resource": "databasePage",
+        "databaseId": "ea3219a7-0a1a-4792-8dd6-ab450204dc06",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Issue date|date",
+              "date": "={{ $json[\"body\"][\"issuedDate\"] }}"
+            },
+            {
+              "key": "Due date|date",
+              "date": "={{ $json[\"body\"][\"dueDate\"] }}"
+            },
+            {
+              "key": "Amount|number",
+              "numberValue": "={{ $json[\"body\"][\"amount\"] }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "9",
+          "name": "[UPDATE ME]"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e2ecb86f-2f0c-4fe7-8919-e9095abdb5a0",
+      "name": "Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        240
+      ],
+      "parameters": {
+        "width": 462,
+        "height": 595,
+        "content": "## Отправить новый счет Clockify в базу данных Notion"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "On new invoice in Clockify": {
+      "main": [
+        [
+          {
+            "node": "Create database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

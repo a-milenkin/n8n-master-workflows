@@ -1,0 +1,676 @@
+{
+  "id": "OW8DfG2xXPS60mSj",
+  "meta": {
+    "instanceId": "60c025075753afcab9f803964b4caaca9402f435deb4efafbb8e3b93b54d8752"
+  },
+  "name": "**Google Sheets** – Обновляет таблицу очищенным транскриптом и датой.",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "c0de0228-f79b-4b18-9e5d-ee6218259078",
+      "name": "Google Sheets2",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -1380,
+        40
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        },
+        "authentication": "serviceAccount"
+      },
+      "credentials": {
+        "googleApi": {
+          "id": "qUtlCnYpk7bXXaYp",
+          "name": "Google Sheets account 3"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "4b18deea-cfc2-4a8d-b2f3-8b31cac0d573",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        -560,
+        40
+      ],
+      "parameters": {
+        "url": "https://tiktok-transcript-generator.p.rapidapi.com/tiktok/index.php",
+        "method": "POST",
+        "options": {
+          "response": {
+            "response": {}
+          }
+        },
+        "sendBody": true,
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json['Video Url'] }}"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-rapidapi-host",
+              "value": "tiktok-transcript-generator.p.rapidapi.com"
+            },
+            {
+              "name": "x-rapidapi-key"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "baad7161-51f5-4f29-8af0-39244e10eb60",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        580,
+        -40
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Video Url": "={{ $('If').item.json['Video Url'] }}",
+            "Transcript": "={{ $json.cleanedSubtitles }}",
+            "Generated Date": "={{ new Date().toISOString().slice(0, 10) }}"
+          },
+          "schema": [
+            {
+              "id": "Video Url",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Video Url",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Transcript",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Transcript",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Generated Date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Generated Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Video Url"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        },
+        "authentication": "serviceAccount"
+      },
+      "credentials": {
+        "googleApi": {
+          "id": "qUtlCnYpk7bXXaYp",
+          "name": "Google Sheets account 3"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "ab5bcc9b-e2a0-4ec7-a4db-de512662549d",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -1100,
+        40
+      ],
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "d5d6e8a4-a2da-4cd5-80fc-3cf7c294697d",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        900,
+        140
+      ],
+      "webhookId": "74ac1ccb-f843-41b8-97c4-b8d32892a5ea",
+      "parameters": {
+        "amount": 10
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "6bea9362-5502-4c3c-acac-3f1a16bb0c64",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -820,
+        60
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "e0b7b7c8-3a7a-466d-bae7-269282b49d34",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json['Video Url'] }}",
+              "rightValue": ""
+            },
+            {
+              "id": "64dde394-0e49-4306-a24a-de2bf448fc95",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.Transcript }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "a9ca3926-efbd-42fa-9388-b24625690145",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -20,
+        -40
+      ],
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  const raw = item.json.subtitles;\n\n  // Remove \"WEBVTT\" header and timestamp lines\n  const cleaned = raw\n    .replace(/^WEBVTT\\s*/gm, '')                       // Remove \"WEBVTT\"\n    .replace(/^\\d{2}:\\d{2}:\\d{2} --> \\d{2}:\\d{2}:\\d{2}/gm, '') // Remove timestamps\n    .replace(/^\\s*\\n/gm, '')                           // Remove empty lines\n    .trim();\n\n  return {\n    json: {\n      cleanedSubtitles: cleaned\n    }\n  };\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "becf9d6b-26a1-4498-9683-18ad15bc82ea",
+      "name": "If1",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -260,
+        40
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cd25e377-5c82-40b1-85ea-b372ee7765b7",
+              "operator": {
+                "type": "number",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.error.status }}",
+              "rightValue": 404
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "7c8d30f1-df83-4ee1-83ce-32f6d9b0a810",
+      "name": "Google Sheets1",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        300,
+        140
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Video Url": "={{ $('If').item.json['Video Url'] }}",
+            "Transcript": "No transcription available",
+            "Generated Date": "={{ new Date().toISOString().slice(0, 10) }}"
+          },
+          "schema": [
+            {
+              "id": "Video Url",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Video Url",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Transcript",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Transcript",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Generated Date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Generated Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Video Url"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        },
+        "authentication": "serviceAccount"
+      },
+      "credentials": {
+        "googleApi": {
+          "id": "qUtlCnYpk7bXXaYp",
+          "name": "Google Sheets account 3"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "90a316f5-0f08-42f8-86a0-318bcc9814f9",
+      "name": "When clicking ‘Execute workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -1580,
+        40
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "5d36dbf3-ebd6-4cd8-913b-ee1308d6847b",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2500,
+        -480
+      ],
+      "parameters": {
+        "width": 780,
+        "height": 980,
+        "content": "# 📝 Извлечение и ведение транскриптов TikTok с помощью n8n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "708c75c1-2ed7-48eb-b606-d6ff3eca7e30",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1660,
+        -320
+      ],
+      "parameters": {
+        "height": 580,
+        "content": "Этот рабочий процесс n8n автоматически получает транскрипты видео TikTok через RapidAPI TikTok Transcript Generator и обновляет Google Sheet с очищенными транскрипциями. Он обрабатывает только строки без транскриптов, обрабатывает ошибки и добавляет временные метки."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b7c01b0d-726b-44e7-8099-93812eccce4b",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1400,
+        -320
+      ],
+      "parameters": {
+        "height": 580,
+        "content": "---"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2d5229aa-2c40-41f6-8556-77690c3ed956",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1140,
+        -320
+      ],
+      "parameters": {
+        "height": 580,
+        "content": "## 🧩 Пошаговое объяснение"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "89710512-98f5-4dc2-b8a5-234ae49d343f",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -880,
+        -320
+      ],
+      "parameters": {
+        "height": 580,
+        "content": "**Ручной триггер** – Запускает рабочий процесс вручную по запросу."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7514d668-1b6d-4786-8e7f-f07fbfeac194",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -620,
+        -320
+      ],
+      "parameters": {
+        "height": 580,
+        "content": "**Google Sheets2** – Читает URL видео TikTok и существующие транскрипты из таблицы."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2cfb2c0d-980c-4654-9486-45bc765372c6",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -360,
+        -320
+      ],
+      "parameters": {
+        "height": 580,
+        "content": "**Цикл по элементам** – Обрабатывает строки партиями по 10 для ограничения скорости."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "167cf773-1543-4778-ba99-d4adc87f3ec3",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -100,
+        -320
+      ],
+      "parameters": {
+        "height": 580,
+        "content": "**Если** – Проверяет, существует ли URL видео и отсутствует ли транскрипт."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ad776fb7-d066-4f10-917e-a1fbf476e961",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        200,
+        -180
+      ],
+      "parameters": {
+        "height": 480,
+        "content": "**HTTP-запрос** – Вызывает API транскрипции TikTok для получения субтитров."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "45271bfa-118b-46c7-8e73-e077119ce31f",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        520,
+        -380
+      ],
+      "parameters": {
+        "height": 580,
+        "content": "**Если1** – Проверяет, успешен ли ответ API (нет ошибки 404)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4bb59f93-a06c-4252-bec4-2809fa4d6067",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        840,
+        -220
+      ],
+      "parameters": {
+        "height": 540,
+        "content": "**Код** – Очищает сырые субтитры, удаляя временные метки и заголовки."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "957a8859-b78c-4fdc-b1c6-50de2acaa6a0",
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

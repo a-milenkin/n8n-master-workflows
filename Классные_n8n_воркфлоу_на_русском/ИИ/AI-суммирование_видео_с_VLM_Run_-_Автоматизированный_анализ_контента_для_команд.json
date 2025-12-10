@@ -1,0 +1,261 @@
+{
+  "meta": {
+    "instanceId": "0a7ae129a7d703150135f6cc24d0469f20ffd22b5ed59c23ee3e0608264e6d98",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "5f002a85-f3d9-40b6-9130-43895c5286f8",
+      "name": "🎥 Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -220,
+        500
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 460,
+        "height": 720,
+        "content": "## 🎥 AI Видео Резюме с VLM Run"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1f5a362e-19be-4ee8-9ede-974ecea4617e",
+      "name": "📁 Input Documentation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        260,
+        500
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 720,
+        "content": "**Обзор:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2234e975-124c-46d6-a8c5-5925a82af8db",
+      "name": "🤖 AI Processing Documentation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        720,
+        500
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 360,
+        "height": 720,
+        "content": "Автоматически обрабатывает видео, загруженные в Google Drive, и генерирует резюме с использованием ИИ с извлечением ключевых тем."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d83c5770-7810-4062-83db-4f20c822c569",
+      "name": "🔗 Async Processing Documentation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1100,
+        500
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 320,
+        "height": 720,
+        "content": "**Рабочий процесс:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7e12a956-c9fc-4e73-be5b-320e08550b17",
+      "name": "💬 Output Documentation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1440,
+        500
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 280,
+        "height": 720,
+        "content": "📁 Мониторинг папки Google Drive"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0e5eee4f-d4ac-4af6-bba7-b2dabb9bc910",
+      "name": "VLM Run Video Summarizer",
+      "type": "@vlm-run/n8n-nodes-vlmrun.vlmRun",
+      "notes": "Processes video files using VLM AI to generate intelligent summaries and extract key topics. Runs asynchronously for large files.",
+      "position": [
+        840,
+        1040
+      ],
+      "parameters": {
+        "file": "=data",
+        "domain": "video.summary",
+        "operation": "video",
+        "callbackUrl": "https://playground.vlm.run/webhook-test/summarize-video",
+        "processAsynchronously": true
+      },
+      "credentials": {
+        "vlmRunApi": {
+          "id": "cF5KpbVmnt36bdWr",
+          "name": "VLM Run account 6"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b96c2eb1-ad10-494e-93ec-1d667c26bfd0",
+      "name": "Monitor Video Uploads",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "notes": "Watches designated Google Drive folder for new video uploads and triggers processing automatically.",
+      "position": [
+        320,
+        1040
+      ],
+      "parameters": {
+        "event": "fileCreated",
+        "options": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1reWORwI1tMa-eGB75NCXq9eRw4CiQIhX",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1reWORwI1tMa-eGB75NCXq9eRw4CiQIhX",
+          "cachedResultName": "n8n"
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8UenyA7IO3w0wN2R",
+          "name": "Google Drive account 3"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d768bfc1-496d-4acd-aaee-0ce7c4c6d284",
+      "name": "Download Video File",
+      "type": "n8n-nodes-base.googleDrive",
+      "notes": "Downloads the uploaded video file from Google Drive and prepares it for AI analysis.",
+      "position": [
+        540,
+        1040
+      ],
+      "parameters": {
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "options": {
+          "binaryPropertyName": "data"
+        },
+        "operation": "download"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8UenyA7IO3w0wN2R",
+          "name": "Google Drive account 3"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "43c338b4-1455-4106-8c92-53d55e6adcdf",
+      "name": "Receive VLM Run Callback",
+      "type": "n8n-nodes-base.webhook",
+      "notes": "Receives the completed video summary from VLM AI when asynchronous processing is finished.",
+      "position": [
+        1200,
+        1040
+      ],
+      "webhookId": "aba26926-cff2-4f3d-b5d2-38eb561ac055",
+      "parameters": {
+        "path": "summarize-video",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6f223750-f307-41f7-9509-254b8e6f310f",
+      "name": "Send Summary to Team",
+      "type": "n8n-nodes-base.slack",
+      "notes": "Posts the AI-generated video summary and key topics to Slack channel for team review.",
+      "position": [
+        1520,
+        1040
+      ],
+      "webhookId": "054803e2-58f0-4bd9-97d5-cb4d02f71550",
+      "parameters": {
+        "text": "=🎥 *New Video Summary Ready!*\n\n📄 **Summary:**\n{{ $json.body.response.content }}\n\n🔍 **Key Topics:**\n{{ $json.body.response.topics }}\n\n✅ Processing complete!",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "C08S3SR2LUW",
+          "cachedResultName": "workflow-testing"
+        },
+        "otherOptions": {
+          "mrkdwn": true,
+          "includeLinkToWorkflow": false
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "sNMFh7sXAUyWsuXd",
+          "name": "Slack account 2"
+        }
+      },
+      "typeVersion": 2.3
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Download Video File": {
+      "main": [
+        [
+          {
+            "node": "VLM Run Video Summarizer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Monitor Video Uploads": {
+      "main": [
+        [
+          {
+            "node": "Download Video File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receive VLM Run Callback": {
+      "main": [
+        [
+          {
+            "node": "Send Summary to Team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

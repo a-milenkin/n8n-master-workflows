@@ -1,0 +1,477 @@
+{
+  "id": "yNl6TycBIVr4r9Ef",
+  "meta": {
+    "instanceId": "84ad02d6104594179f43f1ce9cfe3a81637b2faedb57dafcb9e649b7542988db",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "### 🚀 Что делает этот раздел",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "4a5a04cc-062d-4822-b690-61d072bf1e88",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        1220,
+        220
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"subject\": \"🚀 Startup Founder Highlights for Outreach - June 6, 2025\",\n  \"body\": \"🚀 Here's a summary of promising startup founders for potential outreach:\\n\\n🔹 **Jane Doe**\\nCo-Founder & CEO at Acme AI. She is a serial entrepreneur with over 10 years of experience in AI and SaaS startups. Educated at Stanford University with an MBA. You can find her on LinkedIn: https://www.linkedin.com/in/janedoe.\\n\\n🔹 **John Smith**\\nCTO at GreenLoop. Passionate about sustainable packaging innovation and technology leadership. Holds a Bachelor’s degree in Environmental Engineering from MIT. Connect on LinkedIn: https://www.linkedin.com/in/johnsmith.\"\n}\n"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "05aaede3-213d-43f3-b42f-c1c7188c6b3b",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1000,
+        220
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "wYwTjEv45IzlAOAu",
+          "name": "OpenAi account 2"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "02c283da-ace1-41f0-a298-ac89882b0c1d",
+      "name": "Updated profiles List",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "url": "https://api.crunchbase.com/api/v4/relationships/organizations/1234abcd-5678-efgh-ijkl-9012mnop3456/people",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "page",
+              "value": "1"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Cb-User-Key",
+              "value": "YOUR_API_KEY_HERE"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "3f0723a9-73eb-43be-834b-bc2a8c5d9c50",
+      "name": "Founder Profiles by UUID",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        500,
+        0
+      ],
+      "parameters": {
+        "url": "=https://api.crunchbase.com/api/v4/entities/people/{{ $json.data.items[0].uuid }}",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Cb-User-Key",
+              "value": "YOUR_API_KEY_HERE"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "25dcbcc9-5155-4d61-b4b7-ce5e9646b56e",
+      "name": "Extract Key Profile Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        720,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "eeff9c2c-fe9f-4f6c-a030-99ff87308529",
+              "name": "Full name",
+              "type": "string",
+              "value": "={{ $json.data.properties.full_name }}"
+            },
+            {
+              "id": "1ba5a408-31b3-409e-a7bf-95f708b0374a",
+              "name": "Title",
+              "type": "string",
+              "value": "={{ $json.data.properties.title }}"
+            },
+            {
+              "id": "c8344897-be61-47cd-b7fd-3d932644ad07",
+              "name": "biography",
+              "type": "string",
+              "value": "={{ $json.data.properties.biography }}"
+            },
+            {
+              "id": "28ee7b7a-1d5d-46fd-aa35-b9e767626ba3",
+              "name": "Education",
+              "type": "string",
+              "value": "={{ $json.data.properties.education }}"
+            },
+            {
+              "id": "10271203-a0c9-4b16-b88e-4999e210bf03",
+              "name": "Social Links",
+              "type": "string",
+              "value": "={{ $json.data.properties.social_links }}"
+            },
+            {
+              "id": "6144bd09-cbf4-4c27-800b-3b0552c0f5ca",
+              "name": "Associated companies",
+              "type": "string",
+              "value": "={{ $json.data.properties.associated_companies }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "8734c81e-515f-481f-aa1e-70ef7bd4ddab",
+      "name": "Summarizer Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1020,
+        0
+      ],
+      "parameters": {
+        "text": "=Full name: {{ $json['Full name'] }}\nTitle: {{ $json.Title }}\nbiography: {{ $json.biography }}\nEducation: {{ $json.Education }}\nSocial Links: {{ $json['Social Links'] }}\nAssociated companies: {{ $json['Associated companies'] }}\n",
+        "options": {
+          "systemMessage": "You are an expert at writing concise, professional summaries for business email outreach. Given detailed information about a person’s professional profile, your task is to generate a short summary focusing only on the most relevant information for outreach emails.\n\nOnly include:\n- Full name\n- Current title/role\n- Brief, relevant part of the biography (max 1-2 sentences)\n- Key education highlights (school and degree)\n- Social links (only LinkedIn or Twitter if available)\n- Most relevant associated company (name and role)\n\nDo NOT include unnecessary details. Make the summary clear, engaging, and suitable for a personalized outreach email introduction."
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "738f7615-bc05-4335-8a93-d4025c8cf885",
+      "name": "Send email for outreach",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1380,
+        0
+      ],
+      "webhookId": "2aefe416-f9e3-4b15-82c0-3314acc97048",
+      "parameters": {
+        "sendTo": "shahkar.genai@gmail.com",
+        "message": "={{ $json.output.body }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "=CrunchBase profile for outreach"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "noKcKj5FEpHHvboL",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "d359f26d-fe8d-4d34-a96c-42b176b946a1",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "3529f772-cb46-4145-ba2e-f115dce37db4",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        -1040
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 420,
+        "height": 1220,
+        "content": "## 🔁 **РАЗДЕЛ 1: Триггер + Получение компаний**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c10bafbe-3d3b-4cce-b8a0-5d725a98ffb7",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        440,
+        -1160
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 440,
+        "height": 1340,
+        "content": "**🧱 Узлы:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e8c27235-f214-444e-8b1a-5e445e65e0af",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        940,
+        -640
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 580,
+        "height": 1020,
+        "content": "* 🔘 **Ручной триггер**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fd781b49-45c0-4006-bb22-7d82ff3f4e31",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1580,
+        -1040
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 320,
+        "content": "* 🌐 **HTTP-запрос – Получить: Обновленный список компаний**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9b478bcf-5ba5-4edf-91a6-61e3fffa1078",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1580,
+        -700
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1289,
+        "height": 2558,
+        "content": "---"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {
+    "Updated profiles List": [
+      {
+        "json": {
+          "data": {
+            "items": [
+              {
+                "type": "person",
+                "uuid": "abc123-def456",
+                "identifier": {
+                  "value": "Jane Doe",
+                  "api_path": "https://api.crunchbase.com/api/v4/entities/people/abc123-def456",
+                  "image_id": null,
+                  "permalink": "person/jane-doe"
+                },
+                "properties": {
+                  "title": "Co-Founder & CEO",
+                  "last_name": "Doe",
+                  "created_at": "2024-06-01T10:00:00Z",
+                  "first_name": "Jane",
+                  "started_on": "2023-01-10",
+                  "entity_def_id": "person"
+                }
+              },
+              {
+                "type": "person",
+                "uuid": "xyz789-pqr012",
+                "identifier": {
+                  "value": "John Smith",
+                  "api_path": "https://api.crunchbase.com/api/v4/entities/people/xyz789-pqr012",
+                  "image_id": null,
+                  "permalink": "person/john-smith"
+                },
+                "properties": {
+                  "title": "CTO",
+                  "last_name": "Smith",
+                  "created_at": "2024-06-01T10:30:00Z",
+                  "first_name": "John",
+                  "started_on": "2023-01-10",
+                  "entity_def_id": "person"
+                }
+              }
+            ],
+            "paging": {
+              "total_items": 2,
+              "current_page": 1
+            }
+          }
+        }
+      }
+    ],
+    "Founder Profiles by UUID": [
+      {
+        "json": {
+          "data": {
+            "type": "person",
+            "uuid": "abc123-def456",
+            "identifier": {
+              "value": "Jane Doe",
+              "api_path": "https://api.crunchbase.com/api/v4/entities/people/abc123-def456",
+              "permalink": "person/jane-doe"
+            },
+            "properties": {
+              "title": "Co-Founder & CEO",
+              "biography": "Jane Doe is a serial entrepreneur with over 10 years of experience in AI and SaaS startups.",
+              "education": [
+                {
+                  "degree": "MBA",
+                  "end_year": 2012,
+                  "start_year": 2010,
+                  "school_name": "Stanford University",
+                  "field_of_study": "Business Administration"
+                }
+              ],
+              "full_name": "Jane Doe",
+              "last_name": "Doe",
+              "created_at": "2024-06-01T10:00:00Z",
+              "first_name": "Jane",
+              "updated_at": "2024-06-10T12:00:00Z",
+              "social_links": {
+                "twitter": "https://twitter.com/janedoe",
+                "linkedin": "https://www.linkedin.com/in/janedoe"
+              },
+              "associated_companies": [
+                {
+                  "name": "Acme AI",
+                  "role": "Co-Founder & CEO",
+                  "uuid": "1234abcd-5678-efgh-ijkl-9012mnop3456",
+                  "api_path": "https://api.crunchbase.com/api/v4/entities/organizations/1234abcd-5678-efgh-ijkl-9012mnop3456"
+                },
+                {
+                  "name": "NextGen Tech",
+                  "role": "Advisor",
+                  "uuid": "7890qrst-uvwx-1234-yzab-5678cdef9012",
+                  "api_path": "https://api.crunchbase.com/api/v4/entities/organizations/7890qrst-uvwx-1234-yzab-5678cdef9012"
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ddab3a6c-8291-44bb-87bb-9085d4ce845a",
+  "connections": {
+    "Summarizer Agent": {
+      "main": [
+        [
+          {
+            "node": "Send email for outreach",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarizer Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Updated profiles List": {
+      "main": [
+        [
+          {
+            "node": "Founder Profiles by UUID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Founder Profiles by UUID": {
+      "main": [
+        [
+          {
+            "node": "Extract Key Profile Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Summarizer Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Key Profile Fields": {
+      "main": [
+        [
+          {
+            "node": "Summarizer Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Updated profiles List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

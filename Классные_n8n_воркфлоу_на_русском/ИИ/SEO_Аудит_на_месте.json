@@ -1,0 +1,785 @@
+{
+  "id": "s64vBbrCi8CUPBHs",
+  "meta": {
+    "instanceId": "cd438fd1eca1b4215129611b59e2a783bbecd4a7fc04e24e9ac21de3d46ce6cc",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "SEO-аудит",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "e23c5a61-31a8-4fcb-8150-b001d7a78526",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -200,
+        320
+      ],
+      "webhookId": "de0852f7-dd57-4b5b-938d-dd6ccf56b752",
+      "parameters": {
+        "path": "de0852f7-dd57-4b5b-938d-dd6ccf56b752",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "244200f6-1049-4991-9439-b3f7334bf06c",
+      "name": "HTTP Request - Get Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        380,
+        320
+      ],
+      "parameters": {
+        "url": "={{ $json.query.url }}",
+        "options": {},
+        "responseFormat": "string"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "af8e107f-b8e1-4924-b580-3dac3061c304",
+      "name": "HTML Extract",
+      "type": "n8n-nodes-base.htmlExtract",
+      "position": [
+        540,
+        320
+      ],
+      "parameters": {
+        "options": {},
+        "dataPropertyName": "=data",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "title",
+              "cssSelector": "title"
+            },
+            {
+              "key": "h1",
+              "cssSelector": "h1",
+              "returnArray": true
+            },
+            {
+              "key": "h2",
+              "cssSelector": "h2",
+              "returnArray": true
+            },
+            {
+              "key": "description",
+              "attribute": "content",
+              "cssSelector": "meta[name=\"description\"]",
+              "returnValue": "attribute"
+            },
+            {
+              "key": "links",
+              "attribute": "href",
+              "cssSelector": "a",
+              "returnArray": true,
+              "returnValue": "attribute"
+            },
+            {
+              "key": "treść",
+              "cssSelector": "body"
+            },
+            {
+              "key": "breadcrumbs",
+              "cssSelector": "BreadcrumbList",
+              "returnValue": "html"
+            },
+            {
+              "key": "schemaJson",
+              "cssSelector": "script[type=\"application/ld+json\"]",
+              "returnValue": "html"
+            },
+            {
+              "key": "imgSrcs",
+              "attribute": "src",
+              "cssSelector": "img",
+              "returnArray": true,
+              "returnValue": "attribute"
+            },
+            {
+              "key": "imgAlts",
+              "attribute": "alt",
+              "cssSelector": "img",
+              "returnArray": true,
+              "returnValue": "attribute"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1,
+      "alwaysOutputData": false
+    },
+    {
+      "id": "e89daa65-ff0c-4d10-a2e5-663a9b05d498",
+      "name": "PageSpeed API",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        760,
+        1100
+      ],
+      "parameters": {
+        "url": "={{\"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=\" + $('Webhook').item.json.query.url + \"&key={{APIKEY}}&strategy=mobile\"}}",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "619aadef-058d-4d2c-b8d9-dd2fc8e73503",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [
+        2340,
+        320
+      ],
+      "parameters": {
+        "html": "={{ $json.html }}",
+        "text": "=",
+        "options": {},
+        "subject": "SEO Audit Report",
+        "toEmail": "",
+        "fromEmail": ""
+      },
+      "credentials": {
+        "smtp": {
+          "id": "PeP9gNGUeRG8xaBP",
+          "name": "SMTP account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8374b603-ccb9-4719-baf9-ee429499b986",
+      "name": "Generate HTML REPORT",
+      "type": "n8n-nodes-base.html",
+      "position": [
+        2100,
+        320
+      ],
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\" />\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n<title>SEO Audit Report - {{ $json.pageUrl }}</title>\n<style>\n  body { font-family: Arial, sans-serif; background: #f9f9f9; color: #222; padding: 20px; }\n  h1, h2, h3 { color: #2c3e50; }\n  table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }\n  table, th, td { border: 1px solid #ddd; }\n  th, td { padding: 8px; text-align: left; }\n  th { background-color: #2980b9; color: white; }\n  tr:nth-child(even) { background-color: #ecf0f1; }\n  a { color: #2980b9; text-decoration: none; }\n  a:hover { text-decoration: underline; }\n  .badge-yes { color: #27ae60; font-weight: bold; }\n  .badge-no { color: #c0392b; font-weight: bold; }\n  .rating-stars { font-size: 1.2em; }\n  .performance-metrics span { display: inline-block; margin-right: 15px; }\n</style>\n</head>\n<body>\n\n<h1>SEO Audit Report for <a href=\"{{ $json.pageUrl }}\" target=\"_blank\">{{ $json.pageUrl }}</a></h1>\n\n<section>\n\n<section>\n  <h2>Performance Metrics (Lighthouse)</h2><br>\n  <div class=\"performance-metrics\">\n    <span><strong>Performance Score:</strong> <span class=\"rating-stars\"></span> {{ ($json.performanceMetrics.score * 100).toFixed(0)}}</span><br/>\n    <span><strong>Speed Index:</strong> {{ ($json.performanceMetrics.speedIndex * 100).toFixed(0)}} </span><br/>\n    <span><strong>First Contentful Paint:</strong> {{ $json.performanceMetrics.firstContentfulPaint }}</span><br/>\n    <span><strong>Largest Contentful Paint:</strong> {{ $json.performanceMetrics.largestContentfulPaint }} </span><br/>\n    <span><strong>Cumulative Layout Shift:</strong> {{ $json.performanceMetrics.cumulativeLayoutShift }} </span><br/>\n  </div>\n</section>\n  <h2>Basic Page Info</h2>\n  <h3>Title Analysis</h3>\n \n  <p><strong>Title:</strong> {{ $json.metaTitle || '<span style=\"color:red\">No Title</span>' }}</p>\n  <p><strong>Title Length:</strong> {{ $('Title').first().json.titleLength || 'N/A' }} characters</p>\n\n\n  <h3>Title Recommendations</h3>\n  \n {{ $json.titlerecommendation }}\n   \n  <h3>Description Analysis</h3>\n\n  <p><strong>Description:</strong> {{ $json.metaDescription || '<span style=\"color:red\">No Description</span>' }}</p>\n  <p><strong>Description Length:</strong> {{ $('Description').first().json.descriptionLength || 'N/A' }} characters</p>\n</section>\n\n<section>\n  <h4>Description Recommendations</h4>\n  <ul>\n    <li>{{ $json.descrecommendation1 }}</li>\n    <li>{{ $json.descrecommendation2 }}</li>\n  </ul>\n</section>\n\n<section>\n  <h2>Headings</h2>\n  <h3>H1 Headers ({{ $json.mainHeadingsCount || 0 }})</h3>\n  <table>\n    <thead><tr><th>#</th><th>Header Text</th></tr></thead>\n    <tbody>{{ $json.mainHeadingsTable || '<tr><td colspan=\"2\">No H1 headers found</td></tr>' }}</tbody>\n  </table>\n\n  <h3>H2 Headers ({{ $json.subHeadingsCount || 0 }})</h3><br>\n  <table>\n    <thead><tr><th>#</th><th>Header Text</th></tr></thead>\n    <tbody>{{ $json.subHeadingsTable || '<tr><td colspan=\"2\">No H2 headers found</td></tr>' }}</tbody>\n  </table>\n</section>\n\n<section>\n  <h2>Images ({{ $json.images.sources?.length || 0 }})</h2>\n  <table>\n    <thead><tr><th>Preview</th><th>URL</th><th>Alt Text</th></tr></thead>\n    <tbody>{{ $json.imagesTable || '<tr><td colspan=\"3\">No images found</td></tr>' }}</tbody>\n  </table>\n  <h4>Alt Recommendations</h4>\n  <ul>\n    <li>{{ $json.altrecommendation1 }}</li>\n    <li>{{ $json.altrecommendation2 }}</li>\n  </ul>\n</section>\n\n<section>\n  <h2>Links Overview</h2>\n  <p><strong>Total Links Found:</strong> {{ $json.linksAnalysis.counts.total || 0 }}</p>\n  \n{{ $json.linksTableInternal }}\n\n   {{ $json.linksTableExternal }}\n  \n  {{ $json.linksTableInvalid }}\n</section>\n\n<section>\n  <h2>Keyword Analysis</h2>\n  <p><strong>Keyword:</strong> {{ $json.keywords.mainKeyword || 'N/A' }}</p>\n  <p><strong>Keyword Count:</strong> {{ $json.keywords.count || 0 }}</p>\n  <p><strong>Total Words on Page:</strong> {{ $json.keywords.totalWords || 0 }}</p>\n  <p><strong>Keyword Density:</strong> {{ $json.keywords.density || 0 }}</p>\n  <h4>Keyword Recommendations</h4>\n  <ul>\n    <li>{{ $json.keywordrecommendation1 }}</li>\n    <li>{{ $json.keywordrecommendation2 }}</li>\n  </ul>\n</section>\n\n<section>\n  <h4>Content Recommendations</h4>\n  <ul>\n    <li>{{ $json.contentrecommendation1 }}</li>\n    <li>{{ $json.contentrecommendation2 }}</li>\n  </ul>\n</section>\n\n<section>\n  <h2>Technical SEO Checks</h2>\n  {{ $json.technicalSeoTable }}\n</section>\n\n<section>\n{{ $json.socialMediaTable }}\n</section>\n\n\n</body>\n</html>"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "5f0ffa34-b610-4fc4-86db-bffe8bd01fa8",
+      "name": "FUnctions to report",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1860,
+        320
+      ],
+      "parameters": {
+        "jsCode": "// === FUNKCJE POMOCNICZE ===\n\nfunction safeArrayItem(arr, index) {\n  return Array.isArray(arr) && arr.length > index ? arr[index] : null;\n}\n\nfunction getPageSpeedMetric(result, metricName) {\n  try {\n    const variations = [\n      metricName,\n      metricName.replace('-', ' '),\n      metricName.replace(/-/g, '_')\n    ];\n\n    for (const variant of variations) {\n      if (result?.audits?.[variant]?.displayValue) {\n        return result.audits[variant].displayValue;\n      }\n    }\n    return 'N/A';\n  } catch (e) {\n    return 'N/A';\n  }\n}\n\nfunction generateHeadersTable(headers) {\n  if (!Array.isArray(headers) || headers.length === 0) return '<tr><td colspan=\"2\">N/A</td></tr>';\n  return headers.map((h, i) => `\n    <tr>\n      <td>${i + 1}</td>\n      <td>${h}</td>\n    </tr>\n  `).join('');\n}\n\nfunction generateLinksTable(title, linksArray) {\n  if (!Array.isArray(linksArray) || linksArray.length === 0) {\n    return `<h4>${title} (0)</h4><p style=\"color:red;\">No found invalid links.</p>`;\n  }\n\n  const rows = linksArray.map((link, index) => `\n    <tr>\n      <td>${index + 1}</td>\n      <td><a href=\"${link}\" target=\"_blank\" rel=\"noopener noreferrer\">${link}</a></td>\n    </tr>\n  `).join('');\n\n  return `\n    <h4>${title} (${linksArray.length})</h4>\n    <table border=\"1\" cellpadding=\"6\" cellspacing=\"0\" style=\"border-collapse: collapse; width: 100%; margin-bottom: 20px;\">\n      <thead style=\"background-color: #f2f2f2;\">\n        <tr>\n          <th>#</th>\n          <th>URL</th>\n        </tr>\n      </thead>\n      <tbody>\n        ${rows}\n      </tbody>\n    </table>\n  `;\n}\n\n\nfunction generateSocialMediaTable(socialLinks) {\n  const platforms = [\n    { name: 'Facebook', key: 'facebook' },\n    { name: 'Instagram', key: 'instagram' },\n    { name: 'Twitter', key: 'twitter' },\n    { name: 'LinkedIn', key: 'linkedin' }\n  ];\n\n  const rows = platforms.map(platform => {\n    const rawValue = socialLinks?.[platform.key];\n    const value = rawValue === true || rawValue === 'Yes' ? 'Yes' : 'No';\n    const cssClass = value === 'Yes' ? 'badge-yes' : 'badge-no';\n\n    return `\n      <tr>\n        <th>${platform.name}</th>\n        <td class=\"${cssClass}\">${value}</td>\n      </tr>\n    `;\n  }).join('');\n\n  return `\n    <h2>Social Media Links Presence</h2>\n    <table border=\"1\" cellpadding=\"6\" cellspacing=\"0\" style=\"border-collapse: collapse; width: 100%; margin-bottom: 20px;\">\n      <tbody>\n        ${rows}\n      </tbody>\n    </table>\n  `;\n}\n\nfunction generateTechnicalSeoTable(flags) {\n  const checks = [\n    { label: 'Robots.txt found', value: flags.robotstxt },\n    { label: 'Sitemap.xml found', value: flags.sitemaxml },\n    { label: 'SSL Certificate (HTTPS)', value: flags.httpscheck },\n    { label: 'Mobile Friendly', value: flags.mobilefriendly },\n    { label: 'Friendly URLs (no query params)', value: flags.friendlyurl },\n    { label: 'Meta tag noindex present', value: flags.noindex},\n    { label: 'Google Analytics present', value: flags.gaanalytics }\n  ];\n\n  return `\n    <table border=\"1\" cellpadding=\"6\" cellspacing=\"0\" style=\"border-collapse: collapse; width: 100%; margin-bottom: 20px;\">\n      <thead style=\"background-color: #f2f2f2;\">\n        <tr>\n          <th>Check</th>\n          <th>Status</th>\n        </tr>\n      </thead>\n      <tbody>\n        ${checks.map(check => {\n          const isYes = check.invert ? check.value !== 'Yes' : check.value === 'Yes';\n          const status = isYes ? 'Yes' : 'No';\n          const cssClass = isYes ? 'badge-yes' : 'badge-no';\n          return `\n            <tr>\n              <td>${check.label}</td>\n              <td class=\"${cssClass}\">${status}</td>\n            </tr>\n          `;\n        }).join('')}\n      </tbody>\n    </table>\n  `;\n}\n\nfunction generateImagesTable(images, alts) {\n  if (!Array.isArray(images) || images.length === 0) {\n    return '<tr><td colspan=\"3\">No images found</td></tr>';\n  }\n  return images.map((src, i) => {\n    const altText = alts && alts[i] ? alts[i] : '<span style=\"color:red\">Brak alt</span>';\n    return `\n      <tr>\n        <td><img src=\"${src}\" alt=\"${altText}\" style=\"max-width:100px; max-height:80px;\"/></td>\n        <td><a href=\"${src}\" target=\"_blank\" rel=\"noopener noreferrer\">${src}</a></td>\n        <td>${altText}</td>\n      </tr>\n    `;\n  }).join('');\n}\n\nfunction getRating(score, perfect = 100) {\n  const percentage = (score / perfect) * 100;\n  if (percentage >= 90) return '⭐️⭐️⭐️⭐️⭐️';\n  if (percentage >= 70) return '⭐️⭐️⭐️⭐️';\n  if (percentage >= 50) return '⭐️⭐️⭐️';\n  if (percentage >= 30) return '⭐️⭐️';\n  return '⭐️';\n}\n\nfunction getColorIndicator(value, type = 'score') {\n  let numericValue = parseFloat(value);\n  if (isNaN(numericValue)) numericValue = 0;\n\n  if (type === 'score') {\n    if (numericValue >= 0.9) return `<span style=\"color: #4CAF50; font-weight: bold;\">${value}</span>`;\n    if (numericValue >= 0.7) return `<span style=\"color: #8BC34A;\">${value}</span>`;\n    if (numericValue >= 0.5) return `<span style=\"color: #FFC107;\">${value}</span>`;\n    return `<span style=\"color: #F44336; font-weight: bold;\">${value}</span>`;\n  } else if (type === 'time') {\n    if (numericValue <= 1.5) return `<span style=\"color: #4CAF50; font-weight: bold;\">${value}</span>`;\n    if (numericValue <= 3) return `<span style=\"color: #8BC34A;\">${value}</span>`;\n    if (numericValue <= 5) return `<span style=\"color: #FFC107;\">${value}</span>`;\n    return `<span style=\"color: #F44336; font-weight: bold;\">${value}</span>`;\n  }\n  return value;\n}\n\n// === GŁÓWNA STRUKTURA OBIEKTU ===\n\nconst pageAnalysis = {\n  pageUrl: $('Webhook').first().json.query.url,\n  metaTitle: $('HTML Extract').first().json.title,\n  metaDescription: $('HTML Extract').first().json.description,\n\n  mainHeading: $('HTML Extract').first().json.h1,\n  subHeadings: $('HTML Extract').first().json.h2,\n\n  images: {\n    sources: $('HTML Extract').first().json.imgSrcs,\n    altTexts: $('HTML Extract').first().json.imgAlts,\n    analyzedImages: $input.first().json.images\n  },\n\n  linksAnalysis: {\n    allLinks: $('HTML Extract').first().json.links,\n    internal: $('Links').first().json.internalLinks,\n    external: $('Links').first().json.externalLinks,\n    invalid: $('Links').first().json.invalidLinks,\n    counts: {\n      internal: $('Links').first().json.counts.internal,\n      external: $('Links').first().json.counts.external,\n      total: $('Links').first().json.counts.total\n    }\n  },\n\n  titlerecommendation: $('Title Analysis').first().json.titlerecommendation,\n  descrecommendation1: $('Description Analysis').first().json.descRecommendation1,\n  descrecommendation2: $('Description Analysis').first().json.descRecommendation2,\n  mobilefriendly: $('Code Analysis').first().json.mobileFriendly,\n  friendlyurl: $('Code Analysis').first().json.friendlyUrls,\n  noindex: $('Code Analysis').first().json.noIndex,\n  gaanalytics: $('Code Analysis').first().json.googleAnalytics,\n  httpscheck: $('Code Analysis').first().json.https,\n  robotstxt: $('Robots Analysis').first().json.hasSitemapInRobots,\n  sitemaxml: $('Code').first().json.hasValidSitemapXml,\n  socialfacebook: $('Code Analysis').first().json.socialLinks.facebook,\nsocialinstagram: $('Code Analysis').first().json.socialLinks.instagram,\nsocialtwitter: $('Code Analysis').first().json.socialLinks.twitter,\n  sociallinkedin: $('Code Analysis').first().json.socialLinks.linkedin,\n\n  keywordrecommendation1: $('Density Analysis').first().json.keywordRecommendations[0],\n  keywordrecommendation2: $('Density Analysis').first().json.keywordRecommendations[1],\n  contentrecommendation1: $('Content Analysis').first().json.contentRecommendations[0],\n  contentrecommendation2: $('Content Analysis').first().json.contentRecommendations[1],\n  altrecommendation1: $('Alts Analysis').first().json.altRecommendations[0],\n  altrecommendation2: $('Alts Analysis').first().json.altRecommendations[1],\n\n  keywords: {\n    mainKeyword: $('Keyword Density').first().json.keyword,\n    count: $('Keyword Density').first().json.keywordCount,\n    density: $('Keyword Density').first().json.keywordDensity,\n    totalWords: $('Keyword Density').first().json.totalWords\n  },\n\n  performanceMetrics: {\n    score: $('PageSpeed API').first().json.lighthouseResult.categories.performance.score,\n    speedIndex: $('PageSpeed API').first().json.lighthouseResult.audits['speed-index'].score,\n    firstContentfulPaint: $('PageSpeed API').first().json.lighthouseResult.audits['first-contentful-paint'].displayValue,\n    largestContentfulPaint:$('PageSpeed API').first().json.lighthouseResult.audits['largest-contentful-paint-element'].displayValue,\n    cumulativeLayoutShift:$('PageSpeed API').first().json.lighthouseResult.audits['cumulative-layout-shift'].displayValue\n  }\n};\n\n// === TABELKI ===\n\nconst mainHeadings = $('HTML Extract').first().json.h1 || [];\nconst subHeadings = $('HTML Extract').first().json.h2 || [];\nconst imgSources = $('HTML Extract').first().json.imgSrcs || [];\nconst imgAlts = $('HTML Extract').first().json.imgAlts || [];\n\npageAnalysis.mainHeadingsCount = mainHeadings.length;\npageAnalysis.mainHeadingsTable = generateHeadersTable(mainHeadings);\npageAnalysis.subHeadingsCount = subHeadings.length;\npageAnalysis.subHeadingsTable = generateHeadersTable(subHeadings);\n\npageAnalysis.linksTableInternal = generateLinksTable('Internal Links', pageAnalysis.linksAnalysis.internal);\npageAnalysis.linksTableExternal = generateLinksTable('External Links', pageAnalysis.linksAnalysis.external);\npageAnalysis.linksTableInvalid  = generateLinksTable('Invalid Links',  pageAnalysis.linksAnalysis.invalid);\n\npageAnalysis.imagesTable = generateImagesTable(imgSources, imgAlts);\n\npageAnalysis.socialMediaTable = generateSocialMediaTable($('Code Analysis').first().json.socialLinks);\n\npageAnalysis.technicalSeoTable = generateTechnicalSeoTable({\n  robotstxt: $('Robots Analysis').first().json.hasSitemapInRobots,\n  sitemaxml: $('Code').first().json.hasValidSitemapXml,\n  httpscheck: $('Code Analysis').first().json.https,\n  mobilefriendly: $('Code Analysis').first().json.mobileFriendly,\n  friendlyurl: $('Code Analysis').first().json.friendlyUrls,\n  noindex: $('Code Analysis').first().json.noIndex,\n  gaanalytics: $('Code Analysis').first().json.googleAnalytics\n});\n\n\n// === ZWRÓĆ ===\nreturn [{ json: pageAnalysis }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "aac85cde-9d5a-495d-bab9-6e4a92ab316b",
+      "name": "Check Image",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        760,
+        420
+      ],
+      "parameters": {
+        "jsCode": "const srcs = $('HTML Extract').first().json.imgSrcs || [];\nconst alts = $('HTML Extract').first().json.imgAlts || [];\n\nconst images = [];\n\nfor (let i = 0; i < srcs.length; i++) {\n  images.push({\n    src: srcs[i],\n    alt: alts[i] || null\n  });\n}\n\nreturn [{\n  json: {\n    images,\n    totalImages: images.length,\n    missingAltCount: images.filter(img => !img.alt || img.alt.trim() === \"\").length\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "810c3dfa-ad3e-4c1f-903f-cfb621783ebd",
+      "name": "Links",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        760,
+        100
+      ],
+      "parameters": {
+        "jsCode": "\n// 1. Funkcja do tworzenia URL z fallbackiem\nfunction createUrl(href, base) {\n  try {\n    // Próbuj użyć natywnego URL jeśli dostępny\n    return new URL(href, base);\n  } catch (e) {\n    // Fallback dla środowisk bez pełnego wsparcia URL\n    try {\n      const baseObj = parseBaseUrl(base);\n      const resolved = resolveUrl(href, baseObj);\n      return {\n        href: resolved,\n        hostname: new RegExp(/https?:\\/\\/([^\\/]+)/).exec(resolved)[1],\n        protocol: resolved.startsWith('https') ? 'https:' : 'http:'\n      };\n    } catch (err) {\n      throw new Error(`Invalid URL: ${href}`);\n    }\n  }\n}\n\n// 2. Pomocnicze funkcje do parsowania URL\nfunction parseBaseUrl(base) {\n  const match = base.match(/^(https?:\\/\\/[^\\/]+)/);\n  if (!match) throw new Error(`Invalid base URL: ${base}`);\n  return {\n    protocol: match[1].split('://')[0] + ':',\n    host: match[1].split('://')[1],\n    origin: match[1]\n  };\n}\n\nfunction resolveUrl(href, baseObj) {\n  if (href.startsWith('http')) return href;\n  if (href.startsWith('//')) return baseObj.protocol + href;\n  if (href.startsWith('/')) return baseObj.origin + href;\n  return baseObj.origin + '/' + href;\n}\n\n\n// Główna logika\nconst baseUrlString = $('Webhook').first().json.query.url;\nconst baseUrl = createUrl(baseUrlString, baseUrlString);\n\n// 1. Pobieranie linków z większą elastycznością\nlet links = [];\n\n// Sprawdź różne możliwe formaty danych wejściowych\nif (Array.isArray($input.first().json.links)) {\n  links = $input.first().json.links;\n} else if ($input.first().json.links && typeof $input.first().json.links === 'object') {\n  // Jeśli links jest obiektem, konwertuj do tablicy\n  links = Object.values($input.first().json.links);\n} else {\n  // Jeśli nie ma danych, użyj pustej tablicy\n  links = [];\n}\n\n// 2. Filtruj puste wartości\nlinks = links.filter(link => {\n  if (typeof link === 'string' && link.trim() !== '') return true;\n  if (typeof link?.href === 'string' && link.href.trim() !== '') return true;\n  return false;\n});\n\n// 3. Analiza linków\nconst result = { \n  internalLinks: [], \n  externalLinks: [], \n  invalidLinks: [],\n  counts: {\n    internal: 0,\n    external: 0,\n    invalid: 0,\n    total: links.length\n  }\n};\n\nfor (const href of links) {\n  try {\n    // Obsłuż zarówno stringi jak i obiekty z polami href\n    const linkUrl = typeof href === 'string' ? href : href.href;\n    const url = createUrl(linkUrl, baseUrl.href);\n    \n    const normalize = host => host.replace('www.', '').toLowerCase();\n    \n    if (normalize(url.hostname) === normalize(baseUrl.hostname)) {\n      result.internalLinks.push(url.href);\n      result.counts.internal++;\n    } else {\n      result.externalLinks.push(url.href);\n      result.counts.external++;\n    }\n  } catch (e) {\n    const invalidLink = typeof href === 'string' ? href : href.href;\n    result.invalidLinks.push(invalidLink);\n    result.counts.invalid++;\n  }\n}\n\n// 4. Zwróć wyniki\nreturn [{\n  json: {\n    ...result,\n    counts: {\n      internal: result.internalLinks.length,\n      external: result.externalLinks.length,\n      invalid: result.invalidLinks.length,\n      total: links.length\n    }\n  }\n}];"
+      },
+      "retryOnFail": false,
+      "typeVersion": 2,
+      "alwaysOutputData": false
+    },
+    {
+      "id": "ad0ef5bb-cede-4b06-b555-4f20754b851d",
+      "name": "DeepSeek Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "position": [
+        880,
+        500
+      ],
+      "parameters": {
+        "options": {
+          "responseFormat": "json_object"
+        }
+      },
+      "credentials": {
+        "deepSeekApi": {
+          "id": "jPnyKkmqHRq5dXfZ",
+          "name": "DeepSeek account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9d3930ad-9bc1-4d2a-b621-a55dd2bf782e",
+      "name": "Title Analysis",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        980,
+        -220
+      ],
+      "parameters": {
+        "text": "=The page title is: \"{{ $('HTML Extract').item.json.title }}\" and the target keyword for optimization is: \"{{ $('Webhook').item.json.query.keyword }}\". Lenght title is: {{ $json.titleLength }}.\n\nPlease provide exactly 1 SEO optimization recommendation.  \nReturn the recommendation only as a JSON object with a single field named \"titlerecommendation\" containing the advice as plain text ",
+        "batching": {},
+        "messages": {
+          "messageValues": [
+            {
+              "message": "Return example: {   \"titlerecommendation\": \"Make sure to include the keyword '$keyword' naturally in the page title to improve search ranking.\" }"
+            }
+          ]
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.7
+    },
+    {
+      "id": "60e14521-7dd7-46c1-9013-22265e0773cd",
+      "name": "Description Analysis",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        980,
+        -60
+      ],
+      "parameters": {
+        "text": "=The page meta description is: \"{{ $('HTML Extract').item.json.description }}\" and the target keyword for optimization is: \"{{ $('Webhook').item.json.query.keyword }}\". Lenght title is: {{ $json.descriptionLength }}\n\nPlease provide exactly 2 SEO optimization recommendation.  \nReturn the recommendation only as a JSON object with a single field named \"descrecommendation\" containing the advice as plain text. Return example: {   \"descRecommendation1\": \"Tip 1\",   \"descRecommendation2\": \"Tip 2\" }",
+        "batching": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.7
+    },
+    {
+      "id": "0e61d33b-782c-4fe3-ba65-2d449dae0e1a",
+      "name": "Title",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        760,
+        -220
+      ],
+      "parameters": {
+        "jsCode": "// Pobierz tytuł ze swojego inputa, np. z pola metaTitle\nconst title = $input.first().json.title;\n\n// Oblicz długość tekstu (ilość znaków)\nconst titleLength = title.length;\n\n// Zwróć wynik\nreturn [\n  {\n    json: {\n      titleLength: titleLength\n    }\n  }\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f5703f12-58c0-4c14-b2f9-54863d0937f9",
+      "name": "Description",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        760,
+        -60
+      ],
+      "parameters": {
+        "jsCode": "// Pobierz description\nconst description = $input.first().json.description;\n\n// Sprawdź, czy description istnieje i jest tekstem\nif (!description || typeof description !== 'string' || description.trim() === '') {\n  // Brak description — zwróć 0 i informację\n  return [\n    {\n      json: {\n        descriptionLength: 0,\n        descriptionAvailable: false,\n        message: 'Brak meta description'\n      }\n    }\n  ];\n}\n\n// Oblicz długość tekstu\nconst descriptionLength = description.length;\n\n// Zwróć wynik z informacją, że description jest dostępne\nreturn [\n  {\n    json: {\n      descriptionLength: descriptionLength,\n      descriptionAvailable: true\n    }\n  }\n];"
+      },
+      "typeVersion": 2,
+      "alwaysOutputData": false
+    },
+    {
+      "id": "dba2d0cb-159a-45b9-88b0-340ef1bafc12",
+      "name": "Alts Analysis",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        980,
+        420
+      ],
+      "parameters": {
+        "text": "=Here is a list of image ALT texts used on the page:  \n{{ $('HTML Extract').item.json.imgAlts }}\n\nThe target keyword for SEO optimization is: \"{{ $('Webhook').item.json.query.keyword }}\".\n\nPlease analyze the ALT texts and provide up to 2 SEO optimization recommendations to improve image accessibility and keyword relevance.\n\nReturn the result strictly as a JSON object with a field named \"altRecommendations\", which contains an array of up to 2 text-based tips.\n\nExample return format:\n\n{\n  \"altRecommendations\": [\n    \"Advice 1\",\n    \"Advice 2\"\n  ]\n} ",
+        "batching": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.7
+    },
+    {
+      "id": "e9ffd9dc-8b0c-4516-a278-48e7620f063b",
+      "name": "Density Analysis",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        980,
+        260
+      ],
+      "parameters": {
+        "text": "=The keyword to optimize for is: \"{{ $json.keyword }}\".  \nThis keyword is use on page: {{ $json.keywordCount }}.\nThe total number of words on the page is: {{ $json.totalWords }}.  \nThe keyword density is: {{ $json.keywordDensity }}.\n\nBased on this information, provide exactly 2 SEO optimization recommendations related to keyword usage.  \nReturn the result strictly as a JSON object with a field named \"keywordRecommendations\", which contains an array of two tips as strings.\n\nExample return format:\n\n{\n  \"keywordRecommendations\": [\n    \"Advice 1\",\n    \"Advice 2\"\n  ]\n} ",
+        "batching": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.7
+    },
+    {
+      "id": "cf38f9b8-dd54-4fb6-8108-d954bd7bd742",
+      "name": "Keyword Density",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        760,
+        260
+      ],
+      "parameters": {
+        "jsCode": "// 1. Pobierz dane z poprzedniego węzła\nconst keyword = $('Webhook').first().json.query.keyword;  // Bez {{ }} - bezpośredni dostęp do $json\nconst body = $('HTTP Request - Get Page').first().json.data;              // Bez {{ }} - $json zawiera już dane\n\n// 2. Sprawdź, czy keyword i body istnieją\nif (!keyword || !body) {\n    throw new Error(\"Brak wymaganych danych: 'keyword' lub 'body'\");\n}\n\n// 3. Przygotuj tekst do analizy (usuń HTML i znaki specjalne)\nconst cleanBody = body\n    .toString()\n    .replace(/<[^>]*>/g, ' ')     // Usuń tagi HTML\n    .replace(/[^\\w\\s]/g, ' ')      // Usuń znaki specjalne (zostaw tylko litery, cyfry i spacje)\n    .replace(/\\s+/g, ' ')          // Zamień wiele spacji na jedną\n    .toLowerCase();\n\nconst keywordLower = keyword.toString().toLowerCase();\n\n// 4. Oblicz statystyki\nconst keywordCount = (cleanBody.match(new RegExp(keywordLower, 'gi')) || []).length;\nconst totalWords = cleanBody.split(' ').filter(word => word.trim().length > 0).length;\nconst density = totalWords > 0 ? ((keywordCount / totalWords) * 100).toFixed(2) + '%' : '0%';\n\n// 5. Zwróć wynik\nreturn [{\n    keyword: keywordLower,\n    keywordCount,\n    totalWords,\n    keywordDensity: density,\n    isOptimal: parseFloat(density) >= 1.0 && parseFloat(density) <= 3.0,\n    sampleText: cleanBody.slice(0, 100) + (cleanBody.length > 100 ? \"...\" : \"\")\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "88f58315-1df8-450f-9744-f121fee148c2",
+      "name": "Content Analysis",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        980,
+        100
+      ],
+      "parameters": {
+        "text": "=Here is the full content of the webpage:\n{{ $json['treść'] }}\n\nThe keyword to optimize for is: \"{{ $('Webhook').item.json.query.keyword }}\".\n\nAnalyze how well the keyword is integrated into the content and provide exactly 2 SEO optimization recommendations to improve keyword usage and on-page relevance.\n\nReturn the result strictly as a JSON object with a field named \"contentRecommendations\", which contains an array of 2 plain-text tips.\n\nExample return format:\n\n{\n  \"contentRecommendations\": [\n    \"Advice 1\",\n    \"Advice 2\"\n  ]\n} ",
+        "batching": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.7
+    },
+    {
+      "id": "c4b1e9dc-b7a3-4d89-b79f-8b186455035b",
+      "name": "Domain",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        420,
+        760
+      ],
+      "parameters": {
+        "jsCode": "// Funkcja do wyodrębniania domeny głównej\nfunction getRootDomain(url) {\n  if (!url) return null;\n  \n  try {\n    // Dodaj protokół jeśli brakuje\n    const urlWithProtocol = url.includes('://') ? url : `https://${url}`;\n    const parsedUrl = new URL(urlWithProtocol);\n    \n    // Usuń subdomeny (www też) i zwróć czystą domenę\n    const domainParts = parsedUrl.hostname.split('.');\n    const isLocalhost = domainParts.includes('localhost');\n    \n    if (isLocalhost || domainParts.length <= 2) {\n      return `${parsedUrl.protocol}//${parsedUrl.hostname}`;\n    }\n    \n    // Dla normalnych domen bierzemy ostatnie 2 części\n    const rootDomain = domainParts.slice(-2).join('.');\n    return `${parsedUrl.protocol}//${rootDomain}`;\n  } catch (error) {\n    // Ręczna ekstrakcja dla niepoprawnych URLi\n    const domainMatch = url.match(\n      /^(https?:\\/\\/)?(www\\.)?([a-z0-9-]+\\.[a-z]{2,})(\\/|$)/i\n    );\n    return domainMatch ? `https://${domainMatch[3]}` : null;\n  }\n}\n\n// Pobierz URL z inputu\nconst inputUrl = $input.first().json?.query?.url || $input.first().json?.domain || '';\n\n// Wygeneruj główną domenę\nconst rootDomain = getRootDomain(inputUrl);\n\n// Przygotuj wynik\nconst result = {\n  originalUrl: inputUrl,\n  rootDomain: rootDomain\n};\n\nreturn [{\n  json: result\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a6046711-bc81-4cc6-af4c-87fd45b61701",
+      "name": "Robots.txt",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        580,
+        760
+      ],
+      "parameters": {
+        "url": "={{ $json.rootDomain }}/robots.txt",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "965c580f-873a-4018-a818-6f7d2c4d4efa",
+      "name": "Code Analysis",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        760,
+        600
+      ],
+      "parameters": {
+        "jsCode": "\nconst url = $('Webhook').first().json.query.url;\nconst html = $input.first().json.data;\n\n// Funkcja do wydobycia \"origin\", czyli np. https://domena.pl\nconst getOrigin = (fullUrl) => {\n  const match = fullUrl.match(/^(https?:\\/\\/[^\\/?#]+)/i);\n  return match ? match[1] : fullUrl;\n};\n\nconst origin = getOrigin(url);\n\nasync function checkFile(path) {\n  try {\n    const res = await axios.get(`${origin}/${path}`);\n    return res.status === 200 ? \"Yes\" : \"No\";\n  } catch {\n    return \"No\";\n  }\n}\n\nconst isHttps = origin.startsWith('https') ? \"Yes\" : \"No\";\nconst hasQueryParams = url.includes('?') ? \"No\" : \"Yes\";\n\nconst results = {\n  robotsTxt: await checkFile('robots.txt'),\n  sitemapXml: await checkFile('sitemap.xml'),\n  https: isHttps,\n  mobileFriendly: html.includes('viewport') ? \"Yes\" : \"No\",\n  friendlyUrls: hasQueryParams,\n  noIndex: html.includes('noindex') ? \"Yes\" : \"No\",\n\n  googleAnalytics: (\n    html.includes('gtag(') ||\n    html.includes('G-') ||\n    html.includes('UA-')\n  ) ? \"Yes\" : \"No\",\n\n  socialLinks: {\n    facebook: html.includes('facebook.com') ? \"Yes\" : \"No\",\n    instagram: html.includes('instagram.com') ? \"Yes\" : \"No\",\n    twitter: html.includes('twitter.com') ? \"Yes\" : \"No\",\n    linkedin: html.includes('linkedin.com') ? \"Yes\" : \"No\"\n  }\n};\n\nreturn [{ json: results }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d207b8a3-74b7-4ede-94f5-97d269efa69d",
+      "name": "Sitemap",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        580,
+        940
+      ],
+      "parameters": {
+        "url": "={{ $json.rootDomain }}/sitemap.xml",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "9e1543eb-de35-4004-bd4f-647d21ed6021",
+      "name": "Robots Analysis",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        760,
+        760
+      ],
+      "parameters": {
+        "jsCode": "const robotsTxt = $input.first().json.data;\n\n// Sprawdzenie obecności linijki z sitemapą w treści robots.txt\nconst hasSitemapInRobots = /Sitemap:\\s*https?:\\/\\/.+/i.test(robotsTxt) ? 'Yes' : 'No';\n\nreturn [\n  {\n    json: {\n      robotsTxtRaw: robotsTxt,\n      hasSitemapInRobots\n    }\n  }\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "433b6bb7-b056-46d0-b9e8-5585013d2604",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        760,
+        940
+      ],
+      "parameters": {
+        "jsCode": "const sitemapXml = $input.first().json.data;\n\n// Sprawdzenie, czy sitemap zawiera deklarację XML\nconst hasValidSitemapXml = sitemapXml.trim().startsWith('<?xml') ? 'Yes' : 'No';\n\nreturn [\n  {\n    json: {\n      sitemapXmlRaw: sitemapXml,\n      hasValidSitemapXml\n    }\n  }\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "97fb970d-02a7-41b5-8a49-a476320cb7ee",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1560,
+        160
+      ],
+      "parameters": {
+        "numberInputs": 10
+      },
+      "typeVersion": 3.2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "05b4f141-e738-4ab9-a855-88dbafc70eef",
+  "connections": {
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 8
+          }
+        ]
+      ]
+    },
+    "Links": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "FUnctions to report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Title": {
+      "main": [
+        [
+          {
+            "node": "Title Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Domain": {
+      "main": [
+        [
+          {
+            "node": "Robots.txt",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Sitemap",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sitemap": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Get Page",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Domain",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "PageSpeed API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Robots.txt": {
+      "main": [
+        [
+          {
+            "node": "Robots Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "main": [
+        []
+      ]
+    },
+    "Check Image": {
+      "main": [
+        [
+          {
+            "node": "Alts Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Description": {
+      "main": [
+        [
+          {
+            "node": "Description Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML Extract": {
+      "main": [
+        [
+          {
+            "node": "Keyword Density",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Links",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Image",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Title",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Description",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Content Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alts Analysis": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 5
+          }
+        ]
+      ]
+    },
+    "Code Analysis": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 6
+          }
+        ]
+      ]
+    },
+    "PageSpeed API": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 9
+          }
+        ]
+      ]
+    },
+    "Title Analysis": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Keyword Density": {
+      "main": [
+        [
+          {
+            "node": "Density Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Robots Analysis": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 7
+          }
+        ]
+      ]
+    },
+    "Content Analysis": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Density Analysis": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Title Analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Description Analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Density Analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Alts Analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Content Analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FUnctions to report": {
+      "main": [
+        [
+          {
+            "node": "Generate HTML REPORT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Description Analysis": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Generate HTML REPORT": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Get Page": {
+      "main": [
+        [
+          {
+            "node": "HTML Extract",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

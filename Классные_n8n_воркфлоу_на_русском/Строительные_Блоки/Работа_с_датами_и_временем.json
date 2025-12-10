@@ -1,0 +1,205 @@
+{
+  "nodes": [
+    {
+      "name": "On clicking 'execute'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        1140,
+        780
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "name": "Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1480,
+        760
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 400,
+        "content": "## 2. Расширенный способ: Использование выражений"
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        660,
+        780
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 100,
+        "content": "В этом узле `Set` мы устанавливаем даты, используя [выражения Luxon](https://docs.n8n.io/code-examples/expressions/luxon/) для следующих форматов:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "12 Hours from now",
+      "type": "n8n-nodes-base.dateTime",
+      "position": [
+        1520,
+        580
+      ],
+      "parameters": {
+        "value": "={{$now}}",
+        "action": "calculate",
+        "options": {},
+        "duration": 12,
+        "timeUnit": "hours"
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1480,
+        400
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 340,
+        "content": "Сейчас - `{{$now}}`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1980,
+        860
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 320,
+        "content": "Текущее время с секундами - `{{$now.toLocaleString(DateTime.TIME_WITH_SECONDS)}}`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Set times",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1520,
+        1020
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "Now",
+              "value": "={{$now}}"
+            },
+            {
+              "name": "Current time with seconds",
+              "value": "={{$now.toLocaleString(DateTime.TIME_WITH_SECONDS)}}"
+            },
+            {
+              "name": "Today",
+              "value": "={{$today}}"
+            },
+            {
+              "name": "Tomorrow",
+              "value": "={{$today.plus({days: 1})}}"
+            },
+            {
+              "name": "One hour from now",
+              "value": "={{$now.minus({hours: 1})}}"
+            },
+            {
+              "name": "Weekday",
+              "value": "={{$today.weekdayLong}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Edit times",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2080,
+        1020
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "Current time",
+              "value": "={{DateTime.fromISO($json[\"Now\"])}}"
+            },
+            {
+              "name": "Current time formatted",
+              "value": "={{DateTime.fromISO($json[\"Now\"]).toFormat('yyyy LLL dd')}}"
+            }
+          ]
+        },
+        "options": {},
+        "keepOnlySet": true
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Format - MMMM DD YY",
+      "type": "n8n-nodes-base.dateTime",
+      "position": [
+        1760,
+        580
+      ],
+      "parameters": {
+        "value": "={{$now}}",
+        "options": {},
+        "toFormat": "MMMM DD YYYY"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "Set times": {
+      "main": [
+        [
+          {
+            "node": "Edit times",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "12 Hours from now": {
+      "main": [
+        [
+          {
+            "node": "Format - MMMM DD YY",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On clicking 'execute'": {
+      "main": [
+        [
+          {
+            "node": "Set times",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "12 Hours from now",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

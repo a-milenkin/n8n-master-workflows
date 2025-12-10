@@ -1,0 +1,369 @@
+{
+  "id": "csdsQBzjewFU2R9L",
+  "meta": {
+    "instanceId": "e95c8554b03e2c16a5c8c44cc7d45f6192b966fba75d5438d1201989ceff13e2",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "## 🧩 Шаг 1 – Подключите Tally к n8n",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "209736b4-b77d-445f-a592-67408ad188d5",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1060,
+        1060
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0186e9c9-424c-4ad8-8382-1614cf48c9d1",
+              "name": "full_name",
+              "type": "string",
+              "value": "={{ $json.body.data.fields[0].value }}"
+            },
+            {
+              "id": "e5559efc-1458-48e6-a207-f7fea896e930",
+              "name": "company_name",
+              "type": "string",
+              "value": "={{ $json.body.data.fields[1].value }}"
+            },
+            {
+              "id": "bbc04ed4-a8f7-4778-bfdc-038c637320fa",
+              "name": "job_title",
+              "type": "string",
+              "value": "={{ $json.body.data.fields[2].value }}"
+            },
+            {
+              "id": "8175addd-ef95-45f9-b307-b218d6ede2be",
+              "name": "email",
+              "type": "string",
+              "value": "={{ $json.body.data.fields[3].value }}"
+            },
+            {
+              "id": "f017c0bd-bd5d-4a5e-967f-bb27c514f5ee",
+              "name": "phone_number",
+              "type": "string",
+              "value": "={{ $json.body.data.fields[4].value }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "7d8cefdb-3eaf-40b5-b837-429fd219daa8",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1960,
+        1060
+      ],
+      "webhookId": "0401220d-037c-4e73-96ad-8ed99c768d6e",
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "62227d14-34a0-42f0-986f-cdf88720c60b",
+      "name": "Webhook : Tally",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        620,
+        1060
+      ],
+      "webhookId": "20bc0a59-b424-454d-9d49-4504e6b29fa2",
+      "parameters": {
+        "path": "20bc0a59-b424-454d-9d49-4504e6b29fa2",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6038f0a2-0787-4693-88b9-57313d81b526",
+      "name": "Airtable : Create a record",
+      "type": "n8n-nodes-base.airtable",
+      "position": [
+        1600,
+        1060
+      ],
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "mode": "list",
+          "value": "appPk6zfIQ1EbBq43",
+          "cachedResultUrl": "https://airtable.com/appPk6zfIQ1EbBq43",
+          "cachedResultName": "Client Requests"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "tblLkuoQ9AYsAQ0io",
+          "cachedResultUrl": "https://airtable.com/appPk6zfIQ1EbBq43/tblLkuoQ9AYsAQ0io",
+          "cachedResultName": "Client Requests"
+        },
+        "columns": {
+          "value": {
+            "Email": "={{ $json.email }}",
+            "Full Name": "={{ $json.full_name }}",
+            "Job Title": "={{ $json.job_title }}",
+            "Company Name": "={{ $json.company_name }}",
+            "Phone Number": "={{ $json.phone_number }}"
+          },
+          "schema": [
+            {
+              "id": "Full Name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Full Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company Name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Company Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Job Title",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Job Title",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone Number",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Phone Number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Submission Date",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "readOnly": true,
+              "required": false,
+              "displayName": "Submission Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "create"
+      },
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "fbET2GdSoJjK5Idu",
+          "name": "Airtable Personal Access Token account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "57f2a3bb-b87f-4137-ab7d-ba60f257d74d",
+      "name": "GMAIL : Send a message",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2360,
+        1060
+      ],
+      "webhookId": "b01196a3-c7e2-4933-b8ae-bb1e0820f703",
+      "parameters": {
+        "sendTo": "={{ $json.fields.Email }}",
+        "message": "=<p>Hi {{ $json.fields['Full Name'] }},</p>\n\n<p>Thanks for reaching out! We’ve received your request and our team will get back to you as soon as possible.</p>\n\n<p><strong>Here’s a quick summary:</strong></p>\n<ul>\n\n <li><strong>Company:</strong>{{ $json.fields['Company Name'] }} </li>\n  <li><strong>Job Title:</strong> {{ $json.fields['Job Title'] }}</li>\n\n<p>We’ll be in touch very soon!</p>\n<p>— The Team</p>\n\n",
+        "options": {},
+        "subject": "Thanks for reaching out!"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "FKD43HaVeVoUXOi0",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "b3d40a1e-61cf-499f-9ec5-41f05e65237b",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        160,
+        620
+      ],
+      "parameters": {
+        "width": 200,
+        "height": 400,
+        "content": "## 🎯 Цель рабочего процесса"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9eccf3c9-5d89-465e-8647-4b3f677b56d2",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        560,
+        0
+      ],
+      "parameters": {
+        "color": 3,
+        "height": 1220,
+        "content": "**Все еще вручную проверяете ответы на формы в вашем почтовом ящике?**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4859c72a-fe22-4e94-b78e-b036cc398acb",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        980,
+        160
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 280,
+        "height": 1060,
+        "content": "**Что если каждое отправление аккуратно попадет в Airtable — и вы мгновенно получите чистое сообщение в Slack?**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b635a05b-fd2c-46f7-a211-bf90ff379556",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        200
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 280,
+        "height": 1020,
+        "content": "Именно это и делает этот рабочий процесс."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "125c7959-e049-478b-9f3d-b8de998a7754",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1920,
+        320
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 600,
+        "height": 900,
+        "content": "Без кода, без задержек — просто плавная автоматизация:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ccfd0ac3-6a74-4efe-bf2f-e444a9d5f699",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2600,
+        880
+      ],
+      "parameters": {
+        "width": 320,
+        "height": 340,
+        "content": "**Tally → Airtable → Slack**"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0fe76154-7e4f-4ff0-bc97-7bcffb1f9a4b",
+  "connections": {
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "GMAIL : Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Airtable : Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook : Tally": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable : Create a record": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

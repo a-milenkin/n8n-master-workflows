@@ -1,0 +1,198 @@
+{
+  "meta": {
+    "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "6f7ace63-a7d6-498e-9805-3de8f00b4275",
+      "name": "Execute NixGuard & Wazuh Workflow",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "position": [
+        -420,
+        -1220
+      ],
+      "parameters": {
+        "options": {},
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "I0nUORqYTwDFZa51",
+          "cachedResultName": "Get Real-Time Security Insights with NixGuard RAG and Wazuh Integration"
+        },
+        "workflowInputs": {
+          "value": {},
+          "schema": [],
+          "mappingMode": "passThrough",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "da86d2fb-89ab-4431-a6a9-6ccbd0f66121",
+      "name": "Format NixGuard AI Summary & Wazuh Insights",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -200,
+        -1220
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "ai_summary",
+              "value": "={{ $json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c0ac70b6-0545-4681-af88-e3baae9d658e",
+      "name": "(Optional) Send Slack Alert for High-Risk Events",
+      "type": "n8n-nodes-base.slack",
+      "disabled": true,
+      "position": [
+        40,
+        -1220
+      ],
+      "webhookId": "292c465e-1f1e-4c22-9947-ccffafbf45e2",
+      "parameters": {
+        "text": "=🚨 *NixGuard IP Analysis* 🚨\n\n*AI Summary:*\n{{ $json.ai_summary }}",
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "64dfc08c-5b6c-4982-b779-ab368cfabc73",
+      "name": "Webhook Trigger\n(REAL-WORLD USE)1",
+      "type": "n8n-nodes-base.webhook",
+      "active": false,
+      "position": [
+        -640,
+        -980
+      ],
+      "webhookId": "e74aeb1a-0659-4a89-8ede-17bb9fdbe317",
+      "parameters": {
+        "path": "e74aeb1a-0659-4a89-8ede-17bb9fdbe317",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2b8da30e-22d6-4900-bc3d-37c5a4cfb3c4",
+      "name": "Set API Key & Initial Prompt",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -640,
+        -1220
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "apiKey",
+              "value": "PASTE_YOUR_NIXGUARD_API_KEY_HERE"
+            },
+            {
+              "name": "chatInput",
+              "value": "Scan this url for me: https://thenex.world"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c22b6b46-ee9a-4ed5-82ef-d693f7e1b7b3",
+      "name": "Next Steps: Automate Response2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -200,
+        -1000
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 520,
+        "height": 380,
+        "content": "### ⚡️ Следующие шаги: Автоматизируйте ваш процесс SOC/IR"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5794f296-fa9a-4b6e-a6fa-eef14f78b225",
+      "name": "Workflow Overview2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1280,
+        -1220
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 540,
+        "height": 440,
+        "content": "Этот рабочий процесс предоставляет действенную информацию. Узел `Set` форматирует мощные идеи от NixGuard и Wazuh, готовые для использования в ваших SOAR сценариях."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a8687553-569a-41cf-8ab3-175a031ad6db",
+      "name": "Setup Instructions2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -640,
+        -1740
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 560,
+        "height": 440,
+        "content": "Отсюда вы можете автоматизировать весь ваш ответ на угрозы:"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Set API Key & Initial Prompt": {
+      "main": [
+        [
+          {
+            "node": "Execute NixGuard & Wazuh Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute NixGuard & Wazuh Workflow": {
+      "main": [
+        [
+          {
+            "node": "Format NixGuard AI Summary & Wazuh Insights",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format NixGuard AI Summary & Wazuh Insights": {
+      "main": [
+        [
+          {
+            "node": "(Optional) Send Slack Alert for High-Risk Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

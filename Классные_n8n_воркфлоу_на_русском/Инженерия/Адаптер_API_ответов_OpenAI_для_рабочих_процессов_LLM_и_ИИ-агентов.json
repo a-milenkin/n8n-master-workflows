@@ -1,0 +1,476 @@
+{
+  "meta": {
+    "instanceId": "408f9fb9940c3cb18ffdef0e0150fe342d6e655c3a9fac21f0f644e8bedabcd9",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "8531ff8a-b247-4baa-a85b-11512fc2bb60",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        -320,
+        -500
+      ],
+      "webhookId": "f24f59f8-7ea5-4165-be02-d47bdcae52fa",
+      "parameters": {
+        "public": true,
+        "options": {
+          "allowFileUploads": true
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "a039b516-a74a-4ea6-8583-abec9bf2a1f8",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -120,
+        -500
+      ],
+      "parameters": {
+        "options": {
+          "passthroughBinaryImages": true,
+          "returnIntermediateSteps": true
+        }
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "454a16ea-9bcf-4cb8-a62d-95a1aedea974",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -320,
+        160
+      ],
+      "webhookId": "211b7574-f96a-429e-a2bf-c19c0fec5e9e",
+      "parameters": {
+        "path": "n8n-responses-api/models",
+        "options": {},
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3fca113b-f259-4495-a52c-89f3c09748c0",
+      "name": "OpenAI Models",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -100,
+        160
+      ],
+      "parameters": {
+        "url": "https://api.openai.com/v1/models",
+        "options": {},
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi"
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8gccIjcuf3gvaoEr",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "bee5a8d3-e18a-4756-99ea-7d14fa08e2f5",
+      "name": "POST ChatCompletions",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        460,
+        240
+      ],
+      "webhookId": "e8c56164-1825-4ac4-9c23-d209f4907458",
+      "parameters": {
+        "path": "n8n-responses-api/chat/completions",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "974fd565-c1cf-468a-827f-391bd013e145",
+      "name": "Models Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        120,
+        160
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "6a4bfb20-5562-4500-9ee2-521f848d3825",
+      "name": "Remap to Response API Schema",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        680,
+        240
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "function tranformContent(content) {\n  return [].concat(content).map(content => {\n    if (typeof content === 'string') {\n      return { type: \"input_text\", text: content };\n    }\n    return {\n      type: getInputType(content.type),\n      [content.type]: content[content.type].url\n    }\n  })\n};\n\nfunction getInputType(type) {\n  if (type === 'image_url') return 'input_image';\n  if (type === 'file_url') return 'input_file';\n  return 'input_text';\n}\n\nconst input = $input.item.json.body.messages.map(message => ({\n  role: message.role,\n  content: tranformContent(message.content)\n}));\n\nreturn { input };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5f4f22c9-f333-469c-a915-8f5da6443e53",
+      "name": "OpenAI Responses API",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        900,
+        240
+      ],
+      "parameters": {
+        "url": "https://api.openai.com/v1/responses",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{\n{\n  model: $('POST ChatCompletions').first().json.body.model,\n  stream: $('POST ChatCompletions').first().json.body.stream,\n  input: $json.input,\n}\n}}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi"
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8gccIjcuf3gvaoEr",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "5242a76d-9649-469b-ba91-e33d0f42850e",
+      "name": "Is Agent?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1100,
+        240
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "213702bf-d5c2-4a8a-b5c8-e55f804e4496",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('POST ChatCompletions').first().json.body.stream }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "4ecc0ec2-4637-48d9-9157-0a6dc39bab9e",
+      "name": "n8n Webhook",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -140,
+        -320
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "PeoQjbPq9TxC5Fnf",
+          "name": "n8n Document Understanding"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "d050bfc1-ce7a-4ae2-b4b1-763be76b8061",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -400,
+        -740
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 700,
+        "height": 580,
+        "content": "## 1. Создайте новую пользовательскую учетную запись OpenAI"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7703f756-652b-44e4-81b3-021323b08e18",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        180,
+        -380
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 540,
+        "height": 240,
+        "content": "[Узнайте больше об учетных записях OpenAI](https://docs.n8n.io/integrations/builtin/credentials/openai/)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a6bc3bcc-d1e9-4d7a-947b-faeddda59507",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -400,
+        -40
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 740,
+        "height": 420,
+        "content": "Чтобы использовать модели Github с нашими существующими узлами n8n, один из подходов заключается в имитации совместимого с openAI API, подключенного через подузел модели OpenAI. Звучит сложно, но не волнуйтесь, этот шаблон покажет вам, как это сделать! Первый шаг - настроить новую учетную запись OpenAI, чтобы мы могли изменить базовый URL."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "54e0b20a-1a3d-4068-b76a-9b6d10fa0fc2",
+      "name": "Format Completion Response",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1320,
+        340
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  \"id\": $json.id,\n  \"object\": \"chat.completion\",\n  \"created\": $json.created_at,\n  \"model\": $json.model,\n  \"choices\": $json.output.flatMap((item,idx) => (\n    item.content.map((content) => ({\n      index: idx,\n      finish_reason: \"stop\",\n      \"message\": {\n        \"annotations\": content.annotations,\n        \"content\": content.text,\n        \"refusal\": null,\n        \"role\": item.role\n      }\n    }))\n  )),\n  \"usage\": {\n    \"completion_tokens\": $json.usage.output_tokens,\n    \"completion_tokens_details\": $json.usage.output_tokens_details,\n    \"prompt_tokens\": $json.usage.input_tokens_details,\n    \"prompt_tokens_details\": $json.usage.input_tokens_details,\n    \"total_tokens\": $json.usage.total_tokens\n  },\n  \"service_tier\": $json.service_tier,\n  \"system_fingerprint\": $json.id\n}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a7f2daa8-b4be-4571-b210-3d7ffd7481a3",
+      "name": "JSON Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1520,
+        340
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "4d64850a-3125-47eb-a892-1beddbb371fb",
+      "name": "Text Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1520,
+        140
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "text",
+        "responseBody": "={{ $json.data }}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "a9352379-8001-4ff2-a76a-cd927e9f47a2",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        380,
+        -40
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1360,
+        "height": 580,
+        "content": "### Модели LLM через вебхуки N8N"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cd8859ef-9d74-4272-a580-d0db59ce1a43",
+      "name": "Format Stream Response",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1320,
+        140
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const items = $input.item.json.data.split(/^\\n/mg);\nconst events = items.map(item => {\n  const [event, data] = item.split('\\n');\n  return {\n    event: event?.split(':')[1]?.trim() ?? null,\n    data: data?.substring(data.indexOf(':')+1,data.length)?.trim() ?? null\n  }\n});\n\nconst done = events.find(item => item.event === 'response.completed');\nconst res = JSON.parse(done.data).response;\n\nconst chunk = {\n  id: res.id,\n  object:\"chat.completion.chunk\",\n  created: res.created_at,\n  model: res.model,\n  service_tier: res.service_tier,\n  system_fingerprint: res.id,\n  choices: [{\n    index: 0,\n     delta: { content: res.output[0].content[0].text }\n  }],\n  \"usage\": {\n    \"completion_tokens\": res.usage.output_tokens,\n    \"completion_tokens_details\": res.usage.output_tokens_details,\n    \"prompt_tokens\": res.usage.input_tokens_details,\n    \"prompt_tokens_details\": res.usage.input_tokens_details,\n    \"total_tokens\": res.usage.total_tokens\n  }\n};\n\nconst data = [\n  `data: ${JSON.stringify(chunk)}`,\n  `data: [DONE]`\n].join('\\n\\n');\n\nreturn { data };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e1cb299d-3301-41d9-aa99-9b740105f377",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -880,
+        -740
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 1180,
+        "content": "Создайте новую учетную запись OpenAI и назовите ее \"n8n-responses-api\""
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Models",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Agent?": {
+      "main": [
+        [
+          {
+            "node": "Format Stream Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format Completion Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "n8n Webhook": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Models": {
+      "main": [
+        [
+          {
+            "node": "Models Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Responses API": {
+      "main": [
+        [
+          {
+            "node": "Is Agent?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST ChatCompletions": {
+      "main": [
+        [
+          {
+            "node": "Remap to Response API Schema",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Stream Response": {
+      "main": [
+        [
+          {
+            "node": "Text Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Completion Response": {
+      "main": [
+        [
+          {
+            "node": "JSON Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remap to Response API Schema": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Responses API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

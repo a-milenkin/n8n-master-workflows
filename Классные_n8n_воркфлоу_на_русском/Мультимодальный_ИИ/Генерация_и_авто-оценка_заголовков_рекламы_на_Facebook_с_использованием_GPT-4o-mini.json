@@ -1,0 +1,422 @@
+{
+  "meta": {
+    "instanceId": "741fe657cb1cf25e93c97c159943779bc83f3af267584292298f2b35e660e8e8",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "46a2c376-54c1-4c53-b757-87dcfe59eb3f",
+      "name": "Send a message",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2416,
+        -240
+      ],
+      "webhookId": "1e4c49ff-4a3f-429b-9a93-781ab10f80f4",
+      "parameters": {
+        "message": "={{ $('Agent_HeadlineWriter').item.json.output }}",
+        "options": {}
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nSkndCmTyBtH8K8D",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "a9f75e9b-3802-45b3-a142-98046cb263a5",
+      "name": "FormTrigger_CopywritingBrief",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        -112,
+        16
+      ],
+      "webhookId": "43eccd82-8552-4aab-8fa5-bdca37b2b512",
+      "parameters": {
+        "options": {},
+        "formTitle": "Copywriting Agent",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "What is your product about?",
+              "requiredField": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "ca9b8fc6-63ba-409e-9038-30c1d744738b",
+      "name": "Set_PromptForHeadline",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        96,
+        48
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e1ad4483-fb6d-4a4a-8589-615fbe8530c9",
+              "name": "Prompt For Agent",
+              "type": "string",
+              "value": "Write a facebook ad headline for this product:"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "28693439-cc56-4e1d-844e-2045336978e7",
+      "name": "LLM_HeadlineWriterModel",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        416,
+        224
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "qsnsBCnLGZhV5Geh",
+          "name": "n8n free OpenAI API credits"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "c042dc35-18a7-4a74-babf-3565d464f259",
+      "name": "Agent_HeadlineWriter",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        448,
+        0
+      ],
+      "parameters": {
+        "text": "={{ $json['Prompt For Agent'] }}:{{ $('FormTrigger_CopywritingBrief').item.json['What is your product about?'] }}\n\n",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "f38e2143-4efe-4462-ba86-726e5236ea5e",
+      "name": "LLM_EvalCriteriaModel",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        848,
+        192
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "qsnsBCnLGZhV5Geh",
+          "name": "n8n free OpenAI API credits"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "cf24aaad-b46d-4f9b-906f-94778c2df89a",
+      "name": "LLM_HeadlineEvaluatorModel",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1248,
+        208
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "qsnsBCnLGZhV5Geh",
+          "name": "n8n free OpenAI API credits"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "c89277bc-31cb-42f6-95f4-2a2bdf6c81f6",
+      "name": "LLM_BottomLineModel",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1760,
+        240
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "qsnsBCnLGZhV5Geh",
+          "name": "n8n free OpenAI API credits"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "3b55ff10-af4b-4cf2-abea-50c23ea705e5",
+      "name": "Agent_IterationDecision",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1776,
+        0
+      ],
+      "parameters": {
+        "text": "=Based on the bottom line:{{ $json.output }}\n\n\nDecide if we need another iteration.\nReturn NO if we dont,\notherwise return YES and add your feedback.",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "59e229e1-16f5-47bb-937b-d3ae6f7dbb13",
+      "name": "If_NeedMoreIterations",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2208,
+        -160
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "7f7d7b1c-e8ae-4a87-a8fe-43e32f270b64",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "NO"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "b90344b9-71a3-4104-bb94-07c982265f01",
+      "name": "Agent_HeadlineEvaluator",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1344,
+        0
+      ],
+      "parameters": {
+        "text": "=Your goal is to asses the output of an AI agent.\nIt was supposed to:\n{{ $('Set_PromptForHeadline').item.json['Prompt For Agent'] }}\n\nThe answer it gave is:{{ $('Agent_HeadlineWriter').item.json.output }}\n\nProvide your response using these parameters:{{ $json.output }}. make sure you calculate your average and give a bottom line.",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "9f155a08-0f1f-47f2-8b10-07a90dfabb6d",
+      "name": "Agent_EvalCriteriaBuilder",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        896,
+        0
+      ],
+      "parameters": {
+        "text": "=Your goal is to define parametes for assesing the output of this prompt:\n{{ $('Set_PromptForHeadline').item.json['Prompt For Agent'] }}\n\nWhich parameters would you suggest? give me 5 parameters including the scale. All should be in scale of 1-10 (10 will be the most positive)",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "2b447714-0276-4f34-82ce-5b50f7e750ae",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1024,
+        -672
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 320,
+        "content": "======================================="
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9387af72-afe9-4c71-9efe-9d8d4f0b8885",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1584,
+        -272
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1289,
+        "height": 1958,
+        "content": "ПОМОЩЬ С РАБОЧИМ ПРОЦЕССОМ"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "LLM_BottomLineModel": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent_IterationDecision",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent_HeadlineWriter": {
+      "main": [
+        [
+          {
+            "node": "Agent_EvalCriteriaBuilder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If_NeedMoreIterations": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "LLM_EvalCriteriaModel": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent_EvalCriteriaBuilder",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set_PromptForHeadline": {
+      "main": [
+        [
+          {
+            "node": "Agent_HeadlineWriter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent_HeadlineEvaluator": {
+      "main": [
+        [
+          {
+            "node": "Agent_IterationDecision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent_IterationDecision": {
+      "main": [
+        [
+          {
+            "node": "If_NeedMoreIterations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM_HeadlineWriterModel": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent_HeadlineWriter",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent_EvalCriteriaBuilder": {
+      "main": [
+        [
+          {
+            "node": "Agent_HeadlineEvaluator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM_HeadlineEvaluatorModel": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent_HeadlineEvaluator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FormTrigger_CopywritingBrief": {
+      "main": [
+        [
+          {
+            "node": "Set_PromptForHeadline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,540 @@
+{
+  "id": "QclY1XQ8GEstkvk7",
+  "meta": {
+    "instanceId": "3612a0c89f35a354ddd1216385240db51b4635fde7cae2a0d5004be915b832f3",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "*   **👂 Функция:** Слушает входящие HTTP POST запросы на своей конечной точке SSE.",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "74edac39-0775-4a4d-a007-43e8853b6ff4",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        200,
+        400
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-2.5-flash-preview-05-20"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "c8jj7D6oz6RJ81qp",
+          "name": "Google Gemini Context7"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "980cab3a-cc95-4e93-b334-7659d86e535d",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        700,
+        520
+      ],
+      "parameters": {
+        "sessionKey": "={{ $execution.id }}",
+        "sessionIdType": "customKey"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "530a8f53-88ff-42e2-84df-75c2e053c0ad",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3000,
+        -1280
+      ],
+      "parameters": {
+        "width": 980,
+        "height": 440,
+        "content": "## 📞 Конфигурация клиента MCP"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0e22c1e6-8bc2-40a1-9bdf-d498e39c8184",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -360,
+        -1140
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 680,
+        "height": 440,
+        "content": "### Для Roo Code, Cline и т.д."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1f2b2e2d-b05c-4721-9603-4b7911763f7e",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -360,
+        -680
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 680,
+        "height": 340,
+        "content": "Чтобы использовать этого агента ИИ Brave Search в вашем клиенте MCP:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "32123f13-3b04-4245-b757-9dc128fa1ff9",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2060,
+        -660
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 860,
+        "height": 600,
+        "content": "```json"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "14df63dc-d419-435b-9214-68dfb550d3b3",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -220,
+        -280
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 540,
+        "height": 500,
+        "content": "\"n8n-brave-search-agent\": {"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f43df2ce-59d4-4e6e-a9aa-bf1cb6740ca1",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        760,
+        -280
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 740,
+        "height": 500,
+        "content": "\"url\": \"https://ВАШ_N8N_ИНСТАНС/mcp/cc8cc827-3e72-4029-8a9d-76519d1c136d/sse\","
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "505ec39d-e687-4a5c-b0c0-c906e35cc830",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        500,
+        640
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 500,
+        "height": 240,
+        "content": "\"alwaysAllow\": ["
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aa198f9b-5fcf-4d7d-a597-5aa12c67e122",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1040,
+        640
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 540,
+        "height": 420,
+        "content": "\"call_brave_search_agent\""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "39f4dff5-2086-4663-9238-e0749f74cfe4",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1620,
+        640
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 520,
+        "height": 420,
+        "content": "]"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f5a49518-9373-4791-ac04-5ee8c2956c7f",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        780,
+        -1580
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 720,
+        "height": 660,
+        "content": "}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4dbcdda3-c1c6-4e7b-a58c-dd7216934f13",
+      "name": "Brave Search MCP Server Trigger",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        120,
+        -820
+      ],
+      "webhookId": "cc8cc827-3e72-4029-8a9d-76519d1c136d",
+      "parameters": {
+        "path": "cc8cc827-3e72-4029-8a9d-76519d1c136d"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "64cd0750-4f06-49ce-93f3-4fd97e37a94f",
+      "name": "call_brave_search_agent",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        280,
+        -460
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "QclY1XQ8GEstkvk7",
+          "cachedResultName": "Brave Search Smithery AI Agent MCP Server"
+        },
+        "description": "```",
+        "workflowInputs": {
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', `The primary natural language query from the user for searching.`, 'string') }}"
+          },
+          "schema": [
+            {
+              "id": "query",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "query",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "b58d3462-db63-4007-8faa-83fafac2e2fe",
+      "name": "brave_web_search",
+      "type": "n8n-nodes-mcp.mcpClientTool",
+      "position": [
+        1280,
+        480
+      ],
+      "parameters": {
+        "toolName": "brave_web_search",
+        "operation": "executeTool",
+        "connectionType": "http",
+        "toolParameters": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Tool_Parameters', `Generate a JSON object with the parameters for the 'brave_web_search' tool.\nThe tool expects a JSON object with the following keys:\n- \"query\": (string, **required**) The search terms for the web search.\n- \"count\": (number, optional) The number of results to return per page. Maximum is 20. If not provided, a default value will be used by the service.\n- \"offset\": (number, optional) The pagination offset to retrieve a specific page of results. Maximum is 9. If not provided, the first page is returned.\n\nExample (required only):\n{\"query\": \"latest AI research\"}\n\nExample (with optionals):\n{\"query\": \"popular javascript frameworks\", \"count\": 10, \"offset\": 0}`, 'json') }}",
+        "descriptionType": "manual",
+        "toolDescription": "Calls the 'brave_web_search' MCP tool to perform a general web search. Useful for finding articles, news, and answers to general knowledge questions. Supports pagination."
+      },
+      "credentials": {
+        "mcpClientHttpApi": {
+          "id": "izP58157WoLmqx5y",
+          "name": "smithery brave search"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4578b0da-6a61-4b60-b178-7614139559eb",
+      "name": "brave_local_search",
+      "type": "n8n-nodes-mcp.mcpClientTool",
+      "position": [
+        1840,
+        480
+      ],
+      "parameters": {
+        "toolName": "brave_local_search",
+        "operation": "executeTool",
+        "connectionType": "http",
+        "toolParameters": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Tool_Parameters', `Generate a JSON object with the parameters for the 'brave_local_search' tool.\nThe tool expects a JSON object with the following keys:\n- \"query\": (string, **required**) The search terms for the local search (e.g., \"coffee shop downtown\", \"bookstore [zip code]\").\n- \"count\": (number, optional) The number of local results to return. Maximum is 20. If not provided, a default value will be used by the service.\n\nExample (required only):\n{\"query\": \"restaurants near Eiffel Tower\"}\n\nExample (with optional count):\n{\"query\": \"best parks in Berlin\", \"count\": 5}\n\nNote: This tool does not support an 'offset' parameter for pagination. It may fall back to web search if no local results are found.`, 'json') }}",
+        "descriptionType": "manual",
+        "toolDescription": "Calls the 'brave_local_search' MCP tool to find local businesses, restaurants, and services. If no local results are found, it may automatically fall back to a web search."
+      },
+      "credentials": {
+        "mcpClientHttpApi": {
+          "id": "izP58157WoLmqx5y",
+          "name": "smithery brave search"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4a481f1a-ddb6-4ddc-8c80-789a20369516",
+      "name": "Brave Search AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1000,
+        80
+      ],
+      "parameters": {
+        "text": "={{ $('Brave Search Workflow Start').item.json.query }}",
+        "options": {
+          "systemMessage": "You are an AI assistant designed to help users find information using Brave Search. You have access to two tools: 'brave_web_search' for general web queries and 'brave_local_search' for finding local businesses and services.\n\nYour primary goal is to understand the user's query and choose the most appropriate tool to get the best results.\n\nHere's how you should operate:\n1.  Analyze the user's query. Identify if it has a clear local intent (e.g., \"restaurants near me,\" \"hardware store in London,\" \"coffee shop 90210\") or if it's a general web search (e.g., \"latest news on AI,\" \"how to bake bread,\" \"what is quantum physics?\").\n\n2.  If local intent is strong:\n    *   Use the `brave_local_search` tool.\n    *   The `query` parameter for this tool should contain the local search terms (e.g., \"cafe Paris\", \"bookstore Main Street\").\n    *   You can use the optional `count` parameter (number, max 20) to specify how many results to retrieve.\n    *   Be aware that `brave_local_search` might automatically fall back to a web search if no specific local results are found. If this happens, clarify this in your response.\n\n3.  If the query is general or explicitly asks for web information:\n    *   Use the `brave_web_search` tool.\n    *   The `query` parameter for this tool should be the user's search terms.\n    *   You can use the optional `count` parameter (number, max 20) for results per page and `offset` (number, max 9) for pagination if needed for follow-up queries or if the user asks for more.\n\n4.  If the query is ambiguous (could be local or web):\n    *   You can either default to `brave_web_search` for broader coverage or, if confidence is low, ask the user for clarification, for example: \"Are you looking for web results or local businesses for this query?\"\n\n5.  After receiving results from a tool:\n    *   Summarize the key findings for the user.\n    *   Indicate whether the information came primarily from a web search or a local search, especially if a fallback occurred with `brave_local_search`.\n\nCritical points:\n*   Do not use the `offset` parameter with `brave_local_search`.\n*   Ensure parameters passed to tools are correctly formatted. `query` is always a string. `count` and `offset` are numbers.\n*   If a tool call fails or returns no relevant information, inform the user gracefully.\n*   Your final output should be a helpful summary addressing the user's query."
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f811a9ae-4b05-4409-8f80-56e468c07111",
+      "name": "Brave Search Workflow Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -20,
+        80
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "0bff9d79-dc48-45e5-b5c4-a05832999e77",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2060,
+        -1280
+      ],
+      "parameters": {
+        "width": 860,
+        "height": 400,
+        "content": "**📝 Заметки:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "69d177f9-777d-4348-897e-5eabc0e314c9",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -20,
+        540
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 480,
+        "height": 340,
+        "content": "*   Замените `ВАШ_N8N_ИНСТАНС` на ваш фактический URL n8n."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d3b3c2b9-5ddf-4ac1-a2e7-a50f7fdc6da1",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        340,
+        -280
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 400,
+        "height": 500,
+        "content": "*   Путь URL `cc8cc827-3e72-4029-8a9d-76519d1c136d` берется из узла **Триггер сервера Brave Search MCP**."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e00f2870-ff34-4d5d-926f-93ed191f7b22",
+      "name": "Sticky Note14",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2060,
+        -860
+      ],
+      "parameters": {
+        "width": 860,
+        "height": 180,
+        "content": "*   `call_brave_search_agent` - это название узла **Рабочего процесса инструмента** в этом основном рабочем процессе."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3eed4f4b-d7c1-42b8-b6a1-86e005454624",
+      "name": "Sticky Note15",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -360,
+        -1580
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 680,
+        "height": 200,
+        "content": "## 📡 Триггер сервера Brave Search MCP"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cb0b44b4-2a47-4908-9ec3-81d6736b27d5",
+      "name": "Sticky Note16",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -360,
+        -1360
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 680,
+        "height": 200,
+        "content": "Этот узел является **публичной точкой входа** для службы агента ИИ Brave Search. Он открывает конечную точку SSE (События, отправляемые сервером) MCP (Протокол многопользовательского сотрудничества)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "56163ca6-2bad-495c-b486-54f36a3b4e75",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3000,
+        -800
+      ],
+      "parameters": {
+        "width": 990,
+        "height": 1120,
+        "content": "### Ключевые детали:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b268e31a-72f8-4ed5-b9da-55bfcae49b2d",
+      "name": "Sticky Note17",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4040,
+        -780
+      ],
+      "parameters": {
+        "width": 1460,
+        "height": 1320,
+        "content": "*   **🛤️ Путь:** `/cc8cc827-3e72-4029-8a9d-76519d1c136d` (Уникальный идентификатор конечной точки)"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6fb7ce8c-5a65-4e4e-9af7-cadc36bf31ae",
+  "connections": {
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Brave Search AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "brave_web_search": {
+      "ai_tool": [
+        [
+          {
+            "node": "Brave Search AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "brave_local_search": {
+      "ai_tool": [
+        [
+          {
+            "node": "Brave Search AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "call_brave_search_agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Brave Search MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Brave Search AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Brave Search Workflow Start": {
+      "main": [
+        [
+          {
+            "node": "Brave Search AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

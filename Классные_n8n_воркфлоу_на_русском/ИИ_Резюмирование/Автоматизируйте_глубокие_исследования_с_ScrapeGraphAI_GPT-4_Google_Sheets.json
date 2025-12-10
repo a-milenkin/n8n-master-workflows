@@ -1,0 +1,429 @@
+{
+  "id": "VhEwspDqzu7ssFVE",
+  "meta": {
+    "instanceId": "f4b0efaa33080e7774e0d9285c40c7abcd2c6f7cf1a8b901fa7106170dd4cda3",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "\"topic\": \"искусственный интеллект в здравоохранении\",",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "48a84828-73de-4f4b-beb1-60e668342c11",
+      "name": "Research Request Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -2048,
+        624
+      ],
+      "webhookId": "5a9368a9-013f-41db-82cc-18be19ea6684",
+      "parameters": {
+        "path": "research-trigger",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "5d8a05fa-1528-4dc4-95cd-d99625a2221b",
+      "name": "Research Configuration Processor",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1760,
+        624
+      ],
+      "parameters": {
+        "jsCode": "// Extract and validate research parameters\nconst body = $input.all()[0].json.body;\n\n// Default research configuration\nconst researchConfig = {\n  topic: body.topic || 'artificial intelligence trends',\n  depth: body.depth || 'comprehensive', // basic, detailed, comprehensive\n  sources: body.sources || ['web', 'academic', 'news'],\n  timeframe: body.timeframe || '6months',\n  language: body.language || 'en',\n  maxSources: body.maxSources || 10,\n  analysisType: body.analysisType || 'summary' // summary, detailed, comparative\n};\n\n// Generate search queries based on topic\nconst baseQueries = [\n  `${researchConfig.topic} latest developments`,\n  `${researchConfig.topic} research findings`,\n  `${researchConfig.topic} market analysis`,\n  `${researchConfig.topic} expert opinions`,\n  `${researchConfig.topic} case studies`\n];\n\n// Add specific queries based on depth\nif (researchConfig.depth === 'comprehensive') {\n  baseQueries.push(\n    `${researchConfig.topic} academic papers`,\n    `${researchConfig.topic} industry reports`,\n    `${researchConfig.topic} statistical data`,\n    `${researchConfig.topic} future predictions`\n  );\n}\n\nreturn [{\n  json: {\n    ...researchConfig,\n    searchQueries: baseQueries,\n    timestamp: new Date().toISOString(),\n    sessionId: `research_${Date.now()}`\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "19e3c76b-f0fb-4324-b212-585ab132bde5",
+      "name": "Split Search Queries",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -1456,
+        624
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "6eb0ff10-aaf6-430f-aea0-7c0cbe950b95",
+      "name": "Query Selector",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1152,
+        624
+      ],
+      "parameters": {
+        "jsCode": "// Get current batch data\nconst items = $input.all();\nconst currentItem = items[0].json;\nconst queries = currentItem.searchQueries;\nconst currentBatch = $('Split Search Queries').item.json;\n\n// Get current query\nconst currentQuery = queries[currentBatch.index];\n\nreturn [{\n  json: {\n    ...currentItem,\n    currentQuery: currentQuery,\n    batchIndex: currentBatch.index\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "99f73593-0ddd-4fc9-810f-8b1793cd8476",
+      "name": "AI Research Scraper",
+      "type": "n8n-nodes-scrapegraphai.scrapegraphAi",
+      "position": [
+        -848,
+        624
+      ],
+      "parameters": {
+        "userPrompt": "Research and extract comprehensive information about this topic. Provide: 1) Key findings and insights, 2) Important statistics or data points, 3) Expert quotes or opinions, 4) Recent developments, 5) Source credibility assessment. Format as structured JSON with fields: title, summary, keyPoints, statistics, quotes, sources, credibilityScore, datePublished, relevanceScore.",
+        "websiteUrl": "={{ $json.currentQuery }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "da52e96d-0aa2-41ef-886e-bd396e0f42f2",
+      "name": "News Sources Scraper",
+      "type": "n8n-nodes-scrapegraphai.scrapegraphAi",
+      "position": [
+        -848,
+        832
+      ],
+      "parameters": {
+        "userPrompt": "Extract recent news articles about this topic. For each article provide: headline, publication date, source, brief summary, and direct URL. Focus on credible news sources and recent publications within the last 6 months.",
+        "websiteUrl": "https://www.google.com/search?q={{ encodeURIComponent($json.currentQuery) }}&tbm=nws"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0ee6cf16-02e5-4a3b-b068-dd76a1351718",
+      "name": "Academic Sources Scraper",
+      "type": "n8n-nodes-scrapegraphai.scrapegraphAi",
+      "position": [
+        -848,
+        1024
+      ],
+      "parameters": {
+        "userPrompt": "Extract academic papers and research studies. For each paper provide: title, authors, publication year, journal/conference, citation count, abstract summary, and DOI/URL if available. Focus on peer-reviewed sources and recent publications.",
+        "websiteUrl": "https://scholar.google.com/scholar?q={{ encodeURIComponent($json.currentQuery) }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3228908f-f816-4a0c-889b-abf756281eb8",
+      "name": "Merge Research Sources",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        -560,
+        832
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "mergeByFields": {
+          "values": [
+            {}
+          ]
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "90b55ee1-3404-4db2-aec1-6d6219043c09",
+      "name": "Research Data Processor",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -256,
+        832
+      ],
+      "parameters": {
+        "jsCode": "// Combine and process all research data\nconst allItems = $input.all();\nconst researchData = allItems[0].json;\nconst newsData = allItems[1]?.json || {};\nconst academicData = allItems[2]?.json || {};\n\n// Extract and structure the research findings\nconst processedData = {\n  sessionId: researchData.sessionId,\n  query: researchData.currentQuery,\n  batchIndex: researchData.batchIndex,\n  timestamp: new Date().toISOString(),\n  \n  // General research findings\n  generalFindings: {\n    title: researchData.result?.title || 'Research Findings',\n    summary: researchData.result?.summary || '',\n    keyPoints: researchData.result?.keyPoints || [],\n    statistics: researchData.result?.statistics || [],\n    credibilityScore: researchData.result?.credibilityScore || 0\n  },\n  \n  // News findings\n  newsFindings: {\n    articles: newsData.result?.articles || [],\n    totalArticles: newsData.result?.articles?.length || 0\n  },\n  \n  // Academic findings\n  academicFindings: {\n    papers: academicData.result?.papers || [],\n    totalPapers: academicData.result?.papers?.length || 0\n  },\n  \n  // Meta information\n  sourceTypes: ['general', 'news', 'academic'],\n  totalSources: (researchData.result?.sources?.length || 0) + \n                (newsData.result?.articles?.length || 0) + \n                (academicData.result?.papers?.length || 0)\n};\n\nreturn [{\n  json: processedData\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7eb34b80-f6d2-4e80-83f5-529d4748cbec",
+      "name": "Research Data Storage",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        352,
+        832
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "sessionId",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Session ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "query",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Research Query",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "timestamp",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Timestamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "analysis",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "AI Analysis",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "totalSources",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "Total Sources",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Research_Data"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "d093ce1d-9716-4254-89b7-4b8bffd23b48",
+      "name": "Research Complete Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        656,
+        832
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({\n  status: 'completed',\n  sessionId: $json.sessionId,\n  message: 'Research analysis completed successfully',\n  totalSources: $json.totalSources,\n  timestamp: $json.timestamp\n}) }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "8398d709-67b8-4ad4-90f0-d2c041d4678e",
+      "name": "Webhook Trigger Guide",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2160,
+        -448
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 520,
+        "height": 1732,
+        "content": "# Шаг 1: Вебхук запроса исследования 🎯"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "965963f7-6f98-4954-a0f0-916ab00477be",
+      "name": "Configuration Guide",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1600,
+        -448
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 520,
+        "height": 1748,
+        "content": "Этот вебхук-эндпоинт получает запросы на исследование и инициирует процесс глубокого исследования."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "47a160d4-d829-4133-93fa-aa4dbd41f785",
+      "name": "AI Scraping Guide",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1040,
+        -448
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 520,
+        "height": 1748,
+        "content": "## Формат запроса"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "503cdf42-cee7-4b44-a2fd-4f4a4a134f60",
+      "name": "Processing & Analysis Guide",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -464,
+        -448
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 520,
+        "height": 1748,
+        "content": "```json"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0105d893-94ce-465d-9ef8-8f144280f0c9",
+      "name": "Storage & Response Guide",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        144,
+        -432
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 840,
+        "height": 1716,
+        "content": "{"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "076dd376-d6cb-4851-b335-e074cd47911c",
+  "connections": {
+    "Query Selector": {
+      "main": [
+        [
+          {
+            "node": "AI Research Scraper",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "News Sources Scraper",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Academic Sources Scraper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Research Scraper": {
+      "main": [
+        [
+          {
+            "node": "Merge Research Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "News Sources Scraper": {
+      "main": [
+        [
+          {
+            "node": "Merge Research Sources",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Split Search Queries": {
+      "main": [
+        [
+          {
+            "node": "Query Selector",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research Data Storage": {
+      "main": [
+        [
+          {
+            "node": "Research Complete Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Research Sources": {
+      "main": [
+        [
+          {
+            "node": "Research Data Processor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research Data Processor": {
+      "main": [
+        [
+          {
+            "node": "Research Data Storage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research Request Webhook": {
+      "main": [
+        [
+          {
+            "node": "Research Configuration Processor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research Configuration Processor": {
+      "main": [
+        [
+          {
+            "node": "Split Search Queries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

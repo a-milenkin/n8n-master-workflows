@@ -1,0 +1,204 @@
+{
+  "id": "Nh37E5KNmMI11mmw",
+  "meta": null,
+  "name": "Служба спонсорства NPR MCP сервер",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "7adee1da-4808-42a2-aec7-2e8a85ff8cde",
+      "name": "Setup Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1380,
+        -240
+      ],
+      "parameters": {
+        "color": 4,
+        "height": 1020,
+        "content": "### ⚙️ Инструкции по настройке\n\n1. **Импорт рабочего процесса**:  \nЗагрузите этот рабочий процесс в ваш экземпляр n8n\n\n2. **Настройка аутентификации**:  \nНастройте учетные данные oauth2\n\n3. **Активировать рабочий процесс**:  \nВключите рабочий процесс, чтобы запустить сервер MCP\n\n4. **Получить URL MCP**:  \nСкопируйте URL вебхука из триггера MCP\n\n5. **Подключить AI-агента**:  \nИспользуйте URL MCP в настройках вашего AI-агента\n\n\n### 💡 Примечания по использованию\n• Параметры автоматически заполняются AI с помощью выражений $fromAI()  \n• Доступно 2 конечных точки API в качестве инструментов  \n• Ответы сохраняют оригинальную структуру API\n\n\n### 🛠️ Настройка\n• Добавьте узлы преобразования данных при необходимости  \n• Реализуйте обработку ошибок по своему усмотрению  \n• Добавьте узлы логирования или мониторинга  \n\n• Измените значения параметров по умолчанию в любом узле HTTP-запроса по мере необходимости\n\n### 💬 Нужна помощь?  \nНапишите мне в [discord](https://discord.me/cfomodz) для получения рекомендаций по интеграции и пользовательским автоматизациям. Ознакомьтесь с [документацией n8n](https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.toolmcp/) для получения дополнительной информации."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7245a848-e71f-42af-9164-7392c54fe08f",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1120,
+        -240
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 720,
+        "content": "## 🛠️ Служба спонсорства NPR MCP сервер ✅ 2 операции\n\n### Описание\nСпонсорство для приложений клиентов, не относящихся к NPR One\n\n### 🔧 Как это работает\n\nЭтот рабочий процесс преобразует API службы спонсорства NPR в интерфейс, совместимый с MCP для ИИ-агентов.\n\n• **MCP триггер**: Служит конечной точкой вашего сервера для запросов ИИ-агентов  \n• **HTTP узлы запросов**: Обрабатывают API-вызовы к https://sponsorship.api.npr.org  \n• **AI выражения**: Автоматически заполняют параметры через плейсхолдеры `$fromAI()`  \n• **Нативная интеграция**: Возвращает ответы непосредственно ИИ-агенту  \n\n\n### 📋 Доступные операции (2 конечные точки)\n\n**Спонсорство (2 операции)**  \nПолучение VAST спонсорств, отслеживание данных VAST спонсорства"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6973d808-5645-458b-865b-8270ae80e977",
+      "name": "NPR Sponsorship Service MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        -620,
+        -240
+      ],
+      "webhookId": "29cba61b-a4a2-4f4e-9345-48e2a534ca7d",
+      "parameters": {
+        "path": "npr-sponsorship-service-mcp"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "23f6520d-ca4d-4d95-9105-9a927a8f39f1",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        -100
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 500,
+        "height": 200,
+        "content": "## Спонсорство"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9e3178dc-a7d9-45e6-82ad-6e6535219698",
+      "name": "Fetch VAST Sponsorships",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        -60
+      ],
+      "parameters": {
+        "url": "=https://sponsorship.api.npr.org/v2/ads",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "forceResult",
+              "value": "={{ $fromAI('forceResult', 'Whether to force a synchronous call to our external sponsorship provider; the default behavior is asynchronous.', 'boolean') }}"
+            },
+            {
+              "name": "adCount",
+              "value": "={{ $fromAI('adCount', 'How many sponsorship units to request in one call; if left unspecified, the default behavior is to return only 1.', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Request VAST sponsorship units\n\nParameters:\n- Query parameters:\n  • forceResult (optional) - Whether to force a synchronous call to our external sponsorship provider; the default behavior is asynchronous.\n  • adCount (optional) - How many sponsorship units to request in one call; if left unspecified, the default behavior is to return only 1."
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d405f577-5f64-4517-b937-fae726412919",
+      "name": "Track VAST Sponsorship Data",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        -60
+      ],
+      "parameters": {
+        "url": "=https://sponsorship.api.npr.org/v2/ads",
+        "method": "POST",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Record tracking data for VAST sponsorship units"
+      },
+      "typeVersion": 4.2
+    }
+  ],
+  "active": false,
+  "shared": [
+    {
+      "role": "workflow:owner",
+      "project": {
+        "id": "G5fce9xGuBAsWBXe",
+        "icon": null,
+        "name": "David Ashby <david.ashby.lds@gmail.com>",
+        "type": "personal",
+        "createdAt": "2025-06-04T02:55:02.013Z",
+        "updatedAt": "2025-06-04T02:56:01.361Z",
+        "projectRelations": [
+          {
+            "role": "project:personalOwner",
+            "user": {
+              "id": "715c1c00-cb48-4712-9a32-f1f4b6db2b30",
+              "role": "global:owner",
+              "email": "david.ashby.lds@gmail.com",
+              "disabled": false,
+              "lastName": "Ashby",
+              "settings": {
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1749357655581
+                },
+                "userActivated": true,
+                "userActivatedAt": 1749075994495,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "3N3vVikZb3MckFYm"
+              },
+              "createdAt": "2025-06-04T02:55:01.745Z",
+              "firstName": "David",
+              "isPending": false,
+              "updatedAt": "2025-06-08T04:40:58.399Z",
+              "mfaEnabled": false,
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_n8n_version": "1.95.3",
+                "personalization_survey_submitted_at": "2025-06-04T02:56:07.075Z"
+              }
+            },
+            "userId": "715c1c00-cb48-4712-9a32-f1f4b6db2b30",
+            "createdAt": "2025-06-04T02:55:02.013Z",
+            "projectId": "G5fce9xGuBAsWBXe",
+            "updatedAt": "2025-06-04T02:55:02.013Z"
+          }
+        ]
+      },
+      "createdAt": "2025-07-03T17:14:09.943Z",
+      "projectId": "G5fce9xGuBAsWBXe",
+      "updatedAt": "2025-07-03T17:14:09.943Z",
+      "workflowId": "Nh37E5KNmMI11mmw"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "timezone": "America/New_York"
+  },
+  "createdAt": "2025-07-03T17:14:09.942Z",
+  "updatedAt": "2025-07-03T17:18:54.000Z",
+  "versionId": "3189e385-c5e1-4dc7-9402-e2bfcd02837d",
+  "isArchived": false,
+  "staticData": null,
+  "connections": {
+    "Fetch VAST Sponsorships": {
+      "ai_tool": [
+        [
+          {
+            "node": "NPR Sponsorship Service MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Track VAST Sponsorship Data": {
+      "ai_tool": [
+        [
+          {
+            "node": "NPR Sponsorship Service MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "triggerCount": 0
+}

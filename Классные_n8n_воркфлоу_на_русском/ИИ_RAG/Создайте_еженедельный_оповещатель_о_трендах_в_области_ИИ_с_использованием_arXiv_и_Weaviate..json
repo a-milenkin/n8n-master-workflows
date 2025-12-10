@@ -1,0 +1,1329 @@
+{
+  "id": "sgcKe5gsmJFdEAe3",
+  "meta": {
+    "instanceId": "be3e0177f1eeda5879f300082f54531dfa9819a5d7441e94ea64b32f8b1fd49c",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "ай-тренд-емейл-алертёр-веавиэйт",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "d36fdcbc-4add-46b5-a440-af07d1b81d56",
+      "name": "Weaviate Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreWeaviate",
+      "position": [
+        3440,
+        752
+      ],
+      "parameters": {
+        "mode": "insert",
+        "options": {
+          "textKey": "summary"
+        },
+        "weaviateCollection": {
+          "__rl": true,
+          "mode": "id",
+          "value": "ArxivArticles"
+        }
+      },
+      "credentials": {
+        "weaviateApi": {
+          "id": "qiTSL6FfsPCZLyUv",
+          "name": "Weaviate Credentials account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "04f15082-cb14-46b2-8e92-e2926e7de128",
+      "name": "Default Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "position": [
+        3440,
+        1072
+      ],
+      "parameters": {
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "arxiv_id",
+                "value": "={{ $('Remove Fields').item.json.id }}"
+              },
+              {
+                "name": "published",
+                "value": "={{ $('Remove Fields').item.json.published }}"
+              },
+              {
+                "name": "author",
+                "value": "={{ $('Remove Fields').item.json.author }}"
+              },
+              {
+                "name": "title",
+                "value": "={{ $('Remove Fields').item.json.title }}"
+              },
+              {
+                "name": "category",
+                "value": "={{ $('Remove Fields').item.json.category }}"
+              },
+              {
+                "name": "primary_topic",
+                "value": "={{ $('Remove Fields').item.json.primary_topic }}"
+              },
+              {
+                "name": "=secondary_topics",
+                "value": "={{ $('Remove Fields').item.json.secondary_topics }}"
+              },
+              {
+                "name": "potential_impact",
+                "value": "={{ $('Remove Fields').item.json.potential_impact }}"
+              }
+            ]
+          }
+        },
+        "jsonData": "={{ $('Remove Fields').item.json.summary }}",
+        "jsonMode": "expressionData"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ff6e5918-4b72-4902-828b-aa6e39fdd378",
+      "name": "Query arXiv",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        528,
+        752
+      ],
+      "parameters": {
+        "url": "=https://export.arxiv.org/api/query?search_query=cat:cs.LG+OR+cat:stat.ML&sortBy=submittedDate&sortOrder=descending&start=0&max_results=200&last_update_date_from={{ $('Date & Time').item.json.startDate.toDateTime().toFormat(\"yyyyMMdd\") }}\n",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "33c6d11a-6b27-4297-8fe5-08260f474871",
+      "name": "Convert XML to JSON",
+      "type": "n8n-nodes-base.xml",
+      "position": [
+        832,
+        752
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fe135a0c-1976-444f-bd65-9d26d6e969ef",
+      "name": "Remove Duplicates",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        1424,
+        752
+      ],
+      "parameters": {
+        "compare": "={{ $json.id }}",
+        "options": {}
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1082f1b2-94de-4ea5-83a6-83242d065233",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        976,
+        2368
+      ],
+      "parameters": {
+        "sessionKey": "sessionId",
+        "sessionIdType": "customKey"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "780950ec-78b6-4c84-814c-03c3c6881b2c",
+      "name": "Embeddings OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "position": [
+        3328,
+        1072
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "v6dOwJXW6XXHxHQw",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "119e0896-430f-4019-8fe6-8677cd0e9289",
+      "name": "OpenRouter Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "position": [
+        816,
+        2368
+      ],
+      "parameters": {
+        "model": "anthropic/claude-3.7-sonnet",
+        "options": {
+          "temperature": 2
+        }
+      },
+      "credentials": {
+        "openRouterApi": {
+          "id": "V30JHJHSU29vq3Zj",
+          "name": "OpenRouter account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0270ad87-f27a-491a-bb95-7983cb1b4d80",
+      "name": "Weaviate Vector Store1",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreWeaviate",
+      "position": [
+        80,
+        2288
+      ],
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "options": {},
+        "toolName": "ArxivPapers",
+        "toolDescription": "This tool allows you to query the Weaviate Vector Store1 to retrieve arXiv article titles, summary and other metadata to be used as the sole data source performing a trend analysis. You must query the database to get information for the trend analysis.",
+        "weaviateCollection": {
+          "__rl": true,
+          "mode": "id",
+          "value": "ArxivArticles"
+        }
+      },
+      "credentials": {
+        "weaviateApi": {
+          "id": "qiTSL6FfsPCZLyUv",
+          "name": "Weaviate Credentials account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "780c692e-3444-4293-aeee-70241d151011",
+      "name": "Embeddings OpenAI1",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "position": [
+        64,
+        2432
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "v6dOwJXW6XXHxHQw",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "798c5bdc-f46a-45d2-8692-8875efd9cb6e",
+      "name": "Date & Time",
+      "type": "n8n-nodes-base.dateTime",
+      "position": [
+        240,
+        752
+      ],
+      "parameters": {
+        "options": {},
+        "duration": 7,
+        "magnitude": "={{ $json.currentDate }}",
+        "operation": "subtractFromDate",
+        "outputFieldName": "startDate"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "56d6ff4b-3ae0-4450-b899-9773e83ce896",
+      "name": "Markdown",
+      "type": "n8n-nodes-base.markdown",
+      "position": [
+        1088,
+        1584
+      ],
+      "parameters": {
+        "mode": "markdownToHtml",
+        "options": {
+          "simplifiedAutoLink": true
+        },
+        "markdown": "={{ $json.output.body }}",
+        "destinationKey": "=data"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d62c633e-d6d2-4d0e-9645-a909ae4a0efa",
+      "name": "Recursive Character Text Splitter1",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "position": [
+        3552,
+        1184
+      ],
+      "parameters": {
+        "options": {},
+        "chunkSize": 2000
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c2040ff2-808d-4f6e-8682-06f2aad3cf8b",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        1136,
+        2368
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"subject\":\"...\",\n  \"body\":\"...\"\n}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "5d07a9fd-ff2a-4536-aa13-171e4eeeac42",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -128,
+        752
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "daysInterval": 7
+            },
+            {}
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "913e8a25-32af-4c2c-943c-58ab2563accd",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        560
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 380,
+        "height": 340,
+        "content": "## 1. Укажите диапазон дат для еженедельной автоматизации\n1. Рассчитайте сегодняшнюю дату\n2. Рассчитайте даты за последнюю неделю, основываясь на сегодняшней дате"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "704752b7-75cf-40d8-9b31-fc8e43ab18b2",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        400,
+        560
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 360,
+        "height": 452,
+        "content": "## 2. Получить еженедельные статьи из arXiv.\nПолучите аннотации статей по машинному обучению, запрашивая бесплатный API arXiv.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nКоличество максимальных возвращаемых статей по умолчанию установлено на 200. Вы можете изменить это, отредактировав `max_results` в узле запроса."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9529c98c-a28c-4512-a076-9e304d82125a",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        784,
+        560
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 820,
+        "height": 420,
+        "content": "## 3. Предобработка данных\n1. Преобразовать XML-ответ в JSON.\n2. Разделить результаты по ID статьи.\n3. Отформатировать данные для Weaviate.\n4. Удалить любые дубликаты, если они существуют.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nВ частности, мы объединяем поля, которые имеют несколько записей, такие как `author` и `category`, в массив строк и добавляем форматирование даты и времени к дате публикации."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "57c8762e-5afd-4a9c-b3d0-61fbd863bc36",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3104,
+        560
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 840,
+        "height": 380,
+        "content": "## 6. Создайте новую коллекцию Weaviate в существующем облачном кластере\n1. Подключитесь к вашим учетным данным Weaviate Cloud или локальным.\n2. Установите `Режим операции` на `Вставка документов`.\n3. Чтобы вставить новые данные в **новую** `коллекцию Weaviate`, выберите `По ID` и дайте вашей коллекции имя в формате SnakeCase.\n4. Чтобы вставить данные в **существующую** `коллекцию Weaviate`, выберите `Из списка` и выберите вашу существующую коллекцию из выпадающего меню.\n\n5. В разделе `Опции` нажмите `Добавить опцию` и выберите `Текстовый ключ`. Это поле, для которого будут созданы встраивания. В этом примере мы встраиваем поле `summary` в наши данные, так как это абстрактный текст для статей."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b0e70958-64a7-4b5f-ae7e-e6350757eb49",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3264,
+        960
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 560,
+        "height": 580,
+        "content": "## 7. Настройка компонентов для встраиваний\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n__Узел Встраиваний__\n1. Выберите своего поставщика встраиваний и модель, подключите её к вашим учетным данным.\n  \n__Загрузчик Данных__\n2. `Тип Данных`, который мы загружаем, — это `JSON`.\n3. Если вы включаете метаданные (мы включаем), установите `Режим` на `Загрузить Конкретные Данные`.\n4. Поле `Данные` представляет данные, для которых мы хотим генерировать встраивания.\n5. В разделе `Опции` мы определяем нашу схему метаданных.\n\n__Разделитель Текста__\n6. Мы используем Рекурсивный Разделитель Текста по Символам и устанавливаем наш `Размер Чанка` на `2000`, чтобы получить один чанк на абстракт (но не стесняйтесь экспериментировать!)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3b505c27-caa0-4f25-8121-90d39b9a63b3",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3968,
+        560
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 700,
+        "height": 340,
+        "content": "## 8. Подтвердите, что статьи были загружены.\nЭти шаги служат подтверждением того, что новые еженедельные статьи были успешно загружены в Weaviate перед тем, как перейти к запуску узла AI Agent. Список статей сгенерирует статический `session_id`, который будет служить этим подтверждением.\n1. Получите список всех ID arXiv, только что загруженных в Weaviate.\n2. Сгенерируйте статический `session_id`, который будет служить триггером для узла AI Agent."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "64098a08-06fd-4981-9d46-6efe61e01f81",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        32,
+        1392
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 660,
+        "height": 500,
+        "content": "## 1. Настройте узел AI Agent с Weaviate как _ИНСТРУМЕНТ_\n1. Установите `Источник для запроса (Сообщение пользователя)` на `Определите ниже`.\n2. В `Запросе (Сообщение пользователя)` дайте краткое объяснение задач по извлечению и анализу, которые необходимо выполнить.\n3. В разделе `Опции` нажмите `Добавить опцию`, чтобы добавить `Системное сообщение`, также известное как системный запрос. Укажите конкретные инструкции для агента, включая:\n\n* Инструкции для запроса в векторное хранилище Weaviate\n* Объяснение и схему данных в Weaviate\n* Инструкции по определению трендов\n* Указанный формат вывода\n* Пример реального вывода"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "24a428b0-8ee2-4e0d-9c36-c0934bcc13d3",
+      "name": "Sticky Note14",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        32,
+        1920
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 500,
+        "height": 640,
+        "content": "## 3. Настройка Weaviate Vector Store\n1. Выберите те же учетные данные (облачные или локальные) для подключения, что и ранее.\n2. Установите `Режим работы` на `Получение документов как инструмент для AI-агента`.\n3. Добавьте `Описание` к инструменту, которое объясняет LLM, как использовать Weaviate vector store. **Это описание очень важно! Плохое описание инструмента может привести к тому, что агент не будет использовать инструмент. Хорошее описание включает в себя, что инструмент позволяет агенту делать и что агент должен делать с инструментом. Здесь вы можете быть настойчивым в своем тоне.**\n4. Подключитесь к существующему векторному хранилищу, выбрав `По ID` и введите то же имя коллекции, что и выше: `ArxivArticles`.\n5. Включите `Включить метаданные`, так как даты публикации, заголовки и URL-адреса arXiv имеют критическое значение для ответа агента.\n6. Выберите OpenAI в качестве провайдера встраивания для запроса."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3af4b9b8-5929-4bff-af3f-7a200d29ea34",
+      "name": "Sticky Note15",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        544,
+        1920
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 744,
+        "height": 640,
+        "content": "## 4. Добавьте модель, память и парсер вывода\n1. Мы используем узел модели OpenRouter Chat, чтобы иметь возможность использовать Google Gemini для агента.\n2. Добавьте простую (краткосрочную) память к агенту, установив `Session ID` на `Определить ниже` и `Key` на `sessionId` (что является нашим статическим идентификатором сессии, так как мы используем только краткосрочную память и не сохраняем вывод агента для будущего использования).\n3. Добавьте узел `Structured Output Parser` и установите `Schema Type` на `Сгенерировать из примера JSON`.\n4. В `JSON Example` мы определяем формат вывода для агента, который будет содержать строку темы и текст тела для итогового сводного письма, которое мы хотим сгенерировать:\n\n```\n{\n  \"subject\": \"...\",\n  \"body\": \"...\"\n}\n```"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bc738a22-4e2d-4710-88ee-1186bb29b759",
+      "name": "Sticky Note16",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        704,
+        1392
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 600,
+        "height": 400,
+        "content": "## 2. Постобработка ответа агента\n1. Используйте узел `Редактировать поля`, чтобы добавить выражение, которое заменяет \"\\n\\n\" в ответе агента на реальные разрывы страниц (чтобы его можно было правильно разобрать как текст markdown).\n2. Добавьте узел `Markdown в HTML`, чтобы преобразовать текст тела письма в HTML.\n3. Дайте выходным данным имя в `Ключ назначения`.\n4. Добавьте опцию для `Автоматической привязки к URL`."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "afc29ee4-c944-4c49-abef-6356a84975f9",
+      "name": "Sticky Note17",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1328,
+        1392
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 520,
+        "height": 400,
+        "content": "## 5. Отправьте вывод по электронной почте!\n1. Выберите свои учетные данные `STMP Account`.\n2. Установите `Тему` равной ключу темы `{{ $json.output.subject }}`.\n3. Установите `Формат электронной почты` на `HTML`.\n4. Установите `HTML` на `{{ $json.data }}` (обработанный текст тела)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fc89c7eb-a1b2-4692-aed4-b075cbb6793b",
+      "name": "Sticky Note18",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        400
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1600,
+        "height": 140,
+        "content": "# Часть 1: Получение, очистка, обогащение и вставка аннотаций arXiv в Weaviate\nВ первой части этого рабочего процесса мы активируем `Schedule Trigger`, чтобы еженедельно получать аннотации по ИИ и МЛ (вместе с их метаданными, такими как название статьи, авторы, дата публикации и т. д.). Мы очищаем данные, а затем обогащаем их с помощью LLM, который будет предсказывать и маркировать их по категориям тем и предсказывать потенциальное влияние каждой статьи в данной области. Наконец, мы загружаем обогащенные и очищенные данные в коллекцию Weaviate и проверяем, что данные были загружены."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1f244dc1-f564-4a01-b582-49484c3e7d63",
+      "name": "Sticky Note19",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        32,
+        1232
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1580,
+        "height": 140,
+        "content": "# Часть 2: Используйте агентный RAG для выявления исследовательских тенденций и отправки их по электронной почте\nВ этой части рабочего процесса мы настраиваем узел AI Agent для работы с Weaviate в качестве инструмента. Вся встроенная коллекция аннотаций статей, вместе с их метаданными, находится в распоряжении агента. Мы инструктируем агента использовать Weaviate в качестве инструмента, описываем доступные входные данные и даем указания о том, как выявлять тенденции и структурировать итоговое письмо. Мы очищаем данные и затем отправляем их по электронной почте."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "75d64ce1-57c6-4b0f-80e4-66dbe8488397",
+      "name": "OpenRouter Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "position": [
+        1952,
+        1088
+      ],
+      "parameters": {
+        "model": "anthropic/claude-3.7-sonnet",
+        "options": {}
+      },
+      "credentials": {
+        "openRouterApi": {
+          "id": "V30JHJHSU29vq3Zj",
+          "name": "OpenRouter account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "901c7f80-f856-4d90-8046-8b6fe2e45056",
+      "name": "Structured Output Parser1",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        2224,
+        1088
+      ],
+      "parameters": {
+        "autoFix": true,
+        "jsonSchemaExample": "{\n\t\"primary_category\": \"LLM Fine-tuning\",\n\t\"secondary_categories\": [\"Parameter-Efficient Fine-tuning (PEFT)\", \"Data-centric AI\"],\n    \"potential_impact\": 1\n}"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "dbea7aee-5dae-457e-8b5c-343d18188fb0",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        2704,
+        752
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combineBy": "combineByPosition"
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "5df76f3f-0a71-4999-a85f-375c680fe073",
+      "name": "OpenRouter Chat Model2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "position": [
+        2288,
+        1232
+      ],
+      "parameters": {
+        "model": "anthropic/claude-3.7-sonnet",
+        "options": {}
+      },
+      "credentials": {
+        "openRouterApi": {
+          "id": "V30JHJHSU29vq3Zj",
+          "name": "OpenRouter account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0bfa6914-5450-494a-9c1b-cccd58ae4d4c",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1632,
+        560
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 980,
+        "height": 460,
+        "content": "## 4. Обогащение статей arXiv классификациями тем и прогнозами потенциального влияния\n1. Установите `Source for Prompt (User Message)` на `Определите ниже`.\n2. В `Prompt (User Message)` дайте краткое объяснение задачи классификации и укажите агенту на заголовок статьи, аннотацию и области.\n3. В разделе `Options` нажмите `Add Option`, чтобы добавить `System Message`, также известное как системный запрос. Введите конкретные инструкции для выполнения классификаций, включая определение наших категорий:\n\n* `primary_category`: (строка) Единственная наиболее релевантная основная категория для статьи из списка заранее определенных тем.\n* `secondary_categories`: (массив строк) До двух дополнительных релевантных вторичных категорий.\n* `potential_impact`: (целое число) Целочисленный балл от 1 до 5, представляющий, насколько значительными могут быть выводы исследования в данной области в целом.\n* Убедитесь, что `Require Specific Output Format` включен."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aab2d979-238c-450d-9d3f-0ff085f90730",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1920,
+        1040
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 592,
+        "height": 380,
+        "content": "Выберите свои модели для агента и парсера структурированного вывода (мы используем `claude-3.7-sonnet`)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dade3fcb-63c5-4c34-8287-9270a7758960",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2624,
+        560
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 460,
+        "height": 340,
+        "content": "## 5. Постобработка обогащенных данных\n1. Объедините вывод от AI-агента с существующими данными статьи.\n2. Удалите избыточное поле `\"output\"` в JSON."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7e3b842d-aba8-41a8-95ec-94917017998d",
+      "name": "Get Current Date",
+      "type": "n8n-nodes-base.dateTime",
+      "position": [
+        48,
+        752
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1356f9bc-87eb-4f69-871c-0bdc1591e2c9",
+      "name": "Split Results",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        1024,
+        752
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "feed.entry"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6f37e9bb-e5c0-493a-905d-87b55b874f49",
+      "name": "Prep Data for Weaviate",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1232,
+        752
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "428846a4-8555-48cc-aded-bb0beb5fb123",
+              "name": "id",
+              "type": "string",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "id": "40614d42-547f-48d6-8fde-4d94b7a4963c",
+              "name": "title",
+              "type": "string",
+              "value": "={{ $json.title }}"
+            },
+            {
+              "id": "1bcd0610-3a4a-4ee8-aa78-673319282cf5",
+              "name": "summary",
+              "type": "string",
+              "value": "={{ $json.summary }}"
+            },
+            {
+              "id": "d49b5557-9379-4132-b2c4-cf155aca7428",
+              "name": "author",
+              "type": "string",
+              "value": "={{\n  Array.isArray($json.author)\n    ? $json.author.map(author => author.name)\n    : ($json.author && $json.author.name ? [$json.author.name] : [])\n}}"
+            },
+            {
+              "id": "ed8d5a76-bc40-4fa7-9f19-61f2a3429f1d",
+              "name": "published",
+              "type": "string",
+              "value": "={{ new Date($json.published).toISOString() }}"
+            },
+            {
+              "id": "6e6fbfb5-d2bb-474f-9885-d65438c8b271",
+              "name": "category",
+              "type": "string",
+              "value": "={{   Array.isArray($json.category)     ? $json.category.map(category => category.term)     : ($json.category && $json.category.term ? [$json.category.term] : []) }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "69af1ed4-0a73-4179-aff2-d78253e7921a",
+      "name": "Enrich Articles with Topic Classification",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "onError": "continueErrorOutput",
+      "position": [
+        1984,
+        752
+      ],
+      "parameters": {
+        "text": "=Classify the following arXiv papers:\n\n```json\nTitle: {{ $json.title }}\nAbstract: {{ $json.summary }}",
+        "options": {
+          "systemMessage": "=You are an expert AI agent designed to classify academic research papers. Your task is to analyze the provided arXiv paper data and categorize it based on its content.\n\nInput Data Schema:\nThe input data will be a JSON object with the following structure:\n\n{\n  \"title\": \"string\",\n  \"summary\": \"string\"\n}\n\nYou MUST respond with a JSON object containing the following fields:\n\n\"primary_category\": (string) The single most relevant primary category for the paper. You MUST choose one category from the following predefined list. Do NOT use any category not on this list.\n\n\"secondary_categories\": (array of strings) Up to two additional relevant secondary categories. These are optional; if no secondary categories apply, provide an empty array []. If chosen, they MUST also be from the predefined list.\n\n\"potential_impact\": (integer) An integer score from 1 to 5, judging the paper's potential impact based on these criteria:\n\n1: Papers with no new existing information or limited results.\n\n2: Papers with minor incremental contributions or limited novelty.\n\n3: Papers with solid contributions, good results, and clear utility, but not groundbreaking.\n\n4: Papers with significant advancements, novel approaches, or strong potential to influence the field.\n\n5: Papers that are potential game-changers, representing paradigm shifts, or opening entirely new research directions.\n\nPredefined Categories and Definitions:\n\nFoundation Models: Models trained on broad data at scale, designed to be adaptable to a wide range of downstream tasks (e.g., large language models, large vision models, multi-modal models).\n\nLLM Fine-tuning: Techniques and methodologies for adapting pre-trained Large Language Models (LLMs) to specific tasks or datasets.\n\nParameter-Efficient Fine-tuning (PEFT): Methods that enable efficient adaptation of large pre-trained models to new tasks with minimal computational cost, by updating only a small subset of parameters (e.g., LoRA, Prompt Tuning).\n\nRetrieval-Augmented Generation (RAG): Architectures or systems that combine generative models (like LLMs) with information retrieval mechanisms to enhance the factual accuracy and relevance of generated outputs by referencing external knowledge bases.\n\nModel Quantization: Techniques for reducing the precision of model parameters (e.g., from float32 to int8) to decrease model size, memory footprint, and computational requirements, often for efficient deployment on edge devices.\n\nAgentic AI / AI Agents: Systems designed for autonomous decision-making, planning, and action in dynamic environments, often involving reasoning, memory, and tool use.\n\nMultimodality: Models capable of processing, understanding, and generating content across multiple data types or modalities (e.g., text and images, audio and video).\n\nReinforcement Learning: A paradigm where an agent learns to make decisions by performing actions in an environment to maximize a cumulative reward, often through trial and error.\n\nComputer Vision (Specific Techniques): Papers focusing on particular computer vision tasks or methodologies that are not primarily about foundation models (e.g., 3D reconstruction, object detection, image segmentation, pose estimation).\n\nNatural Language Processing (Specific Techniques): Papers focusing on particular NLP tasks or methodologies that are not primarily about foundation models or LLM fine-tuning (e.g., text summarization, machine translation, sentiment analysis, named entity recognition).\n\nEthical AI / AI Safety: Research addressing the societal implications of AI, including fairness, bias detection and mitigation, interpretability, transparency, privacy, and alignment with human values.\n\nEfficient AI / AI Optimization: Techniques aimed at improving the computational efficiency, speed, or resource usage of AI models beyond just quantization, including architecture search, inference optimization, and hardware-aware design.\n\nData-centric AI: Approaches that prioritize improving the quality, quantity, and organization of data used to train AI models, rather than solely focusing on model architecture improvements.\n\nOther: A catch-all category for articles that don't fall into one of the classes mentioned above.\n\nFocus solely on the content of the paper's title, summary, and categories to make your classification. Do NOT include any conversational text or explanations in your response, only the JSON object."
+        },
+        "promptType": "define"
+      },
+      "retryOnFail": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "36068ba8-4e86-403c-b6a6-7fe55af58a95",
+      "name": "Remove Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2912,
+        752
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bd542bdd-d919-4688-a34d-395dd003e832",
+              "name": "id",
+              "type": "string",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "id": "714d07a2-0c05-4d12-bba4-b37ca21c6521",
+              "name": "title",
+              "type": "string",
+              "value": "={{ $json.title }}"
+            },
+            {
+              "id": "ec2e4ccb-70ec-4d12-8d5b-8b5359b93315",
+              "name": "summary",
+              "type": "string",
+              "value": "={{ $json.summary }}"
+            },
+            {
+              "id": "acae59b4-d167-42e5-8f07-f799d2cefcdf",
+              "name": "author",
+              "type": "string",
+              "value": "={{ $json.author }}"
+            },
+            {
+              "id": "0b74d264-c314-4522-9e7e-37d6a13e4247",
+              "name": "published",
+              "type": "string",
+              "value": "={{ $json.published }}"
+            },
+            {
+              "id": "e6f4a0a9-8b6c-47ab-9abb-29d530c21f2c",
+              "name": "category",
+              "type": "string",
+              "value": "={{ $json.category }}"
+            },
+            {
+              "id": "a808ca6a-6847-4730-a0ed-2b1dbdb5ad8a",
+              "name": "primary_topic",
+              "type": "string",
+              "value": "={{ $json.output.primary_category }}"
+            },
+            {
+              "id": "4f82732d-4f67-4047-bd67-6c00dd1c9a80",
+              "name": "secondary_topics",
+              "type": "string",
+              "value": "={{ $json.output.secondary_categories }}"
+            },
+            {
+              "id": "322c2946-8a90-451a-b484-bc1da68fb178",
+              "name": "potential_impact",
+              "type": "number",
+              "value": "={{ parseFloat($json.output.potential_impact) }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "af99113b-8804-47bf-a74d-2265f63b97e1",
+      "name": "Aggregate Uploaded arXiv IDs",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        4112,
+        752
+      ],
+      "parameters": {
+        "options": {},
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "metadata.arxiv_id"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "92511b85-b11d-4fd7-9985-326051db472a",
+      "name": "Add Static sessionId",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        4400,
+        752
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dea40507-a706-4792-b0b4-673d655ec877",
+              "name": "sessionId",
+              "type": "string",
+              "value": "static_id"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "f7e31525-1ac9-4adc-b4c6-9159e1b96e6e",
+      "name": "Agentic RAG for Trend Analysis",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        48,
+        1584
+      ],
+      "parameters": {
+        "text": "=Please provide a summarized trend analysis using the articles stored in the Weaviate vector store.",
+        "options": {
+          "systemMessage": "=**CRITICAL: YOUR FINAL RESPONSE MUST CONTAIN ABSOLUTELY NO MARKDOWN CODE FENCES (```JSON) OR ANY OTHER TEXT OUTSIDE THE PURE JSON OBJECT. IMMEDIATELY PROVIDE THE JSON.**\n\nYou are an expert AI and Machine Learning research analyst, specifically tasked with synthesizing weekly trends from arXiv publications. Your goal is to generate a concise, approachable, and easy-to-read email summary for a general audience interested in the latest developments in AI and ML. You must use the Weaviate Vector Store1 and perform a proper vector search to retrieve the data. If you were unable to retrieve data, please repeatedly try again until you can. Do not hallucinate, do not make anything up, do not rely on your memory.\n\n**Input Data:**\nYou will receive an array of JSON objects, where each object represents a single AI/ML article published on arXiv in the last week. You MUST analyze this entire collection of articles to identify key trends and notable research. Each article object has the following fields:\n- `arxiv_id`: The FULL arXiv URL of the article. (e.g. \"http://arxiv.org/abs/2507.02863v1\")\n- `title`: The title of the article.\n- `main_findings`: The main findings of the paper.\n- `primary_topic`: The primary topic assigned to the article (e.g., \"Language Model Evaluation\").\n- `secondary_topics`: A list of secondary topics assigned to the article (e.g., [\"Generative AI\", \"Natural Language Processing\"]).\n- `paper_quality`: A numerical score from 1 (very poor) to 5 (excellent quality), representing the predicted research quality.\n- `potential_impact`: A numerical score from 1 (not important) to 5 (potential paradigm shift, huge game-changer), representing the predicted impact on the field.\n\nYou will also recieve an array of JSONs with article counts by primary topic. Incorporate this into your trend anaylsis by focusing on topics with the most number of publications. Use this to guide the rest of the analysis\n\n**Trend Identification and Selection Rules:**\n- **Get article counts by `primary_topic`:** First, perform an aggregate query in the Weaviate vector store to get the counts of articles published by `primary_topic`. Use these counts to inform the rest of your analysis, focusing on the most-published topics. \n- **Identify Key Trends:** Group papers by `primary_topic` and `secondary_topics`. Prioritize trends with a higher number of associated papers, or papers with higher `potential_impact` or `paper_quality` scores.\n- **Select Representative Papers for Citation:** For each trend you summarize, choose 1-2 representative papers. These should ideally be the highest `potential_impact` or `paper_quality` papers relevant to that trend from the provided input data.\n- **Infer Future Outlook:** Based on the collective summaries and topics of the provided articles, infer and summarize likely future research directions.\n\n**Output Format (Strict JSON):**\nYour entire response MUST be **only** a valid JSON object.\n- **DO NOT include any Markdown code fences (```json) or any other text before or after the JSON object.**\n- The JSON object MUST contain exactly two top-level keys: \"subject\" and \"body\".\n- The value for \"subject\" MUST be a single string. It MUST always start with \"✨ ML Weekly Update:\" and the rest should be a succinct summary of the report's top trends for the week.\n- The value for \"body\" MUST be a single string representing the full email content in Markdown format. Use `\\\\n` for newlines within the body string. All double quotes within string values MUST be escaped as `\\\"`.\n- You must cite all of your conclusions with the matching `arxiv_id` for the paper. Cite the in markdown format so that the user can click on a word related to the paper which is linked to the `arxiv_id`.\n\nHere is an example of a citation:\n...including [MOTIF](http://arxiv.org/abs/2507.02851v1) which enables modular thinking beyond context limitations\n\nUse ONLY data from the `arxiv_id` field for citations. Do NOT create an arXiv_id spontaneously.\n\nExample JSON Output (strictly adhere to this format):\n```json\n{\n  \"subject\": \"✨ ML Weekly Update: BERT gets an upgrade, new PEFT techniques, and ML for radiology\",\n  \"body\": \"Rest of email in markdown format here.\"\n}\n\nFollow this format strictly for the email, giving the body output in markdown format:\n\nHey there,\n\nHere's a quick rundown of the key trends in Machine Learning research from the past week.\n\n## 💫 Key Research Trends This Week\nA one-sentence summary of the main trends covered in the report.\n* Bullet 1: A specific trend explained in 1 sentence or less, with the corresponding `arxiv_id` from the input report.\n* Bullet 2: A specific trend explained in 1 sentence or less, with the corresponding `arxiv_id` from the input report.\n* Bullet 3: A specific trend explained in 1 sentence or less, with the corresponding `arxiv_id` from the input report.\n** Write a maximum of 3 bullet points **\n\n## 🔮 Future Research Directions\nA one-sentence summary of future research directions from the report.\n* Bullet 1: A specific prediction explained in 1 sentence or less.\n* Bullet 2: A specific prediction explained in 1 sentence or less.\n* Bullet 3: A specific prediction explained in 1 sentence or less.\n** Write a maximum of 3 bullet points **\n\nGive a one sentence summary of the email. Then follow it with some short tips on what to look for in terms of new developments over the coming week.\n\nUntil next week,\n\nArchi 🧑🏽‍🔬"
+        },
+        "promptType": "define"
+      },
+      "retryOnFail": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "bb101516-818c-48e5-87d8-1a9f98d0f3a2",
+      "name": "Post Process Data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        832,
+        1584
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "42cf92c6-730d-4abf-a578-480f71e220da",
+              "name": "subject",
+              "type": "string",
+              "value": "={{ $json.output.subject }}"
+            },
+            {
+              "id": "c1f254e2-8333-431e-a6f1-0efa38f4fd3b",
+              "name": "output.body",
+              "type": "string",
+              "value": "={{ $json.output.body.replace(/\\\\n/g, '\\n') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "f5f96c9f-08ad-4707-a24e-d3c518218778",
+      "name": "Send email",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [
+        1520,
+        1584
+      ],
+      "webhookId": "2fc3d54c-6de7-4f75-aa5d-f8cf90a4d1c4",
+      "parameters": {
+        "html": "={{ $json.data }}",
+        "options": {},
+        "subject": "={{ $json.subject }}"
+      },
+      "credentials": {
+        "smtp": {
+          "id": "isYLskFLHSByAySn",
+          "name": "SMTP account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "e61ea149-eae7-43bc-a308-f791ea408dec",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1600,
+        "height": 380,
+        "content": "# Создайте еженедельный алерт по трендам ИИ с arXiv и Weaviate\n\n🧑🏽‍🔬 Забудьте о бесконечном пролистывании трендов ИИ. Познакомьтесь с Archi, вашим личным разведчиком трендов ИИ, который связывается с вами раз в неделю с самой важной информацией.\n\nЭтот рабочий процесс извлекает аннотации статей по ИИ и машинному обучению с [arxiv](arxiv.org), обогащает их категориями тем с помощью LLM и встраивает их в векторное хранилище [Weaviate](Weaviate). Векторное хранилище затем используется как инструмент для агентного RAG, чтобы написать краткое и легкочитаемое резюме недели в исследованиях.\n\n## Предварительные требования\n1.  **Существующий кластер Weaviate.** Вы можете просмотреть инструкции по настройке **локального кластера** с Docker [здесь](https://weaviate.io/developers/weaviate/installation/docker-compose#starter-docker-compose-file) или **кластера Weaviate Cloud** [здесь](https://weaviate.io/developers/wcs/quickstart).\n2.  **API ключи** для генерации встраиваний и работы с чат-моделями. Мы используем комбинацию [OpenRouter](https://openrouter.ai/) и [OpenAI](https://openai.com/). Не стесняйтесь менять модели по своему усмотрению.\n3.  **Адрес электронной почты с правами STMP.** Это адрес, с которого будет отправлено письмо. В этой демонстрации мы используем личный адрес Gmail. Вы можете создать новые учетные данные для привязки `STMP Account`, используя эти [инструкции](https://docs.n8n.io/integrations/builtin/credentials/sendemail/).\n4.  **Самостоятельно размещенная инстанция n8n.** Посмотрите это [видео](https://www.youtube.com/watch?v=kq5bmrjPPAY&t=108s), чтобы узнать, как настроиться всего за три минуты.\n  \n\n💚 Зарегистрируйтесь [здесь](https://console.weaviate.cloud/?utm_source=recipe&utm_campaign=n8n&utm_content=n8n_arxiv_template) для получения 14-дневной бесплатной пробной версии Weaviate Cloud (без необходимости указывать кредитную карту)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ef75d74a-233c-4928-b527-217ce7cc956f",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        656,
+        2368
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "v6dOwJXW6XXHxHQw",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "ea0c28e5-5fed-4c72-954a-dd36be744bdb",
+      "name": "OpenAI Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        2112,
+        1088
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "v6dOwJXW6XXHxHQw",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a8db38e2-89d4-4d15-adc1-e551dfe06e16",
+  "connections": {
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Remove Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown": {
+      "main": [
+        [
+          {
+            "node": "Send email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time": {
+      "main": [
+        [
+          {
+            "node": "Query arXiv",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query arXiv": {
+      "main": [
+        [
+          {
+            "node": "Convert XML to JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Fields": {
+      "main": [
+        [
+          {
+            "node": "Weaviate Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agentic RAG for Trend Analysis",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Results": {
+      "main": [
+        [
+          {
+            "node": "Prep Data for Weaviate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Current Date": {
+      "main": [
+        [
+          {
+            "node": "Date & Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Current Date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Weaviate Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agentic RAG for Trend Analysis",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Post Process Data": {
+      "main": [
+        [
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Enrich Articles with Topic Classification",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Weaviate Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Enrich Articles with Topic Classification",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Convert XML to JSON": {
+      "main": [
+        [
+          {
+            "node": "Split Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Weaviate Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Static sessionId": {
+      "main": [
+        [
+          {
+            "node": "Agentic RAG for Trend Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agentic RAG for Trend Analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weaviate Vector Store": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Uploaded arXiv IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Enrich Articles with Topic Classification",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep Data for Weaviate": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weaviate Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agentic RAG for Trend Analysis",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Agentic RAG for Trend Analysis",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Enrich Articles with Topic Classification",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Uploaded arXiv IDs": {
+      "main": [
+        [
+          {
+            "node": "Add Static sessionId",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agentic RAG for Trend Analysis": {
+      "main": [
+        [
+          {
+            "node": "Post Process Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter1": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enrich Articles with Topic Classification": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  }
+}

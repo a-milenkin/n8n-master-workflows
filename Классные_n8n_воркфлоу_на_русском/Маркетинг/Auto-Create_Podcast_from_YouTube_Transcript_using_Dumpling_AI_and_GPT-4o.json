@@ -1,0 +1,230 @@
+{
+  "id": "I4j3HnFGPa5UWkIO",
+  "meta": {
+    "instanceId": "a1ae5c8dc6c65e674f9c3947d083abcc749ef2546dff9f4ff01de4d6a36ebfe6",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Объедините очищенные метки говорящих и их текст в одну строку, четко отформатированную.",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "d95bcf10-2bb4-4bfd-a8ad-4128a792deb8",
+      "name": " Watch for New YouTube Video via RSS",
+      "type": "n8n-nodes-base.rssFeedReadTrigger",
+      "position": [
+        -500,
+        -20
+      ],
+      "parameters": {
+        "feedUrl": "https://rss.app/feeds/Vw076Uzh7bIinpci.xml",
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a5492dab-f400-48d9-abd7-6c832d9d6816",
+      "name": "Get Transcript from YouTube Video using Dumpling AI",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -280,
+        -20
+      ],
+      "parameters": {
+        "url": "https://app.dumplingai.com/api/v1/get-youtube-transcript",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"videoUrl\": \"{{ $json.link }}\",\n  \"preferredLanguage\": \"en\"\n}\n",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "RLFzAcGRepr5eXZB",
+          "name": "Dumpling AI-n8n"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "bce2bb18-c9ee-4165-ac27-5d300e354c7e",
+      "name": "Transform Transcript into Podcast Script using GPT-4o",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        -60,
+        -20
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "chatgpt-4o-latest",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=Инструкции:"
+            },
+            {
+              "content": "Вы профессиональный редактор стенограмм и резюме подкастов. Для приведенной ниже стенограммы выполните следующие задачи:"
+            }
+          ]
+        },
+        "jsonOutput": true
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "dd8NvMC6rvx8RITo",
+          "name": "OpenAi account 2"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "7782b5a6-c842-41be-a5c5-9eaa28a0abd0",
+      "name": "Save Podcast Script and Metadata to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "position": [
+        300,
+        -20
+      ],
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "https://airtable.com/appPSvSKdA6075xJC",
+          "cachedResultName": "Testing n8n"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "https://airtable.com/appPSvSKdA6075xJC/tbl4MDOqdNZweqXU9",
+          "cachedResultName": "podcast"
+        },
+        "columns": {
+          "value": {
+            "Title": "={{ $json.message.content.title }}",
+            "summary": "={{ $json.message.content.summary }}",
+            "podcast transcript": "={{ $json.message.content.cleaned_transcript }}"
+          },
+          "schema": [
+            {
+              "id": "Title",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Title",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "podcast transcript",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "podcast transcript",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "summary",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "summary",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "create"
+      },
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "H8PVkBgUPCcUhhRC",
+          "name": "Airtable Personal Access Token account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "af143efd-be64-48fc-a405-173575289ed3",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -500,
+        -220
+      ],
+      "parameters": {
+        "width": 640,
+        "height": 280,
+        "content": "Обозначьте каждого говорящего (например, Говорящий 1:) и удалите все filler-слова, такие как \"эм\", \"ээ\", \"вы знаете\", \"как бы\", \"в основном\", \"на самом деле\", \"так\"."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0c39768f-93c9-42d7-8b9f-ca4e0ede2312",
+  "connections": {
+    " Watch for New YouTube Video via RSS": {
+      "main": [
+        [
+          {
+            "node": "Get Transcript from YouTube Video using Dumpling AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Transcript from YouTube Video using Dumpling AI": {
+      "main": [
+        [
+          {
+            "node": "Transform Transcript into Podcast Script using GPT-4o",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform Transcript into Podcast Script using GPT-4o": {
+      "main": [
+        [
+          {
+            "node": "Save Podcast Script and Metadata to Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

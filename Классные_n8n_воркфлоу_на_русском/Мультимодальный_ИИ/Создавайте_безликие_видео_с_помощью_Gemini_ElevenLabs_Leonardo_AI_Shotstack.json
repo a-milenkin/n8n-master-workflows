@@ -1,0 +1,1098 @@
+{
+  "id": "SfN2LB0yzDGfq2fl",
+  "meta": {
+    "instanceId": "ed6d846a2fce1f660ede2e7da800724cca01dc3d0685524a3c917881b7cfcfe9",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "- В то же время аудио отправляется в **OpenAI Whisper** через POST-запрос для генерации транскрипции озвучивания.",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "da94f942-f640-427e-ab03-8fd2dd2ac64e",
+      "name": "Upload Audio to Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        -80,
+        320
+      ],
+      "parameters": {
+        "name": "=faceless-video-audio-{{ $now.toISO() }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "NRXiYxSXKt3Xb0ac",
+          "name": "Google Drive - toan.ngo"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "75321cd0-3789-4ac2-9ce5-13e49165c106",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        420,
+        200
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {
+          "includeUnpaired": true
+        },
+        "combineBy": "combineByPosition"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "d06d65ee-1c31-4b3a-962e-0b418b089e2f",
+      "name": "Structured Output Parser1",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        780,
+        560
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"array\",\n  \"items\": {\n    \"type\": \"object\",\n    \"properties\": {\n      \"start_time\": {\n        \"type\": \"number\"\n      },\n      \"end_time\": {\n        \"type\": \"number\"\n      },\n       \"duration\": {\n        \"type\": \"number\"\n      },\n      \"prompt\": {\n        \"type\": \"string\"\n      }\n    },\n    \"required\": [\"start_time_seconds\", \"end_time_seconds\", \"prompt\"]\n  }\n}\n"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "a77b5b6b-86cd-40ca-9e89-646461177189",
+      "name": "Sticky Note22",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2860,
+        -140
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 860,
+        "height": 880,
+        "content": "## 7. Видеомонтаж и загрузка"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6e3428b3-c1fb-4bf5-826c-6b41c90fc7c5",
+      "name": "Sticky Note23",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        340,
+        -140
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 640,
+        "height": 880,
+        "content": "- Сырой видеоматериал, вместе с временными метками или субтитрами, отправляется в **Shotstack**, инструмент для видеомонтажа, который поддерживает продвинутые редактирования."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7fe9f339-f0a9-4ef1-a187-b99267169bee",
+      "name": "Sticky Note24",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1040,
+        -140
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 740,
+        "height": 880,
+        "content": "- Задержка в 1 минуту позволяет **Shotstack** обработать редактирование."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4d469807-e522-4af3-8e8a-d8765e5ddb21",
+      "name": "Sticky Note25",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1840,
+        -140
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 960,
+        "height": 880,
+        "content": "- Затем инструмент проверяет, завершено ли редактирование видео в **Shotstack** и готово ли оно к загрузке."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c4943664-8f2e-437e-b2ce-cccce7831b94",
+      "name": "Sticky Note29",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -960,
+        -140
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 560,
+        "height": 880,
+        "content": "- После завершения вы можете скачать окончательное отредактированное видео на ваше локальное хранилище для дальнейшего использования."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3a0703be-2494-4769-b57c-5d6f2adefb54",
+      "name": "Sticky Note30",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -340,
+        -140
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 620,
+        "height": 880,
+        "content": "## 3. Генерация Аудио"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e3f43f3a-7b68-4534-a2e0-425d4d9fc6e3",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -1420,
+        180
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "2cb28f94-f118-4cb3-a94c-b006d4bf7268",
+      "name": "Generate Image Prompts",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        600,
+        200
+      ],
+      "parameters": {
+        "text": "=You are an expert image generation prompt creator. Based on the transcript provided below, divide the video into consecutive scenes, with each scene lasting between 2.00 to 4.00 seconds. There must be no gaps between scenes — ensure the entire duration of the video is covered.\n\nFor each scene, output:\n\nA descriptive image prompt that best represents the content of that scene\n\nThe start time, end time, and duration of the scene (in seconds), formatted like this: 2.00-4.25\n\nEach duration must have exactly two decimal points of precision\n\nOnly output one prompt per scene. Prioritize visual storytelling, aligning imagery with the spoken content in the transcript. The prompts should be rich, cinematic, and vivid, ideal for faceless video content.\n\nHere is the video transcript:\n\n{{JSON.stringify($json.words) }}",
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "8d34836e-3a01-4f6e-819a-89386854e139",
+      "name": "Auto-fixing Output Parse",
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "position": [
+        680,
+        400
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "64a688f7-5cdc-4ee3-b063-52a25157189b",
+      "name": "Split Prompts",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        1100,
+        200
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "output"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "69287f57-453c-4f7a-bb6e-f5207eceff45",
+      "name": "Wait 5 mins",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        2100,
+        200
+      ],
+      "webhookId": "2c6c93bb-0dc9-4a79-8ee9-8cafbe89775f",
+      "parameters": {
+        "unit": "minutes"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "d38722a5-eee9-49af-a3ef-ded73f2deaeb",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        2640,
+        200
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "list"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "40559316-89fc-4ef2-9215-065b30e96bab",
+      "name": "Edit with Shotstack",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2920,
+        200
+      ],
+      "parameters": {
+        "url": "https://api.shotstack.io/edit/stage/render",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n    \"timeline\": {\n \"soundtrack\":{\n            \"src\":\"{{ $('Upload Audio to Drive').first().json.webContentLink }}\"        \n},\n        \"tracks\": [\n            {\n                \"clips\":{{ JSON.stringify($('Aggregate').first().json.list.map((item, i) => ({\n                    \"asset\": {\n                        \"type\": \"video\",\n                        \"src\": item.generations_by_pk.generated_images[0].motionMP4URL\n                    },\n                    \"start\": $('Generate Image Prompts').first().json.output[i].start_time,\n                    \"length\": 20\n                }))) }}\n            }\n        ]\n    },\n    \"output\": {\n        \"format\": \"mp4\",\n        \"size\": {\n            \"width\": 720,\n            \"height\": 1280\n        }\n    }\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "SIZyEwK4lEDa0PdZ",
+          "name": "Header Auth shotstack - toan.ngo"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "6db5e94d-b6da-4f04-b22a-e27caca48c60",
+      "name": "Wait 1 min",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        3120,
+        200
+      ],
+      "webhookId": "12282cce-3a80-4646-84d3-ac3225c18f6d",
+      "parameters": {
+        "unit": "minutes",
+        "amount": 1
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "c664a13e-1298-4828-a446-bd853c7d31e2",
+      "name": "Fields - Set Idea",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -1200,
+        180
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6b5b5d77-fd3d-497c-82e5-99fc74f53efb",
+              "name": "Idea",
+              "type": "string",
+              "value": "What is AI Agents"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "859c2506-afe3-43ec-abc4-f09d7cbde9db",
+      "name": "60 Second Script Writer",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        -880,
+        180
+      ],
+      "parameters": {
+        "text": "=Idea: {{ $json.idea }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "Act as a YouTube video scriptwriter and create an engaging, captivating script for a 1-minute video (based on medium-paced speech). The script should attract and retain viewers using elements like storytelling, relatable content, a clear structure, and clever analogies to boost audience engagement.\n\nThe video topic is: (VIDEO IDEA). Use your creativity and expertise to produce a high-quality, informative script that appeals to a wide audience.\n\nInstructions:\n- Only output the script text—no explanations or extra commentary.\n- Use CAPITAL LETTERS and EXCLAMATION MARKS (!) generously to add emotion and emphasis where appropriate."
+            }
+          ]
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "f2ca8c1b-2512-4aaa-bdc3-ac64459b6778",
+      "name": "OpenAI Chat Mode",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -720,
+        360
+      ],
+      "parameters": {
+        "model": "anthropic/claude-3.5-sonnet",
+        "options": {
+          "baseURL": "https://openrouter.ai/api/v1"
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "qULV9xA6eq3tfpye",
+          "name": "OpenAi - nhu.le"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c69ecd98-cc31-4fa1-b0f1-c6c7edb5950a",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        420,
+        560
+      ],
+      "parameters": {
+        "model": "anthropic/claude-3.5-sonnet",
+        "options": {
+          "baseURL": "https://openrouter.ai/api/v1"
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "qULV9xA6eq3tfpye",
+          "name": "OpenAi - nhu.le"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1bb38452-6806-412c-8568-c74260d0a103",
+      "name": "Fields - Script Format",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -540,
+        180
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "974ee00c-4264-494f-9606-c8b717d1fb09",
+              "name": "text",
+              "type": "string",
+              "value": "={{ $json.text.replace(/(\\r\\n|\\n|\\r)/g, \"\"); }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "a410a4cd-14d3-4c8f-857d-03af500f764b",
+      "name": "Generate Voice",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -260,
+        180
+      ],
+      "parameters": {
+        "url": "=https://api.elevenlabs.io/v1/text-to-speech/TxGEqnHWrfWFTfGW9XjX",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $json.text }}"
+            }
+          ]
+        },
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "XEYQJheNlddMMBnV",
+          "name": "Header Auth - elevenlabs - toan.ngo"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0ef69faa-ed6e-4760-b3b1-9f61ff1ab3b6",
+      "name": "Generate Images",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1280,
+        200
+      ],
+      "parameters": {
+        "url": "https://cloud.leonardo.ai/api/rest/v1/generations",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "height",
+              "value": "={{ 1280 }}"
+            },
+            {
+              "name": "prompt",
+              "value": "={{ $json.prompt }}"
+            },
+            {
+              "name": "width",
+              "value": "={{ 720 }}"
+            },
+            {
+              "name": "modelId",
+              "value": "1dd50843-d653-4516-a8e3-f0238ee453ff"
+            }
+          ]
+        },
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "VP1GCWkS2BelVjN9",
+          "name": "Header Auth - leonardo - toan.ngo"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "30931947-d793-4e9c-b01d-c23b0879eff1",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2420,
+        -460
+      ],
+      "parameters": {
+        "width": 700,
+        "height": 2680,
+        "content": "- Отформатированный сценарий передается в **ElevenLabs**, который превращает текст в высококачественный аудиозапись."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c34f4595-1f67-4141-999e-6650c88f1356",
+      "name": "Google Gemini Chat Model 2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        600,
+        560
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-2.0-flash"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "AlDwotqhFT4EfJXQ",
+          "name": "Google Gemini(PaLM) Api - toan.ngo"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a046815f-556b-4d0e-a0c5-f31081fba0f8",
+      "name": "Google Gemini Chat Model 1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        -880,
+        360
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-2.0-flash"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "AlDwotqhFT4EfJXQ",
+          "name": "Google Gemini(PaLM) Api - toan.ngo"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e3c5aedf-6828-459c-9552-324567e4a928",
+      "name": "Make Audio File Public",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        120,
+        320
+      ],
+      "parameters": {
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "options": {},
+        "operation": "share",
+        "permissionsUi": {
+          "permissionsValues": {
+            "role": "reader",
+            "type": "anyone"
+          }
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "NRXiYxSXKt3Xb0ac",
+          "name": "Google Drive - toan.ngo"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "7942c242-9d3d-43e9-aa2b-07c43a302828",
+      "name": "Transcribe Audio with OpenAI Whisper",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        20,
+        100
+      ],
+      "parameters": {
+        "url": "https://api.openai.com/v1/audio/transcriptions",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "authentication": "predefinedCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "timestamp_granularities[]",
+              "value": "word"
+            },
+            {
+              "name": "model",
+              "value": "whisper-1"
+            },
+            {
+              "name": "response_format",
+              "value": "verbose_json"
+            },
+            {
+              "name": "file",
+              "parameterType": "formBinaryData",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "nodeCredentialType": "openAiApi"
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "qULV9xA6eq3tfpye",
+          "name": "OpenAi - nhu.le"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0d44a577-a9d6-4c67-84a8-3e9b0abfbc38",
+      "name": "Generate Videos/Scenes",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1900,
+        200
+      ],
+      "parameters": {
+        "url": "https://cloud.leonardo.ai/api/rest/v1/generations-motion-svd",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "imageId",
+              "value": "={{ $json.generations_by_pk.generated_images[0].id }}"
+            },
+            {
+              "name": "motionStrength",
+              "value": 3
+            },
+            {
+              "name": "isPublic",
+              "value": true
+            }
+          ]
+        },
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "VP1GCWkS2BelVjN9",
+          "name": "Header Auth - leonardo - toan.ngo"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0899c6d2-f54f-449c-8282-1bde6d8329cc",
+      "name": "Get Videos/Scenes",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2280,
+        200
+      ],
+      "parameters": {
+        "url": "=https://cloud.leonardo.ai/api/rest/v1/generations/{{ $json.motionSvdGenerationJob.generationId }}",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "XEYQJheNlddMMBnV",
+          "name": "Header Auth - elevenlabs - toan.ngo"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f6ab796f-17df-49c0-8bfb-7a1f3972175e",
+      "name": "Download Generated Videos/Scenes",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2460,
+        200
+      ],
+      "parameters": {
+        "url": "={{ $json.generations_by_pk.generated_images[0].motionMP4URL }}",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "1c2a0287-993b-4a84-80fa-867da759672e",
+      "name": "Get Images",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1640,
+        200
+      ],
+      "parameters": {
+        "url": "=https://cloud.leonardo.ai/api/rest/v1/generations/{{ $json.sdGenerationJob.generationId }}",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "VP1GCWkS2BelVjN9",
+          "name": "Header Auth - leonardo - toan.ngo"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "1ed9d8c7-98d8-44b4-bb51-ed3bfe3d28a6",
+      "name": "Render Final Video with Shotstack",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        3320,
+        200
+      ],
+      "parameters": {
+        "url": "=https://api.shotstack.io/edit/stage/render/{{ $json.response.id }}",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "SIZyEwK4lEDa0PdZ",
+          "name": "Header Auth shotstack - toan.ngo"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "1173fde6-b688-4848-a49b-a5e403d0d61c",
+      "name": "Wait 30s",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1460,
+        200
+      ],
+      "webhookId": "9c33bc28-efda-485d-8f6a-3c53d470f28d",
+      "parameters": {
+        "amount": 30
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "dc1a0674-e2ef-45b9-811b-7d87689b531c",
+      "name": "Download Final Video",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        3520,
+        200
+      ],
+      "parameters": {
+        "url": "={{ $json.response.url }}",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a1697e1f-d1c3-4483-853e-78f180818bd4",
+      "name": "Sticky Note31",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1500,
+        -140
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 480,
+        "height": 880,
+        "content": "- Сгенерированное аудио загружается в **Google Drive** и становится общедоступным."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "16edc864-eb87-4a2c-b415-c6a468ba5e8e",
+  "connections": {
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Generate Image Prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 30s": {
+      "main": [
+        [
+          {
+            "node": "Get Images",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Edit with Shotstack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Images": {
+      "main": [
+        [
+          {
+            "node": "Generate Videos/Scenes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 1 min": {
+      "main": [
+        [
+          {
+            "node": "Render Final Video with Shotstack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 5 mins": {
+      "main": [
+        [
+          {
+            "node": "Get Videos/Scenes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Prompts": {
+      "main": [
+        [
+          {
+            "node": "Generate Images",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Voice": {
+      "main": [
+        [
+          {
+            "node": "Upload Audio to Drive",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Transcribe Audio with OpenAI Whisper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Images": {
+      "main": [
+        [
+          {
+            "node": "Wait 30s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Mode": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "Fields - Set Idea": {
+      "main": [
+        [
+          {
+            "node": "60 Second Script Writer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Videos/Scenes": {
+      "main": [
+        [
+          {
+            "node": "Download Generated Videos/Scenes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "Edit with Shotstack": {
+      "main": [
+        [
+          {
+            "node": "Wait 1 min",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Audio to Drive": {
+      "main": [
+        [
+          {
+            "node": "Make Audio File Public",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fields - Script Format": {
+      "main": [
+        [
+          {
+            "node": "Generate Voice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Image Prompts": {
+      "main": [
+        [
+          {
+            "node": "Split Prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Videos/Scenes": {
+      "main": [
+        [
+          {
+            "node": "Wait 5 mins",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Make Audio File Public": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "60 Second Script Writer": {
+      "main": [
+        [
+          {
+            "node": "Fields - Script Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-fixing Output Parse": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Generate Image Prompts",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Auto-fixing Output Parse",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model 1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "60 Second Script Writer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model 2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Auto-fixing Output Parse",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Generate Image Prompts",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Generated Videos/Scenes": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Render Final Video with Shotstack": {
+      "main": [
+        [
+          {
+            "node": "Download Final Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Fields - Set Idea",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe Audio with OpenAI Whisper": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  }
+}

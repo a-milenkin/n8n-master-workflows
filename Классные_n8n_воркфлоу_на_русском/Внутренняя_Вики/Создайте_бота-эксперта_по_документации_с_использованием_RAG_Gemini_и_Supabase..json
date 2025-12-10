@@ -1,0 +1,1227 @@
+{
+  "meta": {
+    "instanceId": "e409ea34548a2afe2dffba31130cd1cf2e98ebe2afaeed2a63caf2a0582d1da0",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "3ebddde0-60d2-4795-9d30-ea4ea2f5b7b8",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        -1568,
+        176
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "aba5962f-3e74-401a-b23c-0a80cefd1d69",
+      "name": "Official n8n Documentation",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "position": [
+        -1280,
+        176
+      ],
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "topK": 10,
+        "options": {},
+        "tableName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "documents",
+          "cachedResultName": "documents"
+        },
+        "toolDescription": "Get related chunks of the official n8n documentation.",
+        "includeDocumentMetadata": false
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "xGXZD7rRAPQj61k6",
+          "name": "Test"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "e23e7f3b-dd4e-4dd9-83b6-aec430ade563",
+      "name": "Default Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "position": [
+        144,
+        -1328
+      ],
+      "parameters": {
+        "options": {},
+        "jsonData": "={{ $json.documentation }}",
+        "jsonMode": "expressionData",
+        "textSplittingMode": "custom"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "38f5ec35-3a90-4d5c-8b1c-ed4802292b86",
+      "name": "Recursive Character Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "position": [
+        240,
+        -1120
+      ],
+      "parameters": {
+        "options": {
+          "splitCode": "markdown"
+        },
+        "chunkSize": 1500,
+        "chunkOverlap": 200
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aa5245e3-9af3-42f4-a2fd-22520bdb0add",
+      "name": "Remove Duplicate Documentation Content",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        -480,
+        -1552
+      ],
+      "parameters": {
+        "options": {
+          "scope": "node",
+          "historySize": 10000
+        },
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $json.documentation }}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2e4d4cee-fc5d-4cbd-9772-751869e4dec3",
+      "name": "Only Keep Doc Paths",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        -352,
+        -2320
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "52b8b89a-30cd-4a0d-a428-e5d341bcebbf",
+              "operator": {
+                "type": "string",
+                "operation": "endsWith"
+              },
+              "leftValue": "={{ $json.link }}",
+              "rightValue": "/"
+            },
+            {
+              "id": "d8019c4e-e1a1-43ec-93a8-dac3d8c083b6",
+              "operator": {
+                "type": "string",
+                "operation": "notStartsWith"
+              },
+              "leftValue": "={{ $json.link }}",
+              "rightValue": "https://"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "8e080adf-4d42-4337-8c80-23208936ace5",
+      "name": "Clean Documentation",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -912,
+        -1552
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5ed964a6-5200-454c-b983-f3dc7c8c7a48",
+              "name": "documentation",
+              "type": "string",
+              "value": "={{ $json.data.replace(/([^#\\n]+)\\s*#/g, '# $1').trim().replace(/^\\s*https?:\\/\\/\\S+\\s*/, '') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "f6ce099d-1c04-4cbc-a096-60eb92d09b6b",
+      "name": "Gemini 2.5 Flash",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        -1920,
+        176
+      ],
+      "parameters": {
+        "options": {
+          "temperature": 0
+        }
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "AXawYbABK5aZbGBE",
+          "name": "IA2S"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "98c0a22e-3cd3-4b54-945e-c236ff2cc75a",
+      "name": "Your Supabase Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "position": [
+        32,
+        -1552
+      ],
+      "parameters": {
+        "mode": "insert",
+        "options": {},
+        "tableName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "documents",
+          "cachedResultName": "documents"
+        },
+        "embeddingBatchSize": 30
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "xGXZD7rRAPQj61k6",
+          "name": "Test"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "016eb60c-0a44-4e4c-8dfd-9588a7df8bbd",
+      "name": "Get All n8n Documentation Links",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1504,
+        -2320
+      ],
+      "parameters": {
+        "url": "https://docs.n8n.io/",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "485201fb-5711-48c3-8b18-f1637c1f800b",
+      "name": "Extract Links from HTML",
+      "type": "n8n-nodes-base.html",
+      "position": [
+        -1216,
+        -2320
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "links",
+              "attribute": "href",
+              "cssSelector": "a",
+              "returnArray": true,
+              "returnValue": "attribute"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "02fa5563-c75a-48c1-a25c-afac49ff0a02",
+      "name": "Split Out Links",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        -880,
+        -2320
+      ],
+      "parameters": {
+        "options": {
+          "destinationFieldName": "link"
+        },
+        "fieldToSplitOut": "links"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8f9e9ec1-2aee-462a-a4e8-aecd17051ec7",
+      "name": "Remove Duplicate Links",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        -576,
+        -2320
+      ],
+      "parameters": {
+        "compare": "selectedFields",
+        "options": {},
+        "fieldsToCompare": "link"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bfa68912-7ae6-49bf-9ee9-8300e2d7486b",
+      "name": "Add Documentation Page to Vector Store",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "position": [
+        160,
+        -2288
+      ],
+      "parameters": {
+        "options": {
+          "waitForSubWorkflow": true
+        },
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "workflowInputs": {
+          "value": {
+            "path": "={{ $json.link }}"
+          },
+          "schema": [
+            {
+              "id": "path",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "path",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "data"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "typeVersion": 1.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "63a9e1df-b803-435a-b4f1-6f5fef329366",
+      "name": "Get Documentation Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        -1440,
+        -1552
+      ],
+      "parameters": {
+        "url": "=https://docs.n8n.io/{{ $('Ingest Web Page').last().json.path }}",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "67227b76-3f85-47e7-9ccb-841270671190",
+      "name": "Extract Documentation Content",
+      "type": "n8n-nodes-base.html",
+      "position": [
+        -1136,
+        -1552
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "data",
+              "cssSelector": "article",
+              "skipSelectors": "img, footer, form"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "083db456-864c-4015-a11e-06291d837011",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2992,
+        -1968
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 760,
+        "height": 752,
+        "content": "-- Включите расширение pgvector для работы с векторными вложениями (УДАЛИТЕ ЭТУ СТРОКУ, ЕСЛИ УЖЕ ВКЛЮЧЕНО)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "786cf7df-251d-487c-a243-d84d255c7f2d",
+      "name": "Gemini Query Embedding",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "position": [
+        -1200,
+        368
+      ],
+      "parameters": {},
+      "credentials": {
+        "googlePalmApi": {
+          "id": "AXawYbABK5aZbGBE",
+          "name": "IA2S"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d100e805-fe39-42b7-9a6f-fb65e35c3714",
+      "name": "Gemini Chunk Embedding",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "position": [
+        16,
+        -1328
+      ],
+      "parameters": {},
+      "credentials": {
+        "googlePalmApi": {
+          "id": "AXawYbABK5aZbGBE",
+          "name": "IA2S"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "abc78ac4-14be-4782-b4d0-ea36fae67d7a",
+      "name": "Keep Supabase Instance Alive",
+      "type": "n8n-nodes-base.supabase",
+      "position": [
+        -544,
+        -672
+      ],
+      "parameters": {
+        "limit": 1,
+        "tableId": "documents",
+        "operation": "getAll"
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "xGXZD7rRAPQj61k6",
+          "name": "Test"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "47045d86-4a1a-4dd7-a08e-c2f36579487e",
+      "name": "Every 6 Days",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -768,
+        -672
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "daysInterval": 6
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "f8943741-1643-4d14-b4a8-4fb40fdec37c",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2096,
+        -2672
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 2640,
+        "height": 1760,
+        "content": "create extension vector;"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0c167669-c80c-443b-887f-479bb42297aa",
+      "name": "Loop Over Documentation Pages",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -64,
+        -2320
+      ],
+      "parameters": {
+        "options": {},
+        "batchSize": 10
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "375673d7-bde0-41fd-b5fe-c7952a9c6b3e",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3056,
+        -2992
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1064,
+        "height": 296,
+        "content": "-- Создайте таблицу для хранения ваших документов"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c7b031e5-22b0-445e-80c3-9ff97d602185",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3056,
+        -2672
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 924,
+        "height": 3228,
+        "content": "create table documents ("
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5e9cffe8-6fb3-4cda-9158-989182b24e0f",
+      "name": "n8n Docs AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -1552,
+        -416
+      ],
+      "parameters": {
+        "options": {
+          "systemMessage": "=<role>\nYou are a specialized AI assistant, an expert in n8n's official documentation. Your sole mission is to help users by providing accurate and factual information extracted exclusively from this documentation. You are meticulous, factual, and never deviate from your knowledge scope.\n</role>\n\n<instructions>\n<goal>\nYour primary goal is to provide precise and factual answers to user questions about the n8n automation platform, based **exclusively** on the excerpts from the official documentation provided in the context.\n</goal>\n\n<context>\nYou operate according to a RAG (Retrieval-Augmented Generation) model. For each user question, use the appropriate tool to retrieve the necessary information from the n8n documentation's vector database.\n\n**Mandatory rules:**\n\n1.  **Single source of truth:** Your answer MUST be entirely and solely derived from the information present in the provided documentation.\n2.  **Accuracy and implicit citation:** Base your answer as literally as possible on the documentation text. Rephrase for clarity and conciseness, but do not add any information not found there. Act as if the documentation is your only knowledge in the world.\n3.  **Do not mention the process:** Never mention your tool or the fact that you are a RAG system in your answer to the user. Respond as an expert who directly consults their documentation.\n</context>\n\n<output_format>\n*   **Clarity:** Provide a clear, concise, and direct answer.\n*   **Structuring:** If the context contains steps, lists, or code examples, use Markdown syntax to format them legibly (bullet points, numbered lists, code blocks for code snippets, JSON, etc.).\n*   **Tone:** Adopt a professional, helpful, and confident tone, that of a technical n8n expert.\n</output_format>\n</instructions>"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "8f29b4a7-e57a-40db-b6e3-4e6fb93a5588",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1600,
+        -2528
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 288,
+        "height": 400,
+        "content": "id bigserial primary key,"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "82c46efb-6daa-47fa-a969-ecfe5cb44664",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1296,
+        -2528
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 272,
+        "height": 400,
+        "content": "### Шаг 1.2: Прочитайте список книг"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bf3677a9-6520-48bc-9b6b-d5f4ed6f31ea",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1008,
+        -2528
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 336,
+        "height": 400,
+        "content": "**Что это делает:** Он берет HTML из предыдущего шага и извлекает каждую отдельную ссылку (`<a>` тег)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ef8a70e0-98b3-46dc-ae8c-a349de35a511",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -656,
+        -2528
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 480,
+        "height": 400,
+        "content": "**Аналогия:** Мы читаем список на стойке регистрации и извлекаем только названия книг (ссылки)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e20c2189-fe6f-4dfb-8c31-27420545574c",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -160,
+        -2528
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 512,
+        "height": 464,
+        "content": "### Шаг 1.3: Обрабатывайте одну книгу за раз"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "af9c5996-e427-4feb-ab2d-87da254b6e9e",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1536,
+        -1760
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 288,
+        "height": 384,
+        "content": "**Что это делает:** Он берет большой список ссылок и превращает каждую ссылку в отдельный элемент для обработки n8n."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9066ac34-850f-4323-9865-467c3a96d3c8",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2064,
+        -1904
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 512,
+        "height": 528,
+        "content": "### Почему стоит использовать под-поток?"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5b11db96-f3c7-4555-952c-88001d25a544",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1232,
+        -1760
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 512,
+        "height": 384,
+        "content": "Основная причина - это **управление памятью**."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "af202cd5-c63b-47d1-9b6b-4713e606eed1",
+      "name": "Sticky Note14",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -704,
+        -1984
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 544,
+        "height": 608,
+        "content": "Обработка одной веб-страницы, особенно создание векторных встраиваний для всех ее частей, требует много памяти (ОЗУ). Документация n8n содержит более 1000 страниц. Если бы мы попытались обработать все их за один раз, память накапливалась бы с каждой страницей и, вероятно, привела бы к сбою вашей инстанции n8n."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7daf22ac-ef30-41c8-a083-24c955aa2204",
+      "name": "Sticky Note15",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -144,
+        -1984
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 656,
+        "height": 1040,
+        "content": "Когда под-поток завершает свою работу для одного элемента (одной страницы), n8n **очищает память** (ОЗУ), которую он использовал, прежде чем начать следующий."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ce866531-215a-4c7c-b101-bf0d597a2938",
+      "name": "Sticky Note16",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2096,
+        -880
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1200,
+        "height": 1440,
+        "content": "Используя под-поток, мы обрабатываем страницы по одной в эффективном цикле, что делает весь процесс индексирования стабильным и надежным, даже в масштабах."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "12d9065c-a020-42ef-add0-3750120f03e0",
+      "name": "Sticky Note17",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2064,
+        -720
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 368,
+        "height": 448,
+        "content": "### Стойка регистрации: Задайте свой вопрос здесь"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "56c158b8-f24e-4500-ae12-b5d8fa4911f0",
+      "name": "Sticky Note18",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1680,
+        -608
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 560,
+        "height": 400,
+        "content": "**Что она делает:** Это интерфейс чата, доступный для публики. Когда вы отправляете сообщение здесь, начинается весь процесс RAG."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7b62be1a-4a5d-4f86-b7d0-a0f7a63a331e",
+      "name": "Sticky Note19",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2064,
+        -256
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 368,
+        "height": 576,
+        "content": "**Действие:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "92d49e02-306b-4a45-a47e-bb8c7b072408",
+      "name": "Sticky Note20",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1680,
+        -192
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 288,
+        "height": 512,
+        "content": "**Активируйте** весь рабочий процесс."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9fd0fb04-0b06-4696-8091-accc863d992a",
+      "name": "Sticky Note21",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1376,
+        -192
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 448,
+        "height": 720,
+        "content": "Чтобы протестировать прямо внутри n8n, нажмите кнопку **\"Открыть чат\"** в панели параметров этого узла."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9c92ee43-46f0-49ac-a269-11b7b87ea3d2",
+      "name": "Sticky Note22",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -864,
+        -880
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 544,
+        "height": 416,
+        "content": "## Необязательно: Держите базу данных активной"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "260b4e38-5fa1-44ef-a233-6d322201b47a",
+      "name": "Start Indexing",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -1744,
+        -2320
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "40b2b853-31fd-4961-9b0f-6927d518a833",
+      "name": "RAG Chatbot",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        -1904,
+        -416
+      ],
+      "webhookId": "e80f40f5-f8dc-4d0e-9ce5-594c61d233df",
+      "parameters": {
+        "public": true,
+        "options": {
+          "title": "",
+          "subtitle": "",
+          "customCss": "/* === THEME OVERRIDE: n8n Glass & Glow (Revised) === */\n\n/*\n  This theme is built upon the default n8n chat CSS variables.\n  We'll use your desired branding and layout, and then add\n  the \"glass\" effect using a semi-transparent background\n  and a backdrop-filter on the main window class.\n*/\n\n:root {\n  /* --- 1. CORE BRANDING & FONTS --- */\n  /* Your choices for font and primary color are applied here. */\n  --chat--font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;\n  --chat--color-primary: #EA4B71; /* n8n Red */\n  --chat--color-primary-shade-50: #D93A60;\n  --chat--color-primary-shade-100: #C82A50;\n  --chat--color-secondary: #20b69e; /* Kept default secondary for things like file uploads */\n  --chat--color-secondary-shade-50: #1ca08a;\n  --chat--color-white: #ffffff;\n  --chat--color-light: #f2f4f8;\n  --chat--color-dark: #1F2937; /* Darker, more modern text color */\n  --chat--color-disabled: #9CA3AF;\n  --chat--color-typing: #404040;\n\n  /* --- 2. WINDOW & LAYOUT --- */\n  /* Your dimensions and rounded corners. The actual glass effect is handled in the class override below. */\n  --chat--window--width: 430px;\n  --chat--window--height: 80vh;\n  --chat--window--border-radius: 16px;\n  --chat--window--border: 1px solid rgba(255, 255, 255, 0.3);\n  --chat--spacing: 1rem; /* 16px base spacing */\n  --chat--window--z-index: 9999;\n  --chat--window--bottom: var(--chat--spacing);\n  --chat--window--right: var(--chat--spacing);\n  --chat--window--margin-bottom: var(--chat--spacing);\n\n  /* --- 3. GLASSMORPHISM BACKGROUNDS --- */\n  /* We make the main sections transparent to let the glass window show through. */\n  --chat--header--background: transparent;\n  --chat--body--background: transparent;\n  --chat--footer--background: transparent;\n\n  /* --- 4. HEADER STYLING (REMOVED) --- */\n  /* The header is removed by setting its height, padding, and border to 0/none. */\n  --chat--header-height: 0;\n  --chat--header--padding: 0;\n  --chat--header--border-bottom: none;\n  /* The rest of the header variables are now irrelevant. */\n  --chat--header--color: var(--chat--color-dark);\n  --chat--heading--font-size: 1.5rem;\n  --chat--subtitle--font-size: 0.875rem;\n  --chat--subtitle--line-height: 1.4;\n  --chat--close--button--color-hover: var(--chat--color-primary);\n\n  /* --- 5. MESSAGE BUBBLES --- */\n  --chat--message--font-size: 0.875rem;\n  --chat--message--padding: 12px 16px;\n  --chat--message--border-radius: 12px;\n  --chat--message-line-height: 1.6;\n  --chat--message--margin-bottom: calc(var(--chat--spacing) * 0.75);\n  /* Adjusted padding: Top is 0, sides and bottom use the base spacing. */\n  --chat--messages-list--padding: 0 var(--chat--spacing) var(--chat--spacing);\n  --chat--message--bot--background: var(--chat--color-white);\n  --chat--message--bot--color: #111827;\n  --chat--message--bot--border: none;\n  --chat--message--user--background: var(--chat--color-primary);\n  --chat--message--user--color: var(--chat--color-white);\n  --chat--message--user--border: none;\n\n  /* --- 6. INPUT AREA --- */\n  --chat--textarea--height: 50px;\n  --chat--textarea--max-height: 10rem;\n  --chat--input--font-size: 0.9rem;\n  --chat--input--border: 0;\n  --chat--input--border-radius: 12px; /* Rounded input field */\n  --chat--input--padding: 12px 16px;\n  --chat--input--background: rgba(255, 255, 255, 0.5); /* Semi-transparent input */\n  --chat--input--text-color: #111827;\n  --chat--input--line-height: 1.5;\n  --chat--input--border-active: 0;\n\n  /* --- 7. SEND & FILE BUTTONS --- */\n  --chat--input--send--button--background: transparent;\n  --chat--input--send--button--color: var(--chat--color-primary);\n  --chat--input--send--button--background-hover: transparent;\n  --chat--input--send--button--color-hover: var(--chat--color-primary-shade-50);\n  --chat--input--file--button--background: transparent;\n  --chat--input--file--button--color: var(--chat--color-secondary);\n  --chat--input--file--button--background-hover: transparent;\n  --chat--input--file--button--color-hover: var(--chat--color-secondary-shade-50);\n\n  /* --- 8. TOGGLE BUTTON & OTHERS --- */\n  /* Using your primary brand color for the main toggle button */\n  --chat--toggle--size: 64px;\n  --chat--toggle--width: var(--chat--toggle--size);\n  --chat--toggle--height: var(--chat--toggle--size);\n  --chat--toggle--border-radius: 50%;\n  --chat--toggle--background: var(--chat--color-primary);\n  --chat--toggle--hover--background: var(--chat--color-primary-shade-50);\n  --chat--toggle--active--background: var(--chat--color-primary-shade-100);\n  --chat--toggle--color: var(--chat--color-white);\n}\n\n/* === CLASS OVERRIDES === */\n/*\n  These are essential for effects that CSS variables can't control,\n  like the glass blur, shadows, and max-height.\n*/\n\n.chat-window {\n  /* This is the magic for the glass effect! */\n  background-color: rgba(249, 243, 245, 0.6); /* A semi-transparent background color */\n  backdrop-filter: blur(20px);\n  -webkit-backdrop-filter: blur(20px); /* For Safari compatibility */\n\n  /* A subtle shadow helps lift the window off the page */\n  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);\n\n  /* Here we apply the max-height you wanted */\n  max-height: 750px;\n}\n\n/* Add top margin to the first message only for initial spacing */\n.chat-messages-list .chat-message:first-child {\n  margin-top: var(--chat--spacing);\n}\n\n/* Make user messages slightly wider for better balance */\n.chat-message.is-user {\n\tmax-width: 70%;\n}\n\n.chat-message.is-bot {\n\tmax-width: 80%;\n}\n\n/* Add a subtle glow to messages on hover */\n.chat-message {\n    transition: transform 0.2s ease, box-shadow 0.2s ease;\n}\n.chat-message:hover {\n    transform: translateY(-2px);\n    box-shadow: 0 0 25px 0 rgba(234, 75, 113, 0.2);\n}\n\n/* === PAGE BACKGROUND === */\n/* Your dotted background to simulate the n8n canvas. Perfect as is! */\nbody {\n    background-color: #FDFBFF;\n    background-image:\n        radial-gradient(circle at 1px 1px, rgba(0,0,0,0.07) 1px, transparent 0),\n        linear-gradient(135deg, #F9F3F5 0%, #EFF3FB 100%);\n    background-size: 25px 25px, 100% 100%;\n}",
+          "inputPlaceholder": "Type your n8n related question.."
+        },
+        "initialMessages": "Hello! I'm an AI assistant trained on the official n8n documentation.\nYou can ask me anything about n8n nodes, workflows, or concepts. For example:\n\"How does the IF node work?\"\n\"What is a sub-workflow?\""
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "f475e7ae-b914-40c1-b196-ee6df3ecd84d",
+      "name": "Sticky Note25",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3024,
+        -2592
+      ],
+      "parameters": {
+        "width": 704,
+        "height": 256,
+        "content": "**Что это делает:** Бесплатные проекты Supabase \"засыпают\" после недели бездействия. Этот запланированный триггер выполняет маленький запрос каждые 6 дней, чтобы ваша база данных оставалась активной и готовой."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6c5f1753-2fc6-47cb-9552-28752075bc68",
+      "name": "Sticky Note26",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3024,
+        -2320
+      ],
+      "parameters": {
+        "width": 832,
+        "height": 1136,
+        "content": "**Действие:** Вы можете удалить это, если у вас есть платный план Supabase или собственный экземпляр."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ba6acba9-dd65-4b99-8300-fcbd60ddde22",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3024,
+        208
+      ],
+      "parameters": {
+        "width": 624,
+        "height": 320,
+        "content": "## Шаг настройки 1: Создайте свой проект Supabase"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8f6e4c78-16b3-445f-bfdc-d1ffe3b48977",
+      "name": "Sticky Note23",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3024,
+        -1168
+      ],
+      "parameters": {
+        "width": 720,
+        "height": 272,
+        "content": "Сначала нам нужно создать \"библиотеку\", где будет храниться знание вашего ИИ."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9c7c7005-a3f8-4608-950b-514812330059",
+      "name": "Sticky Note24",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3024,
+        -880
+      ],
+      "parameters": {
+        "width": 656,
+        "height": 400,
+        "content": "## Шаг настройки 4: Подключите свои учетные данные"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "57a07053-e02c-42b3-9876-73ca3fb0a322",
+      "name": "Sticky Note27",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3024,
+        -464
+      ],
+      "parameters": {
+        "width": 864,
+        "height": 368,
+        "content": "Теперь давайте безопасно сохраним эти ключи в n8n, не покидая рабочий процесс."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "42a7ac88-c575-463a-8f7e-130106a2478f",
+      "name": "Sticky Note28",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3024,
+        -80
+      ],
+      "parameters": {
+        "width": 784,
+        "height": 272,
+        "content": "**Действие для Supabase:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a3de3ea5-e159-4792-8c6e-261a6d478e1e",
+      "name": "Ingest Web Page",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -1744,
+        -1552
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "path",
+              "type": "any"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "a778973f-24a1-40df-83e3-36e77acd1ed3",
+      "name": "Sticky Note29",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -864,
+        -432
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 544,
+        "height": 768,
+        "content": "Перейдите к узлу **`Ваш Supabase Vector Store`** на холсте."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {
+    "Ingest Web Page": [
+      {
+        "path": "integrations/builtin/core-nodes/n8n-nodes-base.httprequest/"
+      }
+    ]
+  },
+  "connections": {
+    "RAG Chatbot": {
+      "main": [
+        [
+          {
+            "node": "n8n Docs AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 6 Days": {
+      "main": [
+        [
+          {
+            "node": "Keep Supabase Instance Alive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "n8n Docs AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Indexing": {
+      "main": [
+        [
+          {
+            "node": "Get All n8n Documentation Links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ingest Web Page": {
+      "main": [
+        [
+          {
+            "node": "Get Documentation Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Links": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicate Links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini 2.5 Flash": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "n8n Docs AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Documentation": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicate Documentation Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Your Supabase Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only Keep Doc Paths": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Documentation Pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Chunk Embedding": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Your Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Query Embedding": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Official n8n Documentation",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Documentation Page": {
+      "main": [
+        [
+          {
+            "node": "Extract Documentation Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicate Links": {
+      "main": [
+        [
+          {
+            "node": "Only Keep Doc Paths",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Links from HTML": {
+      "main": [
+        [
+          {
+            "node": "Split Out Links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Official n8n Documentation": {
+      "ai_tool": [
+        [
+          {
+            "node": "n8n Docs AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Documentation Content": {
+      "main": [
+        [
+          {
+            "node": "Clean Documentation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Documentation Pages": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Add Documentation Page to Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All n8n Documentation Links": {
+      "main": [
+        [
+          {
+            "node": "Extract Links from HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Documentation Page to Vector Store": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Documentation Pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicate Documentation Content": {
+      "main": [
+        [
+          {
+            "node": "Your Supabase Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

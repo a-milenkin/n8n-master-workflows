@@ -1,0 +1,878 @@
+{
+  "meta": {
+    "instanceId": "7a58a3f07a0fc2e793cb37fe49f8ad79d79b1752ef823a6ac87ff5a79f5b1fc9",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "**Фильтрация и очистка:** Удаляет дубликаты и неуместные URL",
+  "tags": [
+    {
+      "id": "ayzol4JLAXjiRLWi",
+      "name": "N8N Course",
+      "createdAt": "2025-07-19T07:19:09.524Z",
+      "updatedAt": "2025-07-19T07:19:09.524Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "9e8d941d-d623-41bb-bd96-458507829b5c",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -4336,
+        -640
+      ],
+      "parameters": {
+        "width": 350,
+        "height": 180,
+        "content": "## 🎯 ШАГ 1: Открытие лидов Apollo"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "05fc2a6f-da87-4dcc-b748-8de72ab527ee",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3472,
+        -624
+      ],
+      "parameters": {
+        "width": 400,
+        "height": 380,
+        "content": "Извлечение квалифицированных потенциальных клиентов из поисков Apollo:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3cd12f0e-d723-4515-9f1b-8a55878b7372",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2608,
+        -432
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 240,
+        "content": "**Получить URL поиска:** Извлекает URL-адреса поиска Apollo из Google Sheets"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a515c2ba-4e77-40ec-a38d-9754e652d48d",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2000,
+        -432
+      ],
+      "parameters": {
+        "width": 400,
+        "height": 220,
+        "content": "**Вызов Apify Scraper:** Обрабатывает поиски Apollo для извлечения более 500 лидов за один запуск"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d626ecef-bb0f-4b27-bb70-3cf62c9456a2",
+      "name": "Remove Duplicate URLs",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        -2992,
+        0
+      ],
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "6b9040dc-a03a-47d2-b519-0e64268f6237",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -4352,
+        -272
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "7eb94278-b337-4856-b2d9-02ee34d79aa2",
+      "name": "HTML",
+      "type": "n8n-nodes-base.html",
+      "position": [
+        -4160,
+        -64
+      ],
+      "parameters": {
+        "options": {
+          "trimValues": true,
+          "cleanUpText": true
+        },
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "links",
+              "attribute": "href",
+              "cssSelector": "a",
+              "returnArray": true,
+              "returnValue": "attribute"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "76fa8c51-28b8-46a9-841f-d7aa298db7bf",
+      "name": "Split Out",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        -3536,
+        -48
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "links"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ba1f94fc-9aef-4380-be26-9d3b32fc8eb9",
+      "name": "Filter",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        -3360,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "9a75bc22-f6b3-426e-96df-db5e319e5cd5",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              },
+              "leftValue": "={{ $json.links }}",
+              "rightValue": "/"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "53db04ce-30e5-41f9-bb0b-225debeec0ef",
+      "name": "Request web page for URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        -2608,
+        32
+      ],
+      "parameters": {
+        "url": "={{ $('Loop Over Items').item.json.website_url }}{{ $json.links }}",
+        "options": {}
+      },
+      "typeVersion": 4.2,
+      "alwaysOutputData": false
+    },
+    {
+      "id": "7abaaf97-14f5-406f-90bf-27d02d58c214",
+      "name": "Markdown",
+      "type": "n8n-nodes-base.markdown",
+      "position": [
+        -2416,
+        32
+      ],
+      "parameters": {
+        "html": "={{ $json.data ? $json.data : \"<div>empty</div>\" }}",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "04f31bd6-c7ea-42a7-adff-3e1e77c80adf",
+      "name": "Summarize Website Page",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        -2240,
+        32
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1",
+          "cachedResultName": "GPT-4.1"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "**Фильтрация требований:** Оставляет только тех потенциальных клиентов, у которых есть как адреса электронной почты, так и доступные веб-сайты"
+            },
+            {
+              "content": "**Критично:** Замените <your-apify-api-key-here> на фактический ключ API"
+            },
+            {
+              "content": "={{ $json.data }}"
+            }
+          ]
+        },
+        "jsonOutput": true
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "ae2e52fc-273f-4b37-8c10-90b360513078",
+      "name": "Limit",
+      "type": "n8n-nodes-base.limit",
+      "position": [
+        -2800,
+        32
+      ],
+      "parameters": {
+        "maxItems": 3
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8631db4d-a6ba-44ca-892b-2227b7b376a2",
+      "name": "Scrape Home",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        -4352,
+        -64
+      ],
+      "parameters": {
+        "url": "={{ $json.organization.website_url }}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          },
+          "allowUnauthorizedCerts": false
+        }
+      },
+      "executeOnce": false,
+      "typeVersion": 4.2,
+      "alwaysOutputData": false
+    },
+    {
+      "id": "753cc95f-24ad-4815-bdf4-a6bcaeb63b90",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        -1872,
+        32
+      ],
+      "parameters": {
+        "options": {},
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "message.content.abstract"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a46d0f66-ff41-4b5b-9a7b-1f93c4f38208",
+      "name": "Generate Multiline Icebreaker",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        -1680,
+        32
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1",
+          "cachedResultName": "GPT-4.1"
+        },
+        "options": {
+          "temperature": 0.5
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "## 🕷️ ШАГ 2: Многостраничная аналитика веб-сайтов"
+            },
+            {
+              "content": "Глубокий анализ веб-сайтов для лучшей персонализации:"
+            },
+            {
+              "content": "**Скрейпинг главной страницы:** Загружает главную страницу и извлекает все внутренние ссылки"
+            },
+            {
+              "role": "assistant",
+              "content": "**Обработка элементов по очереди:** Обрабатывает каждого потенциального клиента индивидуально, чтобы избежать блокировки"
+            },
+            {
+              "content": "**Разделение ссылок:** Расширяет внутренние URL для комплексного анализа сайта"
+            }
+          ]
+        },
+        "jsonOutput": true
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "634223ae-9046-4b63-98cd-dab98322a7aa",
+      "name": "Add Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -1312,
+        32
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "email": "={{ $('Edit Fields').item.json.email }}",
+            "location": "={{ $('Edit Fields').item.json.location }}",
+            "last_name": "={{ $('Edit Fields').item.json.last_name }}",
+            "first_name": "={{ $('Edit Fields').item.json.first_name }}",
+            "website_url": "={{ $('Edit Fields').item.json.website_url }}",
+            "phone_number": "={{ $('Edit Fields').item.json.phone_number }}",
+            "multiline_icebreaker": "={{ $json.message.content.icebreaker }}"
+          },
+          "schema": [
+            {
+              "id": "first_name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "first_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "last_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "website_url",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "website_url",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "headline",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "headline",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "location",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "location",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone_number",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "phone_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "multiline_icebreaker",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "multiline_icebreaker",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": []
+        },
+        "options": {
+          "useAppend": true
+        },
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1907GiQ68xE_tzyhZ4cdIA6uFc7-9fDLr0SvA6kv18bk/edit#gid=0",
+          "cachedResultName": "Leads"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1907GiQ68xE_tzyhZ4cdIA6uFc7-9fDLr0SvA6kv18bk",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1907GiQ68xE_tzyhZ4cdIA6uFc7-9fDLr0SvA6kv18bk/edit?usp=drivesdk",
+          "cachedResultName": "Multiline Icebreaker Generator"
+        }
+      },
+      "executeOnce": false,
+      "typeVersion": 4.5
+    },
+    {
+      "id": "b126ba2f-4df7-4d8e-82da-5d69c0e00588",
+      "name": "Call Apify Scraper",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -3952,
+        -272
+      ],
+      "parameters": {
+        "url": "https://api.apify.com/v2/acts/jljBwyyQakqrL1wae/run-sync-get-dataset-items",
+        "method": "POST",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        },
+        "jsonBody": "={\n    \"getPersonalEmails\": true,\n    \"getWorkEmails\": true,\n    \"totalRecords\": 500,\n    \"url\": \"{{ $json.URL }}\"\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <your-apify-api-key-here>"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "2a876646-e39f-4c53-8c29-e4da9c9c3599",
+      "name": "Get Search URL",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -4160,
+        -272
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 631684632,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1907GiQ68xE_tzyhZ4cdIA6uFc7-9fDLr0SvA6kv18bk/edit#gid=631684632",
+          "cachedResultName": "Search URLs"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1907GiQ68xE_tzyhZ4cdIA6uFc7-9fDLr0SvA6kv18bk",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1907GiQ68xE_tzyhZ4cdIA6uFc7-9fDLr0SvA6kv18bk/edit?usp=drivesdk",
+          "cachedResultName": "Deep Icebreaker Generator"
+        }
+      },
+      "executeOnce": false,
+      "typeVersion": 4.5
+    },
+    {
+      "id": "ef18c7d5-6a09-4b86-913f-c4437c9878d4",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -3952,
+        -64
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e7737c7a-b5b6-44a1-9f0d-361f0ac7a459",
+              "name": "first_name",
+              "type": "string",
+              "value": "={{ $('Only Websites & Emails').item.json.first_name }}"
+            },
+            {
+              "id": "e867e03d-60e6-4dee-b1ac-12c517fd8d6c",
+              "name": "last_name",
+              "type": "string",
+              "value": "={{ $('Only Websites & Emails').item.json.last_name }}"
+            },
+            {
+              "id": "d522ec31-e21e-417e-ab78-f4a49019e544",
+              "name": "email",
+              "type": "string",
+              "value": "={{ $('Only Websites & Emails').item.json.email }}"
+            },
+            {
+              "id": "8f1ddf8d-7df8-433e-a687-c1a81cced4e1",
+              "name": "website_url",
+              "type": "string",
+              "value": "={{ $('Only Websites & Emails').item.json.organization.website_url }}"
+            },
+            {
+              "id": "9ccf7442-97cc-4840-aff0-7919e4119027",
+              "name": "headline",
+              "type": "string",
+              "value": "={{ $('Only Websites & Emails').item.json.headline }}"
+            },
+            {
+              "id": "d2eb1588-87d2-43b2-8356-7bfe754c7707",
+              "name": "location",
+              "type": "string",
+              "value": "={{ $('Only Websites & Emails').item.json.city }} {{ $('Only Websites & Emails').item.json.country }}"
+            },
+            {
+              "id": "b9ca5dad-9733-4b62-aeb8-c5675bc423d9",
+              "name": "phone_number",
+              "type": "string",
+              "value": "="
+            },
+            {
+              "id": "40fd7130-c65d-4826-a713-ecca24d23b07",
+              "name": "links",
+              "type": "array",
+              "value": "={{ $json.links }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "92bfc8fa-08af-4183-9a69-5e7c3c71b860",
+      "name": "Only Websites & Emails",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        -3760,
+        -272
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "fc44a289-8c50-4682-8b50-c2e63cfc6514",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.organization.website_url }}",
+              "rightValue": "/"
+            },
+            {
+              "id": "f8e675e8-99cc-4c30-92e3-e08a659cff9b",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.email }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "799ffd81-dedf-459f-850f-342d7db83fdf",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -3760,
+        -64
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "c973eaf8-438d-4ab9-bbf2-90a530ea5015",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -3168,
+        32
+      ],
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst updatedItems = items.map((item) => {\n  const link = item?.json?.links;\n\n  if (typeof link === \"string\") {\n    // Case: starts with \"/\" → already relative\n    if (link.startsWith(\"/\")) {\n      item.json.links = link;\n    } \n    \n    // Case: absolute URL (http or https)\n    else if (link.startsWith(\"http://\") || link.startsWith(\"https://\")) {\n      try {\n        const url = new URL(link);\n        let path = url.pathname;\n\n        // Strip trailing slash unless root \"/\"\n        if (path !== \"/\" && path.endsWith(\"/\")) {\n          path = path.slice(0, -1);\n        }\n\n        item.json.links = path || \"/\";\n      } catch (e) {\n        // On parse error, keep original\n        item.json.links = link;\n      }\n    }\n\n    // Fallback: not relative or absolute, leave as-is\n    else {\n      item.json.links = link;\n    }\n  }\n\n  return item;\n});\n\nreturn updatedItems;"
+      },
+      "typeVersion": 2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "",
+  "connections": {
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicate URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Request web page for URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Row": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown": {
+      "main": [
+        [
+          {
+            "node": "Summarize Website Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Generate Multiline Icebreaker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape Home": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Search URL": {
+      "main": [
+        [
+          {
+            "node": "Call Apify Scraper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Apify Scraper": {
+      "main": [
+        [
+          {
+            "node": "Only Websites & Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicate URLs": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only Websites & Emails": {
+      "main": [
+        [
+          {
+            "node": "Scrape Home",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize Website Page": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request web page for URL": {
+      "main": [
+        [
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Multiline Icebreaker": {
+      "main": [
+        [
+          {
+            "node": "Add Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get Search URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

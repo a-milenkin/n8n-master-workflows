@@ -1,0 +1,635 @@
+{
+  "meta": {
+    "instanceId": "f4f5d195bb2162a0972f737368404b18be694648d365d6c6771d7b4909d28167",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "0a03e403-4a72-4382-b648-602f4bd6ef87",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -1720,
+        380
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "a421a477-bcee-460c-bc6a-8150a924fdd3",
+      "name": "add create_at column",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -1640,
+        -100
+      ],
+      "parameters": {
+        "query": "ALTER TABLE ONLY \"n8n_chat_histories\" ADD COLUMN \"created_at\" TIMESTAMP DEFAULT NOW();",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "4E1voKcpNaIKnNJY",
+          "name": "PG - Chat Memory POC"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "0cb5189e-857d-49a1-a8e9-923d4f955383",
+      "name": "Get conversations by sessionId",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        380,
+        480
+      ],
+      "parameters": {
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "n8n_chat_histories",
+          "cachedResultName": "n8n_chat_histories"
+        },
+        "where": {
+          "values": [
+            {
+              "value": "={{ $('Loop Over Session IDs').item.json.session_id }}",
+              "column": "session_id"
+            }
+          ]
+        },
+        "schema": {
+          "__rl": true,
+          "mode": "name",
+          "value": "=public"
+        },
+        "options": {},
+        "operation": "select",
+        "returnAll": true
+      },
+      "credentials": {
+        "postgres": {
+          "id": "4E1voKcpNaIKnNJY",
+          "name": "PG - Chat Memory POC"
+        }
+      },
+      "executeOnce": false,
+      "typeVersion": 2.5
+    },
+    {
+      "id": "72d8c711-a3f9-4f95-b79a-a9190d2b4964",
+      "name": "Duplicate template sheet",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -400,
+        600
+      ],
+      "parameters": {
+        "url": "=https://sheets.googleapis.com/v4/spreadsheets/{{ $('Clear Sheet Content').params.documentId.value }}/sheets/0:copyTo",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "authentication": "predefinedCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "destinationSpreadsheetId",
+              "value": "={{ $('Clear Sheet Content').params.documentId.value }}"
+            }
+          ]
+        },
+        "nodeCredentialType": "googleSheetsOAuth2Api"
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ufBkeygvc1l17m5N",
+          "name": "Baptiste AS - Google Sheets account"
+        }
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "940fae1e-1ab7-4211-8d9f-fe5b9274e5e5",
+      "name": "Clear Sheet Content",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueErrorOutput",
+      "position": [
+        -760,
+        460
+      ],
+      "parameters": {
+        "clear": "specificRange",
+        "range": "A2:C10000",
+        "operation": "clear",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $json.session_id }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "14bKI5J0h18Nv48jbe1IXpZWma6EtqYLFWnpKoCB5Bgc",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14bKI5J0h18Nv48jbe1IXpZWma6EtqYLFWnpKoCB5Bgc/edit?usp=drivesdk",
+          "cachedResultName": "Conversation logs"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ufBkeygvc1l17m5N",
+          "name": "Baptiste AS - Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "b16e85bc-a84b-4da0-85da-568a1c981e02",
+      "name": "Rename Sheet",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -200,
+        600
+      ],
+      "parameters": {
+        "url": "=https://sheets.googleapis.com/v4/spreadsheets/{{ $('Clear Sheet Content').params.documentId.value }}:batchUpdate",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"requests\": [{\n    \"updateSheetProperties\": {\n      \"properties\": {\n          \"sheetId\": {{ $json.sheetId }},\n          \"title\": \"{{ $('Clear Sheet Content').item.json.session_id }}\",\n          \"hidden\": false\n      },\n      \"fields\": \"title, hidden\"\n    }\n  }]\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api"
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ufBkeygvc1l17m5N",
+          "name": "Baptiste AS - Google Sheets account"
+        }
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "63ac37f4-1f80-4e5a-9af4-ec2e05cbaccb",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -1720,
+        560
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 12
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "81cfed36-ee79-408f-8bad-0147a8acb0b3",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1740,
+        -480
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 320,
+        "height": 540,
+        "content": "## Добавить столбец даты и времени"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cecbaa6a-5d8b-4704-b249-bcd336875773",
+      "name": "Set session_id",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -20,
+        600
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3cc4ae1d-1693-4b30-9cbf-83fbb220813d",
+              "name": "session_id",
+              "type": "string",
+              "value": "={{ $('Clear Sheet Content').first().json.session_id }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "1f8b387b-52d0-4023-9d4b-4dd61272fe82",
+      "name": "Postgres - Get session ids",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -1380,
+        420
+      ],
+      "parameters": {
+        "query": "select distinct(session_id) from n8n_chat_histories",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "4E1voKcpNaIKnNJY",
+          "name": "PG - Chat Memory POC"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "2ab2fc24-1c19-4c08-b20f-121bf22c6f9c",
+      "name": "Loop Over Session IDs",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -1060,
+        420
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "46763fb1-bf18-44a4-82b8-26e09325f159",
+      "name": "Add conversations",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        560,
+        640
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Who": "={{ $json.message.type }}",
+            "Date": "={{ $json.created_at.toDateTime().format('yyyy-MM-dd hh:mm:ss') }}",
+            "Message": "={{ $json.message.content }}"
+          },
+          "schema": [
+            {
+              "id": "Who",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Who",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Message",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Message",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Loop Over Session IDs').item.json.session_id }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "14bKI5J0h18Nv48jbe1IXpZWma6EtqYLFWnpKoCB5Bgc",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14bKI5J0h18Nv48jbe1IXpZWma6EtqYLFWnpKoCB5Bgc/edit?usp=drivesdk",
+          "cachedResultName": "Conversation logs"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ufBkeygvc1l17m5N",
+          "name": "Baptiste AS - Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "4b711779-938d-4a51-96dc-a3a629cfdcb3",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1400,
+        -480
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 360,
+        "height": 540,
+        "content": "Если еще не сделано, добавьте столбец `created_at`, чтобы хранить дату и время сообщения"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2389393d-3e62-4349-a1cd-819d2b010f29",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1460,
+        140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 280,
+        "height": 720,
+        "content": "👉 В идеале, сделайте это до вашего первого взаимодействия, иначе все ваши предыдущие разговоры будут установлены как время выполнения этого узла."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "eb323ee1-7afb-421d-86f4-02846782fb3e",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -500,
+        -620
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 440,
+        "height": 700,
+        "content": "💡 **Замените** имя вашей памяти чата перед выполнением запроса"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3ca21e1a-1c1c-4064-9e06-540aef692291",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1160,
+        140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 280,
+        "height": 720,
+        "content": "Схема таблицы будет содержать как минимум следующие поля: `session_id`, `message.content`, `message.type` и `created_at`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "135eb659-31d5-4760-af09-938c3913bb6c",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1000,
+        -480
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 360,
+        "height": 540,
+        "content": "## Для пользователей Supabase"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6c329217-3f99-40bd-8ff5-57b2266f4012",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1780,
+        -620
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1240,
+        "height": 700,
+        "content": "Хотя теоретически вы могли бы использовать нативные узлы Supabase, мне было проще использовать PG. Это также более устойчиво в долгосрочной перспективе."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b06b11b7-e0c7-491c-b7ce-4e321187663c",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -860,
+        140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 340,
+        "height": 720,
+        "content": "### Получите свои учетные данные Supabase"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "495026a8-4b3a-4ad8-8bf4-120cfa039a63",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -460,
+        140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 640,
+        "height": 720,
+        "content": "Перейдите в свой проект Supabase"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8eaba5f3-3455-43c0-bffa-6a0bbde39de7",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 620,
+        "height": 720,
+        "content": "Нажмите на Подключить"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6f802f26-e4b2-4787-bc0c-f3f800d79f74",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1800,
+        140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 280,
+        "height": 720,
+        "content": "Перейдите в раздел \"Пул транзакций\" и нажмите \"Просмотреть параметры\""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "145ee4b6-d492-4533-83a0-2096aff97cca",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2740,
+        -620
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 860,
+        "height": 1480,
+        "content": "Скопируйте/вставьте параметры как новые учетные данные PG в вашем экземпляре n8n."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Rename Sheet": {
+      "main": [
+        [
+          {
+            "node": "Set session_id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set session_id": {
+      "main": [
+        [
+          {
+            "node": "Clear Sheet Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Postgres - Get session ids",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add conversations": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Session IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear Sheet Content": {
+      "main": [
+        [
+          {
+            "node": "Get conversations by sessionId",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Duplicate template sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Session IDs": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Clear Sheet Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Duplicate template sheet": {
+      "main": [
+        [
+          {
+            "node": "Rename Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres - Get session ids": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Session IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get conversations by sessionId": {
+      "main": [
+        [
+          {
+            "node": "Add conversations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Postgres - Get session ids",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

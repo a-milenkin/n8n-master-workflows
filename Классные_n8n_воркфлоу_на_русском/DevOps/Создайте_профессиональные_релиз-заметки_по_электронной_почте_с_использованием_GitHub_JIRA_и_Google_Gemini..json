@@ -1,0 +1,329 @@
+{
+  "id": "Your_ID",
+  "meta": {
+    "instanceId": "Your_ID",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Генератор заметок о релизе",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "Your_ID",
+      "name": "Github Trigger",
+      "type": "n8n-nodes-base.githubTrigger",
+      "position": [
+        -440,
+        -80
+      ],
+      "webhookId": "Your_ID",
+      "parameters": {
+        "owner": {
+          "__rl": true,
+          "mode": "name"
+        },
+        "events": [
+          "push"
+        ],
+        "options": {
+          "insecureSSL": false
+        },
+        "repository": {
+          "__rl": true,
+          "mode": "list",
+          "cachedResultUrl": "Your_Github_URL",
+          "cachedResultName": "Your_Repository_Name"
+        }
+      },
+      "credentials": {
+        "githubApi": {
+          "id": "Your_ID",
+          "name": "GitHub account"
+        }
+      },
+      "notesInFlow": false,
+      "typeVersion": 1
+    },
+    {
+      "id": "Your_ID",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -220,
+        -80
+      ],
+      "parameters": {
+        "jsCode": "const inputData = $input.all();\nconst commits = inputData[0].json.body.commits;\n\nreturn commits.map(commit => {\n  const message = commit.message;\n  const timestamp = commit.timestamp;\n\n  // Match something like \"ABC-123\", case-insensitive, from the beginning\n  const match = message.match(/([A-Z]+-\\d+)/i);\n\n  const jiraId = match ? match[0].toUpperCase() : null;\n\n  return {\n    json: {\n      message,\n      timestamp,\n      jira_id: jiraId\n    }\n  };\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "Your_ID",
+      "name": "Basic LLM Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        480,
+        -160
+      ],
+      "parameters": {
+        "text": "=",
+        "batching": {},
+        "messages": {
+          "messageValues": [
+            {
+              "type": "HumanMessagePromptTemplate",
+              "message": "=You are a professional technical release manager generating production release notes for CxOs and clients.\n\nGenerate a complete release note in **HTML format**, not plain text. The content is based on the following JIRA items, each having `jira_id`, `jira_summary`, `jira_description`, and `message`.\n\nOutput structure (as HTML):\n\n1. Title and Metadata\n   - H2 tag: \"Production Deployment – [Release Date]\"\n   - Bold lines: Version, Environment, Deployment Date\n\n2. Overview\n   - Short paragraph explaining the goal of this deployment\n\n3. Key Changes\n   - Bullet list (<ul>) with one <li> per JIRA item\n   - For each bullet: Summarize `jira_description` + `message` into a business-friendly sentence\n\nRules:\n- Output as clean HTML only\n- Do not wrap in a JSON object or Markdown\n- Use simple inline styles for readability\n\nHere is the input data:\n{{ JSON.stringify($json.items, null, 2) }}\n"
+            }
+          ]
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.7
+    },
+    {
+      "id": "Your_ID",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        480,
+        40
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-2.5-pro"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Your_ID",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "Your_ID",
+      "name": "Send email",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [
+        860,
+        -160
+      ],
+      "webhookId": "Your_ID",
+      "parameters": {
+        "html": "={{ $json.output.releasenote }}",
+        "options": {},
+        "subject": "Your_company_name | Location, Country \nYou’re receiving this email because you are subscribed to release notifications.",
+        "toEmail": "Your_receiver_email",
+        "fromEmail": "Your_sender_email"
+      },
+      "credentials": {
+        "smtp": {
+          "id": "Your_ID",
+          "name": "SMTP account"
+        }
+      },
+      "typeVersion": 2.1,
+      "alwaysOutputData": false
+    },
+    {
+      "id": "Your_ID",
+      "name": "Get an issue",
+      "type": "n8n-nodes-base.jira",
+      "position": [
+        -20,
+        -320
+      ],
+      "parameters": {
+        "issueKey": "={{ $json.jira_id }}",
+        "operation": "get",
+        "additionalFields": {}
+      },
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "Your_ID",
+          "name": "Jira SW Cloud account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "Your_ID",
+      "name": "Code2",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        140,
+        -320
+      ],
+      "parameters": {
+        "jsCode": "// Get all incoming items from the JIRA node.\nconst allItems = $input.all();\n\n// Use .map() to loop through each item and transform it.\nreturn allItems.map(item => {\n  // The full JIRA issue data for the current item in the loop\n  const issue = item.json;\n\n  // Extract the specific fields you need for this issue.\n  // Use optional chaining (?.) to prevent errors if a field is missing.\n  const jiraId = issue.key; // The JIRA ID (e.g., \"MS-6\")\n  const summary = issue.fields?.summary;\n  const description = issue.fields?.description;\n\n  // Return a new, clean object for this specific issue.\n  return {\n    json: {\n      jira_id: jiraId, // Added as requested\n      jira_summary: summary,\n      jira_description: description\n    }\n  };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "Your_ID",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        60,
+        20
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combineBy": "combineByPosition"
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "Your_ID",
+      "name": "Code3",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        260,
+        20
+      ],
+      "parameters": {
+        "jsCode": "// This will take all input items from previous loop and combine into one array\nreturn [{\n  json: {\n    items: items.map(i => i.json)\n  }\n}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "Your_ID",
+      "name": "Structured Output Parser1",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        640,
+        40
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n\t\t\"releasenote\": {\n\t\t\t\"type\": \"string\"\n\t\t}\n\t}\n}"
+      },
+      "typeVersion": 1.3
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "Your_ID",
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "timeSavedPerExecution": 1,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "versionId": "Your_ID",
+  "connections": {
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Get an issue",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send email": {
+      "main": [
+        []
+      ]
+    },
+    "Get an issue": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Github Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Send email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,170 @@
+{
+  "meta": {
+    "instanceId": "d6e2f2f655b1125bbcac14a4cac6d2e46c7a150e927f85fc96fdca1a6dc39e0e",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "3a905012-05c9-4799-93e2-3d3faee8dec3",
+      "name": "Receive Email",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        0,
+        -120
+      ],
+      "parameters": {
+        "filters": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YVZiLPppXZw84rIU",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "2b4de6f5-5fd4-449b-a708-b883a9606f29",
+      "name": "Get Client Name and Email",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        220,
+        -120
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Extract Sender Info\nlet sender_email = $json.From.trim();\nlet sender_name = null;\n\nif (sender_email.includes('<')) {\n  sender_name = sender_email.split('<')[0].trim();\n  sender_email = sender_email.split('<')[1].replace('>', '').trim();\n}\n\n// Extract Recipient Info\nlet recipient_email = $json.To.trim();\nlet recipient_name = null;\n\nif (recipient_email.includes('<')) {\n  recipient_name = recipient_email.split('<')[0].trim();\n  recipient_email = recipient_email.split('<')[1].replace('>', '').trim();\n}\n\nreturn {\n  \"sender_name\": sender_name,\n  \"sender_email\": sender_email,\n  \"recipient_name\": recipient_name,\n  \"recipient_email\": recipient_email\n}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "05206943-79b6-4bc6-a04b-218db9de7000",
+      "name": "Insert New Client in MySQL",
+      "type": "n8n-nodes-base.mySql",
+      "onError": "continueRegularOutput",
+      "position": [
+        440,
+        -120
+      ],
+      "parameters": {
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "contacts",
+          "cachedResultName": "contacts"
+        },
+        "options": {},
+        "dataMode": "defineBelow",
+        "operation": "upsert",
+        "valuesToSend": {
+          "values": [
+            {
+              "value": "={{ $('Receive Email').item.json.threadId }}",
+              "column": "threadId"
+            },
+            {
+              "value": "={{ $json.sender_name }}",
+              "column": "sender_name"
+            },
+            {
+              "value": "={{ $json.sender_email }}",
+              "column": "sender_email"
+            },
+            {
+              "value": "={{ $json.recipient_name }}",
+              "column": "recipient_name"
+            },
+            {
+              "value": "={{ $json.recipient_email }}",
+              "column": "recipient_email"
+            },
+            {
+              "value": "={{ $('Receive Email').item.json.Subject }}",
+              "column": "subject"
+            },
+            {
+              "value": "={{ $('Receive Email').item.json.snippet }}",
+              "column": "snippet"
+            }
+          ]
+        },
+        "valueToMatchOn": "={{ $('Receive Email').item.json.id }}",
+        "columnToMatchOn": "messageId"
+      },
+      "credentials": {
+        "mySql": {
+          "id": "MYdqb2i2fz5O21ui",
+          "name": "BT Operations Database"
+        }
+      },
+      "typeVersion": 2.4,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "ce56a64f-0311-4e54-81a9-2d7291a9da10",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -320,
+        -840
+      ],
+      "parameters": {
+        "height": 1340,
+        "content": "## Этот рабочий процесс обрабатывает электронные письма, полученные в Gmail, и сохраняет подробную информацию о каждом письме в базе данных MySQL."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9b480e55-00f1-4cfb-af90-8038b5034679",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        380,
+        -540
+      ],
+      "parameters": {
+        "width": 300,
+        "height": 620,
+        "content": "### Перед использованием вам нужно иметь:"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Receive Email": {
+      "main": [
+        [
+          {
+            "node": "Get Client Name and Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Client Name and Email": {
+      "main": [
+        [
+          {
+            "node": "Insert New Client in MySQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert New Client in MySQL": {
+      "main": [
+        []
+      ]
+    }
+  }
+}

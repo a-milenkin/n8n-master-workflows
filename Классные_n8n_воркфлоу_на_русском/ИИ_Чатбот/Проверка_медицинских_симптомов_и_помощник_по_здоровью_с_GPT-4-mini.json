@@ -1,0 +1,517 @@
+{
+  "meta": {
+    "templateId": "ai-health-assistant-v1",
+    "templateCreatedDate": "2024-01-15T00:00:00.000Z"
+  },
+  "name": "• Обнаружение экстренных ситуаций",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "disclaimer-note",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -900,
+        -500
+      ],
+      "parameters": {
+        "width": 400,
+        "height": 460,
+        "content": "## 🏥 ИИ ЗДОРОВЬЯ ПОМОЩНИК"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "safety-protocols",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -500,
+        -500
+      ],
+      "parameters": {
+        "width": 320,
+        "height": 400,
+        "content": "**ВАЖНОЕ ЗАЯВЛЕНИЕ:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "symptom-categories",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -150,
+        -500
+      ],
+      "parameters": {
+        "width": 280,
+        "height": 420,
+        "content": "Этот инструмент предоставляет только общую информацию о здоровье и НЕ является заменой профессиональной медицинской консультации, диагностики или лечения. Всегда консультируйтесь с квалифицированными медицинскими работниками по вопросам здоровья."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "configuration",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -900,
+        -50
+      ],
+      "parameters": {
+        "width": 320,
+        "height": 380,
+        "content": "### ✨ Особенности:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "example-interactions",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        200,
+        -500
+      ],
+      "parameters": {
+        "width": 350,
+        "height": 400,
+        "content": "• Анализ симптомов и информация"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "roadmap",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        600,
+        -500
+      ],
+      "parameters": {
+        "width": 300,
+        "height": 420,
+        "content": "• Общие рекомендации по здоровью"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "webhook-entry",
+      "name": "Health Query Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "notes": "Receives health-related queries with strict privacy",
+      "position": [
+        -600,
+        100
+      ],
+      "webhookId": "health-assistant",
+      "parameters": {
+        "path": "health-assistant",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "X-Content-Type-Options",
+                "value": "nosniff"
+              }
+            ]
+          }
+        },
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "safety-check",
+      "name": "Safety Check & Categorization",
+      "type": "n8n-nodes-base.code",
+      "notes": "Checks for emergencies and categorizes queries",
+      "position": [
+        -400,
+        100
+      ],
+      "parameters": {
+        "jsCode": "// Emergency keywords that trigger immediate response\nconst emergencyKeywords = [\n    'chest pain', 'heart attack', 'stroke', 'can\\'t breathe', 'breathing difficulty',\n    'unconscious', 'severe bleeding', 'suicide', 'overdose', 'poisoning',\n    'severe pain', 'allergic reaction', 'anaphylaxis', 'seizure'\n];\n\n// Extract user input\nconst userInput = $input.first().json.body?.query || $input.first().json.query || '';\nconst language = $input.first().json.body?.language || 'en';\nconst age = $input.first().json.body?.age || 'unknown';\nconst sessionId = $input.first().json.body?.sessionId || Math.random().toString(36).substring(7);\n\n// Check for emergency\nconst lowerInput = userInput.toLowerCase();\nconst isEmergency = emergencyKeywords.some(keyword => lowerInput.includes(keyword));\n\n// Categorize query type\nlet queryType = 'general';\nif (lowerInput.includes('symptom') || lowerInput.includes('pain') || lowerInput.includes('feel')) {\n    queryType = 'symptom';\n} else if (lowerInput.includes('medication') || lowerInput.includes('medicine') || lowerInput.includes('drug')) {\n    queryType = 'medication';\n} else if (lowerInput.includes('appointment') || lowerInput.includes('doctor') || lowerInput.includes('schedule')) {\n    queryType = 'appointment';\n} else if (lowerInput.includes('wellness') || lowerInput.includes('health tip') || lowerInput.includes('prevent')) {\n    queryType = 'wellness';\n}\n\n// Privacy notice\nconst privacyNotice = \"This conversation is not stored and is for informational purposes only.\";\n\n// Prepare output\nreturn {\n    userInput,\n    language,\n    age,\n    sessionId,\n    isEmergency,\n    queryType,\n    privacyNotice,\n    timestamp: new Date().toISOString(),\n    disclaimer: \"This is not medical advice. Consult healthcare professionals for medical concerns.\"\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "emergency-router",
+      "name": "Emergency Router",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -200,
+        100
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": false,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c5528e99-6c2d-469e-aec6-ad5b07d5c8f1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.isEmergency }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "emergency-response",
+      "name": "Emergency Response",
+      "type": "n8n-nodes-base.set",
+      "notes": "Immediate emergency response with contact numbers",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "emergency",
+              "name": "response",
+              "type": "string",
+              "value": "=🚨 EMERGENCY DETECTED 🚨\n\n**CALL EMERGENCY SERVICES IMMEDIATELY:**\n\n🇺🇸 USA: 911\n🇬🇧 UK: 999\n🇪🇺 EU: 112\n🇦🇺 Australia: 000\n\n**Your message suggests a medical emergency.**\n\nWhile waiting for help:\n1. Stay calm\n2. Don't drive yourself\n3. Unlock doors for paramedics\n4. Have medications list ready\n5. Call someone to be with you\n\n**This is an automated response. Get immediate medical help!**"
+            },
+            {
+              "id": "type",
+              "name": "responseType",
+              "type": "string",
+              "value": "emergency"
+            },
+            {
+              "id": "severity",
+              "name": "severity",
+              "type": "string",
+              "value": "critical"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "health-ai",
+      "name": "Health Information AI",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "notes": "Provides general health information with strict guidelines",
+      "position": [
+        0,
+        200
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4-mini"
+        },
+        "options": {
+          "maxTokens": 1000,
+          "temperature": 0.3
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "• Напоминания о лекарствах"
+            },
+            {
+              "role": "user",
+              "content": "={{ $json.userInput }}\n\nContext:\n- Query Type: {{ $json.queryType }}\n- Language: {{ $json.language }}\n- Age Group: {{ $json.age }}\n\nPlease provide helpful general health information while being clear this is not medical advice."
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "{{YOUR_OPENAI_CREDENTIAL}}",
+          "name": "OpenAI account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "format-health-response",
+      "name": "Format Health Response",
+      "type": "n8n-nodes-base.set",
+      "notes": "Adds disclaimers and resources to response",
+      "position": [
+        200,
+        200
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3d0292bc-0e07-4b55-9b7f-be0b417c2e05",
+              "name": "response",
+              "type": "string",
+              "value": "={{ $json.message.content }}"
+            },
+            {
+              "id": "e4e66a7a-1776-465b-865f-76666c5e3584",
+              "name": "responseType",
+              "type": "string",
+              "value": "={{ $('Safety Check & Categorization').item.json.queryType }}"
+            },
+            {
+              "id": "b2346867-40bb-4321-a3bd-59b948036dca",
+              "name": "disclaimer",
+              "type": "string",
+              "value": "=⚕️ **Important Medical Disclaimer:**\nThis information is for educational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition."
+            },
+            {
+              "id": "8f30e7de-3dcb-412f-bcd8-d8bbfff087fb",
+              "name": "resources",
+              "type": "string",
+              "value": "=📞 **Health Resources:**\n• Find a doctor: https://doctor.webmd.com/\n• Symptom checker: https://www.mayoclinic.org/symptom-checker/\n• Mental health: https://www.samhsa.gov/find-help/national-helpline\n• Poison control: 1-800-222-1222 (US)"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "merge-responses",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        400,
+        100
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combinationMode": "multiplex"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "compile-response",
+      "name": "Compile Final Response",
+      "type": "n8n-nodes-base.code",
+      "notes": "Creates structured response with all necessary information",
+      "position": [
+        600,
+        100
+      ],
+      "parameters": {
+        "jsCode": "// Compile final response\nconst input = $('Safety Check & Categorization').item.json;\nconst response = $input.first().json;\n\n// Build structured response\nconst output = {\n    success: true,\n    sessionId: input.sessionId,\n    timestamp: new Date().toISOString(),\n    query: {\n        original: input.userInput,\n        type: input.queryType,\n        isEmergency: input.isEmergency,\n        language: input.language\n    },\n    response: {\n        content: response.response,\n        type: response.responseType,\n        severity: response.severity || 'normal'\n    },\n    disclaimers: {\n        medical: response.disclaimer || input.disclaimer,\n        privacy: input.privacyNotice\n    },\n    resources: response.resources || null,\n    followUp: {\n        suggestedActions: getSuggestedActions(input.queryType, input.isEmergency),\n        nextSteps: getNextSteps(input.queryType)\n    }\n};\n\n// Helper functions\nfunction getSuggestedActions(queryType, isEmergency) {\n    if (isEmergency) return ['Call emergency services', 'Get immediate help'];\n    \n    const actions = {\n        symptom: ['Track symptoms', 'Schedule doctor visit', 'Rest and monitor'],\n        medication: ['Consult pharmacist', 'Read medication guide', 'Set reminders'],\n        appointment: ['Call your provider', 'Prepare questions', 'Gather medical history'],\n        wellness: ['Start healthy habits', 'Track progress', 'Set wellness goals'],\n        general: ['Consult healthcare provider', 'Learn more', 'Stay informed']\n    };\n    \n    return actions[queryType] || actions.general;\n}\n\nfunction getNextSteps(queryType) {\n    const steps = {\n        symptom: 'If symptoms persist or worsen, see a healthcare provider promptly.',\n        medication: 'Always follow prescription instructions and consult your pharmacist.',\n        appointment: 'Write down your concerns to discuss with your provider.',\n        wellness: 'Small daily changes can lead to significant health improvements.',\n        general: 'Your health is important - don\\'t hesitate to seek professional help.'\n    };\n    \n    return steps[queryType] || steps.general;\n}\n\nreturn output;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "send-response",
+      "name": "Send Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "notes": "Returns health information with appropriate headers",
+      "position": [
+        800,
+        100
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "X-Health-Disclaimer",
+                "value": "This is not medical advice"
+              }
+            ]
+          }
+        },
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json, null, 2) }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "integration-options",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        600,
+        -50
+      ],
+      "parameters": {
+        "width": 300,
+        "height": 400,
+        "content": "• Подсказки по записи на прием"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "audit-log",
+      "name": "Audit Log (Optional)",
+      "type": "n8n-nodes-base.airtable",
+      "notes": "Optional: Log queries for compliance (configure data retention)",
+      "disabled": true,
+      "position": [
+        400,
+        300
+      ],
+      "parameters": {
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "session_id",
+              "fieldValue": "={{ $('Safety Check & Categorization').item.json.sessionId }}"
+            },
+            {
+              "fieldId": "query_type",
+              "fieldValue": "={{ $('Safety Check & Categorization').item.json.queryType }}"
+            },
+            {
+              "fieldId": "is_emergency",
+              "fieldValue": "={{ $('Safety Check & Categorization').item.json.isEmergency }}"
+            },
+            {
+              "fieldId": "timestamp",
+              "fieldValue": "={{ $('Safety Check & Categorization').item.json.timestamp }}"
+            }
+          ]
+        },
+        "resource": "database",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "health-assistant-logs"
+        }
+      },
+      "typeVersion": 2
+    }
+  ],
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "connections": {
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Compile Final Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Emergency Router": {
+      "main": [
+        [
+          {
+            "node": "Emergency Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Health Information AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Emergency Response": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Health Query Webhook": {
+      "main": [
+        [
+          {
+            "node": "Safety Check & Categorization",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Health Information AI": {
+      "main": [
+        [
+          {
+            "node": "Format Health Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compile Final Response": {
+      "main": [
+        [
+          {
+            "node": "Send Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Health Response": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Audit Log (Optional)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Safety Check & Categorization": {
+      "main": [
+        [
+          {
+            "node": "Emergency Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

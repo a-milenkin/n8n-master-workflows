@@ -1,0 +1,294 @@
+{
+  "id": "daABmpJ3xdrHjUS7",
+  "meta": {
+    "instanceId": "84ad02d6104594179f43f1ce9cfe3a81637b2faedb57dafcb9e649b7542988db",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "> **🧠 Цель:** Запускает весь рабочий процесс по расписанию.",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "639d8c5d-9b2c-4dda-a496-7098c298b5a5",
+      "name": "Daily Fiverr Scrape Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "60977b7f-c8ec-4ec9-9d2a-e2d6c58149e6",
+      "name": "Fetch Fiverr Search Results",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "url": "https://www.fiverr.com/search/gigs",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "ugc"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "Accept",
+              "value": "text/html"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b3cc4270-c7a3-4fcc-88b3-795c6c7b418d",
+      "name": "Extract Data from HTML",
+      "type": "n8n-nodes-base.html",
+      "position": [
+        580,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "price",
+              "cssSelector": "div.basic-gig-card a._Z7OVIW span.text-bold > span"
+            },
+            {
+              "key": "title",
+              "cssSelector": "div.basic-gig-card p.f2YMuU6"
+            },
+            {
+              "key": "Selller",
+              "cssSelector": "div.basic-gig-card a._1lc1p3l2 span.vp9lqtk"
+            },
+            {
+              "key": "Gig URL",
+              "cssSelector": "div.basic-gig-card > a.media"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "b5e115fe-3f5e-4ead-b09d-35af6c002204",
+      "name": "Append Gig Data to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        800,
+        0
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Price": "={{ $json.price }}",
+            "Title": "={{ $json.title }}",
+            "Gig URL": "={{ $json[\"Gig URL\"] }}",
+            "Seller Name": "={{ $json.Selller }}"
+          },
+          "schema": [
+            {
+              "id": "Price",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Price",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Title",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Title",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Seller Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Seller Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Gig URL",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Gig URL",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mSpImM6r33QkQiYAZEoyvqo6Jce8pR4iyCZgUXqkQfk/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1mSpImM6r33QkQiYAZEoyvqo6Jce8pR4iyCZgUXqkQfk",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mSpImM6r33QkQiYAZEoyvqo6Jce8pR4iyCZgUXqkQfk/edit?usp=drivesdk",
+          "cachedResultName": "Fiverr UGC Scraper"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "K5yYfUnKFTqaRn6A",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "3834eabc-6865-4fbb-941e-4e76e84d461f",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -1040
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 520,
+        "height": 1260,
+        "content": "## ⚙️ Раздел 1: **Триггер и получение данных**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "09a950f8-54a9-409c-aed6-e3fd908a7f14",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        500,
+        -1500
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 520,
+        "height": 1720,
+        "content": "Этот раздел отвечает за **автоматический запуск рабочего процесса** и **получение списков гигов на Fiverr** для создателей контента UGC."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c9562319-f44c-461c-bcb0-84192b8a8e3f",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1780,
+        -1020
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 320,
+        "content": "---"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bd479abb-b26e-4b8c-a1f8-14fde7041059",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1780,
+        -680
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1289,
+        "height": 2378,
+        "content": "### ⏰ 1. `Ежедневный триггер сканирования Fiverr`"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9e357a6c-19fd-490d-b5ea-7afd9a4b533d",
+  "connections": {
+    "Extract Data from HTML": {
+      "main": [
+        [
+          {
+            "node": "Append Gig Data to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Fiverr Scrape Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Fiverr Search Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Fiverr Search Results": {
+      "main": [
+        [
+          {
+            "node": "Extract Data from HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

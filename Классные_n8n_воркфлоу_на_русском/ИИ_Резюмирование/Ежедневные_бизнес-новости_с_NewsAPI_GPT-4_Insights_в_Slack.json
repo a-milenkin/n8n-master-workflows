@@ -1,0 +1,408 @@
+{
+  "id": "4g8HglPLSdpDmBwc",
+  "meta": {
+    "instanceId": "e854ccd1d846d48f876ea4ce7613a148e39ed800c748cb59061b490defde7afd",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Настройте свой вебхук Slack.",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "4ed04f56-1cd8-47d5-b4c1-34cfdb496583",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        128,
+        192
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "e658f392-e1b6-4f14-ad02-414eb3b03f99",
+      "name": "Post to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2896,
+        176
+      ],
+      "webhookId": "4a077704-dc20-4afb-a471-9a9ea8c24373",
+      "parameters": {
+        "text": "={{ $json.choices[0].message.content }}",
+        "user": {
+          "__rl": true,
+          "mode": "list",
+          "value": "U096VCG525P",
+          "cachedResultName": "james"
+        },
+        "select": "user",
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "edcCpymx9IvKgibG",
+          "name": "Slack account"
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "06b21744-df60-4a78-b804-21223b628fcc",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -528,
+        -288
+      ],
+      "parameters": {
+        "width": 448,
+        "height": 1008,
+        "content": "## 📰 Сводите актуальные новости в Slack с бизнес-инсайтами"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ac6308fa-d25c-4b24-bcec-aa4208870571",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        16,
+        -384
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 624,
+        "height": 304,
+        "content": "Этот рабочий процесс извлекает последние новости на основе вашего выбранного **страны, категории и ключевого запроса**, обрабатывает их с помощью GPT для **суммирования, приоритизации и анализа настроений** и публикует результат в Slack."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8b926d52-75a4-4dce-9f80-5ff22f256bb7",
+      "name": "Set User Config (Country, Category, Query)",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        624,
+        192
+      ],
+      "parameters": {
+        "mode": "raw",
+        "options": {},
+        "jsonOutput": "{\n  \"country\": \"us\",\n  \"category\": \"technology\",\n  \"query\": \"openai\"\n}"
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "444c5afa-9052-4e07-8881-7a0a86ac8a78",
+      "name": "Fetch News Articles",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1104,
+        192
+      ],
+      "parameters": {
+        "url": "=https://newsapi.org/v2/top-headlines?country={{ $json.country }}&category={{ $json.category }}&q={{ $json.query }}",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Api-Key"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0ed04c61-e4dd-4e3f-8735-3cff4aedc9cb",
+      "name": "Merge Config with Articles",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        2032,
+        176
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combineBy": "combineAll"
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "85ce6b97-0549-4ff8-9334-e9daf7fceed2",
+      "name": "Generate Business Insights (GPT)",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        2352,
+        176
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "content": "- GPT **приоритизирует 10 самых значимых статей**, гарантируя, что вы не получите случайные заголовки."
+            },
+            {
+              "role": "system",
+              "content": "- Каждая история помечена: 🟢 Возможность, 🔴 Риск, ⚪ Нейтрально."
+            }
+          ]
+        },
+        "simplify": false
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "e4tOzT9cxtVeZl61",
+          "name": "n8n free OpenAI API credits"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "67a3fc4b-4c91-4856-810f-0f39b121a729",
+      "name": "Inject Config Data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1824,
+        64
+      ],
+      "parameters": {
+        "mode": "raw",
+        "options": {},
+        "jsonOutput": "{\n  \"country\": \"us\",\n  \"category\": \"technology\",\n  \"query\": \"AI\"\n}"
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "c9730e23-e365-4964-8ed3-7184dfe13d69",
+      "name": "Limit to Top 10 Trends",
+      "type": "n8n-nodes-base.code",
+      "disabled": true,
+      "position": [
+        1584,
+        64
+      ],
+      "parameters": {
+        "jsCode": "const topTen = items.slice(0, 10);\nreturn topTen;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a96f8610-32c6-4410-8b87-a7bb43ece32d",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        464,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 416,
+        "content": "- Идеально подходит для команд, которые хотят получать обновления о рынке или трендах непосредственно в Slack."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "900b9b6a-cff5-4438-bf49-3919c9b179d0",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        960,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 416,
+        "content": "### Для кого это"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d0747cf1-d1db-4728-869b-b39d86320958",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1472,
+        -80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 720,
+        "height": 496,
+        "content": "- Лидеры бизнеса, маркетологи, инвесторы или аналитики, которые хотят получать курируемые, практические сводки новостей."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5942c7d8-4853-47cd-b529-c91e7427a7e2",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2272,
+        -80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 496,
+        "content": "- Любой, кто нуждается в легком **пульсе рынка**, доставляемом через Slack."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e2bc105f-82e8-414b-a2ef-1556ab99934c",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2752,
+        -80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 496,
+        "content": "### Как настроить"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bc891826-edfd-4f45-b986-c9bfb86baa44",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -32,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 416,
+        "content": "**Настройте узел конфигурации новостей:** Определите вашу страну, категорию и ключевой запрос (например, `us`, `technology`, `OpenAI`)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "13e633f5-02ac-46d0-b878-f8736746beb3",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        704,
+        -320
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 480,
+        "height": 192,
+        "content": "Добавьте свои учетные данные **NewsAPI** и **OpenAI GPT**."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "60471506-ee09-4599-b9eb-f38a675a162b",
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set User Config (Country, Category, Query)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inject Config Data": {
+      "main": [
+        [
+          {
+            "node": "Merge Config with Articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch News Articles": {
+      "main": [
+        [
+          {
+            "node": "Merge Config with Articles",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Limit to Top 10 Trends",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit to Top 10 Trends": {
+      "main": [
+        [
+          {
+            "node": "Inject Config Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Config with Articles": {
+      "main": [
+        [
+          {
+            "node": "Generate Business Insights (GPT)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Business Insights (GPT)": {
+      "main": [
+        [
+          {
+            "node": "Post to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set User Config (Country, Category, Query)": {
+      "main": [
+        [
+          {
+            "node": "Fetch News Articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

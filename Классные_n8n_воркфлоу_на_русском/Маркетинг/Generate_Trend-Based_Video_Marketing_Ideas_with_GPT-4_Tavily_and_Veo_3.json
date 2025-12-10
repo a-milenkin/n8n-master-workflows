@@ -1,0 +1,434 @@
+{
+  "id": "",
+  "meta": {},
+  "name": "Вдохновение от тренда или новости: Краткое резюме найденного тренда/темы",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "1c63ed32-09fa-4f50-9821-f4cbe7b51d09",
+      "name": "Idea Gen Agent (research)",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        -20,
+        -40
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4",
+          "cachedResultName": "GPT-4"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "content": "Создайте впечатляющее маркетинговое видео"
+            },
+            {
+              "role": "system",
+              "content": "Вы креативный маркетинговый стратег для бренда электронной коммерции под названием \"Шкаф Салли\", который продает женскую одежду и аксессуары онлайн."
+            }
+          ]
+        }
+      },
+      "credentials": {},
+      "typeVersion": 1.8
+    },
+    {
+      "id": "2c6514c9-7906-4721-b9a1-5fc665e24462",
+      "name": "Tavily",
+      "type": "@tavily/n8n-nodes-tavily.tavilyTool",
+      "position": [
+        140,
+        160
+      ],
+      "parameters": {
+        "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Query', ``, 'string') }}",
+        "options": {}
+      },
+      "credentials": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "20ef07ca-9bdf-4bc9-913b-0d9f9b7ac594",
+      "name": "Video Prompt Agent",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        340,
+        -40
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4",
+          "cachedResultName": "GPT-4"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $json.message.content }}"
+            },
+            {
+              "role": "system",
+              "content": "Каждый день ваша задача — генерировать одну свежую, увлекательную идею для маркетингового видео, которая связывает:"
+            }
+          ]
+        }
+      },
+      "credentials": {},
+      "typeVersion": 1.8
+    },
+    {
+      "id": "15114238-52f2-4ea1-baa7-e8f70c5fa6ab",
+      "name": "FAL Veo 3 Post Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        700,
+        -40
+      ],
+      "parameters": {
+        "url": "https://queue.fal.run/fal-ai/veo3",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ { \"prompt\": $json.message.content } }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "2abf648d-24f3-4e21-b40c-fb7a7058c557",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        920,
+        -40
+      ],
+      "webhookId": "3c49ce0b-6628-41b3-9bba-f993f920ab75",
+      "parameters": {
+        "amount": 90
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "323c0d88-c792-44f3-8f39-3f9e349511ab",
+      "name": "Get Video  Status from FAL / Veo 3",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1140,
+        -40
+      ],
+      "parameters": {
+        "url": "=https://queue.fal.run/fal-ai/veo3/requests/{{ $json.request_id }}/status",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e7513b78-4408-4b85-863f-2b7740660679",
+      "name": "Get Video URL request",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1540,
+        -40
+      ],
+      "parameters": {
+        "url": "=https://queue.fal.run/fal-ai/veo3/requests/{{ $json.request_id }}",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0c2937f5-b5a7-4a1a-baf3-084bb4cebfca",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1340,
+        -40
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "180190c9-6fcb-4d19-ade4-f221e99ffc82",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "COMPLETED"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "9d37835a-a267-4d6f-8b51-459b31a02f0e",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1720,
+        -40
+      ],
+      "webhookId": "54c66ae2-92e4-4735-8ba7-80536d4778c5",
+      "parameters": {
+        "sendTo": "REDACTED_EMAIL",
+        "message": "={{ $json.video.url }}",
+        "options": {},
+        "subject": "Sally's Closet Marketing Video",
+        "emailType": "text"
+      },
+      "credentials": {},
+      "typeVersion": 2.1
+    },
+    {
+      "id": "ac639284-66c4-4973-8ed4-c039c9156da9",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -220,
+        -40
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 10
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "579e6dda-a4db-4473-90da-0ca520131daa",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        -260
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 700,
+        "height": 560,
+        "content": "Трендовую тему или недавнее новостное событие и"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8210a853-3f91-483b-807c-0a7ca897e152",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -320,
+        -260
+      ],
+      "parameters": {
+        "height": 560,
+        "content": "Представленный продукт или коллекцию из \"Шкафа Салли\" (например, цветочные платья, пастельные сумки, шелковые шарфы)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2912e1f5-3d8d-444d-ac25-6d99b1102222",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        660,
+        -260
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 200,
+        "height": 560,
+        "content": "Используйте Tavily для исследования текущих трендов в образе жизни, вирусных моментов в социальных сетях, модных событий или новостей поп-культуры за последние 24–48 часов."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2fd8f905-aea1-4e16-a742-927662930c8e",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        880,
+        -260
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 800,
+        "height": 560,
+        "content": "Затем креативно свяжите это понимание с темой продукта или эмоцией клиента (например, уверенность, элегантность, смелость), чтобы создать короткий, яркий концепт маркетингового видео."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "49413a91-c5db-43c8-81fc-951d0d9e9d29",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1700,
+        -260
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 280,
+        "height": 560,
+        "content": "Формат вывода (для ежедневной автоматизации):"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dab2f0aa-5d71-465b-8c70-2ab2522eeed6",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -320,
+        360
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1320,
+        "height": 900,
+        "content": "Название идеи видео: Запоминающееся название (до 10 слов)"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "",
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Get Video URL request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Get Video  Status from FAL / Veo 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tavily": {
+      "ai_tool": [
+        [
+          {
+            "node": "Idea Gen Agent (research)",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Idea Gen Agent (research)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video Prompt Agent": {
+      "main": [
+        [
+          {
+            "node": "FAL Veo 3 Post Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Video URL request": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FAL Veo 3 Post Request": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Idea Gen Agent (research)": {
+      "main": [
+        [
+          {
+            "node": "Video Prompt Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Video  Status from FAL / Veo 3": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,728 @@
+{
+  "meta": {
+    "instanceId": "67849de66331aaa2dca6a4f3cbf793b274f923d94e4d9cdaae2e5d9aebaff626",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "e56fcbb9-2ede-4fa0-91b1-565b41e45ec9",
+      "name": "Post File Upload in Google Drive Folder  Trigger",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "position": [
+        -860,
+        -640
+      ],
+      "parameters": {
+        "event": "fileCreated",
+        "options": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "unit": "minutes",
+              "value": 1
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_FOLDER_ID",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/YOUR_FOLDER_ID",
+          "cachedResultName": "n8n reels automation on instagram"
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YOUR_GOOGLE_DRIVE_CREDENTIAL_ID",
+          "name": "Google Drive account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "14f7c794-938e-4c19-ba7d-9df7c8db2713",
+      "name": "Post File Download in N8N (Google Drive Node)",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        -500,
+        -280
+      ],
+      "parameters": {
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "options": {},
+        "operation": "download"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YOUR_GOOGLE_DRIVE_CREDENTIAL_ID",
+          "name": "Google Drive account"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "8edf7ec7-06c5-47f5-8f35-e294af1256df",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        -420,
+        180
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-2.0-flash-001"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "YOUR_GOOGLE_GEMINI_CREDENTIAL_ID",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1f09b5fc-331b-4914-9b2f-598f5a492722",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -140,
+        -680
+      ],
+      "parameters": {
+        "text": "=Generate an engaging Instagram caption for a video titled \"{{ $json.processedFileName }}\".\n\nHere's what to include:\n- 2-3 engaging sentences with appropriate emojis.\n- 3-5 relevant hashtags based on the video title.\n- A clear call-to-action encouraging comments.\n\nPlease keep the total caption under 150 characters.\n\nYou are skilled at writing clear, engaging, and detailed captions based on just a file name. Help viewers understand and appreciate the post. The tone should be relatable and suitable for an Instagram audience. Avoid using too many whimsical words or excessive adjectives. Focus on encouraging people to connect with the post and respond in the comments.",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4289ddbe-71f0-49bb-98e8-fbe0899f4ad4",
+      "name": "Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "position": [
+        260,
+        -660
+      ],
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_AIRTABLE_BASE_ID",
+          "cachedResultUrl": "https://airtable.com/YOUR_AIRTABLE_BASE_ID",
+          "cachedResultName": "IG reels"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_AIRTABLE_TABLE_ID",
+          "cachedResultUrl": "https://airtable.com/YOUR_AIRTABLE_BASE_ID/YOUR_AIRTABLE_TABLE_ID",
+          "cachedResultName": "Table 1"
+        },
+        "columns": {
+          "value": {
+            "URL": "={{ $('Code').item.json.processedWebContentLink }}",
+            "Name": "={{ $('Code').item.json.processedFileName }}",
+            "Caption": "={{ $json.output }}"
+          },
+          "schema": [
+            {
+              "id": "Name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Caption",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Caption",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "URL",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "URL",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "create"
+      },
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "YOUR_AIRTABLE_CREDENTIAL_ID",
+          "name": "Airtable Personal Access Token account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "b7c45adb-ae7e-4497-b261-e37b0437a70c",
+      "name": "container",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "position": [
+        540,
+        -560
+      ],
+      "parameters": {
+        "edge": "media",
+        "node": "YOUR_FACEBOOK_PAGE_ID",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "video_url",
+                "value": "={{ $json.fields.URL }}"
+              },
+              {
+                "name": "media_type",
+                "value": "REELS"
+              },
+              {
+                "name": "caption",
+                "value": "={{ $('AI Agent').item.json.output }}"
+              }
+            ]
+          }
+        },
+        "graphApiVersion": "v22.0",
+        "httpRequestMethod": "POST"
+      },
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "YOUR_FACEBOOK_GRAPH_CREDENTIAL_ID",
+          "name": "Facebook Graph account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "80ba05f1-127d-4a79-9be7-d05f13287568",
+      "name": "Post to IG",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "position": [
+        1060,
+        -380
+      ],
+      "parameters": {
+        "edge": "media_publish",
+        "node": "YOUR_FACEBOOK_PAGE_ID",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "creation_id",
+                "value": "={{ $json.id }}"
+              }
+            ]
+          }
+        },
+        "graphApiVersion": "v22.0",
+        "httpRequestMethod": "POST"
+      },
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "YOUR_FACEBOOK_GRAPH_CREDENTIAL_ID",
+          "name": "Facebook Graph account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cdcef117-9334-4683-90a1-cdd6a3608bc8",
+      "name": "Google Drive1",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        40,
+        120
+      ],
+      "parameters": {
+        "fileId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ $('Post File Download in N8N (Google Drive Node)').item.json.webViewLink }}"
+        },
+        "options": {},
+        "operation": "deleteFile"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YOUR_GOOGLE_DRIVE_CREDENTIAL_ID",
+          "name": "Google Drive account"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "795dcd70-54d4-4e99-9336-0575b2e4fe41",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        780,
+        -460
+      ],
+      "webhookId": "YOUR_WEBHOOK_ID",
+      "parameters": {
+        "amount": 90
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "fa82e952-e230-4d3a-9cd2-97bf59747a3d",
+      "name": "Wait1",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        120,
+        -140
+      ],
+      "webhookId": "YOUR_WEBHOOK_ID",
+      "parameters": {
+        "amount": 20
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "57e21bda-91ec-4061-bc9a-1cbb47d4ce74",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -320,
+        -380
+      ],
+      "parameters": {
+        "jsCode": "// Code (Function) Node Script - Focused on Input Debugging\nconst inputItem = items[0]; // Get the whole item, not just .json yet\n\n// Log the entire incoming item to see its structure, including binary properties if any\nconsole.log(\"Full Input Item to Code Node:\", JSON.stringify(inputItem, null, 2));\n\nconst itemJson = inputItem.json; // Now get the JSON part\n\nlet fileId;\nlet fileName;\nlet webContentLink;\n\nif (typeof itemJson !== 'object' || itemJson === null) {\n    console.error(\"Input item.json is not an object or is null. Input was:\", JSON.stringify(inputItem, null, 2));\n    fileName = \"Unknown Video (Input not an object)\";\n} else {\n    // Try to access properties directly, assuming Google Drive File Resource structure\n    fileId = itemJson.id;\n    fileName = itemJson.name;\n    webContentLink = itemJson.webContentLink || itemJson.webViewLink; // Fallback to webViewLink\n\n    console.log(`Attempting to extract: id='${fileId}', name='${fileName}', webContentLink='${webContentLink}'`);\n\n    if (typeof fileName !== 'string' || fileName.trim() === \"\") {\n        console.warn(\"fileName is missing or invalid in Code Node input. Actual item.json.name was:\", itemJson.name, \". Setting to 'Unknown Video'.\");\n        fileName = \"Unknown Video\";\n    } else {\n        console.log(\"Successfully extracted fileName:\", fileName);\n    }\n\n    if (typeof fileId !== 'string' || fileId.trim() === \"\") {\n        console.warn(\"fileId is missing or invalid.\");\n        // fileId remains as extracted or undefined\n    }\n\n    if (typeof webContentLink !== 'string' || webContentLink.trim() === \"\") {\n        console.warn(\"webContentLink (and webViewLink) is missing or invalid.\");\n        // webContentLink remains as extracted or undefined\n    }\n}\n\nconst outputData = {\n  processedFileId: fileId,\n  processedFileName: fileName,\n  processedWebContentLink: webContentLink\n};\n\nconsole.log(\"Output from Code Node:\", JSON.stringify(outputData, null, 2));\n\n// Return structure expected by n8n\nreturn [{ json: outputData }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d5a8af48-f6da-46d6-aa9a-9307c426f9c9",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1240,
+        -380
+      ],
+      "parameters": {
+        "url": "https://www.googleapis.com/drive/v3/files",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendQuery": true,
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "'YOUR_RANDOM_VIDEO_SOURCE_FOLDER_ID' in parents and mimeType='video/mp4' and trashed=false"
+            },
+            {
+              "name": "fields",
+              "value": "files(id, name, mimeType, parents)"
+            },
+            {
+              "name": "supportsAllDrives",
+              "value": "true"
+            },
+            {
+              "name": "includeItemsFromAllDrives",
+              "value": "true"
+            }
+          ]
+        },
+        "nodeCredentialType": "googleOAuth2Api"
+      },
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "YOUR_GOOGLE_DRIVE_CREDENTIAL_ID",
+          "name": "Google account 2"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b6b7630c-cf14-4318-9bb8-fc67750805db",
+      "name": "HTTP Request1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1240,
+        100
+      ],
+      "parameters": {
+        "url": "=https://www.googleapis.com/drive/v3/files/{{ $json.id }}",
+        "method": "PATCH",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendQuery": true,
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "addParents",
+              "value": "YOUR_FOLDER_ID"
+            },
+            {
+              "name": "removeParents",
+              "value": "YOUR_RANDOM_VIDEO_SOURCE_FOLDER_ID"
+            },
+            {
+              "name": "fields",
+              "value": "id,name,parents,webContentLink,webViewLink,mimeType"
+            }
+          ]
+        },
+        "nodeCredentialType": "googleOAuth2Api"
+      },
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "YOUR_GOOGLE_DRIVE_CREDENTIAL_ID",
+          "name": "Google account 2"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "db8fd564-37e0-47f8-81ab-8bac592df96c",
+      "name": "Schedule Trigger1",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -1260,
+        -620
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "4c78b24d-f9be-4db9-ab8a-8ca064865911",
+      "name": "Code1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1240,
+        -160
+      ],
+      "parameters": {
+        "jsCode": "const responseData = items[0].json;\n\nif (!responseData || !responseData.files || responseData.files.length === 0) {\n  console.warn(\"No files found in the source Google Drive folder via API or API response was unexpected.\");\n  return [];\n}\n\nconst filesArray = responseData.files;\nconst randomIndex = Math.floor(Math.random() * filesArray.length);\nconst randomFile = filesArray[randomIndex];\n\nreturn [{ json: randomFile }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a4d882e1-93bc-4647-8222-0a1a9519e1f0",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -980,
+        -380
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 400,
+        "height": 720,
+        "content": "## подождите 20 секунд, затем запустите рабочий процесс публикации в инстаграме"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a75eab91-cb94-42b2-b8aa-491bcaadc2bf",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1400,
+        -800
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 1140,
+        "content": "## Случайный перемещатель файлов"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ea0150fd-e301-4d4a-aaa7-69124b1aa624",
+      "name": "Wait2",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        -840,
+        -60
+      ],
+      "webhookId": "YOUR_WEBHOOK_ID",
+      "parameters": {
+        "amount": 20
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "50f581c6-f8f1-4967-91a4-2a636eaffb1c",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -980,
+        -800
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 400,
+        "height": 420,
+        "content": "**Каждые 100 минут этот путь рабочего процесса будет выбирать и перемещать один видеофайл из G-диска с именем: Случайный перемещатель видео**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f312023b-cb76-415c-945b-732b534a6b6e",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -580,
+        -800
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1880,
+        "height": 1140,
+        "content": "## триггер ручной загрузки"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e37c99b4-1393-4978-91e5-84e999f40e2e",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1520,
+        -880
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 2920,
+        "height": 1320,
+        "content": "**он запустит рабочий процесс, когда видеофайл будет загружен вручную в папку**"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {
+    "Schedule Trigger1": [
+      {
+        "Hour": "18",
+        "Year": "2025",
+        "Month": "June",
+        "Minute": "00",
+        "Second": "26",
+        "Timezone": "Asia/Kolkata (UTC+05:30)",
+        "timestamp": "2025-06-18T18:00:26.006+05:30",
+        "Day of week": "Wednesday",
+        "Day of month": "18",
+        "Readable date": "June 18th 2025, 6:00:26 pm",
+        "Readable time": "6:00:26 pm"
+      }
+    ]
+  },
+  "connections": {
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Post to IG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Google Drive1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Post File Download in N8N (Google Drive Node)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable": {
+      "main": [
+        [
+          {
+            "node": "container",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "container": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post to IG": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post File Download in N8N (Google Drive Node)": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post File Upload in Google Drive Folder  Trigger": {
+      "main": [
+        [
+          {
+            "node": "Post File Download in N8N (Google Drive Node)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

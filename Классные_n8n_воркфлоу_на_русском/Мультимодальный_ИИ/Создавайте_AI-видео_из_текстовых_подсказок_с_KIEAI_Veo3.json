@@ -1,0 +1,319 @@
+{
+  "id": "XgtuKIgmdAboPxUk",
+  "meta": {
+    "instanceId": "96dc772dec50f4b3e9db480fd23a2dd3197bc6a1ccc3bc733e2d5ea6d97363ea",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "## ШАГ 2 - Процесс использования",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "f0485501-8b6e-4237-99e8-a11348522e84",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        120,
+        -760
+      ],
+      "parameters": {
+        "width": 780,
+        "height": 180,
+        "content": "## ШАГ 1 - ПОЛУЧИТЕ API КЛЮЧ (ВАШAPIКЛЮЧ)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6e5c541e-429e-41fd-a79d-a6ce6001df53",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        120,
+        -540
+      ],
+      "parameters": {
+        "width": 780,
+        "height": 180,
+        "content": "- Создайте учетную запись [здесь](https://kie.ai/) и получите API КЛЮЧ."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d85c4535-3ee5-4bb1-96b0-ce54c846f45e",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -720,
+        -740
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 780,
+        "height": 700,
+        "content": "- Он будет использоваться при отправке формы."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3d1dc6f7-a61c-4281-85b3-87b13b180206",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        120,
+        -320
+      ],
+      "parameters": {
+        "width": 780,
+        "height": 280,
+        "content": "- Важно: Пожалуйста, храните ваш ключ в безопасности и не раскрывайте его другим."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a42b81a8-e0cc-497a-987c-aa5eb31992c9",
+      "name": "Submit Text Prompt for Video Generation",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        -460,
+        0
+      ],
+      "webhookId": "791b190b-2acc-4d10-b593-c1929e67686c",
+      "parameters": {
+        "options": {},
+        "formTitle": "AI video generator",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "prompt"
+            },
+            {
+              "fieldLabel": "api_key"
+            }
+          ]
+        },
+        "formDescription": "Please fill in the following information to generate your video"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "608b1ea0-dd48-4643-89d7-0873e5888387",
+      "name": "Send Video Generation Request to KIE.AI API",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -240,
+        0
+      ],
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/veo/generate",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"prompt\": \"{{$json.prompt}}\",\n  \"model\": \"veo3\",\n  \"watermark\": \"\",\n  \"callBackUrl\": \"https://api.example.com/callback\",\n  \"aspectRatio\": \"16:9\",\n  \"seeds\": 12345\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$json.api_key}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f9c550c5-8c1d-4cd1-9747-bea5af3abb94",
+      "name": "Wait for Video Processing Completion",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "bb6c2821-9586-44b7-8606-2ee69a77ed75",
+      "parameters": {
+        "amount": 10
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "bfc484eb-a358-408a-a1d9-644b61d965e4",
+      "name": "Obtain the generated status",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/veo/record-info",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{$json.data.taskId}}"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$node[\"Submit Text Prompt for Video Generation\"].json[\"api_key\"]}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0239973f-5bb9-4b9c-a827-d3ec3c908d7d",
+      "name": "Check if Video Generation is Complete",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        60,
+        220
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "db9a5dec-997b-4c3f-9582-37c9bbeb19ff",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "=true",
+              "rightValue": "={{ $json.data.successFlag == 1 }}"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "719edda6-4694-4637-a5c5-c951cc968768",
+      "name": "Format and Display Video Results",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        420,
+        200
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d5cc0615-8ccb-4dd5-b2c0-1cdb81dbfcc5",
+              "name": "originUrls",
+              "type": "string",
+              "value": "={{$json.data.response.originUrls}}"
+            },
+            {
+              "id": "fa5f375f-cddc-4f7b-a018-67c28015d18b",
+              "name": "resultUrls",
+              "type": "string",
+              "value": "={{$json.data.response.resultUrls}}"
+            },
+            {
+              "id": "8f93e12e-13da-495f-a686-c0abc22f39d9",
+              "name": "",
+              "type": "string",
+              "value": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e681e1bc-260c-4fb5-ae5a-f488bb4337c6",
+  "connections": {
+    "Obtain the generated status": {
+      "main": [
+        [
+          {
+            "node": "Check if Video Generation is Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Video Processing Completion": {
+      "main": [
+        [
+          {
+            "node": "Obtain the generated status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Video Generation is Complete": {
+      "main": [
+        [
+          {
+            "node": "Format and Display Video Results",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait for Video Processing Completion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Submit Text Prompt for Video Generation": {
+      "main": [
+        [
+          {
+            "node": "Send Video Generation Request to KIE.AI API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Video Generation Request to KIE.AI API": {
+      "main": [
+        [
+          {
+            "node": "Wait for Video Processing Completion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

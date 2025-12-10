@@ -1,0 +1,655 @@
+{
+  "meta": {
+    "instanceId": "805a1da4490c39f62729f8489b312a775cb04286f77152b4febdc1f1642e5967",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "4fccdc64-1eb2-43a6-82c5-5ebcea2b801b",
+      "name": "When clicking ‘Execute workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -560,
+        480
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "738fabc1-5282-442b-a275-a3943bff890e",
+      "name": "Post to Instagram",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -300,
+        480
+      ],
+      "parameters": {
+        "url": "https://graph.facebook.com/v19.0/<YOUR PAGE ID HERE>/media",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "authentication": "predefinedCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "image_url",
+              "value": "<YOUR IMAGE URL HERE>"
+            },
+            {
+              "name": "caption",
+              "value": "<YOUR CAPTION HERE>"
+            }
+          ]
+        },
+        "nodeCredentialType": "facebookGraphApi"
+      },
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "szDaIQHhZqLlJHII",
+          "name": "Facebook Graph account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "da899479-cfaa-4771-bc31-bdb0d4e4a3b7",
+      "name": "Publish instagram post",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        100,
+        480
+      ],
+      "parameters": {
+        "url": "https://graph.facebook.com/v19.0/17841404935066235/media_publish",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "authentication": "predefinedCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "creation_id",
+              "value": "={{ $json.id }}"
+            }
+          ]
+        },
+        "nodeCredentialType": "facebookGraphApi"
+      },
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "szDaIQHhZqLlJHII",
+          "name": "Facebook Graph account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b6cd01bd-f98f-4092-81f2-1b8f6e6c4b27",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1320,
+        -300
+      ],
+      "parameters": {
+        "width": 540,
+        "height": 1900,
+        "content": "**Как сгенерировать короткоживущий токен доступа Facebook для Instagram + публикации на странице Facebook**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fe0a05a4-5e13-4109-86c1-1da8fc5e7a9a",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -720,
+        -300
+      ],
+      "parameters": {
+        "width": 1460,
+        "height": 540,
+        "content": "### Что вам нужно"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cce6d146-599e-439a-bff6-fc0870a8df02",
+      "name": "Refresh token",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -300,
+        -120
+      ],
+      "parameters": {
+        "url": "https://graph.facebook.com/v19.0/oauth/access_token",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "fb_exchange_token"
+            },
+            {
+              "name": "client_id",
+              "value": "<Your Client ID>"
+            },
+            {
+              "name": "client_secret",
+              "value": "<Your Secret Here>"
+            },
+            {
+              "name": "fb_exchange_token",
+              "value": "<your short token>"
+            }
+          ]
+        },
+        "nodeCredentialType": "facebookGraphApi"
+      },
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "szDaIQHhZqLlJHII",
+          "name": "Facebook Graph account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e93d120b-ef7b-491c-bfcf-3d6a1ec62786",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -680,
+        -120
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "daysInterval": 30,
+              "triggerAtHour": 1
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "097bde34-8787-4e0d-9dec-90f2de9c0aa1",
+      "name": "Get Current Token",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -500,
+        -120
+      ],
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nreturn [{\n  json: {\n    token: staticData.fb_token\n  }\n}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "75f115f5-eee8-4e85-bd35-8c70ac4c13c5",
+      "name": "Push to Static Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -80,
+        -120
+      ],
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nstaticData.fb_token = $json.access_token;\n\nreturn [{\n  json: {\n    status: 'Token saved to static data',\n    token: staticData.fb_token\n  }\n}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "95439d8f-c568-497a-901f-69b2cfd7172f",
+      "name": "Get Token from static Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -640,
+        60
+      ],
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nreturn [{\n  json: {\n    token: staticData.fb_token\n  }\n}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b13db71d-0620-46d4-a9f9-17b693930af4",
+      "name": "Post to Instagram1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -420,
+        60
+      ],
+      "parameters": {
+        "url": "https://graph.facebook.com/v19.0/<Instagram Page ID>/media",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "image_url",
+              "value": "<Your Image Url>"
+            },
+            {
+              "name": "caption",
+              "value": "<Your Caption>"
+            },
+            {
+              "name": "access_token",
+              "value": "={{ $json.token }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "72bb812b-7ccf-4703-8d6d-35feb3576792",
+      "name": "Publish instagram post1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -60,
+        60
+      ],
+      "parameters": {
+        "url": "https://graph.facebook.com/v19.0/<your instagram page id>/media_publish",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "creation_id",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "name": "access_token",
+              "value": "={{ $('Get Token from static Data').item.json.token }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "5a279b05-d40f-47b6-a7f1-56daa21ff773",
+      "name": "Post to Facebook",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        780,
+        480
+      ],
+      "parameters": {
+        "url": "https://graph.facebook.com/v19.0/266271423823110/photos",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "authentication": "predefinedCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "https://images.pexels.com/photos/5475816/pexels-photo-5475816.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200"
+            },
+            {
+              "name": "caption",
+              "value": "This is the caption for the post"
+            },
+            {
+              "name": "access_token",
+              "value": "={{ $json.data[0].access_token }}"
+            }
+          ]
+        },
+        "nodeCredentialType": "facebookGraphApi"
+      },
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "szDaIQHhZqLlJHII",
+          "name": "Facebook Graph account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "395e1149-cb03-45f3-97b1-1a5fe8e4ac06",
+      "name": "Use System token to get page token",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        320,
+        480
+      ],
+      "parameters": {
+        "url": "https://graph.facebook.com/v19.0/me/accounts",
+        "options": {},
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "facebookGraphApi"
+      },
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "szDaIQHhZqLlJHII",
+          "name": "Facebook Graph account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "926c9774-6e9b-427f-8916-3ccf4ce30012",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -720,
+        340
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1760,
+        "height": 360,
+        "content": "* **Учетная запись Facebook**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1ef57c3d-fc04-4107-82e3-3faf0dcfe2ce",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1080,
+        -80
+      ],
+      "parameters": {
+        "width": 680,
+        "height": 1220,
+        "content": "* **Страница Facebook** (должна быть связана с бизнес-аккаунтом Instagram, если вы планируете публиковать в IG)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4eaa4823-7601-49d1-9cec-da232ac7ee62",
+      "name": "Get Correct Page Token",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        560,
+        480
+      ],
+      "parameters": {
+        "jsCode": "const page = $json.data.find(p => p.id === '266271423823110');\nreturn [{ json: { access_token: page.access_token } }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "abb870c7-9241-4503-9fb1-348dcbf29dad",
+      "name": "Wait 2 Second",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        -120,
+        480
+      ],
+      "webhookId": "c40b180e-016c-4648-898a-5942b8a9b00d",
+      "parameters": {
+        "amount": 2
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "70120c0d-d21a-4fa2-b8d5-81931c198c65",
+      "name": "Wait 2 Second1",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        -240,
+        60
+      ],
+      "webhookId": "c40b180e-016c-4648-898a-5942b8a9b00d",
+      "parameters": {
+        "amount": 2
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "4cde11f4-c12f-4827-94ce-9ee9d11d821d",
+      "name": "Use System token to get page token1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        160,
+        60
+      ],
+      "parameters": {
+        "url": "https://graph.facebook.com/v19.0/me/accounts",
+        "options": {},
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "access_token",
+              "value": "={{ $('Get Token from static Data').item.json.token }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f7581a1c-d095-4fe9-951c-cc6b6108156a",
+      "name": "Get Correct Page Token1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        380,
+        60
+      ],
+      "parameters": {
+        "jsCode": "const page = $json.data.find(p => p.id === '<YOUR PAGE ID HERE>');\nreturn [{ json: { access_token: page.access_token } }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "306bb9bb-5ba0-4ecd-96a8-33e3ec292526",
+      "name": "Post to Facebook1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        580,
+        60
+      ],
+      "parameters": {
+        "url": "https://graph.facebook.com/v19.0/<YOUR PAGE ID HERE>/photos",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "<YOUR IMAGE URL HERE>"
+            },
+            {
+              "name": "caption",
+              "value": "<YOUR CAPTION  HERE>"
+            },
+            {
+              "name": "access_token",
+              "value": "={{ $json.data[0].access_token }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Refresh token": {
+      "main": [
+        [
+          {
+            "node": "Push to Static Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 2 Second": {
+      "main": [
+        [
+          {
+            "node": "Publish instagram post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 2 Second1": {
+      "main": [
+        [
+          {
+            "node": "Publish instagram post1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Current Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Current Token": {
+      "main": [
+        [
+          {
+            "node": "Refresh token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post to Instagram": {
+      "main": [
+        [
+          {
+            "node": "Wait 2 Second",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post to Instagram1": {
+      "main": [
+        [
+          {
+            "node": "Wait 2 Second1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Correct Page Token": {
+      "main": [
+        [
+          {
+            "node": "Post to Facebook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publish instagram post": {
+      "main": [
+        [
+          {
+            "node": "Use System token to get page token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Correct Page Token1": {
+      "main": [
+        [
+          {
+            "node": "Post to Facebook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publish instagram post1": {
+      "main": [
+        [
+          {
+            "node": "Use System token to get page token1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Token from static Data": {
+      "main": [
+        [
+          {
+            "node": "Post to Instagram1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Use System token to get page token": {
+      "main": [
+        [
+          {
+            "node": "Get Correct Page Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Use System token to get page token1": {
+      "main": [
+        [
+          {
+            "node": "Get Correct Page Token1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Post to Instagram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

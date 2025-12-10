@@ -1,0 +1,657 @@
+{
+  "id": "x6UbWXr0iMgy1TEB",
+  "meta": {
+    "instanceId": "d7661a849ead114a9aa6d9ceaf4160465aeb79532a35bde62160c840ffba9fc8"
+  },
+  "name": "**Путь PandaDoc (Премиум):**",
+  "tags": [
+    {
+      "id": "l8MPK4ZirgwFWMno",
+      "name": "N8N Course",
+      "createdAt": "2025-01-23T18:12:52.273Z",
+      "updatedAt": "2025-01-23T18:12:52.273Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "sticky-note-1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        -200
+      ],
+      "parameters": {
+        "width": 350,
+        "height": 160,
+        "content": "## 🚀 ШАГ 1: Форма продажи"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-note-2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        120,
+        -280
+      ],
+      "parameters": {
+        "width": 380,
+        "height": 180,
+        "content": "Собирает основную информацию о сделке менее чем за 30 секунд:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-note-3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        450,
+        -300
+      ],
+      "parameters": {
+        "width": 400,
+        "height": 200,
+        "content": "**Поля формы:** Данные компании, описание проблемы, предложенное решение, объем проекта, сроки и бюджет"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-note-4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        800,
+        -200
+      ],
+      "parameters": {
+        "width": 350,
+        "height": 160,
+        "content": "**Сценарий использования:** Заполняйте во время живых продаж для мгновенной генерации предложений"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "65eec1e0-5e75-4544-b1d2-ee686d419edd",
+      "name": "Replace Text",
+      "type": "n8n-nodes-base.googleSlides",
+      "position": [
+        700,
+        0
+      ],
+      "parameters": {
+        "textUi": {
+          "textValues": [
+            {
+              "text": "{{proposalTitle}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.proposalTitle }}"
+            },
+            {
+              "text": "{{descriptionName}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.descriptionName }}"
+            },
+            {
+              "text": "{{oneParagraphProblemSummary}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.oneParagraphProblemSummary }}"
+            },
+            {
+              "text": "{{solutionHeadingOne}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.solutionHeadingOne }}"
+            },
+            {
+              "text": "{{solutionHeadingTwo}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.solutionHeadingTwo }}"
+            },
+            {
+              "text": "{{solutionHeadingThree}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.solutionHeadingThree }}"
+            },
+            {
+              "text": "{{solutionDescriptionOne}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.solutionDescriptionOne }}"
+            },
+            {
+              "text": "{{solutionDescriptionTwo}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.solutionDescriptionTwo }}"
+            },
+            {
+              "text": "{{solutionDescriptionThree}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.solutionDescriptionThree }}"
+            },
+            {
+              "text": "{{shortScopeTitleOne}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.shortScopeTitleOne }}"
+            },
+            {
+              "text": "{{shortScopeTitleTwo}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.shortScopeTitleTwo }}"
+            },
+            {
+              "text": "{{shortScopeTitleThree}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.shortScopeTitleThree }}"
+            },
+            {
+              "text": "{{shortScopeDescriptionOne}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.shortScopeDescriptionOne }}"
+            },
+            {
+              "text": "{{shortScopeDescriptionTwo}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.shortScopeDescriptionTwo }}"
+            },
+            {
+              "text": "{{shortScopeDescriptionThree}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.shortScopeDescriptionThree }}"
+            },
+            {
+              "text": "{{milestoneOneDay}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.milestoneOneDay }}"
+            },
+            {
+              "text": "{{milestoneTwoDay}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.milestoneTwoDay }}"
+            },
+            {
+              "text": "{{milestoneThreeDay}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.milestoneThreeDay }}"
+            },
+            {
+              "text": "{{milestoneFourDay}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.milestoneFourDay }}"
+            },
+            {
+              "text": "{{milestoneDescriptionOne}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.milestoneDescriptionOne }}"
+            },
+            {
+              "text": "{{milestoneDescriptionTwo}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.milestoneDescriptionTwo }}"
+            },
+            {
+              "text": "{{milestoneDescriptionThree}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.milestoneDescriptionThree }}"
+            },
+            {
+              "text": "{{milestoneDescriptionFour}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.milestoneDescriptionFour }}"
+            },
+            {
+              "text": "{{cost}}",
+              "replaceText": "$1,850"
+            }
+          ]
+        },
+        "options": {},
+        "operation": "replaceText",
+        "presentationId": "={{ $json.id }}"
+      },
+      "credentials": {
+        "googleSlidesOAuth2Api": {
+          "id": "ie4yCWIQ8AYXFVxa",
+          "name": "YouTube"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "618c4452-06f4-4f95-8777-a6e6f204bf33",
+      "name": "OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        160,
+        0
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o",
+          "cachedResultName": "GPT-4O"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "**Результат:** Структурированные данные, готовые для обработки ИИ"
+            },
+            {
+              "content": "## 🧠 ШАГ 2: Генерация контента ИИ"
+            },
+            {
+              "content": "Преобразует базовые вводимые данные формы в профессиональный контент предложения:"
+            },
+            {
+              "role": "assistant",
+              "content": "**Обработка OpenAI:** Использует сложные подсказки GPT-4 с обучением на примерах"
+            },
+            {
+              "content": "**Выход:** Более 20 разделов предложения, включая заголовки, анализ проблемы, решения, объем и сроки"
+            }
+          ]
+        },
+        "jsonOutput": true
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "oLLACDYfGm4C4ouV",
+          "name": "YouTube "
+        }
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "850e7d84-2001-421f-a8a2-aa9aa64f06b9",
+      "name": "Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        500,
+        0
+      ],
+      "parameters": {
+        "name": "={{ $json.message.content.proposalTitle }}",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1fHzjDQtZouAwfv4kn5uvgpTWqwhTAlPrGkdtkbYBkNE"
+        },
+        "options": {
+          "copyRequiresWriterPermission": false
+        },
+        "operation": "copy"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "8R2NiLt8owCA0E2O",
+          "name": "Google Drive account"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "dda7e0fa-e8cc-40a8-8af5-9f22b70f4752",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        900,
+        0
+      ],
+      "webhookId": "b989215e-e975-44a7-9dc7-fd51e7310cba",
+      "parameters": {
+        "sendTo": "={{ $('On form submission').item.json.Email }}",
+        "message": "=Hey Nick,\n\nThanks for the great call earlier. I had a moment after our chat to put together a detailed proposal for you—please take a look at your earliest convenience and let me know your thoughts.\n\nYou'll find it here: https://docs.google.com/presentation/d/{{ $json.presentationId }}/edit\n\nIf you have any questions, just shout. I've also sent over an invoice for the project (just to keep things convenient) and can get started anytime that's sorted.\n\nThanks,\nNick",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "Re: Proposal for LeftClick",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YqmvyP5s2u0IHOHB",
+          "name": "Gmail account 3"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "2d9e8695-d112-40a7-810a-94f3b3919382",
+      "name": "On form submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        -20,
+        0
+      ],
+      "webhookId": "24fd835d-9132-4faf-b715-755e75aee9be",
+      "parameters": {
+        "options": {
+          "appendAttribution": false
+        },
+        "formTitle": "Sales Call Logging Form",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "First Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Last Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Company Name",
+              "requiredField": true
+            },
+            {
+              "fieldType": "email",
+              "fieldLabel": "Email"
+            },
+            {
+              "fieldLabel": "Website",
+              "requiredField": true
+            },
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Problem",
+              "requiredField": true
+            },
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Solution",
+              "requiredField": true
+            },
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Scope",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Cost",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "How soon?",
+              "requiredField": true
+            }
+          ]
+        },
+        "formDescription": "This form logs a sales call & automatically generates a proposal."
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "bc1bf3dd-7261-4f56-a71b-236fbde109ff",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        -100
+      ],
+      "parameters": {
+        "width": 1220,
+        "height": 280,
+        "content": "**Качество:** Профессиональный бизнес-язык с последовательным тоном и форматированием"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d59a6b99-e112-424c-b6e5-3eeb92a1c784",
+      "name": "OpenAI1",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        160,
+        460
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o",
+          "cachedResultName": "GPT-4O"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "**Ключ:** ИИ преобразует 30-секундные вводные данные в комплексные предложения"
+            },
+            {
+              "content": "## 📄 ШАГ 3: Генерация документа"
+            },
+            {
+              "content": "**Путь Google Slides (Бесплатно):**"
+            },
+            {
+              "role": "assistant",
+              "content": "**Google Drive:** Копирует шаблон предложения"
+            },
+            {
+              "content": "**Замена текста:** Заполняет шаблон контентом, сгенерированным ИИ"
+            }
+          ]
+        },
+        "jsonOutput": true
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "oLLACDYfGm4C4ouV",
+          "name": "YouTube "
+        }
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "66ec15ea-ba46-4aad-993a-e0b9cefde871",
+      "name": "Gmail1",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        740,
+        460
+      ],
+      "webhookId": "470caaaa-62ff-4468-973d-4b1082cfe57a",
+      "parameters": {
+        "sendTo": "={{ $('On form submission1').item.json.Email }}",
+        "message": "=Hey Nick,\n\nThanks for the great call earlier. I had a moment after our chat to put together a detailed proposal for you—please take a look at your earliest convenience and let me know your thoughts.\n\nYou'll find it here: https://docs.google.com/presentation/d/{{ $json.presentationId }}/edit\n\nIf you have any questions, just shout. I've also sent over an invoice for the project (just to keep things convenient) and can get started anytime that's sorted.\n\nThanks,\nNick",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "Re: Proposal for LeftClick",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YqmvyP5s2u0IHOHB",
+          "name": "Gmail account 3"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "89833949-672b-4120-94fe-2f5b9b8b21de",
+      "name": "On form submission1",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        -20,
+        460
+      ],
+      "webhookId": "f0e8d4a0-8002-4804-aa90-4566fef26283",
+      "parameters": {
+        "options": {
+          "appendAttribution": false
+        },
+        "formTitle": "Sales Call Logging Form",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "First Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Last Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Company Name",
+              "requiredField": true
+            },
+            {
+              "fieldType": "email",
+              "fieldLabel": "Email"
+            },
+            {
+              "fieldLabel": "Website",
+              "requiredField": true
+            },
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Problem",
+              "requiredField": true
+            },
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Solution",
+              "requiredField": true
+            },
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Scope",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Cost",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "How soon?",
+              "requiredField": true
+            }
+          ]
+        },
+        "formDescription": "This form logs a sales call & automatically generates a proposal."
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "5cf9ca5e-2ffa-492f-899f-4668786dabbd",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        360
+      ],
+      "parameters": {
+        "width": 1220,
+        "height": 280,
+        "content": "**Gmail:** Отправляет ссылку на предложение по электронной почте"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6b8e90ef-c520-40b6-9ec6-a7d422763d8a",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        520,
+        460
+      ],
+      "parameters": {
+        "url": "https://api.pandadoc.com/public/v1/documents/",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n    \"name\": \"{{ $json.message.content.proposalTitle }}\",\n    \"fields\": {\n        \"Initials\": {\n            \"value\": \"EI\"\n        }\n    },\n    \"tokens\": [\n        {\n            \"name\": \"Client.Email\",\n            \"value\": \"{{ $('On form submission1').item.json.Email }}\"\n        },\n        {\n            \"name\": \"Sender.Email\",\n            \"value\": \"nick@leftclick.ai\"\n        },\n        {\n            \"name\": \"Client.Scope1\",\n            \"value\": \"{{ $json.message.content.scopeOne }}\"\n        },\n        {\n            \"name\": \"Client.Scope2\",\n            \"value\": \"{{ $json.message.content.scopeTwo }}\"\n        },\n        {\n            \"name\": \"Client.Scope3\",\n            \"value\": \"{{ $json.message.content.scopeThree }}\"\n        },\n        {\n            \"name\": \"Client.Scope4\",\n            \"value\": \"{{ $json.message.content.scopeFour }}\"\n        },\n        {\n            \"name\": \"Client.Scope5\",\n            \"value\": \"{{ $json.message.content.scopeFive }}\"\n        },\n        {\n            \"name\": \"Client.Company\",\n            \"value\": \"{{ $('On form submission1').item.json['Company Name'] }}\"\n        },\n        {\n            \"name\": \"Sender.Company\",\n            \"value\": \"WorkflowLoop\"\n        },\n        {\n            \"name\": \"Client.LastName\",\n            \"value\": \"{{ $('On form submission1').item.json['Last Name'] }}\"\n        },\n        {\n            \"name\": \"Sender.LastName\",\n            \"value\": \"Saraev\"\n        },\n        {\n            \"name\": \"Client.FirstName\",\n            \"value\": \"{{ $('On form submission1').item.json['First Name'] }}\"\n        },\n        {\n            \"name\": \"Client.Timeline1\",\n            \"value\": \"{{ $json.message.content.timelineOne }}\"\n        },\n        {\n            \"name\": \"Client.Timeline2\",\n            \"value\": \"{{ $json.message.content.timelineTwo }}\"\n        },\n        {\n            \"name\": \"Client.Timeline3\",\n            \"value\": \"{{ $json.message.content.timelineThree }}\"\n        },\n        {\n            \"name\": \"Client.Timeline4\",\n            \"value\": \"{{ $json.message.content.timelineFour }}\"\n        },\n        {\n            \"name\": \"Sender.FirstName\",\n            \"value\": \"Nick\"\n        },\n        {\n            \"name\": \"Client.ProblemText\",\n            \"value\": \"{{ $json.message.content.oneParagraphProblemSummary }}\"\n        },\n        {\n            \"name\": \"Client.ProblemTitle\",\n            \"value\": \"{{ $json.message.content.problemTitle }}\"\n        },\n        {\n            \"name\": \"Client.SolutionText\",\n            \"value\": {{ JSON.stringify($json.message.content.solutionText) }}\n        },\n        {\n            \"name\": \"Client.ProposalTitle\",\n            \"value\": \"{{ $json.message.content.proposalTitle }}\"\n        },\n        {\n            \"name\": \"Client.SolutionTitle\",\n            \"value\": \"{{ $json.message.content.solutionTitle }}\"\n        }\n    ],\n    \"metadata\": {},\n    \"recipients\": [\n        {\n            \"email\": \"{{ $('On form submission1').item.json.Email }}\",\n            \"role\": \"Client\"\n        },\n        {\n            \"email\": \"nick@leftclick.ai\",\n            \"company\": \"WorkflowLoop\",\n            \"last_name\": \"Saraev\",\n            \"first_name\": \"Nick\",\n            \"role\": \"Sender\"\n        }\n    ],\n    \"template_uuid\": \"yxge9HxfgWhvqKjFXwWEpS\",\n    \"pricing_tables\": [\n        {\n            \"name\": \"Pricing Table 1\",\n            \"options\": {\n                \"currency\": \"USD\"\n            },\n            \"sections\": [\n                {\n                    \"rows\": [\n                        {\n                            \"data\": {\n                                \"qty\": 1,\n                                \"name\": \"{{ $json.message.content.proposalTitle }}\",\n                                \"price\": {{ $('On form submission1').item.json.Cost.replace(\"$\",\"\").replace(\",\",\"\").toNumber() }}\n                            },\n                            \"options\": {\n                                \"optional\": false,\n                                \"qty_editable\": false,\n                                \"optional_selected\": false\n                            }\n                        }\n                    ],\n                    \"title\": \"Pricing Section\",\n                    \"default\": true\n                }\n            ]\n        }\n    ]\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "API-Key {yourApiKeyGoesHere}"
+            },
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    }
+  ],
+  "active": false,
+  "pinData": {
+    "On form submission1": [
+      {
+        "json": {
+          "Cost": "$3,525",
+          "Email": "nickolassaraev@gmail.com",
+          "Scope": "form you can fill out with competitors, that adds them to a db. once per day db is scraped and you get however many people are in the Sheet x however many vids they put out",
+          "Problem": "they're struggling making YouTube vids. Everything is really time intensive rn, mostly because they don't have scripts.",
+          "Website": "https://leftclick.ai",
+          "Solution": "AI script writing system, scrapes competitor youtube vids for ideas and rephrases best performing titles, then writes outlines",
+          "formMode": "test",
+          "How soon?": "two weeks",
+          "Last Name": "Saraev",
+          "First Name": "Peter",
+          "submittedAt": "2025-02-04T16:18:45.810-07:00",
+          "Company Name": "LeftCLick"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2452f9ed-c796-4e03-89c6-f7c735b77966",
+  "connections": {
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Replace Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Gmail1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Text": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        []
+      ]
+    },
+    "On form submission1": {
+      "main": [
+        [
+          {
+            "node": "OpenAI1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

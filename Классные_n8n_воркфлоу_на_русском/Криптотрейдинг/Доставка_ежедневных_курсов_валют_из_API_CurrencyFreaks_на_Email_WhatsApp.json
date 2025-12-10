@@ -1,0 +1,370 @@
+{
+  "id": "5EnZkZXpxy95JiaU",
+  "meta": {
+    "instanceId": "dd69efaf8212c74ad206700d104739d3329588a6f3f8381a46a481f34c9cc281",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Доставляйте ежедневные обновления курсов валют через API на электронную почту и WhatsApp.",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "0121e662-72d7-46c6-a3e2-41e3fd94de11",
+      "name": "Daily Trigger (7:30 AM IST)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -280,
+        180
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7,
+              "triggerAtMinute": 30
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "993ff9e7-0958-4b2e-b578-1f4d78e052f8",
+      "name": "Set Config: API Key & Currencies",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -60,
+        180
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4669b111-8540-4de2-a5f7-672f2ad81e98",
+              "name": "API",
+              "type": "string",
+              "value": "Enter_your_api_key"
+            },
+            {
+              "id": "58c89ccb-2e3d-4334-9366-d0b285fdfbd8",
+              "name": "Currencies",
+              "type": "string",
+              "value": "INR,CAD,AUD,CNY,EUR,USD"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "3c0cb008-daa7-4832-a1f3-f093b0201d6b",
+      "name": "Fetch Exchange Rates (CurrencyFreaks)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        160,
+        180
+      ],
+      "parameters": {
+        "url": "=https://api.currencyfreaks.com/v2.0/rates/latest?apikey={{ $json['API Key'] }}&symbols={{ $json['Currencies'] }}",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "249dde1c-95b4-480c-91ab-90651ed6a6a9",
+      "name": "Wait for API Response (5s)",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        380,
+        180
+      ],
+      "webhookId": "fba78dc5-c55b-47de-85fd-a0c0c6498444",
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "9f860161-dda0-4351-9ce4-ce02204cef32",
+      "name": "Set Email & WhatsApp Recipients",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        600,
+        180
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0b0969ab-45d1-427c-bac0-bd59a43661d7",
+              "name": "Email_id",
+              "type": "string",
+              "value": "abc@gmail.com"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "51a13f97-7ba1-465d-9dc2-701fb932c64c",
+      "name": "Create Message Subject & Body",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        820,
+        180
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ad95bad5-c4ac-4864-a83c-06d59d99b415",
+              "name": "Subject",
+              "type": "string",
+              "value": "Today's Currency Exchange Rates"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "d669298c-ada6-4a7d-a2c9-b45712db0872",
+      "name": "Send WhatsApp Alert",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        1040,
+        280
+      ],
+      "webhookId": "f6576fdd-1b46-4617-ae60-31c4636c38fd",
+      "parameters": {
+        "textBody": "📈 Today's Currency Exchange Rates – {{ $('Fetch Exchange Rates (CurrencyFreaks)').item.json.data }}  Base: INR  USD:  {{rate}} EUR:  {{rate}} CAD:  {{rate}} AUD:  {{rate}} CNY:  {{rate}}  — Auto-sent by FX Update Bot",
+        "operation": "send",
+        "phoneNumberId": "=+919994448855",
+        "additionalFields": {},
+        "recipientPhoneNumber": "+919876567854"
+      },
+      "credentials": {
+        "whatsAppApi": {
+          "id": "b0PxTDPdWzznWnfG",
+          "name": "WhatsApp-test "
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1c770554-e541-4905-8a0a-eb21610faf23",
+      "name": "Send Email Alert",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [
+        1040,
+        80
+      ],
+      "webhookId": "d0c3ff03-3c95-4d34-b6a2-1c8594fb080b",
+      "parameters": {
+        "text": "=📈 Today's Currency Exchange Rates – {{ $('Fetch Exchange Rates (CurrencyFreaks)').item.json.data }}\n\nBase: INR\n\nUSD:  {{rate}}\nEUR:  {{rate}}\nCAD:  {{rate}}\nAUD:  {{rate}}\nCNY:  {{rate}}\n\n— Auto-sent by FX Update Bot\n",
+        "options": {},
+        "subject": "={{ $('Create Message Subject & Body').item.json.Subject }}",
+        "toEmail": "={{ $('Set Email & WhatsApp Recipients').item.json.Email_id }}",
+        "fromEmail": "xyz@gmail.com",
+        "emailFormat": "text"
+      },
+      "credentials": {
+        "smtp": {
+          "id": "G1kyF8cSWTZ4vouN",
+          "name": "SMTP -test"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "3b5b384c-884d-4e0b-99eb-f0b7ea5deef0",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -320,
+        0
+      ],
+      "parameters": {
+        "width": 180,
+        "height": 340,
+        "content": "Запускает рабочий процесс каждый день в фиксированное время (например, 7:00 по IST), чтобы получить и отправить обновленные курсы валют."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "761c84ed-715e-47e0-afb4-d24473808431",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -100,
+        0
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 180,
+        "height": 340,
+        "content": "Определите свой API-ключ и целевые валюты (INR, CAD, AUD, CNY, EUR, USD) в ручном узле для использования в вызове API."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c09a6a8a-878c-4372-9441-4c4baca49a82",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        120,
+        0
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 180,
+        "height": 340,
+        "content": "Вызывает API курса валют, используя ваш API-ключ, и получает последние курсы валют с INR в качестве базовой валюты."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0d97f12f-5fae-4bc4-a01e-b30438b6140d",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        340,
+        0
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 180,
+        "height": 340,
+        "content": "Добавляет короткую задержку, чтобы гарантировать соблюдение лимитов API и поддержание стабильности системы."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "64caf21b-c1ee-4e7c-a798-a8a9178b89fc",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        560,
+        0
+      ],
+      "parameters": {
+        "width": 180,
+        "height": 340,
+        "content": "Установите список адресов электронной почты и номеров WhatsApp, которые должны получать обновления курсов валют."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e562a8fb-b41b-4d7f-8c23-c7bffb596410",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        780,
+        0
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 180,
+        "height": 340,
+        "content": "Динамически генерируйте тему письма (например, \"Курсы валют на сегодня – {{Date}}\") и текстовое тело, содержащее все курсы."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "41ac52db-46d3-4d7f-86d3-709ee41fc6f1",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1000,
+        -120
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 180,
+        "height": 600,
+        "content": "Отправляет обновление курсов валют в формате по электронной почте и WhatsApp."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "01ad1e77-4366-41bc-a9b6-43551d7e9a83",
+  "connections": {
+    "Wait for API Response (5s)": {
+      "main": [
+        [
+          {
+            "node": "Set Email & WhatsApp Recipients",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Trigger (7:30 AM IST)": {
+      "main": [
+        [
+          {
+            "node": "Set Config: API Key & Currencies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Message Subject & Body": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Email Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Email & WhatsApp Recipients": {
+      "main": [
+        [
+          {
+            "node": "Create Message Subject & Body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Config: API Key & Currencies": {
+      "main": [
+        [
+          {
+            "node": "Fetch Exchange Rates (CurrencyFreaks)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Exchange Rates (CurrencyFreaks)": {
+      "main": [
+        [
+          {
+            "node": "Wait for API Response (5s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

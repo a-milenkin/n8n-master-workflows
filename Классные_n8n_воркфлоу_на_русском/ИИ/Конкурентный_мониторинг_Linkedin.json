@@ -1,0 +1,197 @@
+{
+  "id": "mC3v7Zbzt2kofF7p",
+  "meta": {
+    "instanceId": "28a947b92b197fc2524eaba16e57560338657b2b0b5796300b2f1cedc1d0d355",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "# Автоматизация конкурентного мониторинга в LinkedIn",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "13a5909c-94b7-41f6-8936-7fe3093a4224",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -280,
+        -20
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtHour": 18
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "ecccaebc-645f-489e-a4cc-28079d040214",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        -200
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 260,
+        "height": 340,
+        "content": "## Введите [Airtop Профиль](https://portal.airtop.ai/browser-profiles), аутентифицированный в LinkedIn, в поле \"Имя профиля\""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5d2caa2f-e333-4dd8-b879-1eb11b3a4eb7",
+      "name": "Get Competitors",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -60,
+        -20
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TknyHS8ie0KONgF4-KFGR76I74egHLt7-M9sIxjQXGY/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1TknyHS8ie0KONgF4-KFGR76I74egHLt7-M9sIxjQXGY",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TknyHS8ie0KONgF4-KFGR76I74egHLt7-M9sIxjQXGY/edit?usp=drivesdk",
+          "cachedResultName": "Competitive Momnitoring Linkedin - Template"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "mKIgXkTtIA0lomyT",
+          "name": "Google Sheets account 2"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "f75b0ab2-2e32-4074-a468-3c30bcca9962",
+      "name": "Send Summary",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        380,
+        -20
+      ],
+      "webhookId": "cdacb1c9-3ed4-4608-aa91-ceae7813233d",
+      "parameters": {
+        "text": "=SUMMARY OF POSTS - {{ $('Get Competitors').item.json['Name and Title '] }}\n{{ $json.data.modelResponse }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "C092P1RRX4L",
+          "cachedResultName": "competitive-monitoring"
+        },
+        "otherOptions": {
+          "mrkdwn": true,
+          "botProfile": {
+            "imageValues": {
+              "icon_emoji": "❗",
+              "profilePhotoType": "emoji"
+            }
+          }
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "1wIPovOH73YpxhJX",
+          "name": "n8n bot"
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "65fe9b89-c790-4b4e-bc48-2c1f62613841",
+      "name": "Analyze Posts",
+      "type": "n8n-nodes-base.airtop",
+      "position": [
+        160,
+        -20
+      ],
+      "parameters": {
+        "url": "={{ $json['Post lists to watch'] }}",
+        "prompt": "This is a list of posts.\n\nPerform the following steps:\n1. Extract the text of up to 5 posts that were published no more than 1 week ago.\n2. Summarize the selected posts and highlight:\nNumber of posts published in the last week\nMain topics covered in the posts\nLevel of user engagement with the posts",
+        "resource": "extraction",
+        "profileName": "[ENTER AIRTOP PROFILE NAME HERE]",
+        "sessionMode": "new",
+        "additionalFields": {}
+      },
+      "credentials": {
+        "airtopApi": {
+          "id": "Yi4YPNnovLVUjFn5",
+          "name": "Airtop Official Org"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3ca59ee5-382b-42ca-bc65-7a5952489ff6",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -620,
+        -1040
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1260,
+        "height": 1220,
+        "content": "README"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "98d3d851-7f8a-4ce5-b0ce-500b29857b6c",
+  "connections": {
+    "Analyze Posts": {
+      "main": [
+        [
+          {
+            "node": "Send Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Competitors": {
+      "main": [
+        [
+          {
+            "node": "Analyze Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Competitors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

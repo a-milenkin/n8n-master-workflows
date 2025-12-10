@@ -1,0 +1,106 @@
+{
+  "meta": {
+    "instanceId": "cd59eaaeb7b34d06e24511380db94cdb7fbce6037cc4de22e539c5158ab9cdfc"
+  },
+  "nodes": [
+    {
+      "id": "f83e60d9-2d64-414b-baf9-a8601370930c",
+      "name": "Workflow Overview 0",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1460,
+        -100
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 760,
+        "content": "## 🛠️ Инструмент Mandrill MCP Сервер"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "74a018fd-6fac-429e-b768-0848a7e8ffd7",
+      "name": "Mandrill Tool MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        -640,
+        -120
+      ],
+      "webhookId": "fff674fb-9d80-442c-83fa-33af551c160f",
+      "parameters": {
+        "path": "mandrill-tool-mcp"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5b85f47a-eb13-41a1-977f-6d58ca819bd5",
+      "name": "Send a message based on a template",
+      "type": "n8n-nodes-base.mandrillTool",
+      "position": [
+        -800,
+        140
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "credentials": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "3c4583b5-ae64-4f11-b669-4d1d1243db57",
+      "name": "Send a message based on HTML",
+      "type": "n8n-nodes-base.mandrillTool",
+      "position": [
+        -580,
+        140
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "sendHtml"
+      },
+      "credentials": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "6f2139b8-a700-490d-9e03-f25c7f8fba34",
+      "name": "Sticky Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1000,
+        120
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 620,
+        "height": 180,
+        "content": "### 📋 Доступные операции (всего 2)"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Send a message based on HTML": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill Tool MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message based on a template": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill Tool MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

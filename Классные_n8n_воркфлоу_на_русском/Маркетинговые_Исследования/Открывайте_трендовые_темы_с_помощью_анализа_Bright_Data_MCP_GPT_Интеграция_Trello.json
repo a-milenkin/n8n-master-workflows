@@ -1,0 +1,395 @@
+{
+  "id": "1fNaSTfUCwE3q40X",
+  "meta": {
+    "instanceId": "60046904b104f0f72b2629a9d88fe9f676be4035769f1f08dad1dd38a76b9480",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "* **`📅 Ежедневный триггер`**: Этот узел автоматически запускает ваш рабочий процесс каждый день (или по любому расписанию, которое вы выберете). Вам не нужно запускать его вручную — он работает в фоновом режиме, как виртуальный помощник.",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "5b548d45-cb1e-447f-a6e0-e1a90c0e4b60",
+      "name": "📅 Daily Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "9c7afa43-3a55-492d-89a7-44c3c36dde93",
+      "name": "🛠️ Prepare Input",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0d7dede3-c1f6-4160-8de1-d5bdd3261497",
+              "name": "url",
+              "type": "string",
+              "value": "https://ritetag.com/hashtag-search"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "65cec310-065c-4d47-8f6d-fc12ba655518",
+      "name": "🤖 Scrape Trending Hashtags",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        520,
+        0
+      ],
+      "parameters": {
+        "text": "=collect trending hashtags from the given link below:\n{{ $json.url }}",
+        "options": {},
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "382e4a5b-e85c-4c4c-8c8d-b6b9a32a33f8",
+      "name": "🔢 Convert Numbers to Strings",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1000,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Get your input\nconst input = items[0].json.output;\n\n// Map through trending_hashtags\nconst updatedHashtags = input.trending_hashtags.map(tag => {\n  return {\n    hashtag: tag.hashtag,\n    uses: tag.uses.toString(),\n    reach: tag.reach.toString()\n  };\n});\n\n// Return the updated structure\nreturn [\n  {\n    json: {\n      trending_hashtags: updatedHashtags\n    }\n  }\n];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b292c4d7-a756-4cbe-a271-198ca63e3fad",
+      "name": "📋 Create Trello Cards",
+      "type": "n8n-nodes-base.trello",
+      "position": [
+        1220,
+        0
+      ],
+      "parameters": {
+        "name": "Content Calendar",
+        "description": "=Добавьте оценку тренда, ссылку на источник или заметки для следующих популярных хэштегов.",
+        "additionalFields": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cfff9514-9132-49cd-bda6-97026e5a86ba",
+      "name": "💬 OpenAI Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        480,
+        260
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8sEyPDkC5p4w4Jha",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "aa120473-d6d3-4416-b945-21e0e630c097",
+      "name": "🕷️ Bright Data MCP",
+      "type": "n8n-nodes-mcp.mcpClientTool",
+      "position": [
+        660,
+        260
+      ],
+      "parameters": {
+        "toolName": "scrape_as_markdown",
+        "operation": "executeTool",
+        "toolParameters": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Tool_Parameters', ``, 'json') }}"
+      },
+      "credentials": {
+        "mcpClientApi": {
+          "id": "eqq94k789oJCd6jU",
+          "name": "MCP Client (STDIO) account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3e142db7-26a8-4b8c-8f55-7ca69ecd465f",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -20,
+        -1040
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 360,
+        "height": 1200,
+        "content": "{{ $json.trending_hashtags }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "22b59ffb-9ded-44c0-ada9-cbb14a6ade22",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        460,
+        -1180
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 360,
+        "height": 1340,
+        "content": "## ✅ **📅 Раздел 1 — Начало и Подготовка**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3a7f2351-c23c-44e9-af34-e580dfbdc174",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        960,
+        -820
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 400,
+        "height": 980,
+        "content": "**Объединенные Узлы:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b8f9da84-22ed-42db-acce-6e8f1820de57",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1440,
+        -820
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 380,
+        "height": 240,
+        "content": "`📅 Ежедневный триггер`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "df33c92f-0191-4e9c-b7e9-08233d4c1397",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1680,
+        -1040
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 320,
+        "content": "`🛠️ Подготовить ввод`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a6a5ece9-b5ad-446e-b98f-f7d5b3e37ab4",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1680,
+        -700
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1289,
+        "height": 2818,
+        "content": "### **🔍 Что здесь происходит?**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1219cdef-88ac-4ff3-b351-bdb9bc689e28",
+      "name": "Auto-fixing Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "position": [
+        800,
+        260
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7f33ebdf-03ca-4967-9848-712224476105",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        760,
+        480
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8sEyPDkC5p4w4Jha",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "e3e3ed5d-77f0-4aeb-b5f4-e8931a7591c0",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        940,
+        480
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"trending_hashtags\": [\n    {\n      \"hashtag\": \"#rajasthankelabharthi\",\n      \"uses\": 1466,\n      \"reach\": 1070634\n    },\n    {\n      \"hashtag\": \"#playlist\",\n      \"uses\": 1066,\n      \"reach\": 690516\n    },\n    {\n      \"hashtag\": \"#secawards\",\n      \"uses\": 692,\n      \"reach\": 870024\n    },\n    {\n      \"hashtag\": \"#jake\",\n      \"uses\": 584,\n      \"reach\": 660550\n    },\n    {\n      \"hashtag\": \"#artistaasiatico\",\n      \"uses\": 500,\n      \"reach\": 830016\n    },\n    {\n      \"hashtag\": \"#tiktok\",\n      \"uses\": 434,\n      \"reach\": 127758\n    },\n    {\n      \"hashtag\": \"#vivaelpoderpopular\",\n      \"uses\": 366,\n      \"reach\": 17834866\n    },\n    {\n      \"hashtag\": \"#airdrop\",\n      \"uses\": 358,\n      \"reach\": 174824\n    },\n    {\n      \"hashtag\": \"#bts\",\n      \"uses\": 350,\n      \"reach\": 329092\n    },\n    {\n      \"hashtag\": \"#mandatoryspending\",\n      \"uses\": 334,\n      \"reach\": 177308\n    },\n    {\n      \"hashtag\": \"#partaikebangkitanbangsa\",\n      \"uses\": 316,\n      \"reach\": 175892\n    },\n    {\n      \"hashtag\": \"#crypto\",\n      \"uses\": 300,\n      \"reach\": 796542\n    },\n    {\n      \"hashtag\": \"#sb19\",\n      \"uses\": 284,\n      \"reach\": 168808\n    },\n    {\n      \"hashtag\": \"#wtcfinal2023\",\n      \"uses\": 276,\n      \"reach\": 15289016\n    },\n    {\n      \"hashtag\": \"#psyopbsc\",\n      \"uses\": 266,\n      \"reach\": 164850\n    },\n    {\n      \"hashtag\": \"#rm\",\n      \"uses\": 250,\n      \"reach\": 175184\n    },\n    {\n      \"hashtag\": \"#taketwo\",\n      \"uses\": 242,\n      \"reach\": 433916\n    },\n    {\n      \"hashtag\": \"#top100kpopvocalists\",\n      \"uses\": 242,\n      \"reach\": 84808\n    },\n    {\n      \"hashtag\": \"#bitcoin\",\n      \"uses\": 234,\n      \"reach\": 337650\n    },\n    {\n      \"hashtag\": \"#nft\",\n      \"uses\": 216,\n      \"reach\": 193576\n    }\n  ]\n}\n"
+      },
+      "typeVersion": 1.2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "17f44032-4b4c-4f82-8894-431e427e40fa",
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "💬 OpenAI Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "🤖 Scrape Trending Hashtags",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📅 Daily Trigger": {
+      "main": [
+        [
+          {
+            "node": "🛠️ Prepare Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🛠️ Prepare Input": {
+      "main": [
+        [
+          {
+            "node": "🤖 Scrape Trending Hashtags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🕷️ Bright Data MCP": {
+      "ai_tool": [
+        [
+          {
+            "node": "🤖 Scrape Trending Hashtags",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-fixing Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "🤖 Scrape Trending Hashtags",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🤖 Scrape Trending Hashtags": {
+      "main": [
+        [
+          {
+            "node": "🔢 Convert Numbers to Strings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔢 Convert Numbers to Strings": {
+      "main": [
+        [
+          {
+            "node": "📋 Create Trello Cards",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

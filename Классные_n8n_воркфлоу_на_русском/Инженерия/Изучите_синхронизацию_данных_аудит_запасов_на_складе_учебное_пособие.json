@@ -1,0 +1,363 @@
+{
+  "meta": {
+    "instanceId": "e409ea34548a2afe2dffba31130cd1cf2e98ebe2afaeed2a63caf2a0582d1da0"
+  },
+  "nodes": [
+    {
+      "id": "6164f1ea-1e44-4f94-8c69-c064b477c53d",
+      "name": "Start Audit",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -544,
+        2768
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "d6038f48-07a8-40b2-b4c5-00985932ec81",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        2336
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 400,
+        "height": 680,
+        "content": "### Отчет аудитора"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d191a3b6-13e5-460e-a5a8-87d0c50fe31b",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        512,
+        2368
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 384,
+        "height": 400,
+        "content": "Это узел **Сравнить наборы данных**, наш аудитор."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b03f0d8c-7177-4069-8869-347e079c42bf",
+      "name": "➕ Add to Warehouse B",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        640,
+        2192
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "dbfb3df3-e494-411c-975c-14edccaa7a8e",
+      "name": "Warehouse A (Source of Truth)",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -288,
+        2608
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "12345",
+              "name": "products",
+              "type": "array",
+              "value": "=[\n   {\n      \"product_id\":\"P-001\",\n      \"name\":\"Keyboard\",\n      \"stock\":200\n   },\n   {\n      \"product_id\":\"P-002\",\n      \"name\":\"Mouse\",\n      \"stock\":150\n   },\n   {\n      \"product_id\":\"P-003\",\n      \"name\":\"Webcam\",\n      \"stock\":75\n   }\n]"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "70322c6f-5892-4259-b4ff-97449bd94c39",
+      "name": "✅ All Good (Do Nothing)",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        640,
+        2592
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "8f1f09a5-cf83-4ec4-90f5-85fd30bff3d6",
+      "name": "🔄 Update in Warehouse B",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        640,
+        3024
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "1572db04-7da7-4d64-835b-a98aca3ef4bc",
+      "name": "❌ Remove from Warehouse B",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        640,
+        3424
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "a8f72c77-c484-46bf-a08d-05973c99b93d",
+      "name": "The Auditor",
+      "type": "n8n-nodes-base.compareDatasets",
+      "position": [
+        224,
+        2768
+      ],
+      "parameters": {
+        "options": {},
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "product_id",
+              "field2": "product_id"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "83decaff-9f4a-4729-ac52-6ce9b4e31be9",
+      "name": "Warehouse B (To be Synced)",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -288,
+        2928
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "27aceae0-8a0b-4fcf-b8a6-fc1f16cc4863",
+              "name": "products",
+              "type": "array",
+              "value": "=[\n   {\n      \"product_id\":\"P-001\",\n      \"name\":\"Keyboard\",\n      \"stock\":200\n   },\n   {\n      \"product_id\":\"P-002\",\n      \"name\":\"Mouse\",\n      \"stock\":100\n   },\n   {\n      \"product_id\":\"P-004\",\n      \"name\":\"Monitor\",\n      \"stock\":50\n   }\n]"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "eb5dbdfb-6780-44ad-b019-a2c0d2b53430",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1040,
+        2336
+      ],
+      "parameters": {
+        "width": 688,
+        "height": 612,
+        "content": "**Как это работает:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9b721fda-52d3-4de5-bdde-a58919456135",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        512,
+        1952
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 384,
+        "height": 400,
+        "content": "**Поля для сопоставления:** Он использует `product_id` в качестве уникального \"штрих-кода\" для идентификации одного и того же товара на обоих складах."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b1dadc19-0dc4-4709-9bc6-9b5a7431db2a",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        512,
+        2784
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 384,
+        "height": 400,
+        "content": "**Источник правды:** Мы сказали ему, что если товар **различается**, он должен **Использовать версию A**. Это означает, что данные склада A всегда правильные."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "87ad324e-c596-4968-b484-8d778dacba0b",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        512,
+        3200
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 384,
+        "height": 400,
+        "content": "**Четыре вывода:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "19538cc0-b536-49c1-9874-af8d237ca71c",
+      "name": "Sticky Note14",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        928,
+        2384
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 540,
+        "height": 784,
+        "content": "Аудитор создает отчет с четырьмя категориями, которые соответствуют четырем выводам этого узла."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a6fca263-dd05-408f-9556-498985daca96",
+      "name": "Split Out Prducts (B)",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        -64,
+        2928
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "products"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9114df4e-e8d6-47d3-811d-dcd416ff667a",
+      "name": "Split Out Prducts (A)",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        -64,
+        2608
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "products"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Start Audit": {
+      "main": [
+        [
+          {
+            "node": "Warehouse A (Source of Truth)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Warehouse B (To be Synced)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "The Auditor": {
+      "main": [
+        [
+          {
+            "node": "➕ Add to Warehouse B",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "✅ All Good (Do Nothing)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "🔄 Update in Warehouse B",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "❌ Remove from Warehouse B",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Prducts (A)": {
+      "main": [
+        [
+          {
+            "node": "The Auditor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Prducts (B)": {
+      "main": [
+        [
+          {
+            "node": "The Auditor",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Warehouse B (To be Synced)": {
+      "main": [
+        [
+          {
+            "node": "Split Out Prducts (B)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Warehouse A (Source of Truth)": {
+      "main": [
+        [
+          {
+            "node": "Split Out Prducts (A)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

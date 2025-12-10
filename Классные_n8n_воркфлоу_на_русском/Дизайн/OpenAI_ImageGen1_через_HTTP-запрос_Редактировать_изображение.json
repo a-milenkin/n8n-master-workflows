@@ -1,0 +1,198 @@
+{
+  "id": "81aN6oJGMho5kCvQ",
+  "meta": {
+    "instanceId": "32e39908afbcb49d79cc3b05576c030ecc2871395b7aec4e0fdc88778498f80e"
+  },
+  "name": "Войдите в платформу OpenAI и подтвердите, что ваша организация проверена:",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "179754ad-eae5-447a-b225-46145370e79b",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -440,
+        80
+      ],
+      "parameters": {
+        "url": "https://api.openai.com/v1/images/edits",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "image",
+              "parameterType": "formBinaryData",
+              "inputDataFieldName": "data0"
+            },
+            {
+              "name": "prompt",
+              "value": "={{ $('When chat message received').item.json.chatInput }}"
+            },
+            {
+              "name": "model",
+              "value": "gpt-image-1"
+            },
+            {
+              "name": "n",
+              "value": "1"
+            },
+            {
+              "name": "size",
+              "value": "1024x1024"
+            },
+            {
+              "name": "quality",
+              "value": "high"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.openAIKey }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0aca28af-1325-4391-bee6-3ab636c34f6a",
+      "name": "Convert to File",
+      "type": "n8n-nodes-base.convertToFile",
+      "position": [
+        -220,
+        80
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "toBinary",
+        "sourceProperty": "data[0].b64_json"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "7bc8dbf1-eb81-4f9b-9563-7ae568034221",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        -860,
+        80
+      ],
+      "webhookId": "449bbfbc-0523-406f-94a2-089bca9d7295",
+      "parameters": {
+        "options": {
+          "allowFileUploads": true,
+          "allowedFilesMimeTypes": "*"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "79b3e008-758c-4c24-adac-eb514fedf2c8",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -820,
+        -440
+      ],
+      "parameters": {
+        "width": 660,
+        "height": 460,
+        "content": "### 🖼️ Редактируйте изображения с помощью API **OpenAI ImageGen v1**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8b75f205-dcfb-4c43-b8bf-942419b96633",
+      "name": "API KEY",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -640,
+        80
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b943d609-b213-4531-912f-e721db4d2cc7",
+              "name": "openAIKey",
+              "type": "string",
+              "value": "sk-proj-..."
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "fb19daaf-a425-4d0c-9141-fefee17be117",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        40,
+        -440
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 660,
+        "height": 1380,
+        "content": "**Подтвердите вашу организацию**"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6e7f19b0-042a-4c63-9375-36d62290eb3e",
+  "connections": {
+    "API KEY": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        []
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "API KEY",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

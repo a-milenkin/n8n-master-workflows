@@ -1,0 +1,291 @@
+{
+  "id": "m4kRfWIYJxn6PoOx",
+  "meta": {
+    "instanceId": "60046904b104f0f72b2629a9d88fe9f676be4035769f1f08dad1dd38a76b9480",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Изучите больше советов и учебных материалов здесь:",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "6cebc2fd-3e61-41c8-9f23-25ca5bff2a54",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2400,
+        620
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 320,
+        "content": "======================================="
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e4b7bd42-1b24-4f7c-90a0-b7909afcdca0",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2400,
+        960
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1289,
+        "height": 2258,
+        "content": "ПОМОЩЬ С РАБОЧИМ ПРОЦЕССОМ"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d1595d84-94ee-4678-9ed5-ee83dc421d50",
+      "name": "Monthly Trend Trigger1",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -420,
+        1580
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "months",
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "5796454a-2479-450d-8e1c-b9e9344e0da0",
+      "name": "Scrape Quora Trends (Bright Data)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -200,
+        1580
+      ],
+      "parameters": {
+        "url": "https://api.brightdata.com/request",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "zone",
+              "value": "n8n_unblocker"
+            },
+            {
+              "name": "url",
+              "value": "https://www.quora.com/search?q=marketing"
+            },
+            {
+              "name": "country",
+              "value": "us"
+            },
+            {
+              "name": "format",
+              "value": "raw"
+            },
+            {
+              "name": "render",
+              "value": "true"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 40127ac3c2b4861572c8ad4c6d2273a0ce0472cb3ea7d3ac85a74a34629067aa"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "4c93f548-a848-4aa9-bdf7-d8b282d49dbb",
+      "name": "Extract Post Titles & Stats",
+      "type": "n8n-nodes-base.html",
+      "position": [
+        80,
+        1580
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "Title",
+              "cssSelector": "<span style=\"background: none;\">What exactly is digital marketing</span>"
+            },
+            {
+              "key": "Answers",
+              "cssSelector": "<a class=\"q-box qu-cursor--pointer qu-hover--textDecoration--underline b2c1r2a puppeteer_test_link\" href=\"https://www.quora.com/What-exactly-is-digital-marketing\" target=\"_blank\" style=\"box-sizing: border-box; border-radius: inherit;\">3.2K answers</a>"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "40bf951b-4c60-4660-a6dc-c3cd99298e94",
+      "name": "Save Trends to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        300,
+        1580
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Title": "={{ $json.Title }}",
+            "Answer": "={{ $json.Answers }}"
+          },
+          "schema": [
+            {
+              "id": "Title",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Title",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Answer",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Answer",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19j13GLmFHZUnIKH5KGgdj0ohVMx4MhOnDf5ovI0yz6Y/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "19j13GLmFHZUnIKH5KGgdj0ohVMx4MhOnDf5ovI0yz6Y",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19j13GLmFHZUnIKH5KGgdj0ohVMx4MhOnDf5ovI0yz6Y/edit?usp=drivesdk",
+          "cachedResultName": "Trend tracker"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "r2mDaisH6e9VkwHl",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "b8bff546-392a-4f88-ac67-7d3336978cc0",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -460,
+        600
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 400,
+        "height": 1180,
+        "content": "======================================="
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c4c10db4-b6e1-413d-9183-cd9b8fb6c0fa",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        20,
+        720
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 400,
+        "height": 1060,
+        "content": "По любым вопросам или для получения поддержки, пожалуйста, свяжитесь с:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "772bfade-22ab-46d5-aadf-9ec46d99b7f6",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        720
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 380,
+        "height": 240,
+        "content": "Yaron@nofluff.online"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f4efa76f-fdce-4081-aa53-54b8c36cbcfc",
+  "connections": {
+    "Monthly Trend Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Scrape Quora Trends (Bright Data)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Post Titles & Stats": {
+      "main": [
+        [
+          {
+            "node": "Save Trends to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape Quora Trends (Bright Data)": {
+      "main": [
+        [
+          {
+            "node": "Extract Post Titles & Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

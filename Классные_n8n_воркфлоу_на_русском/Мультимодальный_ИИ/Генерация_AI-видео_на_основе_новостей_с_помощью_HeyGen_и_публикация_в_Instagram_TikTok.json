@@ -1,0 +1,719 @@
+{
+  "id": "",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "name": "HeyGen ИИ Генерация Видео с Публикацией в Социальные Сети",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "12077b84-937a-4317-a126-80aab5b2311e",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -288,
+        128
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "bbee0d58-182c-4ccc-8b81-9a5045baa6ba",
+      "name": "Perplexity Search",
+      "type": "n8n-nodes-base.perplexity",
+      "position": [
+        -64,
+        128
+      ],
+      "parameters": {
+        "model": "sonar-reasoning",
+        "options": {},
+        "messages": {
+          "message": [
+            {
+              "content": "Find today's trending news articles from popular news websites.\n\nFocus on controversial or surprising developments that would make good viral content.\n\nIMPORTANT: You MUST include the exact article URL in your response in this format:\nArticle URL: [paste the full URL here]\n\nAlso provide a brief summary of why this article would make good viral content."
+            }
+          ]
+        },
+        "requestOptions": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "01c94fc6-796a-46a6-9dd2-176adbc3813c",
+      "name": "Write Video Script",
+      "type": "n8n-nodes-base.openAi",
+      "position": [
+        160,
+        128
+      ],
+      "parameters": {
+        "prompt": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "You are a content creator that crafts 30-second, easy-to-understand short-form video scripts for TikTok, YouTube Shorts, and Instagram Reels based on the news article provided.\n\nVoice & Tone:\n- Conversational and engaging\n- Attention-grabbing hooks\n- Focus on one key insight\n- End with clear CTA\n\nOutput Format (return as valid JSON):\n{\n  \"script\": \"[Complete 30-second script here]\",\n  \"sourceURL\": \"[article URL from the search]\",\n  \"hook\": \"[5-second hook]\",\n  \"mainPoint\": \"[15-second main content]\",\n  \"cta\": \"[5-second call-to-action]\"\n}\n\nMAKE SURE TO INCLUDE THE ACTUAL URL IN THE sourceURL FIELD!"
+            },
+            {
+              "content": "={{ 'Create a video script based on this news and include the URL: ' + ($json.content || JSON.stringify($json)) }}"
+            }
+          ]
+        },
+        "options": {},
+        "resource": "chat",
+        "chatModel": "gpt-4.1",
+        "requestOptions": {}
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "1a30d646-2583-4711-a8af-1303ec3fe7ea",
+      "name": "Get Screenshot",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        608,
+        128
+      ],
+      "parameters": {
+        "url": "=https://api.screenshotone.com/animate?access_key={{$credentials.screenshotOneApi.accessKey}}&url={{ $json.encodedURL }}&scenario=scroll&viewport_device=iphone_15_pro_max&format=mp4&duration=20&scroll_delay=100&scroll_duration=400&scroll_by=90&scroll_start_immediately=true&scroll_back=false&scroll_easing=linear&block_ads=true&block_trackers=true&block_cookie_banners=true&timeout=45",
+        "options": {
+          "timeout": 60000,
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "28fdb385-a0a5-4c82-9cf0-ac84741b3e07",
+      "name": "Write Video Caption",
+      "type": "n8n-nodes-base.openAi",
+      "position": [
+        1248,
+        128
+      ],
+      "parameters": {
+        "prompt": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "You are a social media content creator that crafts engaging captions for TikTok, YouTube Shorts, and Instagram Reels.\n\nVoice & Tone:\n- Conversational and engaging\n- Highlight: Key insight or surprising fact\n- Character limit: 150-200 characters\n"
+            },
+            {
+              "content": "={{ 'Create a social media caption for this video script: ' + $node['Extract URL'].json.scriptData.script }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.7
+        },
+        "resource": "chat",
+        "chatModel": "gpt-4.1",
+        "requestOptions": {}
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "23d6e640-5c1c-4478-b119-c24c3ce6cf6a",
+      "name": "Extract URL",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        384,
+        128
+      ],
+      "parameters": {
+        "jsCode": "// Simplified URL extraction from Perplexity response\nconst perplexityData = items[0].json;\nlet content = '';\n\n// Handle different response structures\nif (perplexityData.message && perplexityData.message.content) {\n  content = perplexityData.message.content;\n} else if (perplexityData.content) {\n  content = perplexityData.content;\n} else {\n  content = JSON.stringify(perplexityData);\n}\n\n// Extract URL using multiple patterns\nlet articleURL = '';\n\n// Pattern 1: Look for \"Article URL:\" format\nconst urlPattern1 = content.match(/Article URL:\\s*(https?:\\/\\/[^\\s]+)/i);\nif (urlPattern1 && urlPattern1[1]) {\n  articleURL = urlPattern1[1];\n} else {\n  // Pattern 2: Look for any URL in the content\n  const urlPattern2 = content.match(/(https?:\\/\\/[^\\s]+)/i);\n  if (urlPattern2 && urlPattern2[1]) {\n    articleURL = urlPattern2[1];\n  } else {\n    // Default fallback URL\n    articleURL = 'https://example.com';\n  }\n}\n\n// Clean the URL - remove trailing punctuation and whitespace\narticleURL = articleURL.replace(/[\"'\\]\\)\\}>\\[,;.!?]+$/, '').trim();\n\n// Parse script data if it exists\nlet scriptData = {};\ntry {\n  const scriptNode = $('Write Video Script');\n  if (scriptNode && scriptNode.item && scriptNode.item.json) {\n    let scriptContent = '';\n    \n    // Get content without optional chaining\n    if (scriptNode.item.json.content) {\n      scriptContent = scriptNode.item.json.content;\n    } else if (scriptNode.item.json.message && scriptNode.item.json.message.content) {\n      scriptContent = scriptNode.item.json.message.content;\n    }\n    \n    // Try to parse as JSON first\n    try {\n      scriptData = JSON.parse(scriptContent);\n      // Clean the sourceURL in scriptData too\n      if (scriptData.sourceURL) {\n        scriptData.sourceURL = scriptData.sourceURL.replace(/[\"'\\]\\)\\}>\\[,;.!?]+$/, '').trim();\n      }\n    } catch (e) {\n      // If not JSON, use the content as script\n      scriptData = {\n        script: scriptContent,\n        sourceURL: articleURL\n      };\n    }\n  }\n} catch (e) {\n  console.error('Error parsing script data:', e);\n}\n\nreturn [{\n  json: {\n    sourceURL: articleURL,\n    encodedURL: encodeURIComponent(articleURL),\n    scriptData: scriptData,\n    perplexityContent: content\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5a18e418-047a-4a41-9bd6-7d06258e50fc",
+      "name": "Prepare Avatar Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1456,
+        128
+      ],
+      "parameters": {
+        "jsCode": "// Get data from all required nodes\n  const captionNode = $items('Write Video Caption')[0];\n  const extractUrlNode = $items('Extract URL')[0];\n  const tmpfilesNode = $items('Extract tmpfiles')[0];\n\n  // Get the direct video URL from Cloudinary\n  const backgroundVideoUrl = tmpfilesNode?.json?.directUrl || '';\n\n  // Log for debugging\n  console.log('=== PREPARE AVATAR DATA ===');\n  console.log('Background Video URL:', backgroundVideoUrl);\n  console.log('Script:', extractUrlNode?.json?.scriptData?.script);\n  console.log('Script Length:', extractUrlNode?.json?.scriptData?.script?.length);\n\n  // Validate we have all required data\n  if (!backgroundVideoUrl) {\n    throw new Error('Background video URL is missing');\n  }\n\n  if (!extractUrlNode?.json?.scriptData?.script) {\n    throw new Error('Script text is missing');\n  }\n\n  // Ensure the video URL is publicly accessible\n  if (!backgroundVideoUrl.includes('cloudinary.com')) {\n    console.warn('Video URL might not be publicly accessible:', backgroundVideoUrl);\n  }\n\n  return [{\n    json: {\n      caption: captionNode?.json?.content || captionNode?.json?.message?.content || 'Video Caption',\n      scriptData: extractUrlNode?.json?.scriptData || {},\n      encodedURL: extractUrlNode?.json?.encodedURL || '',\n      sourceURL: extractUrlNode?.json?.sourceURL || '',\n      backgroundVideoUrl: backgroundVideoUrl,\n      // Add video duration estimate based on script length\n      estimatedDuration: Math.max(10, (extractUrlNode?.json?.scriptData?.script?.length || 0) / 10)\n    }\n  }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "56f84477-257d-42dd-80e6-a71eba6d121c",
+      "name": "Create Avatar Video (Optimized)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1680,
+        128
+      ],
+      "parameters": {
+        "url": "https://api.heygen.com/v2/video/generate",
+        "body": "={\n    \"video_inputs\": [\n      {\n        \"character\": {\n          \"type\": \"talking_photo\",\n          \"talking_photo_id\": \"YOUR_TALKING_PHOTO_ID\",\n          \"scale\": 0.3,\n          \"offset\": {\n            \"x\": -0.3,\n            \"y\": 0.3\n          },\n          \"talking_style\": \"stable\",\n          \"expression\": \"default\"\n        },\n        \"voice\": {\n          \"type\": \"text\",\n          \"input_text\": \"{{ $json.scriptData.script }}\",\n          \"voice_id\": \"YOUR_VOICE_ID\",\n          \"speed\": 1.0,\n          \"pitch\": 0\n        },\n        \"background\": {\n          \"type\": \"video\",\n          \"url\": \"{{ $json.backgroundVideoUrl }}\",\n          \"play_style\": \"loop\",\n          \"fit\": \"cover\"\n        }\n      }\n    ],\n    \"dimension\": {\n      \"width\": 720,\n      \"height\": 1280\n    },\n    \"callback_url\": \"YOUR_WEBHOOK_URL\",\n    \"test\": false,\n    \"title\": \"AI Generated Video - {{ $now.format('yyyy-MM-dd') }}\"\n  }\n",
+        "method": "POST",
+        "options": {
+          "timeout": 45000,
+          "response": {
+            "response": {}
+          }
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "sendHeaders": true,
+        "rawContentType": "application/json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Api-Key",
+              "value": "={{$credentials.heyGenApi.apiKey}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "7d28cd0e-e000-4179-a6e8-d0c586210cc2",
+      "name": "Store to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "notes": "You need to:\n1. Create a Google Sheet\n2. Add headers: video_id, caption, timestamp, status\n3. Replace YOUR_GOOGLE_SHEET_ID with actual ID\n4. Connect your Google account",
+      "position": [
+        2128,
+        128
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "video_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "video_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "caption",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "caption",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "timestamp",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "timestamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_GOOGLE_SHEET_ID"
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 4.5
+    },
+    {
+      "id": "7b6a9415-6b36-4da0-9092-b00fb4f2b062",
+      "name": "Prepare Sheets Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1904,
+        128
+      ],
+      "parameters": {
+        "jsCode": "// Prepare data for Google Sheets\nconst videoCreationResponse = $input.first().json;\nconst captionNode = $items('Write Video Caption')[0];\nconst caption = captionNode?.json?.content || captionNode?.json?.message?.content || 'Video Caption';\nconst videoId = videoCreationResponse.data?.video_id || '';\n\nconsole.log(\"=== PREPARING SHEETS DATA ====\");\nconsole.log(\"Video ID:\", videoId);\nconsole.log(\"Caption:\", caption);\nconsole.log(\"=============================\");\n\n// Format data for Google Sheets\nreturn [{\n  json: {\n    video_id: videoId,\n    caption: caption,\n    timestamp: new Date().toISOString(),\n    status: 'processing'\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "af47ca8b-1d8b-4d70-adb4-06aa58c03ea2",
+      "name": "HeyGen Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -288,
+        480
+      ],
+      "parameters": {
+        "path": "heygen-webhook",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "87c82997-22c8-4761-80af-e8c0df7ecf43",
+      "name": "Process HeyGen Callback",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -64,
+        480
+      ],
+      "parameters": {
+        "jsCode": "// Extract data from HeyGen webhook callback\n  const webhookData = $input.first().json.body;\n  const eventType = webhookData.event_type;\n  const eventData = webhookData.event_data;\n\n  console.log(\"=== HEYGEN WEBHOOK RECEIVED ===\");\n  console.log(\"Event Type:\", eventType);\n  console.log(\"Video ID:\", eventData?.video_id);\n  console.log(\"Video URL:\", eventData?.url);\n  console.log(\"===============================\");\n\n  // Check if video succeeded\n  if (eventType === \"avatar_video.success\") {\n    return [{\n      json: {\n        video_id: eventData.video_id,\n        video_url: eventData.url,\n        gif_url: eventData.gif_download_url,\n        share_url: eventData.video_share_page_url,\n        callback_id: eventData.callback_id,\n        status: 'completed',\n        ready_for_upload: true\n      }\n    }];\n  } else if (eventType === \"avatar_video.fail\") {\n    throw new Error(`Video generation failed: ${eventData.msg}`);\n  } else {\n    throw new Error(`Unknown event type: ${eventType}`);\n  }\n\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "8160bf99-05c0-4c3d-9349-1c39f2f36ed3",
+      "name": "Get Caption from Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "notes": "This looks up the video_id in Google Sheets to get the caption",
+      "position": [
+        160,
+        480
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "={{ $json.video_id }}",
+              "lookupColumn": "video_id"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_GOOGLE_SHEET_ID"
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 4.5
+    },
+    {
+      "id": "f240f457-ae29-486e-b53f-6e72c83bc1eb",
+      "name": "Combine Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        384,
+        480
+      ],
+      "parameters": {
+        "jsCode": "// Combine video data with caption from sheets\nconst videoData = $items('Process HeyGen Callback')[0].json;\nconst sheetData = $input.first().json;\n\nconsole.log(\"=== COMBINING DATA ===\");\nconsole.log(\"Video URL:\", videoData.video_url);\nconsole.log(\"Caption from Sheets:\", sheetData.caption);\nconsole.log(\"====================\");\n\nreturn [{\n  json: {\n    video_url: videoData.video_url,\n    video_id: videoData.video_id,\n    caption: sheetData.caption || 'Video Caption',\n    status: 'completed',\n    ready_for_upload: true\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2c068a8e-2506-49a2-ae79-413b56db6c91",
+      "name": "Assign Social Media IDs",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1024,
+        480
+      ],
+      "parameters": {
+        "mode": "raw",
+        "options": {},
+        "jsonOutput": "{\n  \"instagram_id\": \"YOUR_INSTAGRAM_ACCOUNT_ID\",\n  \"tiktok_id\": \"YOUR_TIKTOK_ACCOUNT_ID\"\n}"
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "31e17a13-f3dd-4df2-b0a0-08a60cf91fac",
+      "name": "INSTAGRAM",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1248,
+        384
+      ],
+      "parameters": {
+        "url": "https://backend.blotato.com/v2/posts",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n    \"post\": {\n      \"accountId\": \"{{ $node['Assign Social Media IDs'].json.instagram_id }}\",\n      \"target\": {\n        \"targetType\": \"instagram\"\n      },\n      \"content\": {\n        \"text\": \"{{ $node['Extract Blotato URL'].json.caption }}\",\n        \"platform\": \"instagram\",\n        \"mediaUrls\": [\"{{ $node['Extract Blotato URL'].json.blotato_video_url }}\"]\n      }\n    }\n  }\n",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "blotato-api-key",
+              "value": "={{$credentials.blotatoApi.apiKey}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "62f97acb-7042-4217-b203-a79c0ca04f2b",
+      "name": "TIKTOK",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1248,
+        592
+      ],
+      "parameters": {
+        "url": "https://backend.blotato.com/v2/posts",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n    \"post\": {\n      \"accountId\": \"{{ $node['Assign Social Media IDs'].json.tiktok_id }}\",\n      \"target\": {\n        \"targetType\": \"tiktok\",\n        \"isYourBrand\": \"false\",\n        \"disabledDuet\": \"false\",\n        \"privacyLevel\": \"PUBLIC_TO_EVERYONE\",\n        \"isAiGenerated\": \"true\",\n        \"disabledStitch\": \"false\",\n        \"disabledComments\": \"false\",\n        \"isBrandedContent\": \"false\"\n      },\n      \"content\": {\n        \"text\": \"{{ $node['Extract Blotato URL'].json.caption }}\",\n        \"platform\": \"tiktok\",\n        \"mediaUrls\": [\"{{ $node['Extract Blotato URL'].json.blotato_video_url }}\"]\n      }\n    }\n  }\n",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "blotato-api-key",
+              "value": "={{$credentials.blotatoApi.apiKey}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "bc266583-d522-41b8-95f3-10aa0d00071a",
+      "name": "Upload to tmpfiles",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        816,
+        128
+      ],
+      "parameters": {
+        "url": "https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/video/upload",
+        "method": "POST",
+        "options": {
+          "timeout": 10000
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "file",
+              "parameterType": "formBinaryData",
+              "inputDataFieldName": "data"
+            },
+            {
+              "name": "upload_preset",
+              "value": "YOUR_UPLOAD_PRESET"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "eec0d2b5-01b1-480f-854b-be5c4dadd7fe",
+      "name": "Extract tmpfiles",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1024,
+        128
+      ],
+      "parameters": {
+        "jsCode": "const uploadResponse = $input.first().json;\n  const directUrl = uploadResponse.secure_url || uploadResponse.url;\n\n  if (!directUrl) {\n    throw new Error(\"No URL in Cloudinary response\");\n  }\n\n  return [{\n    json: {\n      directUrl: directUrl,\n      success: true\n    }\n  }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1bdca4f3-f2bc-402b-8ca6-63e8ed2a4dc6",
+      "name": "Upload to Blotato",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        592,
+        480
+      ],
+      "parameters": {
+        "url": "https://backend.blotato.com/v2/media",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n    \"url\": \"{{ $json.video_url }}\"\n  }",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "blotato-api-key",
+              "value": "={{$credentials.blotatoApi.apiKey}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "5c95297b-750a-4970-a4e7-7bca0d5f96c5",
+      "name": "Extract Blotato URL",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        800,
+        480
+      ],
+      "parameters": {
+        "jsCode": "// Extract the Blotato URL from upload response\n  const uploadResponse = $input.first().json;\n  const blotatoUrl = uploadResponse.url;\n\n  // Pass through all the data plus the new Blotato URL\n  const originalData = $items('Combine Data')[0].json;\n\n  return [{\n    json: {\n      ...originalData,\n      blotato_video_url: blotatoUrl,\n      original_video_url: originalData.video_url\n    }\n  }];\n"
+      },
+      "typeVersion": 2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "",
+  "connections": {
+    "Extract URL": {
+      "main": [
+        [
+          {
+            "node": "Get Screenshot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Data": {
+      "main": [
+        [
+          {
+            "node": "Upload to Blotato",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Screenshot": {
+      "main": [
+        [
+          {
+            "node": "Upload to tmpfiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HeyGen Webhook": {
+      "main": [
+        [
+          {
+            "node": "Process HeyGen Callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract tmpfiles": {
+      "main": [
+        [
+          {
+            "node": "Write Video Caption",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Perplexity Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Perplexity Search": {
+      "main": [
+        [
+          {
+            "node": "Write Video Script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Blotato": {
+      "main": [
+        [
+          {
+            "node": "Extract Blotato URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to tmpfiles": {
+      "main": [
+        [
+          {
+            "node": "Extract tmpfiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Video Script": {
+      "main": [
+        [
+          {
+            "node": "Extract URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Blotato URL": {
+      "main": [
+        [
+          {
+            "node": "Assign Social Media IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Avatar Data": {
+      "main": [
+        [
+          {
+            "node": "Create Avatar Video (Optimized)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Sheets Data": {
+      "main": [
+        [
+          {
+            "node": "Store to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Video Caption": {
+      "main": [
+        [
+          {
+            "node": "Prepare Avatar Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assign Social Media IDs": {
+      "main": [
+        [
+          {
+            "node": "INSTAGRAM",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "TIKTOK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Caption from Sheets": {
+      "main": [
+        [
+          {
+            "node": "Combine Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process HeyGen Callback": {
+      "main": [
+        [
+          {
+            "node": "Get Caption from Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Avatar Video (Optimized)": {
+      "main": [
+        [
+          {
+            "node": "Prepare Sheets Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

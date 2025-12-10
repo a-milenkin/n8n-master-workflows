@@ -1,0 +1,322 @@
+{
+  "id": "TvBMnY29Y2JnYPB1",
+  "meta": {
+    "instanceId": "dd461442144ef35129772f5960b5416ba2c3e0b19b407d903be15f92c75d5bff",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Отчетность по рекламе Meta",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "06a25fbd-0b5f-4599-920c-ae248f7dc97c",
+      "name": "Fetch Ads Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -80,
+        -160
+      ],
+      "parameters": {
+        "url": "https://graph.facebook.com/v18.0/act_<Ad_Account_ID>/insights",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "campaign_name,spend,results,cost_per_result,cpm"
+            },
+            {
+              "name": "level",
+              "value": "campaign"
+            },
+            {
+              "name": "time_range",
+              "value": "={\"since\":\"{{ $json.yesterday }}\",\"until\":\"{{ $json.yesterday }}\"}"
+            }
+          ]
+        },
+        "nodeCredentialType": "facebookGraphApi"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a0fbc03d-2db7-45d3-8027-484fcbd7b3fb",
+      "name": "Set Yesterday's Date\t",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -300,
+        -160
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "49a04055-e011-4fce-a8ed-30c1e47e742c",
+              "name": "yesterday",
+              "type": "string",
+              "value": "={{ (() => {   const date = new Date();   date.setDate(date.getDate() - 1);   return date.toISOString().split('T')[0]; })() }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "90a5a5c8-9574-4d82-bb7d-3014c5d1d54a",
+      "name": "Trigger - Daily at 9AM\t",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -540,
+        -160
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "3356de2e-6826-496f-8909-fe99ac12d7d5",
+      "name": "Transform Ads Data\t",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        140,
+        -160
+      ],
+      "parameters": {
+        "jsCode": "const rawData = $json.data || [];\n\nreturn rawData.map(campaign => {\n  const results = campaign.results?.[0]?.values?.[0]?.value || '0';\n  const costPerResult = campaign.cost_per_result?.[0]?.values?.[0]?.value || '0';\n\n  return {\n    json: {\n      date: campaign.date_start || '',\n      campaign_name: campaign.campaign_name || 'N/A',\n      spend: campaign.spend || '0',\n      results,\n      cost_per_result: costPerResult,\n      cpm: campaign.cpm || '0'\n    }\n  };\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b57d0634-e50c-4f00-864f-541473f06ef7",
+      "name": "Update Google Sheet\t",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        360,
+        -60
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "CPM": "=={{ $json.cpm }}",
+            "Date": "={{ $json.date }}",
+            "Spend": "=={{ $json.spend }}",
+            "Results": "=={{ $json.results }}",
+            "Cost/Result": "=={{ $json.cost_per_result }}",
+            "Campaign Name": "={{ $json.campaign_name }}"
+          },
+          "schema": [
+            {
+              "id": "Date",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Campaign Name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Campaign Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Spend",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Spend",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Results",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Results",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Cost/Result",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Cost/Result",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CPM",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "CPM",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tnd0mehy0ZEWwmVExDAu3danPPt1YZKe1SSdh-0ZjFg/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1tnd0mehy0ZEWwmVExDAu3danPPt1YZKe1SSdh-0ZjFg",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tnd0mehy0ZEWwmVExDAu3danPPt1YZKe1SSdh-0ZjFg/edit?usp=drivesdk",
+          "cachedResultName": "Meta ads "
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WjMwx7PaMo9SecZ1",
+          "name": "Google Sheets account 3"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "d1a39c39-5dde-4949-8769-aef90115cc7b",
+      "name": "Generate Email HTML\t",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        360,
+        -260
+      ],
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst rows = items.map(item => {\n  const data = item.json;\n  return `\n    <tr>\n      <td>${data.campaign_name || '-'}</td>\n      <td>${data.spend || '0'}</td>\n      <td>${data.results || '0'}</td>\n      <td>${data.cost_per_result || '0'}</td>\n      <td>${data.cpm || '0'}</td>\n    </tr>`;\n}).join('');\n\nreturn [{\n  json: {\n    htmlBody: `\n      <h3>Facebook Ads Report</h3>\n      <table border=\"1\" cellpadding=\"5\" cellspacing=\"0\">\n        <thead>\n          <tr>\n            <th>Campaign</th><th>Spend</th><th>Results</th><th>Cost/Result</th><th>CPM</th>\n          </tr>\n        </thead>\n        <tbody>${rows}</tbody>\n      </table>\n    `\n  }\n}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b54b2082-f46f-4e3d-a888-e2ca898dd850",
+      "name": "Send Email Report\t",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        580,
+        -260
+      ],
+      "webhookId": "d8843d5e-1a80-4764-a245-cadea908bcc9",
+      "parameters": {
+        "message": "={{ $json.htmlBody }}\n",
+        "options": {},
+        "subject": "Facebook Ads Report for Yesterday"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "jF3O1yqdLT1tbslS",
+          "name": "Gmail account 2"
+        }
+      },
+      "typeVersion": 2.1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d22f98f2-bac3-4525-b2d7-246ce13293f2",
+  "connections": {
+    "Fetch Ads Data": {
+      "main": [
+        [
+          {
+            "node": "Transform Ads Data\t",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform Ads Data\t": {
+      "main": [
+        [
+          {
+            "node": "Update Google Sheet\t",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Generate Email HTML\t",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Email HTML\t": {
+      "main": [
+        [
+          {
+            "node": "Send Email Report\t",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Google Sheet\t": {
+      "main": [
+        []
+      ]
+    },
+    "Set Yesterday's Date\t": {
+      "main": [
+        [
+          {
+            "node": "Fetch Ads Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Transform Ads Data\t",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger - Daily at 9AM\t": {
+      "main": [
+        [
+          {
+            "node": "Set Yesterday's Date\t",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

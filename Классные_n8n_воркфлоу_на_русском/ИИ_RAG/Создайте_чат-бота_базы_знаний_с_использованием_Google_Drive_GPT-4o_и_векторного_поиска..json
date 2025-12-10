@@ -1,0 +1,741 @@
+{
+  "meta": {
+    "instanceId": "0f4ab867ceb8faa35a96b3ba8bfe372ed23fd9289fb2f308ae76570118367d6d"
+  },
+  "name": "Мой рабочий процесс",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "3c701a7e-738e-44d4-af9b-c3629d0e471e",
+      "name": "Recursive Character Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "position": [
+        760,
+        920
+      ],
+      "parameters": {
+        "options": {},
+        "chunkOverlap": 100
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "51a61f7f-610b-4cda-8405-11983fec7c8a",
+      "name": "Default Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "position": [
+        780,
+        740
+      ],
+      "parameters": {
+        "options": {},
+        "dataType": "binary",
+        "binaryMode": "specificField"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "805a12e8-2d85-4951-929c-76df85ad4e0f",
+      "name": "Simple Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "position": [
+        700,
+        540
+      ],
+      "parameters": {
+        "mode": "insert",
+        "memoryKey": {
+          "__rl": true,
+          "mode": "list",
+          "value": "vector_store_key"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "c17de454-87ab-4a69-b129-bf77a5afbb66",
+      "name": "Embeddings OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "position": [
+        620,
+        740
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "14c2ff00-618f-4ea3-aeb8-212aa76d28ef",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1400,
+        680
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "318ca8eb-0e06-4ba9-bcc2-c57b65254794",
+      "name": "Answer questions with a vector store",
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "position": [
+        1700,
+        640
+      ],
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "286f2e2b-1a70-48c8-a619-1e01cacf8cee",
+      "name": "Simple Vector Store2",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "position": [
+        1560,
+        840
+      ],
+      "parameters": {
+        "memoryKey": {
+          "__rl": true,
+          "mode": "list",
+          "value": "vector_store_key"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "1603e15d-db26-4174-bb32-0d8f429d3fca",
+      "name": "Embeddings OpenAI1",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "position": [
+        1540,
+        980
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "c6623fd4-2ccc-4a15-9b10-07024c916eeb",
+      "name": "OpenAI Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1840,
+        840
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "e7c3e7a9-5d38-4dd4-983f-1f4a104f4fe9",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3200,
+        1020
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 620,
+        "height": 920,
+        "content": "## Подключение Google Drive\nЧтобы настроить учетные данные OAuth2 для Google Drive в n8n (используя рекомендуемый метод OAuth2), выполните следующие шаги:\n\n1. Создайте проект в Google Cloud:\n    - Перейдите в Google Cloud Console.\n    - Создайте новый проект или выберите существующий.\n\n2. Включите API Google Drive:\n    - В вашем проекте перейдите в «APIs & Services» > «Library».\n    - Найдите «Google Drive API» и включите его.\n\n3. Настройте экран согласия OAuth:\n    - Перейдите в «APIs & Services» > «OAuth consent screen».\n    - Заполните обязательные поля (название приложения, электронная почта поддержки пользователей и т.д.).\n    - Добавьте необходимые области (для Google Drive, обычно https://www.googleapis.com/auth/drive).\n\n4. Создайте учетные данные OAuth2:\n    - Перейдите в «APIs & Services» > «Credentials».\n    - Нажмите «Create Credentials» > «OAuth client ID».\n    - Выберите «Web application».\n    - Добавьте следующее в «Authorized redirect URIs»:\n        - https://<your-n8n-domain>/rest/oauth2-credential/callback\n        - Если работаете локально: http://localhost:5678/rest/oauth2-credential/callback\n\n5. Скопируйте Client ID и Client Secret.\n    \n6. В n8n:\n    - Перейдите в «Credentials» и создайте новые учетные данные для «Google Drive OAuth2 API».\n    - Введите Client ID и Client Secret, которые вы скопировали из Google Cloud.\n    - Установите соответствующие области (например, https://www.googleapis.com/auth/drive).\n    - Сохраните и подключите учетные данные.\n\nПосле этого ваши учетные данные OAuth2 для Google Drive должны быть настроены и готовы к использованию в ваших рабочих процессах n8n.\n\nПримечание: Если вы получите 403: доступ запрещен, вам нужно вернуться в Google Cloud.\n    - Перейдите в Audience\n    - Добавьте свою электронную почту в тестовые пользователи"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fac8b33c-f829-4d39-8eee-c773c93980e6",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3200,
+        0
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 620,
+        "height": 980,
+        "content": "## 🛠️ Руководство по настройке после импорта шаблона\n\nПосле того как вы загрузите и импортируете шаблон чат-бота в вашу инстанцию n8n, выполните следующие шаги для его правильной настройки:\n\n---\n\n### 🔑 1. **Настройка учетных данных Google Drive**\n\n- Перейдите в **Учетные данные** в n8n.\n- Создайте новые учетные данные для **Google Drive OAuth2 API**.\n- Добавьте ваш **Идентификатор клиента** и **Секрет клиента** из Google Cloud Console \n(Следуйте руководству по подключению Google Drive в следующей зеленой заметке).\n- Убедитесь, что вы добавили URL-адрес перенаправления:\n  ```\n  https://<ваш-домен-n8n>/rest/oauth2-credential/callback\n  ```\n- Используйте созданные учетные данные во всех узлах `Google Drive`.\n---\n\n### 📁 2. **Установите файл или папку для загрузки из Google Drive**\n\n- Во всех узлах `Google Drive` (кроме узла Загрузить файлы):\n  - Установите имя файла или имя папки для поиска.\n- В узле `Google Drive Загрузить файлы`:\n  - Отобразите идентификатор файла из результата поиска, используя выражения, такие как:\n    ```\n    {{$json[\"id\"]}}\n    ```\n---\n\n### 🔐 3. **Подключите ваши учетные данные OpenAI**\n\n- Создайте новую учетную запись в n8n для **OpenAI API**.\n- Вставьте ваш ключ API OpenAI.\n- Используйте эти учетные данные в:\n  - Узле `Embeddings OpenAI`\n  - Узле `OpenAI Chat Model`\n  - `Ответить на вопросы с помощью векторного хранилища`\n\n---"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6bbd55eb-29bb-4322-83a8-ebb46292802b",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2540,
+        0
+      ],
+      "parameters": {
+        "width": 620,
+        "height": 520,
+        "content": "# 🤖 Простой AI Чат-бот с использованием знаний из Google Drive в n8n\n\nЭтот гид объясняет, как использовать **AI чат-бота на базе OpenAI**, где знания берутся из файлов (таких как PDF, текст и т.д.), хранящихся в **Google Drive**. Кодировать не нужно!\n\n---\n\n## 📌 Что делает этот рабочий процесс\n\n- Автоматические обновления файлов из Google Drive  \n- Преобразует их в поисковую базу знаний (векторное хранилище)\n- Позволяет пользователям общаться и задавать вопросы о файле\n- AI отвечает **только** на основе содержимого вашего файла!\n\n---"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3a3ff629-4664-4b11-8de0-56eeb236044e",
+      "name": "Download Files",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        500,
+        540
+      ],
+      "parameters": {
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "options": {},
+        "operation": "download"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "79414561-32d3-4d1c-924f-341ce16aeb76",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1080,
+        "height": 1160,
+        "content": "### 🧩 ЧАСТЬ 1: **Загрузка файлов и подготовка знаний**\n\n|  Узел                                 |  Что он делает                                              |\n|----------------------------------------------|--------------------------------------------------------------|\n| 📂 Файл создан в папке         | Срабатывает, когда новый файл загружается в Google Drive          |\n|----------------------------------------------|--------------------------------------------------------------|\n| 📂 Файл обновлен в папке         | Срабатывает, когда существующий файл обновляется                     |\n|----------------------------------------------|--------------------------------------------------------------|\n| 🔍 Поиск файлов в вашем Google Drive  | Находит новый или обновленный файл                                  |\n|----------------------------------------------|--------------------------------------------------------------|\n| ⬇️ Загрузка файлов                     | Загружает фактическое содержимое файла                       |\n|----------------------------------------------|--------------------------------------------------------------|\n| 🧠 Векторизация OpenAI                  | Преобразует файл в искомые векторы ИИ                       |\n|----------------------------------------------|--------------------------------------------------------------|\n| 📄 Загрузчик данных по умолчанию                | Загружает документ по частям                                     |\n|----------------------------------------------|--------------------------------------------------------------|\n| 🔁 Рекурсивный разделитель текстовых символов  | Разделяет большие документы на чистые текстовые блоки                  |\n|----------------------------------------------|--------------------------------------------------------------|\n| 🧊 Простой векторный хранилище                | Хранит векторы для последующего извлечения ИИ                      |"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d64086c3-31bb-4876-8652-df1c287f4a53",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1120,
+        0
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1380,
+        "height": 1160,
+        "content": "### 🧠 ЧАСТЬ 2: **AI Чат-бот для Ответов на Вопросы**\n\n| Узел | Что Он Делает |\n|----------------------------------------------|--------------------------------------------------------------|\n| 🌐 Вебхук                            | Принимает входящие запросы на вопросы от внешних приложений         |\n|----------------------------------------------|--------------------------------------------------------------|\n| 📝 Редактировать Поля                        | Отображает и форматирует входящие данные пользователя                            |\n|----------------------------------------------|--------------------------------------------------------------|\n| 🤖 AI Агент                           | Основная логика и движок принятия решений                          |\n|----------------------------------------------|--------------------------------------------------------------|\n| 🔁 Буфер Памяти Окна               | Сохраняет память о разговоре                                  |\n|----------------------------------------------|--------------------------------------------------------------|\n| 🧊 Простой Векторный Хранилище2               | Извлекает сохраненные знания из файла                                |\n|----------------------------------------------|--------------------------------------------------------------|\n| 📚 Отвечать на вопросы с помощью векторного хранилища | Ищет соответствующие части загруженного файла                   |\n|----------------------------------------------|--------------------------------------------------------------|\n| 💬 Модель Чата OpenAI               | Генерирует ответ AI                                          |\n|----------------------------------------------|--------------------------------------------------------------|\n| 🔎 Существует ли вывод AI Агента?          | Условная проверка для обеспечения действительного ответа                      |\n|----------------------------------------------|--------------------------------------------------------------|\n| 🔐 Аутентификация Токена               | Проверяет, что запрос авторизован                       |\n|----------------------------------------------|--------------------------------------------------------------|\n| 📤 Отправить в Чат Приложение                   | Отправляет ответ обратно пользователю через внешнюю платформу              |"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0eeeddda-95e7-46a2-8c0a-d09b1da5ecf1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        1160,
+        440
+      ],
+      "webhookId": "bfb0e32d-659b-4fc5-a7a3-695c55137855",
+      "parameters": {
+        "path": "bfb0e32d-659b-4fc5-a7a3-695c55137855",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6428ae4e-6702-4776-9430-6c808b1588df",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1340,
+        440
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e2a61b06-dc33-4c30-8197-cf6de3dc4a5d",
+              "name": "chatInput",
+              "type": "string",
+              "value": "={{ $json.body.Data.ChatMessage.Content }}"
+            },
+            {
+              "id": "fc96dfe9-cc87-4004-b812-cb1fa84e7f67",
+              "name": "sessionId",
+              "type": "string",
+              "value": "={{ $json.body.Data.ChatMessage.RoomId }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "5bb23164-475f-45ee-a1c7-59ca9600a07a",
+      "name": "Is AI Agent output exist?",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1860,
+        440
+      ],
+      "parameters": {
+        "jsCode": "const ai = items.find(i => i.json.output);\nconst fallback = \"Sorry, I didn’t understand your message. Please try again or send a text.\";\n\nreturn [\n  {\n    json: {\n      content: ai?.json.output || fallback\n    }\n  }\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bb54bb65-8bf0-440f-9479-da920e2a8da3",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1520,
+        440
+      ],
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a friendly and well-informed customer support specialist for Venio, a third-party multichannel messaging platform. Stay factual. You must answer the user's question using only the information provided in the document content below. Do not invent or guess information outside the context. Remember to ensure the answer is correct refer to the file.\n\nYour task is to answer customer questions clearly, patiently, and in a warm, supportive tone.\n\nDo not to say feel free to ask or something like that"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4b847538-28d1-4e61-ba01-89d46e74fc24",
+      "name": "Token Authentication",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2080,
+        440
+      ],
+      "parameters": {
+        "url": "<Your-Token-Url>",
+        "method": "POST",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "client_credentials"
+            },
+            {
+              "name": "client_id",
+              "value": "<Your-Client-Id>"
+            },
+            {
+              "name": "client_secret",
+              "value": "<Your-Client-Secret>"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Ocp-Apim-Subscription-Key",
+              "value": "<Your-Subscription-Key>"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "1aa5a0b5-304f-43ac-9119-13938c815010",
+      "name": "Send to Chat App",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2300,
+        440
+      ],
+      "parameters": {
+        "url": "<Your-Chat-Url>",
+        "method": "POST",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        },
+        "sendBody": true,
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "roomId",
+              "value": "={{ $('Webhook').item.json.body.Data.ChatMessage.RoomId }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $('Is AI Agent output exist?').item.json.content }}"
+            },
+            {
+              "name": "type",
+              "value": "message"
+            },
+            {
+              "name": "platform",
+              "value": "={{ $('Webhook').item.json.body.Data.ChatMessage.Platform }}"
+            },
+            {
+              "name": "companyId",
+              "value": "={{ $('Webhook').item.json.body.Data.ChatMessage.User.CompanyId }}"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.access_token }}"
+            },
+            {
+              "name": "Ocp-Apim-Subscription-Key",
+              "value": "<Your-Subscription-Key>"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "01d71fdf-4979-4478-a480-a0d15de8dab5",
+      "name": "File created in the Folder",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "position": [
+        80,
+        460
+      ],
+      "parameters": {
+        "event": "fileCreated",
+        "options": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1Ve5ZLtQwpK5Hq4YxZTNRduRgPlSMZ1hJ",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1Ve5ZLtQwpK5Hq4YxZTNRduRgPlSMZ1hJ",
+          "cachedResultName": "ChatbotTest"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a2cf29ab-fa4d-4185-9a0d-eb22e04bf836",
+      "name": "File updated in the Folder",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "position": [
+        80,
+        660
+      ],
+      "parameters": {
+        "event": "fileUpdated",
+        "options": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1Ve5ZLtQwpK5Hq4YxZTNRduRgPlSMZ1hJ",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1Ve5ZLtQwpK5Hq4YxZTNRduRgPlSMZ1hJ",
+          "cachedResultName": "ChatbotTest"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f8c00b8a-13da-451a-855c-ccc424fd56c1",
+      "name": "Search Files in your Google Drive Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        300,
+        540
+      ],
+      "parameters": {
+        "filter": {
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive",
+            "cachedResultUrl": "https://drive.google.com/drive/my-drive",
+            "cachedResultName": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "1Ve5ZLtQwpK5Hq4YxZTNRduRgPlSMZ1hJ",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1Ve5ZLtQwpK5Hq4YxZTNRduRgPlSMZ1hJ",
+            "cachedResultName": "ChatbotTest"
+          }
+        },
+        "options": {},
+        "resource": "fileFolder"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "a4f972ff-d5cb-4ac0-ad79-a7a582b2d4c3",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        1560,
+        680
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "0df89f09-5e2b-4242-a276-10c48df7f1c5",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2540,
+        560
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 620,
+        "height": 1380,
+        "content": "---\n\n### 🌐 Настройка URL вебхука (Важно)\n\nКогда вы создаете **узел вебхука** в n8n, он автоматически генерирует уникальный URL для получения данных.\n\n✅ **Вам не нужно удалять или вручную изменять этот URL**, но вы можете настроить **путь**, если это необходимо.\n\nНапример:\n```\nhttps://your-n8n-domain/webhook/my-ai-chatbot\n```\n\n📌 Вы можете:\n- Нажать на **узел вебхука**\n- Установить **Пользовательский путь** в разделе **HTTP Метод + Путь**\n- Использовать этот пользовательский URL в внешних инструментах, формах или приложениях для отправки вопросов чат-боту\n\nЭто делает интеграцию более удобной для пользователя и согласованной с наименованием вашей платформы.\n\n> ✨ Совет: Держите путь коротким и значимым, например `/webhook/ask-ai` или `/webhook/hr-bot`.\n\n---\n---\n\n### 🔐 Аутентификация токеном и отправка в чат-приложение – Примечания к URL\n\nВ следующих узлах вам также нужно работать с URL, которые должны быть настроены для вашей системы:\n\n---\n#### ✅ Узел аутентификации токеном\n\n- Этот узел используется для **проверки входящих запросов**, чтобы гарантировать, что только авторизованные приложения/пользователи могут взаимодействовать с чат-ботом.\n- Обычно вы будете сравнивать токен (например, из заголовков или тела) с сохраненным секретом или переменной окружения.\n- Вам **не нужно жестко кодировать URL вебхука** внутри этого узла, но вы можете **определить ожидаемые значения токена** для каждой интеграции.\n\n> ✨ Если вы вызываете чат-бота из внешних сервисов, убедитесь, что они **включают токен** в правильном формате.\n---\n\n#### 📤 Узел отправки в чат-приложение\n\n- Это последний шаг, где чат-бот отправляет ответ обратно на ваш фронтенд, бота или чат-систему.\n- **Убедитесь, что вы настроили целевой URL**, куда должен быть отправлен ответ.\n\nНапример:\n```\nhttps://your-frontend.com/api/chat-response\n```\n\n✅ Лучшие практики:\n- Используйте переменную окружения или узел `Set`, чтобы определить целевой базовый URL.\n- Это упрощает обновление без изменения всего рабочего процесса.\n\n> 💡 Вы также можете динамически направлять сообщения, используя идентификатор пользователя или информацию о канале в полезной нагрузке вебхука.\n\n---"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "",
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Is AI Agent output exist?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Files": {
+      "main": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Simple Vector Store2",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Answer questions with a vector store",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Vector Store2": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Answer questions with a vector store",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Token Authentication": {
+      "main": [
+        [
+          {
+            "node": "Send to Chat App",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is AI Agent output exist?": {
+      "main": [
+        [
+          {
+            "node": "Token Authentication",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "File created in the Folder": {
+      "main": [
+        [
+          {
+            "node": "Search Files in your Google Drive Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "File updated in the Folder": {
+      "main": [
+        [
+          {
+            "node": "Search Files in your Google Drive Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer questions with a vector store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Files in your Google Drive Folder": {
+      "main": [
+        [
+          {
+            "node": "Download Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

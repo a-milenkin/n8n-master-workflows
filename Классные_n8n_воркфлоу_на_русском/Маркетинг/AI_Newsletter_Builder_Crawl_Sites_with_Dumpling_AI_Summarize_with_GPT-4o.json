@@ -1,0 +1,317 @@
+{
+  "id": "HlVn82cNQLDWx73K",
+  "meta": {
+    "instanceId": "a1ae5c8dc6c65e674f9c3947d083abcc749ef2546dff9f4ff01de4d6a36ebfe6",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "}",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "b607052f-8712-4cce-977e-6216da30a144",
+      "name": "Start Workflow Manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -800,
+        -160
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "5bf110b3-a678-4a34-a4c9-3a87ab22774f",
+      "name": "Get Website URLs from Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -580,
+        -160
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10AQk_0kG8d0fa7gwbm0W8f9CyMZ9syPGksQoMNBkut4/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10AQk_0kG8d0fa7gwbm0W8f9CyMZ9syPGksQoMNBkut4/edit?usp=drivesdk",
+          "cachedResultName": "sites"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GaJqJHuS5mQxap7q",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "a996f64a-bb61-493d-90ca-dce9d465fd58",
+      "name": "Crawl and Extract Site Content with Dumpling AI",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -360,
+        -160
+      ],
+      "parameters": {
+        "url": "https://app.dumplingai.com/api/v1/crawl",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"url\": \"{{ $json.websites }}\", \n  \"limit\": \"5\",\n  \"depth\": \"2\", \n  \"format\": \"text\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "5CBvzXCLjwWzCJRE",
+          "name": "n8n_integration"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "01d0b913-cfdc-4144-8556-d5c18221cf7c",
+      "name": "Split Extracted Results into Individual Items",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        -140,
+        -160
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "results"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9d69abfa-c867-4fbc-83a2-58723f3c4dfb",
+      "name": "Map Title, URL, and Page Text",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        80,
+        -160
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "51ae9a51-06f4-46b1-979e-578eb5dc361c",
+              "name": "metadata.title",
+              "type": "string",
+              "value": "={{ $json.metadata.title }}"
+            },
+            {
+              "id": "2f16ef6f-cc2f-4a4d-a5e7-3cdde3465398",
+              "name": "content",
+              "type": "string",
+              "value": "={{ $json.content }}"
+            },
+            {
+              "id": "31ac95b7-beeb-4b3b-8e52-ed75027ae379",
+              "name": "metadata.original_url",
+              "type": "string",
+              "value": "={{ $json.metadata.original_url }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "eaaa909d-92df-4837-a474-d533577c5621",
+      "name": " Combine Articles into Single Prompt Format",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        300,
+        -160
+      ],
+      "parameters": {
+        "jsCode": "let output = '';\nitems.forEach((item, index) => {\n  const title = item.json.metadata?.title || 'No title';\n  const url = item.json.metadata?.original_url || 'No URL';\n  const content = item.json.content || 'No content';\n\n  output += `${index + 1}. ${title}\\n${url}\\n${content}\\n\\n`;\n});\n\nreturn [{ json: { aggregatedArticles: output } }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b2691018-fa64-4a55-a5e9-e68733ab9a7a",
+      "name": " Generate HTML Newsletter with Subject Using GPT-4o",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        520,
+        -160
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o",
+          "cachedResultName": "GPT-4O"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "content": "{"
+            }
+          ]
+        },
+        "jsonOutput": true
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "fdhWALG84tBLgSZT",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "c1266ac2-e2c0-4258-be9d-08c1ae6f3727",
+      "name": "Send Newsletter via Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        896,
+        -160
+      ],
+      "webhookId": "d883af34-9a6e-406e-8eee-42d501bc5791",
+      "parameters": {
+        "sendTo": "",
+        "message": "={{ $json.message.content.body }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "={{ $json.message.content.subject }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "j70r3RTMED1pgN3R",
+          "name": "Gmail account 2"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "25e0a2b5-5c27-4176-b9d8-4e91d15d86cc",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -800,
+        -360
+      ],
+      "parameters": {
+        "width": 680,
+        "height": 200,
+        "content": "\"subject\": \"[Создайте увлекательный информационный бюллетень с помощью AI]\","
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9ca5931f-6637-4371-8830-d73801381276",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        300,
+        -360
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 660,
+        "height": 220,
+        "content": "\"body\": \"<h3>🌐 Получите контент сайта с помощью Dumpling AI</h3><p>Этот раздел начинается с ручного триггера, затем получает список URL-адресов сайтов из подключенной Google Таблицы. Каждый URL отправляется на конечную точку обхода Dumpling AI, которая извлекает читаемый контент до установленной глубины.</p><p>Чтобы узнать больше, нажмите на ссылку: <a href=\\\"{{ $json.aggregatedArticles[0].url }}\\\">{{ $json.aggregatedArticles[0].url }}</a></p><br/><h3>🧠 Резюмируйте и отправляйте AI-сгенерированный информационный бюллетень</h3><p>После извлечения и сопоставления данных каждой статьи, узел `Code` форматирует все статьи в читаемую строку. GPT-4o используется для создания HTML-контента в стиле информационного бюллетеня и привлекательной темы на основе содержания.</p><p>Чтобы узнать больше, нажмите на ссылку: <a href=\\\"{{ $json.aggregatedArticles[1].url }}\\\">{{ $json.aggregatedArticles[1].url }}</a></p><br/><h3>Создатель AI-информационного бюллетеня: Обходите сайты с помощью Dumpling AI, резюмируйте с GPT-4o</h3><p>Этот процесс включает в себя извлечение и форматирование данных, а затем отправку готового AI-сгенерированного информационного бюллетеня прямо в почтовый ящик получателя.</p><p>Чтобы узнать больше, нажмите на ссылку: <a href=\\\"{{ $json.aggregatedArticles[2].url }}\\\">{{ $json.aggregatedArticles[2].url }}</a></p>\""
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a86325fc-4f26-4052-8883-ec983049f51d",
+  "connections": {
+    "Start Workflow Manually": {
+      "main": [
+        [
+          {
+            "node": "Get Website URLs from Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map Title, URL, and Page Text": {
+      "main": [
+        [
+          {
+            "node": " Combine Articles into Single Prompt Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Website URLs from Google Sheet": {
+      "main": [
+        [
+          {
+            "node": "Crawl and Extract Site Content with Dumpling AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    " Combine Articles into Single Prompt Format": {
+      "main": [
+        [
+          {
+            "node": " Generate HTML Newsletter with Subject Using GPT-4o",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Extracted Results into Individual Items": {
+      "main": [
+        [
+          {
+            "node": "Map Title, URL, and Page Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crawl and Extract Site Content with Dumpling AI": {
+      "main": [
+        [
+          {
+            "node": "Split Extracted Results into Individual Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    " Generate HTML Newsletter with Subject Using GPT-4o": {
+      "main": [
+        [
+          {
+            "node": "Send Newsletter via Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

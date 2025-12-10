@@ -1,0 +1,1472 @@
+{
+  "meta": {
+    "instanceId": "1c7d07da94594ba2f94dbfcfe84b40cd3e99ac5aa392077ef5d0193a71a4945c",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "3f5e7dbe-7a12-4fc7-b90f-ded229cd1479",
+      "name": "OrchestrationAgent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "maxTries": 5,
+      "position": [
+        168,
+        -40
+      ],
+      "parameters": {
+        "text": "=key wrords: {{ $('db').item.json.keywords }}\nNumber_of_sections: {{ $('db').item.json.number_of_sections }}\nSearch Results: {{ $(\"GetOnilneInfo\").item.json.data }}\nNewsletter style: informative\nCompitation Data: {{ $('db').item.json['Writing Style'] }}",
+        "options": {
+          "systemMessage": "=# Orchestration Prompt for Blog Automation\n\nYou are the **Orchestration Agent (\"Director\")** managing a multi-agent pipeline to generate high-quality blog posts specifically for wrodpres post content. Your role is to coordinate specialized sub-agents in a structured, step-by-step workflow, ensuring that the final output serves both expert-level content and SEO purposes .\n\n## Content Domain\n\nTarget audience and content characteristics:\n\n- Homeowners, business owners, and policyholders searching for insurance claim help.  \n- SEO-driven informational content that answers real user search queries.  \n- Highly authoritative, professional, helpful, and trust-building articles.\n\n## Tools Available\n\n- `OutlinePlanner(newsletterTopic, googleSearch, style, tone, keywords, Number_of_sections)`\n- `createSections(ToC, style, tone, Number_of_sections)`\n- `SectionsWriter(blogSections, descriptions, ToC, style, tone)`\n- `Editor(draft,Number_of_sections, style, tone)`\n- `MetaInfo(finalPost, topic, style, tone, keywords)`\n- `ImagePrompt(title, keywords)`\n\n## Workflow Instructions:\n \n1. Input Parsing\nExtract from the user input:\n\n- `newsletterTopic`\n- `Number_of_sections`\n- `Search results` for question and answer\n- `style`\n- `tone`\n- `targetLength`\n- `keywords`\n\n**Special Note:** Ensure all extracted keywords are insurance-claim relevant.  \nExamples: `fire damage claim`, `hurricane damage claim`, `flood insurance dispute`, `public adjuster benefits`, `denied insurance claim appeal`.\n\n---\n\n2. Generate Outline\nCall `OutlinePlanner()` using parsed inputs.\n\n- Ensure the outline is SEO-optimized and informative.\n- Prioritize sections like:\n  - Top Questions\n  - FAQs\n\n---\n\n3. Create Section Definitions\nCall `createSections()` to transform the ToC into `blogSections` with short descriptions.\n\n---\n\n4. Generate Section Content\nCall `SectionsWriter()` with:\n\n- `blogSections`\n- `descriptions`\n- `ToC`\n- `style`, `tone`\n\n**Content Rule:** Provide helpful advice, explain insurance processes.\n---\n\n5. Edit & Proofread\nCall `Editor()` on the result from `SectionsWriter` to produce `finalPost` and with `Number_of_sections`.\n\n\n---\n\n6. Generate Metadata\nCall `MetaInfo()` using:\n\n- `finalPost`\n- `topic`, `style`, `tone`, `keywords`\n\n---\n\n7. Generate Image Prompt\nCall `ImagePrompt()` using:\n\n- Final title\n- Relevant keywords\n\n---\n\n8. Return Final Output\n\nRespond with the following JSON:\n\n```json\n{\n  \"toc\": \"the table of the content\"\n  \"post_html\": \"<final blog post as HTML>\",\n  \"meta_data\": {\n    \"title\": \"...\",\n    \"slug\": \"...\",\n    \"description\": \"...\"\n  },\n  \"image_data\": {\n    \"image_prompt\": \"...\",\n    \"alt_text\": \"...\"\n  },\n  \"ready\": true\n}\n\n\n---\nVip note: \n1- you can call a tool or subagent for one time only.\n2- follow the order of calling OutlinePlanner, createSections, SectionsWriter, Editor, MetaInfo, then MetaInfo.\n3 -when you call sub agent you must pass the data as with json query key:\n\n```json\n{\n  \"query\": \"...\"\n}\n```\n"
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "executeOnce": true,
+      "retryOnFail": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "fb04e4df-71ff-4fc3-9ee5-edf69dbc69a1",
+      "name": "SectionWriter",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        -44,
+        180
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "JcyHcvdoK81RjOeS",
+          "cachedResultName": "sectionWriter"
+        },
+        "description": "вызовите этот инструмент, чтобы создать содержимое раздела для оглавления поста.",
+        "workflowInputs": {
+          "value": {},
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "526360ba-dd5d-42d5-a152-33f95279aa3e",
+      "name": "OutlinePlanner",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        76,
+        180
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "XnJOv9cfqU4KD9se",
+          "cachedResultName": "outlinePlanner"
+        },
+        "description": "вызовите этот инструмент, чтобы создать оглавление.",
+        "workflowInputs": {
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}"
+          },
+          "schema": [
+            {
+              "id": "query",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "query",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "query"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "a83d3492-720f-43fe-aea6-9c418a266033",
+      "name": "Editor",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        196,
+        180
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "0WR3uSwGakSw4QE9",
+          "cachedResultName": "editor"
+        },
+        "description": "вызовите этот инструмент, чтобы отредактировать пост",
+        "workflowInputs": {
+          "value": {},
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "2d2ca82b-6f0c-4ad9-a8e8-438f195c4dd1",
+      "name": "metaInfo",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        316,
+        180
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "Z7QvV7gBPEuOms9L",
+          "cachedResultName": "MetaInfo"
+        },
+        "description": "вызовите этот инструмент, чтобы создать заголовок, слаг и описание статьи.",
+        "workflowInputs": {
+          "value": {},
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "fd337f6e-202a-4914-a620-992aa3781ad9",
+      "name": "db",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -760,
+        -40
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "91532588-1a00-4cc6-be9e-249d3a5b8186",
+              "name": "website",
+              "type": "string",
+              "value": "={{ $json[\"Web Site\"] }}"
+            },
+            {
+              "id": "755d7b9a-3555-4838-854e-ae5c6b84d0ae",
+              "name": "authors",
+              "type": "array",
+              "value": "[6,7]"
+            },
+            {
+              "id": "e0211b60-e18b-48a0-9928-6272ee0e8dbb",
+              "name": "keywords",
+              "type": "string",
+              "value": "={{ $json.KeyWords }}"
+            },
+            {
+              "id": "31aab7b5-20ed-4137-8e30-bfcd6155f1be",
+              "name": "wordCount",
+              "type": "string",
+              "value": "={{ $json.wordCount }}"
+            },
+            {
+              "id": "3d7feddd-10ba-4eab-ba3c-59fd3257b1a4",
+              "name": "number_of_sections",
+              "type": "string",
+              "value": "={{ $json[\"Number of sections\"] }}"
+            },
+            {
+              "id": "1f93a892-a28e-453d-bbb6-1bb024aabe81",
+              "name": "create_image",
+              "type": "string",
+              "value": "={{ $json[\"Generate a featured image\"] }}"
+            },
+            {
+              "id": "b062f259-b2e7-49a0-8263-3e3957497ae4",
+              "name": "Writing Style",
+              "type": "string",
+              "value": "={{ $json[\"Writing Style\"] }}"
+            },
+            {
+              "id": "309f9e2e-6ffd-437f-8e01-7056d9a98199",
+              "name": "aboutWebsite",
+              "type": "string",
+              "value": "={{ $json[\"Web Site\"] }}/about"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "7522a1d6-2295-4988-bc9d-55a65ee5c4e5",
+      "name": "Structured Output Parser1",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        676,
+        180
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n    \"type\": \"object\",\n    \"properties\": {\n        \"ready\": {\n            \"type\": \"boolean\",\n            \"description\": \"After generating the blog post content, this boolean indicates if it's ready for publishing.\"\n        },\n        \"table_of_content\": {\n            \"type\": \"string\",\n            \"description\": \"the table of the content ToC\"\n        },\n        \"final_blog_post_html\": {\n            \"type\": \"string\",\n            \"description\": \"The generated blog post HTML content.\"\n        },\n        \"meta_data\": {\n            \"type\": \"object\",\n            \"properties\": {\n                \"title\": {\n                    \"type\": \"string\"\n                },\n                \"slug\": {\n                    \"type\": \"string\"\n                },\n                \"description\": {\n                    \"type\": \"string\"\n                }\n            }\n        },\n        \"image_data\": {\n            \"type\": \"object\",\n            \"description\": \"Image data contains metadata and prompt for generation.\",\n            \"properties\": {\n                \"alt_text\": {\n                    \"type\": \"string\",\n                    \"description\": \"Alt text of the image.\"\n                },\n                \"image_prompt\": {\n                    \"type\": \"string\",\n                    \"description\": \"Prompt used to generate the image.\"\n                }\n            }\n        }\n    },\n    \"required\": [\n        \"ready\",\n        \"final_blog_post_html\"\n    ]\n}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "d97ef01c-956c-4dd7-9462-e25bdbdfe7db",
+      "name": "Set Featured Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        700,
+        500
+      ],
+      "parameters": {
+        "url": "={{ $('db').item.json.website }}wp-json/wp/v2/posts/{{ $json.id}}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "authentication": "predefinedCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "featured_media",
+              "value": "={{ $('Update Meta Data1').item.json.id }}"
+            }
+          ]
+        },
+        "nodeCredentialType": "wordpressApi"
+      },
+      "credentials": {
+        "wordpressApi": {
+          "id": "du1mCkspgFAJukTK",
+          "name": "Wordpress account 2"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "2d27b880-317e-4b65-8fc5-806e119f2717",
+      "name": "ImagePrompt",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        436,
+        180
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "094MG8Qf2bd2Y0kp",
+          "cachedResultName": "ImagePrompt"
+        },
+        "description": "вызовите этот инструмент, чтобы сгенерировать подсказку для изображения обложки",
+        "workflowInputs": {
+          "value": {},
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "162b46f4-da87-49cb-a3b0-5a295295a799",
+      "name": "Generate Featured Image",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        -500,
+        500
+      ],
+      "parameters": {
+        "prompt": "=Generate a photographic image to be used as the cover image for the article titled: \n\n- title: {{ $('Check ready for publish').item.json.output.meta_data.title }}. \n\n- Image prompt: {{ $('Check ready for publish').item.json.output.image_data.image_prompt }}.\n\nthe generating image should be photography, realistic, sigma 85mm f/1.4.",
+        "options": {
+          "size": "1024x1024",
+          "style": "natural",
+          "returnImageUrls": false
+        },
+        "resource": "image"
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "QHEc65I8RI5Ifeeh",
+          "name": "OpenAi account-13-7-2025"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "3c24fafe-f25d-498c-9913-57377a7c0db5",
+      "name": "Resize Image",
+      "type": "n8n-nodes-base.editImage",
+      "position": [
+        -180,
+        500
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "resize"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6eeb8486-7805-4dd2-9c82-713e851b4fe1",
+      "name": "Upload Image To WP",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        40,
+        500
+      ],
+      "parameters": {
+        "url": "={{ $('db').item.json.website }}wp-json/wp/v2/media",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "binaryData",
+        "sendHeaders": true,
+        "authentication": "predefinedCredentialType",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "content-disposition",
+              "value": "=attachment; filename={{ $binary.data.fileName }}.{{ $binary.data.fileExtension  }}"
+            },
+            {
+              "name": "content-type",
+              "value": "={{ $binary.data.mimeType  }}"
+            }
+          ]
+        },
+        "inputDataFieldName": "data",
+        "nodeCredentialType": "wordpressApi"
+      },
+      "credentials": {
+        "wordpressApi": {
+          "id": "du1mCkspgFAJukTK",
+          "name": "Wordpress account 2"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "7904ccd3-59a3-49be-a242-e5cdf0bbba6d",
+      "name": "Update Meta Data1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        260,
+        500
+      ],
+      "parameters": {
+        "url": "={{ $('db').item.json.website }}wp-json/wp/v2/media/{{ $json.id }} ",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "authentication": "predefinedCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "={{ $('Check ready for publish').item.json.output.meta_data.title }}"
+            },
+            {
+              "name": "slug",
+              "value": "={{ $('Check ready for publish').item.json.output.meta_data.slug }}"
+            },
+            {
+              "name": "alt_text",
+              "value": "={{ $('Check ready for publish').item.json.output.image_data.alt_text }}"
+            },
+            {
+              "name": "caption",
+              "value": "={{ $('Check ready for publish').item.json.output.meta_data.title }}"
+            },
+            {
+              "name": "description",
+              "value": "=this image is about: {{ $('Check ready for publish').item.json.output.meta_data.title }}"
+            }
+          ]
+        },
+        "nodeCredentialType": "wordpressApi"
+      },
+      "credentials": {
+        "wordpressApi": {
+          "id": "du1mCkspgFAJukTK",
+          "name": "Wordpress account 2"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "acbd336d-f57e-4131-b67c-db9456003ce4",
+      "name": "Check ready for publish",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -940,
+        500
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "a4b60745-853f-4cd6-9ece-ba41d91dfe87",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.output.ready }}",
+              "rightValue": "={{true}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "628d86be-8a7d-490d-9881-bb430b6005ad",
+      "name": "Not Ready",
+      "type": "n8n-nodes-base.stopAndError",
+      "position": [
+        -940,
+        740
+      ],
+      "parameters": {
+        "errorMessage": "The content not ready for publish"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "604821c3-a6da-42c2-ab58-9f675823bc3f",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -180,
+        -120
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 980,
+        "height": 480,
+        "content": "# Генерировать контент"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c56c479c-a316-4665-8743-d254fe731916",
+      "name": "Post Blog To WP",
+      "type": "n8n-nodes-base.wordpress",
+      "position": [
+        480,
+        500
+      ],
+      "parameters": {
+        "title": "={{ $('Check ready for publish').item.json.output.meta_data.title }}",
+        "additionalFields": {
+          "slug": "={{ $('Check ready for publish').item.json.output.meta_data.slug }}",
+          "status": "=draft",
+          "content": "={{ $('Check ready for publish').item.json.final_blog_post_html }}",
+          "authorId": "={{ $('db').item.json.authors[Math.floor(Math.random() * $('db').item.json.authors.length)] }}",
+          "categories": "=2"
+        }
+      },
+      "credentials": {
+        "wordpressApi": {
+          "id": "du1mCkspgFAJukTK",
+          "name": "Wordpress account 2"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b525904c-eb82-4f3b-92ab-65a8eb4dfbda",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -164,
+        180
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1",
+          "cachedResultName": "gpt-4.1"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "QHEc65I8RI5Ifeeh",
+          "name": "OpenAi account-13-7-2025"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "eefabe8d-df1c-45c8-a7d7-fc123f390433",
+      "name": "createSections",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        556,
+        180
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "adNLCAuEGnICmOuo",
+          "cachedResultName": "createSections"
+        },
+        "description": "вызовите это, чтобы создать основные разделы",
+        "workflowInputs": {
+          "value": {},
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "bd18ede4-498e-4846-a3ad-0102bcc7d32b",
+      "name": "Post Blog To WP1",
+      "type": "n8n-nodes-base.wordpress",
+      "position": [
+        -180,
+        820
+      ],
+      "parameters": {
+        "title": "={{ $('Check ready for publish').item.json.output.meta_data.title }}",
+        "additionalFields": {
+          "slug": "={{ $('Check ready for publish').item.json.output.meta_data.slug }}",
+          "status": "=draft",
+          "content": "={{ $('Check ready for publish').item.json.final_blog_post_html }}",
+          "authorId": "={{ $('db').item.json.authors[Math.floor(Math.random() * $('db').item.json.authors.length)] }}",
+          "categories": "=2"
+        }
+      },
+      "credentials": {
+        "wordpressApi": {
+          "id": "du1mCkspgFAJukTK",
+          "name": "Wordpress account 2"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "524a3949-b2ba-4fb0-aea2-6ab0fce31f64",
+      "name": "On form submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        -980,
+        -40
+      ],
+      "webhookId": "1cc1e64c-a7f9-4671-9d2a-546580a72a79",
+      "parameters": {
+        "options": {},
+        "formTitle": "Wrodpress Post Creation",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "KeyWords",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "wordCount"
+            },
+            {
+              "fieldLabel": "Number of sections",
+              "placeholder": "3 to 5 sections"
+            },
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "Generate a featured image",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "false"
+                  },
+                  {
+                    "option": "true"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Writing Style",
+              "placeholder": "informative"
+            },
+            {
+              "fieldLabel": "Web Site",
+              "placeholder": "https://example.com",
+              "requiredField": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "c79cda04-946e-40a1-b736-6bccc01440f4",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -720,
+        500
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "8433e1ec-5ea3-4eef-9bc0-ba6a61e54697",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "leftValue": "={{ $('db').item.json.create_image }}",
+              "rightValue": "true"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "98554cbd-47fb-4d2a-81e6-78e2ee2743ae",
+      "name": "OpenRouter Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "position": [
+        -452,
+        180
+      ],
+      "parameters": {
+        "model": "={{\"perplexity/sonar:online\"}}",
+        "options": {}
+      },
+      "credentials": {
+        "openRouterApi": {
+          "id": "dtjSxJxGcTnGP7AA",
+          "name": "OpenRouter account 2"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1a434b22-1682-427e-830a-73f1abec3004",
+      "name": "GetOnilneInfo",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -540,
+        -40
+      ],
+      "parameters": {
+        "text": "=keywords:  {{ $json.keywords }}.\nabout website: {{ $json.aboutWebsite }}",
+        "options": {
+          "systemMessage": "=You are an expert content writer, SEO specialist, and insurance claims consultant.\n\nYour task is to generate highly relevant, SEO-optimized content based on real-time web search using the provided keyword.\n\n## Task:\n\n    Generate the top 5 most commonly searched questions homeowners, business owners, or policyholders would ask about \"{{ $json.keywords }}\" related to insurance claims.\n\n    For each question, provide a detailed, accurate answer using real-time web data.\n\n    Use verified and trustworthy sources. Always cite your sources as URLs.\n\n    Structure your output strictly in JSON format.\n\n## About site Context: {{ $json.aboutWebsite }}\n\n## Content Guidelines:\n\n    Write the questions naturally, as people search on Google.\n\n    Use professional, helpful, and authoritative language.\n\n    Answers should reflect site's value proposition: expertise, independence, maximizing payouts, and supporting clients.\n\n    Use real-time web search to verify facts.\n\n    Include 3 to 5 relevant sources per answer whenever possible.\n\n## Output Format:\n\nReturn your response strictly as valid JSON:\n{\n  \"keyword\": \"[KEYWORD]\",\n  \"questions_and_answers\": [\n    {\n      \"question\": \"Question 1?\",\n      \"answer\": \"Answer text...\",\n      \"sources\": [\n        \"https://source-url-1.com\",\n        \"https://source-url-2.com\"\n      ]\n    },\n    {\n      \"question\": \"Question 2?\",\n      \"answer\": \"Answer text...\",\n      \"sources\": [\n        \"https://source-url-1.com\"\n      ]\n    },\n    ...\n  ]\n}\n"
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "831d9810-64cd-4eec-b5f2-c3f3b21a6a55",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -680,
+        1240
+      ],
+      "parameters": {
+        "width": 600,
+        "height": 440,
+        "content": "# Планировщик структуры:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "83b8f164-ece6-4c57-ab0e-52292674b648",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -960,
+        1560
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "329744e6-4b83-4b99-8fa0-68b7c9ee478f",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -440,
+        1340
+      ],
+      "parameters": {
+        "text": "={{ $json.query}}",
+        "options": {
+          "systemMessage": "=# 🧩 Role: ContentOutline Strategist\n\nYou are **ContentOutline Strategist**, an expert in crafting structured, SEO-friendly, and user-centered tables of contents (ToC) for articles, guides, landing pages, newsletters, or any form of content website.\n\nYour mission is to generate outlines that balance informative value for human readers with strategic alignment to search engine intent — across a wide range of topics.\n\n\n## 🛠 Tools\n- Audience Personas (if available)  \n- Current Time: `{{ $now }}`\n\n---\n\n## 🧠 Instructions\n\n### Step 1: Analyze Input\n\nEvaluate the following user-provided fields:\n\n- `contentTopic`  \n- `number_of_sections`  \n- `style` (listicle, educational, FAQ, case-study based, etc.)  \n- `tone` (professional, approachable, urgent, supportive)  \n- `keywords` (if included)  \n\n---\n\n\n\n### Step 2: Generate the Table of Contents\n\nProduce a **structured, SEO-optimized**, and **user-relevant** outline that:\n\n- Matches searcher or reader intent  \n- Provides a logical flow that promotes readability  \n- Encourages full-article engagement or next steps  \n- Matches requested tone, style, and section count\n\n> **Optionally**: Add a short description under each section title if requested.\n\n---\n\n## ✅ Validation Checklist\n\n- [ ] Number of sections = `number_of_sections` (or 3–5 by default)  \n- [ ] Each section has a **clear, benefit-driven title**  \n- [ ] No generic headers like \"Introduction\" or \"Conclusion\"  \n- [ ] Outline is suitable for both curious readers and potential clients  \n- [ ] Tone and structure align with the provided input\n"
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "224c5ed6-3206-4065-9e9f-43fd6c856009",
+      "name": "OpenAI Chat Model2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -520,
+        1540
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "QHEc65I8RI5Ifeeh",
+          "name": "OpenAi account-13-7-2025"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "1da82675-3c71-4fec-a6ba-8f566210fbe7",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -680,
+        1700
+      ],
+      "parameters": {
+        "width": 600,
+        "height": 440,
+        "content": "# Создать разделы"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d646febf-37d1-45ef-b36d-4ac7062a83d1",
+      "name": "AI Agent1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -500,
+        1780
+      ],
+      "parameters": {
+        "text": "={{$json.query}}",
+        "options": {
+          "systemMessage": "=# Role: createSections – Specialized Blog Section Structurer\n\nYou are **createSections**, a specialized content structurer focused on breaking down insurance claims blog outlines into detailed blog sections.\n\n---\n\n## 🎯 Objective\n\nYour task is to transform the provided **table of contents** into individual section items, ready for content writing. Each section must reflect the article's topic, style, and the insurance claims industry context.\n\n\n## 🧾 Instructions\n\nCarefully analyze the provided **table of contents**.\ncreate `Number_of_sections` sections if provided to 3 to 5 sections.\n\nFor each item in the table of contents, generate:\n\n- A **sectionTitle** optimized for both SEO and readability  \n- A **short description** explaining what the section will cover\n\n---\n\n### ✅ Ensure that each section:\n\n- Reflects real-world **user search intent**  \n- Is **actionable**, **informative**, and **helpful**  \n- Aligns with the requested **article style and topic**\n\n---\n\n## 🧱 Output Format\n\nReturn **strictly** in JSON with `Number_of_sections` sections if provided to 3 to 5 sections:\n\n```json\n{\n  \"blogSections\": [\n    {\n      \"sectionTitle\": \"Section Title 1\",\n      \"description\": \"Brief description of section 1.\"\n    },\n    {\n      \"sectionTitle\": \"Section Title 2\",\n      \"description\": \"Brief description of section 2.\"\n    }\n    // ... and so on\n  ]\n}\n\n## 🔽 Input\n\nHere is the table of contents: {{ $json.query }}\n## ⚠️ Constraints\n\n  - Keep the number of sections equal to the number of items provided\n\n  - Avoid generic or repetitive titles\n"
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e23a3012-839c-40b2-8e24-05cbc4896cfa",
+      "name": "OpenAI Chat Model3",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -540,
+        1980
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "QHEc65I8RI5Ifeeh",
+          "name": "OpenAi account-13-7-2025"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "446ed244-cf66-41fa-96a6-8b9e632f082d",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -680,
+        2180
+      ],
+      "parameters": {
+        "width": 600,
+        "height": 440,
+        "content": "# Автор раздела"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8f5aff81-76c9-42b0-aae8-17b02622cb50",
+      "name": "AI Agent2",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -520,
+        2260
+      ],
+      "parameters": {
+        "text": "={{ $json.query}}",
+        "options": {
+          "systemMessage": "=\n# ✅ Section Writer Prompt: \n\nYou are an **AI SectionWriter**, tasked with producing **high-quality, expert-level, SEO-optimized insurance claims content**.\n\nYour role is to **research and write helpful, legally accurate, and actionable content.\n\n---\n\n## 🧾 Content Instructions\n\nYou will receive a **section title, description, tone/style requirements, and use internal article links** (if applicable). Use these to write **standalone, directly usable content** for that section.  \n\nAll content must be:\n\n- ✅ Legally and factually accurate  \n- ✅ Clear, helpful, and actionable  \n- ✅ SEO-optimized for real user search intent  \n- ❌ Free of filler text, meta-commentary, or disclaimers (unless legally required)\n\n\n## Internal Link:\n> use **Internal link tool** to get a xml links of  links that can use be use in writing process.\n\n\n\n## 🔗 Citation Guidelines\n\nEvery key **fact, claim, legal explanation, or statistic** must include an **inline HTML citation** using the following format:\n\n```html\n<a href=\"[URL]\" target=\"_blank\">Publication Name</a>\n```\n\n\n## ✍️ Standard Operating Procedure (SOP)\n\n### 1. Input Analysis\n\n- Review and interpret the following inputs:\n  - Section title  \n  - Section description  \n  - Style & tone  \n  - Internal linking requirements  \n\n---\n\n### 2. Content Writing\n\n- Write **expert-level**, actionable content based on the research  \n- Ensure content is:\n  - SEO-optimized  \n  - Helpful and educational  \n- Avoid generic or overly cautious legal advice\n\n---\n\n### 3. Cite Sources\n\n- Insert proper HTML citations (as above)  \n- Attribute **every key fact, legal explanation, or process clarification**  \n- Verify all links are live and appropriate\n\n---\n\n### 5. Final Review\n\nBefore submitting, proofread for:\n\n- ✅ Clarity and readability  \n- ✅ Factual and legal accuracy  \n---"
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "fe1e8419-780f-42d2-9cf2-fae508813735",
+      "name": "OpenAI Chat Model4",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -580,
+        2500
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1",
+          "cachedResultName": "gpt-4.1"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "QHEc65I8RI5Ifeeh",
+          "name": "OpenAi account-13-7-2025"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "2251ca76-9d95-4a56-9122-f41e145da13f",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        180,
+        1200
+      ],
+      "parameters": {
+        "width": 600,
+        "height": 440,
+        "content": "# Редактор"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c8521311-455f-4b4d-b682-433ffbf67505",
+      "name": "AI Agent3",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        360,
+        1280
+      ],
+      "parameters": {
+        "text": "={{ $json.query}}",
+        "options": {
+          "systemMessage": "=# Role: Editor Agent for Blog Content\n\nYou are an expert **Editor Agent** specializing in creating and refining insurance claims blog content . Your task is to produce a fully polished, professional, SEO-optimized blog article from the provided content sections.\n\n---\n\n## 🔍 Special Instruction\n\n- assured that `Number_of_sections` sections if provided else use 3 to 5 sections.\n---\n\n## 📥 Inputs Provided\n\n- A list of section titles and corresponding content with online URL sources  \n- A list of URLs for internal linking opportunities\n\n---\n\n## 🎯 Objective\n\n- Combine and refine all sections into a **single, logically flowing blog post**  \n- Format for **maximum readability, SEO performance, and authority**  \n- Ensure **full topic coverage**   \n- **Target length:** ~1200 words (flexible — quality first)  \n-  are evident throughout\n\n\n**Rules:**\n\n- Every fact/statistic/claim **must** include a valid source URL  \n- No uncited facts  \n- Use **inline HTML anchor tag** format:\n\n```html\n<a href=\"[URL]\" target=\"_blank\">Publication Name</a>\n```\n    Double-check that all source citations are from provided material\n\n    Do not fabricate citations or URLs\n\n## 🔗 Internal Linking\n\n    Use provided internal URLs naturally and contextually\n\n    ❌ Do not create new internal links if not in the provided list\n\n## 📎 Source Section (End of Article)\n\nCreate a Helpful Resources section at the end:\n```html\n<h2>📚 Resources</h2>\n<ul>\n  <li><a href=\"[URL]\">[Publication Name] - [Article Title]</a></li>\n  <!-- Repeat for each source -->\n</ul>\n```\n    Sort alphabetically by publication name\n\n## 🖥 Output Format\n\n    - Entire output must be valid HTML\n\n    - Start directly with the first heading (<h1>)\n\n    - Use <h2> for all section headings\n\n    - Use emoji in headings (e.g., 📚, 🏚️, ⚠️)\n\n    - Insert inline citations\n\n    - End with the formatted Helpful Resources list\n\n    - Output should be ready for publishing\n\n    - ❌ Do not include meta-comments or notes\n\n## 🧪 Editorial Quality Control\n\nEnsure:\n\n    - Logical flow\n\n    - Engaging, smooth reading experience\n\n\n    - Clear explanations of complex topics\n\n    - Perfect grammar and factual accuracy\n\n## ✨ Style & Voice\n\n    - Tone: Professional, authoritative, supportive, helpful\n\n    - Audience: Policyholders dealing with difficult claims who want clear, \nactionable guidance\n\n## 🗓 Today’s Date\n\n{{ $now }}"
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "51ce4243-6f91-4e27-a13e-52d5ea3f1129",
+      "name": "OpenAI Chat Model5",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        300,
+        1500
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1",
+          "cachedResultName": "gpt-4.1"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "QHEc65I8RI5Ifeeh",
+          "name": "OpenAi account-13-7-2025"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "2a4f6657-aee7-42d4-89ab-fc6fa96c1bf6",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        180,
+        1680
+      ],
+      "parameters": {
+        "width": 600,
+        "height": 440,
+        "content": "# Метаинформация"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0a8f4e11-92d4-43d8-b439-5b6ebec7510e",
+      "name": "AI Agent4",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        340,
+        1760
+      ],
+      "parameters": {
+        "text": "={{ $json.query}}",
+        "options": {
+          "systemMessage": "=You are a helpful assistant that create a meta data of the blog article:\n\n1- Create a title for the incoming blog article. according to the style of the blog article and the keyword\n - Output format\n  Output the title in plain text, no quotation marks, and capitalize the first letter of each word.\n  Example: Is Artificial Intelligence A Friend Or Foe? \n  \n2- output a other version of the title. Make this all lowercase and put a (-) between each word instead of the words. Call this output \"slug\". \n    - examples:\n    1: this-is-a-slug\n    2: create-a-slug\n\n3- Make a short description of around 160 characters of what the article is about, Call this output \"description\""
+        },
+        "promptType": "define"
+      },
+      "retryOnFail": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "4ff19e87-3f8f-4466-94ca-f59e0126b9c2",
+      "name": "OpenAI Chat Model6",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        360,
+        1980
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "QHEc65I8RI5Ifeeh",
+          "name": "OpenAi account-13-7-2025"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "2cd13879-2464-4946-9af4-4efe97fc91f4",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        500,
+        2520
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n    \"type\": \"object\",\n    \"properties\": {\n        \"image_data\": {\n            \"type\": \"object\",\n            \"description\": \"image data contain image_prompt, alt_text\",\n            \"properties\": {\n                \"alt_text\": {\n                    \"type\": \"string\",\n                    \"description\": \"this alt text of the image\"\n                },\n                \"image_prompt\": {\n                    \"type\": \"string\",\n                    \"description\": \"this is the prompt of the image, which will be used to generate an image\"\n                }\n            }\n        }\n    }\n}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "9ebf8c0b-7a30-4435-9906-8fc8cf3a0b2e",
+      "name": "AI Agent5",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        320,
+        2300
+      ],
+      "parameters": {
+        "text": "={{$json.query}}",
+        "options": {
+          "systemMessage": "=## overview\nYou are a helpful Image prompt assistant your task is:\n\n<instrucion>\n\n\n1-Generate an AI prompt for a realistic cover image about {{ $json.query }}, the output will be \"image_prompt\".\n\n2- Make a short text of 100 characters max that describes what the image is about from the image_prompt, Call this output \"alt_text\".\n</instrucion>"
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "retryOnFail": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "8e4ac8ba-d526-4e2f-b694-5cf0c7117f32",
+      "name": "OpenAI Chat Model7",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        280,
+        2520
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "QHEc65I8RI5Ifeeh",
+          "name": "OpenAi account-13-7-2025"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "3bad48d6-ef38-4cd2-be1e-823b514e208a",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        180,
+        2180
+      ],
+      "parameters": {
+        "width": 600,
+        "height": 440,
+        "content": "# Запрос изображения"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f7df3f88-85b7-4f03-93c9-19f43db18b50",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1040,
+        1240
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 300,
+        "height": 540,
+        "content": "# Создайте подсистему для каждого агента с триггером"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a6e713e0-e6dd-4bb3-a895-120113897a55",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -580,
+        -120
+      ],
+      "parameters": {
+        "width": 360,
+        "height": 480,
+        "content": "## Получить онлайн информацию"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f8930991-ccd7-4d1e-a343-46cf53002579",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -200,
+        420
+      ],
+      "parameters": {
+        "width": 1020,
+        "height": 680,
+        "content": "## Загрузить в WordPress"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1660ac39-ebdf-4a3d-b44b-8db2f742486e",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -560,
+        440
+      ],
+      "parameters": {
+        "width": 280,
+        "height": 200,
+        "content": "## Сгенерировать изображение"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {
+    "On form submission": [
+      {
+        "name": "First item",
+        "KeyWords": "Ai Automation",
+        "Web Site": "https://example.com",
+        "wordCount": 1200,
+        "Writing Style": "informative",
+        "Number of sections": 5,
+        "Generate a featured image": "false"
+      }
+    ]
+  },
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Generate Featured Image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Post Blog To WP1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "db": {
+      "main": [
+        [
+          {
+            "node": "GetOnilneInfo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Editor": {
+      "ai_tool": [
+        [
+          {
+            "node": "OrchestrationAgent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "metaInfo": {
+      "ai_tool": [
+        [
+          {
+            "node": "OrchestrationAgent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ImagePrompt": {
+      "ai_tool": [
+        [
+          {
+            "node": "OrchestrationAgent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resize Image": {
+      "main": [
+        [
+          {
+            "node": "Upload Image To WP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetOnilneInfo": {
+      "main": [
+        [
+          {
+            "node": "OrchestrationAgent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SectionWriter": {
+      "ai_tool": [
+        [
+          {
+            "node": "OrchestrationAgent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OutlinePlanner": {
+      "ai_tool": [
+        [
+          {
+            "node": "OrchestrationAgent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "createSections": {
+      "ai_tool": [
+        [
+          {
+            "node": "OrchestrationAgent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Blog To WP": {
+      "main": [
+        [
+          {
+            "node": "Set Featured Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "OrchestrationAgent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Meta Data1": {
+      "main": [
+        [
+          {
+            "node": "Post Blog To WP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "db",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model6": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent4",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model7": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent5",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OrchestrationAgent": {
+      "main": [
+        [
+          {
+            "node": "Check ready for publish",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Image To WP": {
+      "main": [
+        [
+          {
+            "node": "Update Meta Data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "GetOnilneInfo",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check ready for publish": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Not Ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Featured Image": {
+      "main": [
+        [
+          {
+            "node": "Resize Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent5",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "OrchestrationAgent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        []
+      ]
+    }
+  }
+}

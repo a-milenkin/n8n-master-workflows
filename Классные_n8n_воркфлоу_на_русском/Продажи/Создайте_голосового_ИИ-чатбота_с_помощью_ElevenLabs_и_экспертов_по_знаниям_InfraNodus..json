@@ -1,0 +1,603 @@
+{
+  "id": "STzi96JfL52BUuQD",
+  "meta": {
+    "instanceId": "2a26454b0172ffcb8d70ba77c235b1209f92cd71bf06c79ba609c7173b416d68",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "AI голосовой чат-агент с ElevenLabs и InfraNodus графом RAG знаний",
+  "tags": [
+    {
+      "id": "66wgFoDi9Xjl74M3",
+      "name": "Support",
+      "createdAt": "2025-05-21T17:06:32.355Z",
+      "updatedAt": "2025-05-21T17:06:32.355Z"
+    },
+    {
+      "id": "9QurS5Kb1CkCYrnG",
+      "name": "Product",
+      "createdAt": "2025-05-21T17:06:29.704Z",
+      "updatedAt": "2025-05-21T17:06:29.704Z"
+    },
+    {
+      "id": "IzYV3Gv55x1h73cK",
+      "name": "Ideation",
+      "createdAt": "2025-05-20T14:53:20.662Z",
+      "updatedAt": "2025-05-20T14:53:20.662Z"
+    },
+    {
+      "id": "aECLdyckoPZ29skg",
+      "name": "Writing",
+      "createdAt": "2025-05-20T14:53:23.085Z",
+      "updatedAt": "2025-05-20T14:53:23.085Z"
+    },
+    {
+      "id": "ciIq4giMNXaJiyiQ",
+      "name": "Thinking Tools",
+      "createdAt": "2025-05-20T14:53:17.515Z",
+      "updatedAt": "2025-05-20T14:53:17.515Z"
+    },
+    {
+      "id": "hCzs9EJfBuD0RxuX",
+      "name": "Other",
+      "createdAt": "2025-05-21T17:06:34.674Z",
+      "updatedAt": "2025-05-21T17:06:34.674Z"
+    },
+    {
+      "id": "sJk9cUvmMU8FkJXv",
+      "name": "AI",
+      "createdAt": "2025-05-20T13:16:15.636Z",
+      "updatedAt": "2025-05-20T13:16:15.636Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "b17450bf-5c34-43b9-a7cb-1e8d48a90e5e",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        840,
+        260
+      ],
+      "parameters": {
+        "width": 200,
+        "height": 740,
+        "content": "## Эксперт #1\n\nДобавьте свой граф InfraNodus здесь через HTTP-узел, используя его имя в поле `body.name`.\n\nОпишите, что делает эксперт в описании инструмента. Вы можете использовать автоматически сгенерированное резюме Graph RAG из InfraNodus > Graph > Project Notes\n\n![Скриншот книги](https://i.ibb.co/rfxsJ4MV/circadian-special-agents-manual.png)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8d41bb1b-ff2d-43bf-b9aa-be41a824a568",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1060,
+        260
+      ],
+      "parameters": {
+        "width": 200,
+        "height": 740,
+        "content": "## Эксперт #2\n\nДобавьте свой граф InfraNodus здесь через узел HTTP, используя его имя в поле `body.name`.\n\nОпишите, что делает эксперт в Описании инструмента. Вы можете использовать автоматически сгенерированное резюме Graph RAG из InfraNodus > Граф > Заметки проекта\n\n![волны в узоры экран](https://i.ibb.co/1tDJSgVq/circadian-waves-into-patterns.png)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3092328a-8b99-4086-9be8-20157a48d706",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1280,
+        260
+      ],
+      "parameters": {
+        "width": 200,
+        "height": 640,
+        "content": "## Эксперт #3\n\nВы можете добавить больше экспертов здесь. Просто убедитесь, что вы даете им описательные имена, чтобы агент знал, к какому из них подключиться, когда у него возникнет вопрос. \n\n![flow and notion image](https://i.ibb.co/prLbFG0w/circadian-the-flow-and-notion.png)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8165ec0a-ac24-4e3e-8240-162a3ef6e47e",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        620,
+        260
+      ],
+      "parameters": {
+        "width": 200,
+        "height": 540,
+        "content": "## Память чата\n\nМы используем узел Простой Памяти, чтобы отслеживать контекст разговора, чтобы пользователь мог обращаться к предыдущим сообщениям во время общения с моделью."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "333d860c-615f-441d-a7ab-53e867cd5503",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        420,
+        -360
+      ],
+      "parameters": {
+        "width": 460,
+        "height": 500,
+        "content": "## 2. Рабочий процесс AI-агента\n\n### Выбирает, какой инструмент (эксперт) использовать, в зависимости от сообщения пользователя. Затем получает ответы и синтезирует окончательный ответ.\n\nУбедитесь, что вы хорошо описали доступные инструменты как в системном запросе агента, так и в описаниях инструментов."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9f7a3cc4-99c6-4179-b3ce-7bff999cf77b",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        40
+      ],
+      "parameters": {
+        "height": 580,
+        "content": "## 1. Триггер Чата\n\nРазговор будет запущен, когда вы отправите сообщение через вебхук от вашего разговорного агента Elevenlabs AI.\n\n### 🚨 СМОТРИТЕ ЗАМЕТКУ И ССЫЛКУ НИЖЕ О НАСТРОЙКЕ ВАШЕГО АГЕНТА ELEVENLABS"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c3fd90e8-3451-4c17-92c7-ca6c1e3305c6",
+      "name": "OpenAI Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "disabled": true,
+      "position": [
+        400,
+        540
+      ],
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "07wFa8Wa4mMRCHAj",
+          "name": "OpenAi account 2"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2e049f32-5d79-4a46-8c99-6a5a9c583c4f",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        680,
+        300
+      ],
+      "parameters": {
+        "sessionKey": "={{ $json.body.sessionId }}",
+        "sessionIdType": "customKey"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "68137659-df1d-4a23-83f8-42a03189077b",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        980,
+        -360
+      ],
+      "parameters": {
+        "width": 260,
+        "height": 500,
+        "content": "## 3. Ответить пользователю\n\nКак только ответ будет сгенерирован, отправьте его обратно в чат пользователя в Telegram."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e7ffd4c6-d725-4ac0-8aa9-09f52d9a1cb4",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        520,
+        -20
+      ],
+      "parameters": {
+        "text": "={{ $json.body.prompt }}",
+        "options": {
+          "systemMessage": "You are well-versed on Dmitry Paranyushkin's books through the tools you have access to. When you receive a user's query, assess which tools you have access to, decide on the tools to access (minimum 1, maximum 3), modify the query to better suit each tool's context, and send the request to the tool. \n\nIMPORTANT: Always access at least one of the tools and use the response to get the best possible answer.\n\nWhen you're generating a response, combine perspectives where they fit and point out discrepancies when they exist."
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "6b1bff98-cdac-4a80-a5e5-a89def6a767b",
+      "name": "Waves into Patterns Book Expert",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1120,
+        300
+      ],
+      "parameters": {
+        "url": "https://infranodus.com/api/v1/graphAndAdvice?doNotSave=true&addStats=true&optimize=develop&includeGraph=false&includeGraphSummary=true&includeStatements=true",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "waves_into_patterns"
+            },
+            {
+              "name": "prompt",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', `User's request adjusted to suit this context`, 'string') }}"
+            },
+            {
+              "name": "requestMode",
+              "value": "response"
+            },
+            {
+              "name": "aiTopics",
+              "value": "true"
+            }
+          ]
+        },
+        "genericAuthType": "httpBearerAuth",
+        "toolDescription": "Make a request to The Waves into Patterns book which is well-versed in the questions of natural cycles, variability, fractal states, dynamics, and nonequilibrium stability. Including the following topics:\n\n<MainTopics>: \n1. System Influence: scale influence multiple \n2. Pattern Dynamics: pattern variability fractal \n3. Change Balance: dynamic wave time \n4. Center Transformation: center cycle dominant \n5. Growth Stages: growth exploration period \n6. Long Strategy: term state long \n7. Seasonal Relations: moon summer natural \n8. Flow Connection: exist breaking exploring \n</MainTopics>"
+      },
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "kg0rA5r8siL8LbrU",
+          "name": "InfraNodus Circadian API Key"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d8df1709-8c55-4336-8dde-5fa8769c3a91",
+      "name": "Special Agent's Manual Book Expert",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        900,
+        300
+      ],
+      "parameters": {
+        "url": "https://infranodus.com/api/v1/graphAndAdvice?doNotSave=true&addStats=true&optimize=develop&includeGraph=false&includeGraphSummary=true&includeStatements=true",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "special_agents_manual"
+            },
+            {
+              "name": "prompt",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', `User's request adjusted to suit this context`, 'string') }}"
+            },
+            {
+              "name": "requestMode",
+              "value": "response"
+            },
+            {
+              "name": "aiTopics",
+              "value": "true"
+            }
+          ]
+        },
+        "genericAuthType": "httpBearerAuth",
+        "toolDescription": "Make a request to The Special Agent's Manual book which is well-versed in the questions of human agency, speciality, infiltration and tension dynamics, strategies, identities, finding the special in you as well as the following topics:\n\n<MainTopics>: \n1. Agent Activation: agent special activation \n2. System Dynamics: system body operating \n3. Order Flow: action time order \n4. Creative Process: create identity entity \n5. Movement Patterns: movement wave breathing \n6. Incoming Impact: incoming impulse impact \n7. Fiction Venture: fiction high risk \n8. Social Framework: preset possibility level \n</MainTopics>"
+      },
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "kg0rA5r8siL8LbrU",
+          "name": "InfraNodus Circadian API Key"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "85a11f6a-c154-43ea-a294-3fe367d13ad0",
+      "name": "The Flow and the Notion Book",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1340,
+        300
+      ],
+      "parameters": {
+        "url": "https://infranodus.com/api/v1/graphAndAdvice?doNotSave=true&addStats=true&optimize=develop&includeGraph=false&includeGraphSummary=true&includeStatements=true",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "the_flow_and_notion"
+            },
+            {
+              "name": "prompt",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', `User's request adjusted to suit this context`, 'string') }}"
+            },
+            {
+              "name": "requestMode",
+              "value": "response"
+            },
+            {
+              "name": "aiTopics",
+              "value": "true"
+            }
+          ]
+        },
+        "genericAuthType": "httpBearerAuth",
+        "toolDescription": "The Flow and the Notion book which is well-versed in the questions of creating with someone, dreaming, making new shapes, dissipating ideas, art, and life. Including the following topics:\n\n<MainTopics>: \n1. Shape Dynamics: shape outline concentric \n2. Time Alignment: long practice time \n3. Man's Journey: bow man candle \n4. Notion Flow: image flow paranyushkin \n5. Essence Realization: process essence essential \n6. Life Choices: slave thing trace \n7. Wave Patterns: found light movement \n8. Synchrony Mediation: book circadian word \n9. Complete Vision: multiple synchrony mediate \n10. Instruction Guide: full \ninstruction foreword : instruction foreword \n</MainTopics>"
+      },
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "kg0rA5r8siL8LbrU",
+          "name": "InfraNodus Circadian API Key"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "90c32931-3e1c-4c93-8cbb-7c8e7dfa2269",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1500,
+        260
+      ],
+      "parameters": {
+        "width": 200,
+        "height": 640,
+        "content": "## Эксперт #4\n\nВы можете добавить больше экспертов здесь. Просто убедитесь, что вы даете им описательные имена, чтобы агент знал, к какому из них подключаться, когда у него возникнет вопрос. \n\n![infranodus graph](https://i.ibb.co/hRqxn8JN/circadian-conversation-book.png)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d392f193-328d-46b5-bd85-a6db97ca0a58",
+      "name": "The Polysingularity Letters Book",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1540,
+        300
+      ],
+      "parameters": {
+        "url": "https://infranodus.com/api/v1/graphAndAdvice?doNotSave=true&addStats=true&optimize=develop&includeGraph=false&includeGraphSummary=true&includeStatements=true",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "polysingularity_letters"
+            },
+            {
+              "name": "prompt",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', `User's request adjusted to suit this context`, 'string') }}"
+            },
+            {
+              "name": "requestMode",
+              "value": "response"
+            },
+            {
+              "name": "aiTopics",
+              "value": "true"
+            }
+          ]
+        },
+        "genericAuthType": "httpBearerAuth",
+        "toolDescription": "The Polysingularity Letters book which is well-versed in the questions of polysingularity, multiplicity, networks, networking, art, and creative approach. And also these topics:\n\n<MainTopics>: \n1. Community Dynamics: network community connected \n2. Global Equilibrium: state global change \n3. Polysingular Practice: polysingularity thinking exist \n4. Temporal Relations: time moment thing \n5. Consciousness Source: social cognition view \n6. Meaning Creation: make orthodox meaning \n7. Dmitry Connections: post dmitry minute \n8. Linguistic Variations: wa ë ww \n</MainTopics>"
+      },
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "6lSuuSDajZrvI2GM",
+          "name": "InfraNodus API Key"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "56f27d69-5091-4a0e-abc9-49fea9a863b3",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        60,
+        60
+      ],
+      "webhookId": "171bf9a6-1390-4195-bd6b-ff3df2e27d1c",
+      "parameters": {
+        "path": "171bf9a6-1390-4195-bd6b-ff3df2e27d1c",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "8b7a6506-4220-476e-8d94-fa62315ab807",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1060,
+        -20
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "0ac0d3d2-75b9-4173-a45a-56a0fe55892d",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -820,
+        680
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1060,
+        "height": 980,
+        "content": "## Настройка агента разговорного ИИ ElevenLabs\n\n### Вам нужно подключить триггер Webhook выше к агенту разговорного ИИ ElevenLabs. Затем вы можете использовать их агента (и виджет на сайте) для общения с экспертами в этом рабочем процессе. Прочитайте полный учебник в [руководстве по настройке голосового агента AI ElevenLabs](https://support.noduslabs.com/hc/en-us/articles/20318967066396-How-to-Build-a-Text-Voice-AI-Agent-Chatbot-with-n8n-Elevenlabs-and-InfraNodus)\n\n1. Создайте учетную запись на [https://elevenlabs.io/](https://elevenlabs.io/)\n\n2. Перейдите в раздел **Разговорный ИИ** в меню\n\n3. Перейдите в **Агент > Создать нового агента > Использовать пустой шаблон**\n\n4. В **Системном запросе** агента вставьте следующий текст, изменив его так, чтобы он относился к вашему контенту:\n\n```\nВы хорошо разбираетесь в ... благодаря инструментам, к которым у вас есть доступ.\n1) Когда вы получаете сообщение от пользователя, сначала ответьте чем-то вроде \"Я консультируюсь со своими знаниями и скоро отвечу\" или \"Дайте мне подумать, и я свяжусь с вами\" или любой другой аналогичной по смыслу фразой.\n2) Затем пересылайте сообщение пользователя, без каких-либо изменений, в инструмент knowledge_base.\n3) Когда вы получите ответ от knowledge_base, используйте этот ответ, чтобы ответить пользователю, используйте именно тот ответ, который вы получили.\nВАЖНО: сделайте ответ более подходящим для разговорного формата, сделав его более кратким и коротким, но сохранив все детали.\n```\n\n5. ВАЖНО: сохраните ссылку на инструмент `knowledge_base` выше, чтобы дать агенту ElevenLabs понять, что именно этот инструмент ему нужно использовать для доступа к знаниям. Замените `...` на ваш контент.\n\n6. В **разделе инструментов** настройки агента нажмите **Создать новый инструмент**\n\n7. Название инструмента должно быть: **`knowledge_base`** (так как вы ссылаетесь на него в системном запросе)\n\n8. В описании инструмента укажите: \"База знаний по ....\" (замените ... на вашу тему)\n\n9. Выберите **метод POST** и в URL вставьте ссылку Webhook из рабочего процесса n8n, который вы создали на шаге 3 выше. Например, https://infranodus.app.n8n.cloud/webhook/your_hook_url\n\n10. Прокрутите к **параметрам тела** и добавьте следующие параметры, которые будут отправлены с POST-запросом:\n\na. Идентификатор: `prompt`, Тип значения: LLM prompt, Описание: Сообщение пользователя. \n*Вы будете использовать это значение в узле **AI Agent**.*\n\nb. Идентификатор: `sessionId`, Тип значения: Динамическая переменная, Имя переменной: system__conversation_id\n*Вы будете использовать это в узле **Chat Memory**, чтобы сохранить историю взаимодействия.*\n\n10. Сохраните инструмент, сохраните агента\n\n11. Запустите тест в ElevenLabs\n\n12. Проверьте логи рабочего процесса n8n (из шага 3), чтобы увидеть, прошла ли выполнение успешно"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2f279f0d-fdd2-493a-b416-6c70ab06b31a",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -820,
+        -360
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 740,
+        "height": 980,
+        "content": "# ИИ-голосовой агент, который общается с вашими экспертами (например, книги, статьи и т.д.)\n\n## Использует графы знаний InfraNodus в качестве экспертов (инструменты ИИ-агента)\n\n## Использует ElevenLabs для функциональности голосового чата\n\n## Использует оркеструющий ИИ-агент в n8n для выбора эксперта на основе запроса\n\n[Подробное руководство](https://support.noduslabs.com/hc/en-us/articles/20318967066396-How-to-Build-a-Text-Voice-AI-Agent-Chatbot-with-n8n-Elevenlabs-and-InfraNodus)\n\n[Видеоурок](https://www.youtube.com/watch?v=07-HZZQs5h0)\n\n\n[![Видеоурок](https://img.youtube.com/vi/07-HZZQs5h0/sddefault.jpg)](https://www.youtube.com/watch?v=07-HZZQs5h0)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "49d05baa-50fe-4931-87f8-22726eb868fa",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        400,
+        340
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-2.5-flash-preview-04-17"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ivswOFTY8MYDbj5b",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3ffc401d-df30-44ad-a3c3-b6b3ee75f59f",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        340,
+        260
+      ],
+      "parameters": {
+        "width": 200,
+        "height": 660,
+        "content": "## Модель LLM для использования\n\nМодели Google Flash Pro значительно быстрее, чем OpenAI. Однако OpenAI может быть более точным в вызове функций (экспертов)."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9dd619b8-9071-4d7d-8b5a-fb30b570671f",
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Model": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "The Flow and the Notion Book": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Waves into Patterns Book Expert": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "The Polysingularity Letters Book": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Special Agent's Manual Book Expert": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

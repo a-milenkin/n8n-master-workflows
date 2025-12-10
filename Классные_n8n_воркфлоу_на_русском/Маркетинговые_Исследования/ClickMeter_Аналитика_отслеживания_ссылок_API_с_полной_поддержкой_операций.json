@@ -1,0 +1,4684 @@
+{
+  "id": "r6j2m5dcgZ5ZlYTt",
+  "meta": null,
+  "name": "- Используйте обзорную заметку, чтобы понять, что делает каждая группа операций",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "e04dd3bc-14cc-46ad-b87f-383e661f6786",
+      "name": "Advanced Warning",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1380,
+        -900
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1380,
+        "height": 620,
+        "content": "# ⚠️ ТОЛЬКО ДЛЯ ПРОДВИНУТЫХ ПОЛЬЗОВАТЕЛЕЙ"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "86f9416f-b4ac-4fe5-a58e-839fb373dc0a",
+      "name": "Setup Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1380,
+        -240
+      ],
+      "parameters": {
+        "color": 4,
+        "height": 1080,
+        "content": "### 🚨 Этот рабочий процесс предназначен только для продвинутых пользователей!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "423757d8-d369-4858-a83c-e4f2dfccc16b",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1120,
+        -240
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 1280,
+        "content": "Этот сервер MCP содержит **104 операции**, что значительно больше рекомендованного максимума в 40 инструментов для большинства AI-клиентов."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2a8a2b0e-5ba6-430e-8b50-72c6f5287e11",
+      "name": "ClickMeter MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        -620,
+        -240
+      ],
+      "webhookId": "a5478524-0742-40cc-9827-2a8c6db975f8",
+      "parameters": {
+        "path": "clickmeter-mcp"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8e1e6193-0c11-47f0-b0d9-77ad5af8852d",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        -100
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 3900,
+        "height": 200,
+        "content": "### 🔍 Рекомендуемая альтернатива"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4ce4c5ad-3222-4811-945d-f6609129c061",
+      "name": "Get Account 9",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        -60
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/account",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Retrieve current account data"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0fb80bb7-ad40-4ec9-b5d1-bf9eab262858",
+      "name": "Create Account 6",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        -60
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/account",
+        "method": "POST",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Update current account data"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "582f5270-0658-46a9-8597-e97ce9814b4c",
+      "name": "Get Account 10",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        -60
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/account/domainwhitelist",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Offset where to start from', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Limit results to this number', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve list of a domains allowed to redirect in DDU mode\n\nParameters:\n- Query parameters:\n  • offset (optional) - Offset where to start from\n  • limit (optional) - Limit results to this number"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "40f8bb07-45cc-4ff9-8edc-8ac9391c9640",
+      "name": "Create Account 7",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        80,
+        -60
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/account/domainwhitelist",
+        "method": "POST",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Create an domain entry"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "cc50b475-a939-4493-9565-930995f90963",
+      "name": "Delete Account 3",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        280,
+        -60
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/account/domainwhitelist/{{ $fromAI('whitelistId', 'The id of the domain to delete', 'string') }}",
+        "method": "DELETE",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Delete an domain entry\n\nParameters:\n- Path parameters:\n  • whitelistId (required) - Id of the domain to delete"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "cfde1f89-e217-4c39-955c-cfd74b921d63",
+      "name": "Get Account 11",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        480,
+        -60
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/account/guests",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Offset where to start from', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Limit results to this number', 'number') }}"
+            },
+            {
+              "name": "sortBy",
+              "value": "={{ $fromAI('sortBy', 'Field to sort by', 'string') }}"
+            },
+            {
+              "name": "sortDirection",
+              "value": "={{ $fromAI('sortDirection', 'Direction of sort \"asc\" or \"desc\"', 'string') }}"
+            },
+            {
+              "name": "textSearch",
+              "value": "={{ $fromAI('textSearch', 'Filter fields by this pattern', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve list of a guest\n\nParameters:\n- Query parameters:\n  • offset (optional) - Offset where to start from\n  • limit (optional) - Limit results to this number\n  • sortBy (optional) - Field to sort by\n  • sortDirection (optional) - Direction of sort \"asc\" or \"desc\"\n  • textSearch (optional) - Filter fields by this pattern"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a8770f7a-3a5e-4216-a482-61b4a8655c67",
+      "name": "Create Account 8",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        680,
+        -60
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/account/guests",
+        "method": "POST",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Create a guest"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "30bca811-8f78-4b95-aea7-2da60b6f8133",
+      "name": "Get Account 12",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        880,
+        -60
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/account/guests/count",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "textSearch",
+              "value": "={{ $fromAI('textSearch', 'Filter fields by this pattern', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve count of guests\n\nParameters:\n- Query parameters:\n  • textSearch (optional) - Filter fields by this pattern"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0e514754-9980-46b7-8c64-d423f95d3496",
+      "name": "Delete Account 4",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1080,
+        -60
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/account/guests/{{ $fromAI('guestId', 'Id of the guest', 'number') }}",
+        "method": "DELETE",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Delete a guest\n\nParameters:\n- Path parameters:\n  • guestId (required) - Id of the guest"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "280a5f51-8ff9-41da-a0fa-22f6548faa1a",
+      "name": "Get Account 13",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1280,
+        -60
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/account/guests/{{ $fromAI('guestId', 'Id of the guest', 'number') }}",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Retrieve a guest\n\nParameters:\n- Path parameters:\n  • guestId (required) - Id of the guest"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "59c10a77-b75b-484a-852d-15f32f2030ca",
+      "name": "Create Account 9",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1480,
+        -60
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/account/guests/{{ $fromAI('guestId', 'Id of the guest', 'number') }}",
+        "method": "POST",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Update a guest\n\nParameters:\n- Path parameters:\n  • guestId (required) - Id of the guest"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "Bq6FmBmPJOfTe6MM",
+          "name": "Test Header Auth Cred"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "045a41a2-48e0-4e02-a3cb-4717b38a42ef",
+      "name": "Get Account 14",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1680,
+        -60
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/account/guests/{{ $fromAI('guestId', 'Id of the guest', 'number') }}/permissions",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "entityType",
+              "value": "={{ $fromAI('entityType', 'Can be \"datapoint\" or \"group\"', 'string') }}"
+            },
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Offset where to start from', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Limit results to this number', 'number') }}"
+            },
+            {
+              "name": "type",
+              "value": "={{ $fromAI('type', 'Can be \"w\" or \"r\"', 'string') }}"
+            },
+            {
+              "name": "entityId",
+              "value": "={{ $fromAI('entityId', 'Optional id of the datapoint/group entity to filter by', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve permissions for a guest\n\nParameters:\n- Path parameters:\n  • guestId (required) - Id of the guest\n- Query parameters:\n  • entityType (optional) - Can be \"datapoint\" or \"group\"\n  • offset (optional) - Offset where to start from\n  • limit (optional) - Limit results to this number\n  • type (optional) - Can be \"w\" or \"r\"\n  • entityId (optional) - Optional id of the datapoint/group entity to filter by"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e3e8ece8-0936-4f84-ae95-f3586ff7df67",
+      "name": "Get Account 15",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1880,
+        -60
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/account/guests/{{ $fromAI('guestId', 'Id of the guest', 'number') }}/permissions/count",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "entityType",
+              "value": "={{ $fromAI('entityType', 'Can be \"datapoint\" or \"group\"', 'string') }}"
+            },
+            {
+              "name": "type",
+              "value": "={{ $fromAI('type', 'Can be \"w\" or \"r\"', 'string') }}"
+            },
+            {
+              "name": "entityId",
+              "value": "={{ $fromAI('entityId', 'Optional id of the datapoint/group entity to filter by', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve count of the permissions for a guest\n\nParameters:\n- Path parameters:\n  • guestId (required) - Id of the guest\n- Query parameters:\n  • entityType (optional) - Can be \"datapoint\" or \"group\"\n  • type (optional) - Can be \"w\" or \"r\"\n  • entityId (optional) - Optional id of the datapoint/group entity to filter by"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a0a37616-2c7e-4de4-9acb-204403e222c0",
+      "name": "Create Account 10",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        2080,
+        -60
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/account/guests/{{ $fromAI('guestId', 'Id of the guest', 'number') }}/{{ $fromAI('type', 'Can be \"datapoint\" or \"group\"', 'string') }}/permissions/patch",
+        "method": "POST",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Change the permission on a shared object\n\nParameters:\n- Path parameters:\n  • guestId (required) - Id of the guest\n  • type (required) - Can be \"datapoint\" or \"group\""
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "dd5db452-3dc2-4a5d-8314-199d5d032874",
+      "name": "Update Account 1",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        2280,
+        -60
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/account/guests/{{ $fromAI('guestId', 'Id of the guest', 'number') }}/{{ $fromAI('type', 'Can be \"datapoint\" or \"group\"', 'string') }}/permissions/patch",
+        "method": "PUT",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Change the permission on a shared object\n\nParameters:\n- Path parameters:\n  • guestId (required) - Id of the guest\n  • type (required) - Can be \"datapoint\" or \"group\""
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "4334fb4a-c539-493b-b41c-45ffb4b70a2c",
+      "name": "Get Account 16",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        2480,
+        -60
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/account/ipblacklist",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Offset where to start from', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Limit results to this number', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve list of a ip to exclude from event tracking\n\nParameters:\n- Query parameters:\n  • offset (optional) - Offset where to start from\n  • limit (optional) - Limit results to this number"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "5712dad4-46c3-437f-b7e9-0f3766862fbb",
+      "name": "Create Account 11",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        2680,
+        -60
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/account/ipblacklist",
+        "method": "POST",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Create an ip blacklist entry"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "2b18fbed-f8f6-41b3-9535-ec33b307ac47",
+      "name": "Delete Account 5",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        2880,
+        -60
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/account/ipblacklist/{{ $fromAI('blacklistId', 'The id of the ip to delete', 'string') }}",
+        "method": "DELETE",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Delete an ip blacklist entry\n\nParameters:\n- Path parameters:\n  • blacklistId (required) - Id of the ip to delete"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "86e5c34e-92b6-4a48-9140-f45fc698b697",
+      "name": "Get Account 17",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        3080,
+        -60
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/account/plan",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Retrieve current account plan"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "8335f9f0-dc7b-4c95-9a1f-2ddcba587fc4",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        140
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1100,
+        "height": 200,
+        "content": "**Ищите упрощенный сервер MCP**, который использует официальную реализацию инструмента n8n для ClickMeter, если это возможно, так как это будет более эффективно и проще в управлении."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4b92979a-4bad-46ee-8680-913005dc0439",
+      "name": "Get Aggregated 5",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        180
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/aggregated",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "timeFrame",
+              "value": "={{ $fromAI('timeFrame', 'Timeframe of the request. See list at $timeframeList', 'string') }}"
+            },
+            {
+              "name": "fromDay",
+              "value": "={{ $fromAI('fromDay', 'If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "toDay",
+              "value": "={{ $fromAI('toDay', 'If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "hourly",
+              "value": "={{ $fromAI('hourly', 'If using \"yesterday\" or \"today\" timeframe you can ask for the hourly detail', 'boolean') }}"
+            },
+            {
+              "name": "onlyFavorites",
+              "value": "={{ $fromAI('onlyFavorites', 'Onlyfavorites', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve statistics about this customer for a timeframe\n\nParameters:\n- Query parameters:\n  • timeFrame (required) - Timeframe of the request. See list at $timeframeList\n  • fromDay (optional) - If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)\n  • toDay (optional) - If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)\n  • hourly (optional) - If using \"yesterday\" or \"today\" timeframe you can ask for the hourly detail\n  • onlyFavorites (optional)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e87ae3c7-72a9-49b1-b14f-de909f99ce4c",
+      "name": "Get Aggregated 6",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        180
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/aggregated/list",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "timeFrame",
+              "value": "={{ $fromAI('timeFrame', 'Timeframe of the request. See list at $timeframeList', 'string') }}"
+            },
+            {
+              "name": "fromDay",
+              "value": "={{ $fromAI('fromDay', 'If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "toDay",
+              "value": "={{ $fromAI('toDay', 'If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "groupBy",
+              "value": "={{ $fromAI('groupBy', 'The temporal entity you want to group by (\"week\"/\"month\"). If unspecified is \"day\".', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve statistics about this customer for a timeframe grouped by some temporal entity (day/week/month)\n\nParameters:\n- Query parameters:\n  • timeFrame (required) - Timeframe of the request. See list at $timeframeList\n  • fromDay (optional) - If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)\n  • toDay (optional) - If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)\n  • groupBy (optional) - Temporal entity you want to group by (\"week\"/\"month\"). If unspecified is \"day\"."
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "13c5f027-47ef-46e0-84e8-b702ee7e82c9",
+      "name": "Get Aggregated 7",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        180
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/aggregated/summary/conversions",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "timeFrame",
+              "value": "={{ $fromAI('timeFrame', 'Timeframe of the request. See list at $timeframeList', 'string') }}"
+            },
+            {
+              "name": "fromDay",
+              "value": "={{ $fromAI('fromDay', 'If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "toDay",
+              "value": "={{ $fromAI('toDay', 'If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "status",
+              "value": "={{ $fromAI('status', 'Status of conversion (\"deleted\"/\"active\")', 'string') }}"
+            },
+            {
+              "name": "sortBy",
+              "value": "={{ $fromAI('sortBy', 'Field to sort by', 'string') }}"
+            },
+            {
+              "name": "sortDirection",
+              "value": "={{ $fromAI('sortDirection', 'Direction of sort \"asc\" or \"desc\"', 'string') }}"
+            },
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Offset where to start from', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Limit results to this number', 'number') }}"
+            },
+            {
+              "name": "textSearch",
+              "value": "={{ $fromAI('textSearch', 'Filter fields by this pattern', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve statistics about a subset of conversions for a timeframe with conversions data\n\nParameters:\n- Query parameters:\n  • timeFrame (required) - Timeframe of the request. See list at $timeframeList\n  • fromDay (optional) - If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)\n  • toDay (optional) - If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)\n  • status (optional) - Status of conversion (\"deleted\"/\"active\")\n  • sortBy (optional) - Field to sort by\n  • sortDirection (optional) - Direction of sort \"asc\" or \"desc\"\n  • offset (optional) - Offset where to start from\n  • limit (optional) - Limit results to this number\n  • textSearch (optional) - Filter fields by this pattern"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "cee23584-1f2d-4868-9210-598a9c714413",
+      "name": "Get Aggregated 8",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        80,
+        180
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/aggregated/summary/datapoints",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "timeFrame",
+              "value": "={{ $fromAI('timeFrame', 'Timeframe of the request. See list at $timeframeList', 'string') }}"
+            },
+            {
+              "name": "type",
+              "value": "={{ $fromAI('type', 'Type of datapoint (\"tl\"/\"tp\")', 'string') }}"
+            },
+            {
+              "name": "fromDay",
+              "value": "={{ $fromAI('fromDay', 'If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "toDay",
+              "value": "={{ $fromAI('toDay', 'If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "status",
+              "value": "={{ $fromAI('status', 'Status of datapoint (\"deleted\"/\"active\"/\"paused\"/\"spam\")', 'string') }}"
+            },
+            {
+              "name": "tag",
+              "value": "={{ $fromAI('tag', 'A comma separated list of tags you want to filter with.', 'string') }}"
+            },
+            {
+              "name": "favourite",
+              "value": "={{ $fromAI('favourite', 'Is the datapoint marked as favourite', 'boolean') }}"
+            },
+            {
+              "name": "sortBy",
+              "value": "={{ $fromAI('sortBy', 'Field to sort by', 'string') }}"
+            },
+            {
+              "name": "sortDirection",
+              "value": "={{ $fromAI('sortDirection', 'Direction of sort \"asc\" or \"desc\"', 'string') }}"
+            },
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Offset where to start from', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Limit results to this number', 'number') }}"
+            },
+            {
+              "name": "groupId",
+              "value": "={{ $fromAI('groupId', 'Filter by this group id', 'number') }}"
+            },
+            {
+              "name": "textSearch",
+              "value": "={{ $fromAI('textSearch', 'Filter fields by this pattern', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve statistics about a subset of datapoints for a timeframe with datapoints data\n\nParameters:\n- Query parameters:\n  • timeFrame (required) - Timeframe of the request. See list at $timeframeList\n  • type (required) - Type of datapoint (\"tl\"/\"tp\")\n  • fromDay (optional) - If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)\n  • toDay (optional) - If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)\n  • status (optional) - Status of datapoint (\"deleted\"/\"active\"/\"paused\"/\"spam\")\n  • tag (optional) - A comma separated list of tags you want to filter with.\n  • favourite (optional) - Is the datapoint marked as favourite\n  • sortBy (optional) - Field to sort by\n  • sortDirection (optional) - Direction of sort \"asc\" or \"desc\"\n  • offset (optional) - Offset where to start from\n  • limit (optional) - Limit results to this number\n  • groupId (optional) - Filter by this group id\n  • textSearch (optional) - Filter fields by this pattern"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "612d6631-07b5-44a7-aa34-32ef7e5758ec",
+      "name": "Get Aggregated 9",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        280,
+        180
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/aggregated/summary/groups",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "timeFrame",
+              "value": "={{ $fromAI('timeFrame', 'Timeframe of the request. See list at $timeframeList', 'string') }}"
+            },
+            {
+              "name": "fromDay",
+              "value": "={{ $fromAI('fromDay', 'If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "toDay",
+              "value": "={{ $fromAI('toDay', 'If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "status",
+              "value": "={{ $fromAI('status', 'Status of group (\"deleted\"/\"active\")', 'string') }}"
+            },
+            {
+              "name": "tag",
+              "value": "={{ $fromAI('tag', 'A comma separated list of tags you want to filter with.', 'string') }}"
+            },
+            {
+              "name": "favourite",
+              "value": "={{ $fromAI('favourite', 'Is the group marked as favourite', 'boolean') }}"
+            },
+            {
+              "name": "sortBy",
+              "value": "={{ $fromAI('sortBy', 'Field to sort by', 'string') }}"
+            },
+            {
+              "name": "sortDirection",
+              "value": "={{ $fromAI('sortDirection', 'Direction of sort \"asc\" or \"desc\"', 'string') }}"
+            },
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Offset where to start from', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Limit results to this number', 'number') }}"
+            },
+            {
+              "name": "textSearch",
+              "value": "={{ $fromAI('textSearch', 'Filter fields by this pattern', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve statistics about a subset of groups for a timeframe with groups data\n\nParameters:\n- Query parameters:\n  • timeFrame (required) - Timeframe of the request. See list at $timeframeList\n  • fromDay (optional) - If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)\n  • toDay (optional) - If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)\n  • status (optional) - Status of group (\"deleted\"/\"active\")\n  • tag (optional) - A comma separated list of tags you want to filter with.\n  • favourite (optional) - Is the group marked as favourite\n  • sortBy (optional) - Field to sort by\n  • sortDirection (optional) - Direction of sort \"asc\" or \"desc\"\n  • offset (optional) - Offset where to start from\n  • limit (optional) - Limit results to this number\n  • textSearch (optional) - Filter fields by this pattern"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c4aaa625-de3d-4e41-805d-21a6d8874cef",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        380
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 300,
+        "height": 200,
+        "content": "### 🛠️ Инструкции по продвинутому использованию"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "38dbe9b9-92fb-40f7-83c9-e9a4d78df450",
+      "name": "Get Clickstream 1",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        420
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/clickstream",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "group",
+              "value": "={{ $fromAI('group', 'Filter by this group id (mutually exclusive with \"datapoint\" and \"conversion\")', 'number') }}"
+            },
+            {
+              "name": "datapoint",
+              "value": "={{ $fromAI('datapoint', 'Filter by this datapoint id (mutually exclusive with \"group\" and \"conversion\")', 'number') }}"
+            },
+            {
+              "name": "conversion",
+              "value": "={{ $fromAI('conversion', 'Filter by this conversion id (mutually exclusive with \"datapoint\" and \"group\")', 'number') }}"
+            },
+            {
+              "name": "pageSize",
+              "value": "={{ $fromAI('pageSize', 'Limit results to this number', 'number', 50) }}"
+            },
+            {
+              "name": "filter",
+              "value": "={{ $fromAI('filter', 'Filter event type (\"spiders\"/\"uniques\"/\"nonuniques\"/\"conversions\")', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve the latest list of events of this account. Limited to last 100.\n\nParameters:\n- Query parameters:\n  • group (optional) - Filter by this group id (mutually exclusive with \"datapoint\" and \"conversion\")\n  • datapoint (optional) - Filter by this datapoint id (mutually exclusive with \"group\" and \"conversion\")\n  • conversion (optional) - Filter by this conversion id (mutually exclusive with \"datapoint\" and \"group\")\n  • pageSize (optional) - Limit results to this number\n  • filter (optional) - Filter event type (\"spiders\"/\"uniques\"/\"nonuniques\"/\"conversions\")"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b1b7cf3a-d164-46f2-9c87-a878e8f17fe6",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        620
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 3100,
+        "height": 200,
+        "content": "**ПЕРЕД добавлением этого сервера MCP в ваш клиент:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "64cdeb86-bdbd-44ce-86ee-a9434d977674",
+      "name": "Get Conversions 3",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        660
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/conversions",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Offset where to start from', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Limit results to this number', 'number') }}"
+            },
+            {
+              "name": "status",
+              "value": "={{ $fromAI('status', 'Status of conversion (\"deleted\"/\"active\")', 'string') }}"
+            },
+            {
+              "name": "textSearch",
+              "value": "={{ $fromAI('textSearch', 'Filter fields by this pattern', 'string') }}"
+            },
+            {
+              "name": "createdAfter",
+              "value": "={{ $fromAI('createdAfter', 'Exclude conversions created before this date (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "createdBefore",
+              "value": "={{ $fromAI('createdBefore', 'Exclude conversions created after this date (YYYYMMDD)', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve a list of conversions\n\nParameters:\n- Query parameters:\n  • offset (optional) - Offset where to start from\n  • limit (optional) - Limit results to this number\n  • status (optional) - Status of conversion (\"deleted\"/\"active\")\n  • textSearch (optional) - Filter fields by this pattern\n  • createdAfter (optional) - Exclude conversions created before this date (YYYYMMDD)\n  • createdBefore (optional) - Exclude conversions created after this date (YYYYMMDD)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a8bdf65c-2433-498e-996a-1308201dbd35",
+      "name": "Create Conversion 2",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        660
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/conversions",
+        "method": "POST",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Create a conversion"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "4109b100-1799-4979-8139-5d6f7f55fe72",
+      "name": "Get Conversions 4",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        660
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/conversions/aggregated/list",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "timeFrame",
+              "value": "={{ $fromAI('timeFrame', 'Timeframe of the request. See list at $timeframeList', 'string') }}"
+            },
+            {
+              "name": "fromDay",
+              "value": "={{ $fromAI('fromDay', 'If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "toDay",
+              "value": "={{ $fromAI('toDay', 'If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "status",
+              "value": "={{ $fromAI('status', 'Status of conversion (\"deleted\"/\"active\")', 'string') }}"
+            },
+            {
+              "name": "groupBy",
+              "value": "={{ $fromAI('groupBy', 'The temporal entity you want to group by (\"week\"/\"month\"). If unspecified is \"day\".', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve statistics about this customer for a timeframe related to a subset of conversions grouped by some temporal entity (day/week/month)\n\nParameters:\n- Query parameters:\n  • timeFrame (required) - Timeframe of the request. See list at $timeframeList\n  • fromDay (optional) - If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)\n  • toDay (optional) - If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)\n  • status (optional) - Status of conversion (\"deleted\"/\"active\")\n  • groupBy (optional) - Temporal entity you want to group by (\"week\"/\"month\"). If unspecified is \"day\"."
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e04c10c2-71bf-4d55-8f2a-e6bb0d7ed7fb",
+      "name": "Get Conversions 5",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        80,
+        660
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/conversions/count",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "status",
+              "value": "={{ $fromAI('status', 'Status of conversion (\"deleted\"/\"active\")', 'string') }}"
+            },
+            {
+              "name": "textSearch",
+              "value": "={{ $fromAI('textSearch', 'Filter fields by this pattern', 'string') }}"
+            },
+            {
+              "name": "createdAfter",
+              "value": "={{ $fromAI('createdAfter', 'Exclude conversions created before this date (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "createdBefore",
+              "value": "={{ $fromAI('createdBefore', 'Exclude conversions created after this date (YYYYMMDD)', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve a count of conversions\n\nParameters:\n- Query parameters:\n  • status (optional) - Status of conversion (\"deleted\"/\"active\")\n  • textSearch (optional) - Filter fields by this pattern\n  • createdAfter (optional) - Exclude conversions created before this date (YYYYMMDD)\n  • createdBefore (optional) - Exclude conversions created after this date (YYYYMMDD)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "7813449b-a089-435e-a423-117f0b9ae586",
+      "name": "Delete Conversion 1",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        280,
+        660
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/conversions/{{ $fromAI('conversionId', 'Id of the conversion', 'number') }}",
+        "method": "DELETE",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Delete conversion specified by id\n\nParameters:\n- Path parameters:\n  • conversionId (required) - Id of the conversion"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "55cb5f6c-0b65-4873-a7da-56d8ae3e7055",
+      "name": "Get Conversion 6",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        480,
+        660
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/conversions/{{ $fromAI('conversionId', 'Id of the conversion', 'number') }}",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Retrieve conversion specified by id\n\nParameters:\n- Path parameters:\n  • conversionId (required) - Id of the conversion"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0fdf3943-4e27-4285-8450-859e3d10f2ab",
+      "name": "Create Conversion 3",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        680,
+        660
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/conversions/{{ $fromAI('conversionId', 'Id of the conversion', 'number') }}",
+        "method": "POST",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Update conversion specified by id\n\nParameters:\n- Path parameters:\n  • conversionId (required) - Id of the conversion"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "5e1ac3b6-2fac-48aa-a1b5-2abf25e9c91f",
+      "name": "Get Conversion 7",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        880,
+        660
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/conversions/{{ $fromAI('conversionId', 'Id of the conversion', 'number') }}/aggregated",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "timeFrame",
+              "value": "={{ $fromAI('timeFrame', 'Timeframe of the request. See list at $timeframeList', 'string') }}"
+            },
+            {
+              "name": "fromDay",
+              "value": "={{ $fromAI('fromDay', 'If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "toDay",
+              "value": "={{ $fromAI('toDay', 'If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "tag",
+              "value": "={{ $fromAI('tag', 'Filter by this tag name', 'string') }}"
+            },
+            {
+              "name": "favourite",
+              "value": "={{ $fromAI('favourite', 'Is the datapoint marked as favourite', 'boolean') }}"
+            },
+            {
+              "name": "hourly",
+              "value": "={{ $fromAI('hourly', 'If using \"yesterday\" or \"today\" timeframe you can ask for the hourly detail', 'boolean') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve statistics about this conversion for a timeframe\n\nParameters:\n- Path parameters:\n  • conversionId (required) - Id of the conversion\n- Query parameters:\n  • timeFrame (required) - Timeframe of the request. See list at $timeframeList\n  • fromDay (optional) - If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)\n  • toDay (optional) - If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)\n  • tag (optional) - Filter by this tag name\n  • favourite (optional) - Is the datapoint marked as favourite\n  • hourly (optional) - If using \"yesterday\" or \"today\" timeframe you can ask for the hourly detail"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "711122b1-70f0-4798-be1a-09e2cc6bb086",
+      "name": "Get Conversion 8",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1080,
+        660
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/conversions/{{ $fromAI('conversionId', 'Id of the conversion', 'number') }}/aggregated/list",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "timeFrame",
+              "value": "={{ $fromAI('timeFrame', 'Timeframe of the request. See list at $timeframeList', 'string') }}"
+            },
+            {
+              "name": "fromDay",
+              "value": "={{ $fromAI('fromDay', 'If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "toDay",
+              "value": "={{ $fromAI('toDay', 'If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "groupBy",
+              "value": "={{ $fromAI('groupBy', 'The temporal entity you want to group by (\"week\"/\"month\"). If unspecified is \"day\".', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve statistics about this conversion for a timeframe grouped by some temporal entity (day/week/month)\n\nParameters:\n- Path parameters:\n  • conversionId (required) - Id of the conversion\n- Query parameters:\n  • timeFrame (required) - Timeframe of the request. See list at $timeframeList\n  • fromDay (optional) - If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)\n  • toDay (optional) - If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)\n  • groupBy (optional) - Temporal entity you want to group by (\"week\"/\"month\"). If unspecified is \"day\"."
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "1772d8e8-5157-489c-a370-95ea3b248a3b",
+      "name": "Get Conversion 9",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1280,
+        660
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/conversions/{{ $fromAI('conversionId', 'Id of the conversion', 'number') }}/datapoints",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Offset where to start from', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Limit results to this number', 'number') }}"
+            },
+            {
+              "name": "type",
+              "value": "={{ $fromAI('type', 'Type of datapoint (\"tl\"/\"tp\")', 'string') }}"
+            },
+            {
+              "name": "status",
+              "value": "={{ $fromAI('status', 'Status of datapoint (\"deleted\"/\"active\"/\"paused\"/\"spam\")', 'string') }}"
+            },
+            {
+              "name": "tags",
+              "value": "={{ $fromAI('tags', 'Filter by this tag name', 'string') }}"
+            },
+            {
+              "name": "textSearch",
+              "value": "={{ $fromAI('textSearch', 'Filter fields by this pattern', 'string') }}"
+            },
+            {
+              "name": "createdAfter",
+              "value": "={{ $fromAI('createdAfter', 'Exclude datapoints created before this date (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "createdBefore",
+              "value": "={{ $fromAI('createdBefore', 'Exclude datapoints created after this date (YYYYMMDD)', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve a list of datapoints connected to this conversion\n\nParameters:\n- Path parameters:\n  • conversionId (required) - Id of the conversion\n- Query parameters:\n  • offset (optional) - Offset where to start from\n  • limit (optional) - Limit results to this number\n  • type (optional) - Type of datapoint (\"tl\"/\"tp\")\n  • status (optional) - Status of datapoint (\"deleted\"/\"active\"/\"paused\"/\"spam\")\n  • tags (optional) - Filter by this tag name\n  • textSearch (optional) - Filter fields by this pattern\n  • createdAfter (optional) - Exclude datapoints created before this date (YYYYMMDD)\n  • createdBefore (optional) - Exclude datapoints created after this date (YYYYMMDD)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "498fa1fb-16b0-4f56-936d-bb9d3aae381f",
+      "name": "Update Conversion 3",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1480,
+        660
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/conversions/{{ $fromAI('conversionId', 'Id of the conversion', 'number') }}/datapoints/batch/patch",
+        "method": "PUT",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Modify the association between a conversion and multiple datapoints\n\nParameters:\n- Path parameters:\n  • conversionId (required) - Id of the conversion"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b0acfa4e-0c32-45a3-869b-e611ffacd845",
+      "name": "Get Conversion 10",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1680,
+        660
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/conversions/{{ $fromAI('conversionId', 'Id of the conversion', 'number') }}/datapoints/count",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "type",
+              "value": "={{ $fromAI('type', 'Type of datapoint (\"tl\"/\"tp\")', 'string') }}"
+            },
+            {
+              "name": "status",
+              "value": "={{ $fromAI('status', 'Status of datapoint (\"deleted\"/\"active\"/\"paused\"/\"spam\")', 'string') }}"
+            },
+            {
+              "name": "tags",
+              "value": "={{ $fromAI('tags', 'Filter by this tag name', 'string') }}"
+            },
+            {
+              "name": "textSearch",
+              "value": "={{ $fromAI('textSearch', 'Filter fields by this pattern', 'string') }}"
+            },
+            {
+              "name": "createdAfter",
+              "value": "={{ $fromAI('createdAfter', 'Exclude datapoints created before this date (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "createdBefore",
+              "value": "={{ $fromAI('createdBefore', 'Exclude datapoints created after this date (YYYYMMDD)', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve a count of datapoints connected to this conversion\n\nParameters:\n- Path parameters:\n  • conversionId (required) - Id of the conversion\n- Query parameters:\n  • type (optional) - Type of datapoint (\"tl\"/\"tp\")\n  • status (optional) - Status of datapoint (\"deleted\"/\"active\"/\"paused\"/\"spam\")\n  • tags (optional) - Filter by this tag name\n  • textSearch (optional) - Filter fields by this pattern\n  • createdAfter (optional) - Exclude datapoints created before this date (YYYYMMDD)\n  • createdBefore (optional) - Exclude datapoints created after this date (YYYYMMDD)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "8ef6af0d-9311-4916-898e-1ae131857315",
+      "name": "Update Conversion 4",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1880,
+        660
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/conversions/{{ $fromAI('conversionId', 'Id of the conversion', 'number') }}/datapoints/patch",
+        "method": "PUT",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Modify the association between a conversion and a datapoint\n\nParameters:\n- Path parameters:\n  • conversionId (required) - Id of the conversion"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "70ea6cf0-c6d1-42b2-8ebf-5f5a7315395e",
+      "name": "Get Conversion 11",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        2080,
+        660
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/conversions/{{ $fromAI('conversionId', 'Id of the conversion', 'number') }}/hits",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "timeframe",
+              "value": "={{ $fromAI('timeframe', 'Timeframe of the request. See list at $timeframeList', 'string') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Limit results to this number', 'number') }}"
+            },
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Offset where to start from (it's the lastKey field in the response object)', 'string') }}"
+            },
+            {
+              "name": "fromDay",
+              "value": "={{ $fromAI('fromDay', 'If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "toDay",
+              "value": "={{ $fromAI('toDay', 'If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "filter",
+              "value": "={{ $fromAI('filter', 'Filter event type (\"spiders\"/\"uniques\"/\"nonuniques\"/\"conversions\")', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve the list of events related to this conversion.\n\nParameters:\n- Path parameters:\n  • conversionId (required) - Id of the conversion\n- Query parameters:\n  • timeframe (required) - Timeframe of the request. See list at $timeframeList\n  • limit (optional) - Limit results to this number\n  • offset (optional) - Offset where to start from (it's the lastKey field in the response object)\n  • fromDay (optional) - If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)\n  • toDay (optional) - If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)\n  • filter (optional) - Filter event type (\"spiders\"/\"uniques\"/\"nonuniques\"/\"conversions\")"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "6adf8793-3289-421c-b912-02f111860b99",
+      "name": "Update Conversion 5",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        2280,
+        660
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/conversions/{{ $fromAI('conversionId', 'Id of the conversion', 'number') }}/notes",
+        "method": "PUT",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Fast patch the \"notes\" field of a conversion\n\nParameters:\n- Path parameters:\n  • conversionId (required) - Id of the conversion"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d9ed3998-a56a-45ee-83d6-40f6bdde027c",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        860
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 3300,
+        "height": 200,
+        "content": "### Отключите или удалите неиспользуемые узлы - Просмотрите разделы и отключите/удалите те, которые вам не нужны"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "21e35170-fed2-4570-9593-de05311ae1a1",
+      "name": "Get Datapoints 4",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        900
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/datapoints",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Where to start when retrieving elements. Default is 0 if not specified.', 'number', 0) }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Maximum elements to retrieve. Default to 20 if not specified.', 'number', 20) }}"
+            },
+            {
+              "name": "type",
+              "value": "={{ $fromAI('type', 'Type of the datapoint (\"tp\"/\"tl\")', 'string') }}"
+            },
+            {
+              "name": "status",
+              "value": "={{ $fromAI('status', 'Status of the datapoint', 'string') }}"
+            },
+            {
+              "name": "tags",
+              "value": "={{ $fromAI('tags', 'A comma separated list of tags you want to filter with.', 'string') }}"
+            },
+            {
+              "name": "textSearch",
+              "value": "={{ $fromAI('textSearch', 'Filter fields by this pattern', 'string') }}"
+            },
+            {
+              "name": "onlyFavorites",
+              "value": "={{ $fromAI('onlyFavorites', 'Filter fields by favourite status', 'boolean') }}"
+            },
+            {
+              "name": "sortBy",
+              "value": "={{ $fromAI('sortBy', 'Field to sort by', 'string') }}"
+            },
+            {
+              "name": "sortDirection",
+              "value": "={{ $fromAI('sortDirection', 'Direction of sort \"asc\" or \"desc\"', 'string') }}"
+            },
+            {
+              "name": "createdAfter",
+              "value": "={{ $fromAI('createdAfter', 'Exclude datapoints created before this date (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "createdBefore",
+              "value": "={{ $fromAI('createdBefore', 'Exclude datapoints created after this date (YYYYMMDD)', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "List of all the datapoints associated to the user\n\nParameters:\n- Query parameters:\n  • offset (optional) - Where to start when retrieving elements. Default is 0 if not specified.\n  • limit (optional) - Maximum elements to retrieve. Default to 20 if not specified.\n  • type (optional) - Type of the datapoint (\"tp\"/\"tl\")\n  • status (optional) - Status of the datapoint\n  • tags (optional) - A comma separated list of tags you want to filter with.\n  • textSearch (optional) - Filter fields by this pattern\n  • onlyFavorites (optional) - Filter fields by favourite status\n  • sortBy (optional) - Field to sort by\n  • sortDirection (optional) - Direction of sort \"asc\" or \"desc\"\n  • createdAfter (optional) - Exclude datapoints created before this date (YYYYMMDD)\n  • createdBefore (optional) - Exclude datapoints created after this date (YYYYMMDD)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0b543c8d-b7ad-4c4b-8bdb-28893aa53b83",
+      "name": "Create Datapoint 3",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        900
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/datapoints",
+        "method": "POST",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Create a datapoint"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "aa6e7785-bb10-4a74-9eb6-8445b0c74c0e",
+      "name": "Get Datapoints 5",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        900
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/datapoints/aggregated",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "timeFrame",
+              "value": "={{ $fromAI('timeFrame', 'Timeframe of the request. See list at $timeframeList', 'string') }}"
+            },
+            {
+              "name": "type",
+              "value": "={{ $fromAI('type', 'Type of datapoint (\"tl\"/\"tp\")', 'string') }}"
+            },
+            {
+              "name": "fromDay",
+              "value": "={{ $fromAI('fromDay', 'If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "toDay",
+              "value": "={{ $fromAI('toDay', 'If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "hourly",
+              "value": "={{ $fromAI('hourly', 'If using \"yesterday\" or \"today\" timeframe you can ask for the hourly detail', 'boolean') }}"
+            },
+            {
+              "name": "status",
+              "value": "={{ $fromAI('status', 'Status of datapoint (\"deleted\"/\"active\"/\"paused\"/\"spam\")', 'string') }}"
+            },
+            {
+              "name": "tag",
+              "value": "={{ $fromAI('tag', 'A comma separated list of tags you want to filter with.', 'string') }}"
+            },
+            {
+              "name": "favourite",
+              "value": "={{ $fromAI('favourite', 'Is the datapoint is marked as favourite', 'boolean') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve statistics about this customer for a timeframe by groups\n\nParameters:\n- Query parameters:\n  • timeFrame (required) - Timeframe of the request. See list at $timeframeList\n  • type (optional) - Type of datapoint (\"tl\"/\"tp\")\n  • fromDay (optional) - If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)\n  • toDay (optional) - If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)\n  • hourly (optional) - If using \"yesterday\" or \"today\" timeframe you can ask for the hourly detail\n  • status (optional) - Status of datapoint (\"deleted\"/\"active\"/\"paused\"/\"spam\")\n  • tag (optional) - A comma separated list of tags you want to filter with.\n  • favourite (optional) - Is the datapoint is marked as favourite"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e4b06bac-00da-4d3e-a4be-9d8dccbdde8a",
+      "name": "Get Datapoints 6",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        80,
+        900
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/datapoints/aggregated/list",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "type",
+              "value": "={{ $fromAI('type', 'Type of datapoint (\"tl\"/\"tp\")', 'string') }}"
+            },
+            {
+              "name": "timeFrame",
+              "value": "={{ $fromAI('timeFrame', 'Timeframe of the request. See list at $timeframeList', 'string') }}"
+            },
+            {
+              "name": "fromDay",
+              "value": "={{ $fromAI('fromDay', 'If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "toDay",
+              "value": "={{ $fromAI('toDay', 'If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "status",
+              "value": "={{ $fromAI('status', 'Status of datapoint (\"deleted\"/\"active\"/\"paused\"/\"spam\")', 'string') }}"
+            },
+            {
+              "name": "tag",
+              "value": "={{ $fromAI('tag', 'A comma separated list of tags you want to filter with.', 'string') }}"
+            },
+            {
+              "name": "favourite",
+              "value": "={{ $fromAI('favourite', 'Is the datapoint is marked as favourite', 'boolean') }}"
+            },
+            {
+              "name": "groupBy",
+              "value": "={{ $fromAI('groupBy', 'The temporal entity you want to group by (\"week\"/\"month\"). If unspecified is \"day\".', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve statistics about all datapoints of this customer for a timeframe grouped by some temporal entity (day/week/month)\n\nParameters:\n- Query parameters:\n  • type (required) - Type of datapoint (\"tl\"/\"tp\")\n  • timeFrame (required) - Timeframe of the request. See list at $timeframeList\n  • fromDay (optional) - If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)\n  • toDay (optional) - If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)\n  • status (optional) - Status of datapoint (\"deleted\"/\"active\"/\"paused\"/\"spam\")\n  • tag (optional) - A comma separated list of tags you want to filter with.\n  • favourite (optional) - Is the datapoint is marked as favourite\n  • groupBy (optional) - Temporal entity you want to group by (\"week\"/\"month\"). If unspecified is \"day\"."
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f6ba7c13-1030-48eb-956f-ebe99b333870",
+      "name": "Delete Datapoint 2",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        280,
+        900
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/datapoints/batch",
+        "method": "DELETE",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Delete multiple datapoints"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "2561c03a-8926-4931-9986-8b01f3c8ffca",
+      "name": "Create Datapoint 4",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        480,
+        900
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/datapoints/batch",
+        "method": "POST",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Update multiple datapoints"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "58cf9fce-ee18-4e23-9212-07a5006a2082",
+      "name": "Update Datapoint 3",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        680,
+        900
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/datapoints/batch",
+        "method": "PUT",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Create multiple datapoints"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "fd838f8f-128b-4f36-990e-ea53178404d2",
+      "name": "Get Datapoints 7",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        880,
+        900
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/datapoints/count",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "type",
+              "value": "={{ $fromAI('type', 'Type of the datapoint (\"tp\"/\"tl\")', 'string') }}"
+            },
+            {
+              "name": "status",
+              "value": "={{ $fromAI('status', 'Status of the datapoint', 'string') }}"
+            },
+            {
+              "name": "tags",
+              "value": "={{ $fromAI('tags', 'A comma separated list of tags you want to filter with.', 'string') }}"
+            },
+            {
+              "name": "textSearch",
+              "value": "={{ $fromAI('textSearch', 'Filter fields by this pattern', 'string') }}"
+            },
+            {
+              "name": "onlyFavorites",
+              "value": "={{ $fromAI('onlyFavorites', 'Filter fields by favourite status', 'boolean') }}"
+            },
+            {
+              "name": "createdAfter",
+              "value": "={{ $fromAI('createdAfter', 'Exclude datapoints created before this date (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "createdBefore",
+              "value": "={{ $fromAI('createdBefore', 'Exclude datapoints created after this date (YYYYMMDD)', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Count the datapoints associated to the user\n\nParameters:\n- Query parameters:\n  • type (optional) - Type of the datapoint (\"tp\"/\"tl\")\n  • status (optional) - Status of the datapoint\n  • tags (optional) - A comma separated list of tags you want to filter with.\n  • textSearch (optional) - Filter fields by this pattern\n  • onlyFavorites (optional) - Filter fields by favourite status\n  • createdAfter (optional) - Exclude datapoints created before this date (YYYYMMDD)\n  • createdBefore (optional) - Exclude datapoints created after this date (YYYYMMDD)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "4b442a28-2591-4f34-b84f-d5b4499fe8d5",
+      "name": "Delete Datapoint 3",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1080,
+        900
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/datapoints/{{ $fromAI('id', 'The id of the datapoint', 'number') }}",
+        "method": "DELETE",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Delete a datapoint\n\nParameters:\n- Path parameters:\n  • id (required) - Id of the datapoint"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "2f1e1c43-a066-43c2-821d-bcd8bc2a93ea",
+      "name": "Get Datapoint 4",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1280,
+        900
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/datapoints/{{ $fromAI('id', 'The id of the datapoint', 'number') }}",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Get a datapoint\n\nParameters:\n- Path parameters:\n  • id (required) - Id of the datapoint"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b4c48d2b-6a48-461d-84d4-1d314ee66672",
+      "name": "Create Datapoint 5",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1480,
+        900
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/datapoints/{{ $fromAI('id', 'The id of the datapoint', 'number') }}",
+        "method": "POST",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Update a datapoint\n\nParameters:\n- Path parameters:\n  • id (required) - Id of the datapoint"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "42cbdab5-99a9-434d-a014-16b9d72c2c2b",
+      "name": "Get Datapoint 5",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1680,
+        900
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/datapoints/{{ $fromAI('id', 'Id of the datapoint', 'number') }}/aggregated",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "timeFrame",
+              "value": "={{ $fromAI('timeFrame', 'Timeframe of the request. See list at $timeframeList', 'string') }}"
+            },
+            {
+              "name": "fromDay",
+              "value": "={{ $fromAI('fromDay', 'If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "toDay",
+              "value": "={{ $fromAI('toDay', 'If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "hourly",
+              "value": "={{ $fromAI('hourly', 'If using \"yesterday\" or \"today\" timeframe you can ask for the hourly detail', 'boolean') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve statistics about this datapoint for a timeframe\n\nParameters:\n- Path parameters:\n  • id (required) - Id of the datapoint\n- Query parameters:\n  • timeFrame (required) - Timeframe of the request. See list at $timeframeList\n  • fromDay (optional) - If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)\n  • toDay (optional) - If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)\n  • hourly (optional) - If using \"yesterday\" or \"today\" timeframe you can ask for the hourly detail"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f4322eb4-bb06-4020-91c3-c8e5e844ec2c",
+      "name": "Get Datapoint 6",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1880,
+        900
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/datapoints/{{ $fromAI('id', 'Id of the datapoint', 'number') }}/aggregated/list",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "timeFrame",
+              "value": "={{ $fromAI('timeFrame', 'Timeframe of the request. See list at $timeframeList', 'string') }}"
+            },
+            {
+              "name": "fromDay",
+              "value": "={{ $fromAI('fromDay', 'If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "toDay",
+              "value": "={{ $fromAI('toDay', 'If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "groupBy",
+              "value": "={{ $fromAI('groupBy', 'The temporal entity you want to group by (\"week\"/\"month\"). If unspecified is \"day\".', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve statistics about this datapoint for a timeframe grouped by some temporal entity (day/week/month)\n\nParameters:\n- Path parameters:\n  • id (required) - Id of the datapoint\n- Query parameters:\n  • timeFrame (required) - Timeframe of the request. See list at $timeframeList\n  • fromDay (optional) - If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)\n  • toDay (optional) - If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)\n  • groupBy (optional) - Temporal entity you want to group by (\"week\"/\"month\"). If unspecified is \"day\"."
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d8986e50-061c-4d01-b101-08b52161dc74",
+      "name": "Update Datapoint 4",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        2080,
+        900
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/datapoints/{{ $fromAI('id', 'Id of the datapoint', 'number') }}/favourite",
+        "method": "PUT",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Fast switch the \"favourite\" field of a datapoint\n\nParameters:\n- Path parameters:\n  • id (required) - Id of the datapoint"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "18a0c986-1e1a-448d-bc11-907a3342d124",
+      "name": "Get Datapoint 7",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        2280,
+        900
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/datapoints/{{ $fromAI('id', 'Id of the datapoint', 'number') }}/hits",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "timeframe",
+              "value": "={{ $fromAI('timeframe', 'Timeframe of the request. See list at $timeframeList', 'string') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Limit results to this number', 'number') }}"
+            },
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Offset where to start from (it's the lastKey field in the response object)', 'string') }}"
+            },
+            {
+              "name": "fromDay",
+              "value": "={{ $fromAI('fromDay', 'If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "toDay",
+              "value": "={{ $fromAI('toDay', 'If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "filter",
+              "value": "={{ $fromAI('filter', 'Filter event type (\"spiders\"/\"uniques\"/\"nonuniques\"/\"conversions\")', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve the list of events related to this datapoint.\n\nParameters:\n- Path parameters:\n  • id (required) - Id of the datapoint\n- Query parameters:\n  • timeframe (required) - Timeframe of the request. See list at $timeframeList\n  • limit (optional) - Limit results to this number\n  • offset (optional) - Offset where to start from (it's the lastKey field in the response object)\n  • fromDay (optional) - If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)\n  • toDay (optional) - If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)\n  • filter (optional) - Filter event type (\"spiders\"/\"uniques\"/\"nonuniques\"/\"conversions\")"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f4b9967d-b1a2-44d8-bf83-a62513c572ae",
+      "name": "Update Datapoint 5",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        2480,
+        900
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/datapoints/{{ $fromAI('id', 'Id of the datapoint', 'number') }}/notes",
+        "method": "PUT",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Fast patch the \"notes\" field of a datapoint\n\nParameters:\n- Path parameters:\n  • id (required) - Id of the datapoint"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "4a65ddee-aa39-441c-8e01-abbcf76fb8b5",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        1100
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1300,
+        "height": 200,
+        "content": "**ПОСЛЕ добавления сервера MCP в ваш клиент:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aa6eb3c5-a99b-403a-8220-20f445709be4",
+      "name": "Get Domains 2",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        1140
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/domains",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Offset where to start from', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Limit results to this number', 'number') }}"
+            },
+            {
+              "name": "type",
+              "value": "={{ $fromAI('type', 'Type of domain (\"system\"/\"go\"/\"personal\"/\"dedicated\"). If not specified default is \"system\"', 'string', 'system') }}"
+            },
+            {
+              "name": "name",
+              "value": "={{ $fromAI('name', 'Filter domains with this anmen', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve a list of domains\n\nParameters:\n- Query parameters:\n  • offset (optional) - Offset where to start from\n  • limit (optional) - Limit results to this number\n  • type (optional) - Type of domain (\"system\"/\"go\"/\"personal\"/\"dedicated\"). If not specified default is \"system\"\n  • name (optional) - Filter domains with this anmen"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "89ea66b0-8eeb-4f26-99b2-c10bd1cf8f97",
+      "name": "Create Domain 2",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        1140
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/domains",
+        "method": "POST",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Create a domain"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "52a3c12d-d3f4-4bb3-b7c2-140557c473ab",
+      "name": "Get Domains 3",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        1140
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/domains/count",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "type",
+              "value": "={{ $fromAI('type', 'Type of domain (\"system\"/\"go\"/\"personal\"/\"dedicated\"). If not specified default is \"system\"', 'string', 'system') }}"
+            },
+            {
+              "name": "name",
+              "value": "={{ $fromAI('name', 'Filter domains with this anmen', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve count of domains\n\nParameters:\n- Query parameters:\n  • type (optional) - Type of domain (\"system\"/\"go\"/\"personal\"/\"dedicated\"). If not specified default is \"system\"\n  • name (optional) - Filter domains with this anmen"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d7c71911-fc2b-4969-8767-49b530c71c75",
+      "name": "Delete Domain 1",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        80,
+        1140
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/domains/{{ $fromAI('id', 'Id of domain', 'number') }}",
+        "method": "DELETE",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Delete a domain\n\nParameters:\n- Path parameters:\n  • id (required) - Id of domain"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e10abf11-9c0a-4f9f-a191-59c749e165a8",
+      "name": "Get Domain 1",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        280,
+        1140
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/domains/{{ $fromAI('id', 'Id of domain', 'number') }}",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Get a domain\n\nParameters:\n- Path parameters:\n  • id (required) - Id of domain"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0fd3ab4d-eed4-419f-a024-5ef1fb57c770",
+      "name": "Create Domain 3",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        480,
+        1140
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/domains/{{ $fromAI('id', 'Id of domain', 'number') }}",
+        "method": "POST",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Update a domain\n\nParameters:\n- Path parameters:\n  • id (required) - Id of domain"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a85125a8-4a8a-48b7-93cb-7b25ad65c979",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        1340
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 3500,
+        "height": 200,
+        "content": "**Выборочное включение инструментов** - Вместо включения всех инструментов (по умолчанию) вручную выберите только те инструменты, которые вам нужны для *этого* рабочего процесса клиента MCP."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2f59506a-c5ff-4348-b361-6caab947f38a",
+      "name": "Get Groups 4",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        1380
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/groups",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Where to start when retrieving elements. Default is 0 if not specified.', 'number', 0) }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Maximum elements to retrieve. Default to 20 if not specified.', 'number', 20) }}"
+            },
+            {
+              "name": "status",
+              "value": "={{ $fromAI('status', 'Status of the group', 'string') }}"
+            },
+            {
+              "name": "tags",
+              "value": "={{ $fromAI('tags', 'A comma separated list of tags you want to filter with.', 'string') }}"
+            },
+            {
+              "name": "textSearch",
+              "value": "={{ $fromAI('textSearch', 'Filter fields by this pattern', 'string') }}"
+            },
+            {
+              "name": "createdAfter",
+              "value": "={{ $fromAI('createdAfter', 'Exclude groups created before this date (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "createdBefore",
+              "value": "={{ $fromAI('createdBefore', 'Exclude groups created after this date (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "write",
+              "value": "={{ $fromAI('write', 'Write permission', 'boolean') }}"
+            }
+          ]
+        },
+        "toolDescription": "List of all the groups associated to the user.\n\nParameters:\n- Query parameters:\n  • offset (optional) - Where to start when retrieving elements. Default is 0 if not specified.\n  • limit (optional) - Maximum elements to retrieve. Default to 20 if not specified.\n  • status (optional) - Status of the group\n  • tags (optional) - A comma separated list of tags you want to filter with.\n  • textSearch (optional) - Filter fields by this pattern\n  • createdAfter (optional) - Exclude groups created before this date (YYYYMMDD)\n  • createdBefore (optional) - Exclude groups created after this date (YYYYMMDD)\n  • write (optional) - Write permission"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e6fb7a6c-4c96-49fe-9d15-29040b6fed04",
+      "name": "Create Group 3",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        1380
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/groups",
+        "method": "POST",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Create a group"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "923df977-f071-45d8-b8e2-ae877cd02dbf",
+      "name": "Get Groups 5",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        1380
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/groups/aggregated",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "timeFrame",
+              "value": "={{ $fromAI('timeFrame', 'Timeframe of the request. See list at $timeframeList', 'string') }}"
+            },
+            {
+              "name": "fromDay",
+              "value": "={{ $fromAI('fromDay', 'If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "toDay",
+              "value": "={{ $fromAI('toDay', 'If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "hourly",
+              "value": "={{ $fromAI('hourly', 'If using \"yesterday\" or \"today\" timeframe you can ask for the hourly detail', 'boolean') }}"
+            },
+            {
+              "name": "status",
+              "value": "={{ $fromAI('status', 'Status of group (\"deleted\"/\"active\")', 'string') }}"
+            },
+            {
+              "name": "tag",
+              "value": "={{ $fromAI('tag', 'A comma separated list of tags you want to filter with.', 'string') }}"
+            },
+            {
+              "name": "favourite",
+              "value": "={{ $fromAI('favourite', 'Is the group is marked as favourite', 'boolean') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve statistics about this customer for a timeframe by groups\n\nParameters:\n- Query parameters:\n  • timeFrame (required) - Timeframe of the request. See list at $timeframeList\n  • fromDay (optional) - If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)\n  • toDay (optional) - If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)\n  • hourly (optional) - If using \"yesterday\" or \"today\" timeframe you can ask for the hourly detail\n  • status (optional) - Status of group (\"deleted\"/\"active\")\n  • tag (optional) - A comma separated list of tags you want to filter with.\n  • favourite (optional) - Is the group is marked as favourite"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "25c57cde-548b-4a14-bb23-db5ef025f6c5",
+      "name": "Get Groups 6",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        80,
+        1380
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/groups/aggregated/list",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "timeFrame",
+              "value": "={{ $fromAI('timeFrame', 'Timeframe of the request. See list at $timeframeList', 'string') }}"
+            },
+            {
+              "name": "fromDay",
+              "value": "={{ $fromAI('fromDay', 'If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "toDay",
+              "value": "={{ $fromAI('toDay', 'If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "status",
+              "value": "={{ $fromAI('status', 'Status of group (\"deleted\"/\"active\")', 'string') }}"
+            },
+            {
+              "name": "tag",
+              "value": "={{ $fromAI('tag', 'A comma separated list of tags you want to filter with.', 'string') }}"
+            },
+            {
+              "name": "favourite",
+              "value": "={{ $fromAI('favourite', 'Is the group is marked as favourite', 'boolean') }}"
+            },
+            {
+              "name": "groupBy",
+              "value": "={{ $fromAI('groupBy', 'The temporal entity you want to group by (\"week\"/\"month\"). If unspecified is \"day\".', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve statistics about all groups of this customer for a timeframe grouped by some temporal entity (day/week/month)\n\nParameters:\n- Query parameters:\n  • timeFrame (required) - Timeframe of the request. See list at $timeframeList\n  • fromDay (optional) - If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)\n  • toDay (optional) - If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)\n  • status (optional) - Status of group (\"deleted\"/\"active\")\n  • tag (optional) - A comma separated list of tags you want to filter with.\n  • favourite (optional) - Is the group is marked as favourite\n  • groupBy (optional) - Temporal entity you want to group by (\"week\"/\"month\"). If unspecified is \"day\"."
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "706ad2d2-c1fd-4788-8ec2-e0a329d56769",
+      "name": "Get Groups 7",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        280,
+        1380
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/groups/count",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "status",
+              "value": "={{ $fromAI('status', 'Status of the datapoint', 'string') }}"
+            },
+            {
+              "name": "tags",
+              "value": "={{ $fromAI('tags', 'A comma separated list of tags you want to filter with.', 'string') }}"
+            },
+            {
+              "name": "textSearch",
+              "value": "={{ $fromAI('textSearch', 'Filter fields by this pattern', 'string') }}"
+            },
+            {
+              "name": "createdAfter",
+              "value": "={{ $fromAI('createdAfter', 'Exclude groups created before this date (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "createdBefore",
+              "value": "={{ $fromAI('createdBefore', 'Exclude groups created after this date (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "write",
+              "value": "={{ $fromAI('write', 'Write permission', 'boolean') }}"
+            }
+          ]
+        },
+        "toolDescription": "Count the groups associated to the user.\n\nParameters:\n- Query parameters:\n  • status (optional) - Status of the datapoint\n  • tags (optional) - A comma separated list of tags you want to filter with.\n  • textSearch (optional) - Filter fields by this pattern\n  • createdAfter (optional) - Exclude groups created before this date (YYYYMMDD)\n  • createdBefore (optional) - Exclude groups created after this date (YYYYMMDD)\n  • write (optional) - Write permission"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "117276a7-5eea-4251-95b0-e987dd4b3c32",
+      "name": "Delete Group 1",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        480,
+        1380
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/groups/{{ $fromAI('id', 'Id of the group', 'number') }}",
+        "method": "DELETE",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Delete group specified by id\n\nParameters:\n- Path parameters:\n  • id (required) - Id of the group"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0d57cb16-c885-4d05-89ac-3b3618313f00",
+      "name": "Get Group 7",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        680,
+        1380
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/groups/{{ $fromAI('id', 'The id of the group', 'number') }}",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Get a group\n\nParameters:\n- Path parameters:\n  • id (required) - Id of the group"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "4b6c4d4e-a1d6-402c-aef2-e08de32fa4f1",
+      "name": "Create Group 4",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        880,
+        1380
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/groups/{{ $fromAI('id', 'The id of the group', 'number') }}",
+        "method": "POST",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Update a group\n\nParameters:\n- Path parameters:\n  • id (required) - Id of the group"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "bd139418-ada6-4a5b-b78d-43483ed95414",
+      "name": "Get Group 8",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1080,
+        1380
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/groups/{{ $fromAI('id', 'Id of the group', 'number') }}/aggregated",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "timeFrame",
+              "value": "={{ $fromAI('timeFrame', 'Timeframe of the request. See list at $timeframeList', 'string') }}"
+            },
+            {
+              "name": "fromDay",
+              "value": "={{ $fromAI('fromDay', 'If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "toDay",
+              "value": "={{ $fromAI('toDay', 'If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "hourly",
+              "value": "={{ $fromAI('hourly', 'If using \"yesterday\" or \"today\" timeframe you can ask for the hourly detail', 'boolean') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve statistics about this group for a timeframe\n\nParameters:\n- Path parameters:\n  • id (required) - Id of the group\n- Query parameters:\n  • timeFrame (required) - Timeframe of the request. See list at $timeframeList\n  • fromDay (optional) - If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)\n  • toDay (optional) - If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)\n  • hourly (optional) - If using \"yesterday\" or \"today\" timeframe you can ask for the hourly detail"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "1775c61a-2e73-409d-a356-264579331aae",
+      "name": "Get Group 9",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1280,
+        1380
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/groups/{{ $fromAI('id', 'Id of the group', 'number') }}/aggregated/list",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "timeFrame",
+              "value": "={{ $fromAI('timeFrame', 'Timeframe of the request. See list at $timeframeList', 'string') }}"
+            },
+            {
+              "name": "fromDay",
+              "value": "={{ $fromAI('fromDay', 'If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "toDay",
+              "value": "={{ $fromAI('toDay', 'If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "groupBy",
+              "value": "={{ $fromAI('groupBy', 'The temporal entity you want to group by (\"week\"/\"month\"). If unspecified is \"day\".', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve statistics about this group for a timeframe grouped by some temporal entity (day/week/month)\n\nParameters:\n- Path parameters:\n  • id (required) - Id of the group\n- Query parameters:\n  • timeFrame (required) - Timeframe of the request. See list at $timeframeList\n  • fromDay (optional) - If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)\n  • toDay (optional) - If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)\n  • groupBy (optional) - Temporal entity you want to group by (\"week\"/\"month\"). If unspecified is \"day\"."
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "130090da-785c-45e4-893c-185ed2fb620c",
+      "name": "Get Group 10",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1480,
+        1380
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/groups/{{ $fromAI('id', 'Filter by this group id', 'number') }}/aggregated/summary",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "timeFrame",
+              "value": "={{ $fromAI('timeFrame', 'Timeframe of the request. See list at $timeframeList', 'string') }}"
+            },
+            {
+              "name": "type",
+              "value": "={{ $fromAI('type', 'Type of datapoint (\"tl\"/\"tp\")', 'string') }}"
+            },
+            {
+              "name": "fromDay",
+              "value": "={{ $fromAI('fromDay', 'If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "toDay",
+              "value": "={{ $fromAI('toDay', 'If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "status",
+              "value": "={{ $fromAI('status', 'Status of datapoint (\"deleted\"/\"active\"/\"paused\"/\"spam\")', 'string') }}"
+            },
+            {
+              "name": "tag",
+              "value": "={{ $fromAI('tag', 'A comma separated list of tags you want to filter with.', 'string') }}"
+            },
+            {
+              "name": "favourite",
+              "value": "={{ $fromAI('favourite', 'Is the datapoint marked as favourite', 'boolean') }}"
+            },
+            {
+              "name": "sortBy",
+              "value": "={{ $fromAI('sortBy', 'Field to sort by', 'string') }}"
+            },
+            {
+              "name": "sortDirection",
+              "value": "={{ $fromAI('sortDirection', 'Direction of sort \"asc\" or \"desc\"', 'string') }}"
+            },
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Offset where to start from', 'number', 0) }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Limit results to this number', 'number', 20) }}"
+            },
+            {
+              "name": "textSearch",
+              "value": "={{ $fromAI('textSearch', 'Filter fields by this pattern', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve statistics about a subset of datapoints for a timeframe with datapoints data\n\nParameters:\n- Path parameters:\n  • id (required) - Filter by this group id\n- Query parameters:\n  • timeFrame (required) - Timeframe of the request. See list at $timeframeList\n  • type (optional) - Type of datapoint (\"tl\"/\"tp\")\n  • fromDay (optional) - If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)\n  • toDay (optional) - If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)\n  • status (optional) - Status of datapoint (\"deleted\"/\"active\"/\"paused\"/\"spam\")\n  • tag (optional) - A comma separated list of tags you want to filter with.\n  • favourite (optional) - Is the datapoint marked as favourite\n  • sortBy (optional) - Field to sort by\n  • sortDirection (optional) - Direction of sort \"asc\" or \"desc\"\n  • offset (optional) - Offset where to start from\n  • limit (optional) - Limit results to this number\n  • textSearch (optional) - Filter fields by this pattern"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "aed56a1c-0843-4623-afda-91232a5bb587",
+      "name": "Get Group 11",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1680,
+        1380
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/groups/{{ $fromAI('id', 'Id of the group', 'number') }}/datapoints",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Where to start when retrieving elements. Default is 0 if not specified.', 'number', 0) }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Maximum elements to retrieve. Default to 20 if not specified.', 'number', 20) }}"
+            },
+            {
+              "name": "type",
+              "value": "={{ $fromAI('type', 'Type of the datapoint (\"tp\"/\"tl\")', 'string') }}"
+            },
+            {
+              "name": "status",
+              "value": "={{ $fromAI('status', 'Status of the datapoint', 'string') }}"
+            },
+            {
+              "name": "tags",
+              "value": "={{ $fromAI('tags', 'A comma separated list of tags you want to filter with.', 'string') }}"
+            },
+            {
+              "name": "textSearch",
+              "value": "={{ $fromAI('textSearch', 'Filter fields by this pattern', 'string') }}"
+            },
+            {
+              "name": "onlyFavorites",
+              "value": "={{ $fromAI('onlyFavorites', 'Filter fields by favourite status', 'boolean') }}"
+            },
+            {
+              "name": "sortBy",
+              "value": "={{ $fromAI('sortBy', 'Field to sort by', 'string') }}"
+            },
+            {
+              "name": "sortDirection",
+              "value": "={{ $fromAI('sortDirection', 'Direction of sort \"asc\" or \"desc\"', 'string') }}"
+            },
+            {
+              "name": "createdAfter",
+              "value": "={{ $fromAI('createdAfter', 'Exclude datapoints created before this date (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "createdBefore",
+              "value": "={{ $fromAI('createdBefore', 'Exclude datapoints created after this date (YYYYMMDD)', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "List of all the datapoints associated to the user in this group.\n\nParameters:\n- Path parameters:\n  • id (required) - Id of the group\n- Query parameters:\n  • offset (optional) - Where to start when retrieving elements. Default is 0 if not specified.\n  • limit (optional) - Maximum elements to retrieve. Default to 20 if not specified.\n  • type (optional) - Type of the datapoint (\"tp\"/\"tl\")\n  • status (optional) - Status of the datapoint\n  • tags (optional) - A comma separated list of tags you want to filter with.\n  • textSearch (optional) - Filter fields by this pattern\n  • onlyFavorites (optional) - Filter fields by favourite status\n  • sortBy (optional) - Field to sort by\n  • sortDirection (optional) - Direction of sort \"asc\" or \"desc\"\n  • createdAfter (optional) - Exclude datapoints created before this date (YYYYMMDD)\n  • createdBefore (optional) - Exclude datapoints created after this date (YYYYMMDD)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "cfd35419-a7be-43a0-ad9c-6d21d206a818",
+      "name": "Create Group 5",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1880,
+        1380
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/groups/{{ $fromAI('id', 'The id of the group', 'number') }}/datapoints",
+        "method": "POST",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Create a datapoint in this group\n\nParameters:\n- Path parameters:\n  • id (required) - Id of the group"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "08d094a0-873d-4069-8b6e-771c6f14d2c1",
+      "name": "Get Group 12",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        2080,
+        1380
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/groups/{{ $fromAI('id', 'Id of the group', 'number') }}/datapoints/count",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "type",
+              "value": "={{ $fromAI('type', 'Type of the datapoint (\"tp\"/\"tl\")', 'string') }}"
+            },
+            {
+              "name": "status",
+              "value": "={{ $fromAI('status', 'Status of the datapoint', 'string') }}"
+            },
+            {
+              "name": "tags",
+              "value": "={{ $fromAI('tags', 'A comma separated list of tags you want to filter with.', 'string') }}"
+            },
+            {
+              "name": "textSearch",
+              "value": "={{ $fromAI('textSearch', 'Filter fields by this pattern', 'string') }}"
+            },
+            {
+              "name": "onlyFavorites",
+              "value": "={{ $fromAI('onlyFavorites', 'Filter fields by favourite status', 'boolean') }}"
+            },
+            {
+              "name": "createdAfter",
+              "value": "={{ $fromAI('createdAfter', 'Exclude datapoints created before this date (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "createdBefore",
+              "value": "={{ $fromAI('createdBefore', 'Exclude datapoints created after this date (YYYYMMDD)', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Count the datapoints associated to the user in this group.\n\nParameters:\n- Path parameters:\n  • id (required) - Id of the group\n- Query parameters:\n  • type (optional) - Type of the datapoint (\"tp\"/\"tl\")\n  • status (optional) - Status of the datapoint\n  • tags (optional) - A comma separated list of tags you want to filter with.\n  • textSearch (optional) - Filter fields by this pattern\n  • onlyFavorites (optional) - Filter fields by favourite status\n  • createdAfter (optional) - Exclude datapoints created before this date (YYYYMMDD)\n  • createdBefore (optional) - Exclude datapoints created after this date (YYYYMMDD)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0f38dd3b-8cd8-4112-a7aa-a3bce6d6bda8",
+      "name": "Update Group 2",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        2280,
+        1380
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/groups/{{ $fromAI('id', 'Id of the group', 'number') }}/favourite",
+        "method": "PUT",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Fast switch the \"favourite\" field of a group\n\nParameters:\n- Path parameters:\n  • id (required) - Id of the group"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "ff2d8062-a2ba-4912-80d6-54b8ea71ff07",
+      "name": "Get Group 13",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        2480,
+        1380
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/groups/{{ $fromAI('id', 'Id of the group', 'number') }}/hits",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "timeframe",
+              "value": "={{ $fromAI('timeframe', 'Timeframe of the request. See list at $timeframeList', 'string') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Limit results to this number', 'number') }}"
+            },
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Offset where to start from (it's the lastKey field in the response object)', 'string') }}"
+            },
+            {
+              "name": "fromDay",
+              "value": "={{ $fromAI('fromDay', 'If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "toDay",
+              "value": "={{ $fromAI('toDay', 'If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "filter",
+              "value": "={{ $fromAI('filter', 'Filter event type (\"spiders\"/\"uniques\"/\"nonuniques\"/\"conversions\")', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve the list of events related to this group.\n\nParameters:\n- Path parameters:\n  • id (required) - Id of the group\n- Query parameters:\n  • timeframe (required) - Timeframe of the request. See list at $timeframeList\n  • limit (optional) - Limit results to this number\n  • offset (optional) - Offset where to start from (it's the lastKey field in the response object)\n  • fromDay (optional) - If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)\n  • toDay (optional) - If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)\n  • filter (optional) - Filter event type (\"spiders\"/\"uniques\"/\"nonuniques\"/\"conversions\")"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e5b65952-2837-408e-8cf5-26d2cc288011",
+      "name": "Update Group 3",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        2680,
+        1380
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/groups/{{ $fromAI('id', 'Id of the group', 'number') }}/notes",
+        "method": "PUT",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Fast patch the \"notes\" field of a group\n\nParameters:\n- Path parameters:\n  • id (required) - Id of the group"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "20cfffe0-0fb4-4552-be9c-b67fe58daf7b",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        1580
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 300,
+        "height": 200,
+        "content": "**Мониторинг производительности** - Слишком много инструментов может замедлить ответы AI"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d097921f-1d05-41f7-8595-a71165b795b9",
+      "name": "Get Hits 1",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        1620
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/hits",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "timeframe",
+              "value": "={{ $fromAI('timeframe', 'Timeframe of the request. See list at $timeframeList', 'string') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Limit results to this number', 'number') }}"
+            },
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Offset where to start from (it's the lastKey field in the response object)', 'string') }}"
+            },
+            {
+              "name": "fromDay",
+              "value": "={{ $fromAI('fromDay', 'If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "toDay",
+              "value": "={{ $fromAI('toDay', 'If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "filter",
+              "value": "={{ $fromAI('filter', 'Filter event type (\"spiders\"/\"uniques\"/\"nonuniques\"/\"conversions\")', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve the list of events related to this account.\n\nParameters:\n- Query parameters:\n  • timeframe (required) - Timeframe of the request. See list at $timeframeList\n  • limit (optional) - Limit results to this number\n  • offset (optional) - Offset where to start from (it's the lastKey field in the response object)\n  • fromDay (optional) - If using a \"custom\" timeFrame you can specify the starting day (YYYYMMDD)\n  • toDay (optional) - If using a \"custom\" timeFrame you can specify the ending day (YYYYMMDD)\n  • filter (optional) - Filter event type (\"spiders\"/\"uniques\"/\"nonuniques\"/\"conversions\")"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "9b0d8964-15f4-4c8c-834c-c78a5f2a3cba",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        1820
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 500,
+        "height": 200,
+        "content": "### 💡 Полезные советы"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5372027f-7b58-4b87-a9c9-9ac2ebef2435",
+      "name": "Get Me 2",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        1860
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/me",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Retrieve current account data"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "6b0421c5-d141-4951-82b0-a66d7ead4f48",
+      "name": "Get Me 3",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        1860
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/me/plan",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Retrieve current account plan"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "abe08190-df56-4b9a-904f-82dcee7170bc",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        2060
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1700,
+        "height": 200,
+        "content": "**Держите максимум 40 включенных инструментов** - Большинство AI-клиентов работают лучше с меньшим количеством инструментов"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "437b289e-df90-4cc1-bf43-29c393ebf60f",
+      "name": "Get Retargeting 5",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        2100
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/retargeting",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Where to start when retrieving elements. Default is 0 if not specified.', 'number', 0) }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Maximum elements to retrieve. Default to 20 if not specified.', 'number', 20) }}"
+            }
+          ]
+        },
+        "toolDescription": "List of all the retargeting scripts associated to the user\n\nParameters:\n- Query parameters:\n  • offset (optional) - Where to start when retrieving elements. Default is 0 if not specified.\n  • limit (optional) - Maximum elements to retrieve. Default to 20 if not specified."
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "80f97cd8-cd8c-471a-b3d8-e92d5c2727b9",
+      "name": "Create Retargeting 2",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        2100
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/retargeting",
+        "method": "POST",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Creates a retargeting script"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "57558ff7-ad92-404a-b692-92d91d66b60a",
+      "name": "Get Retargeting 6",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        2100
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/retargeting/count",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Retrieve count of retargeting scripts"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c7accdcb-ec1c-4d81-9dd0-9689d0ac2ed0",
+      "name": "Delete Retargeting 1",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        80,
+        2100
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/retargeting/{{ $fromAI('id', 'The id of the retargeting script', 'number') }}",
+        "method": "DELETE",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Deletes a retargeting script (and remove associations)\n\nParameters:\n- Path parameters:\n  • id (required) - Id of the retargeting script"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "3aaf5dfd-4e95-4ef6-a606-53520ae67a1d",
+      "name": "Get Retargeting 7",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        280,
+        2100
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/retargeting/{{ $fromAI('id', 'The id of the retargeting script', 'number') }}",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Get a retargeting script object\n\nParameters:\n- Path parameters:\n  • id (required) - Id of the retargeting script"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "90d3508c-d3be-45f3-af8f-b208761a64e6",
+      "name": "Create Retargeting 3",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        480,
+        2100
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/retargeting/{{ $fromAI('id', 'The id of the retargeting script', 'number') }}",
+        "method": "POST",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Updates a retargeting script\n\nParameters:\n- Path parameters:\n  • id (required) - Id of the retargeting script"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "6d4cf66b-c862-41b4-a3fb-c90f0d20e99a",
+      "name": "Get Retargeting 8",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        680,
+        2100
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/retargeting/{{ $fromAI('id', 'Id of the retargeting script', 'number') }}/datapoints",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Where to start when retrieving elements. Default is 0 if not specified.', 'number', 0) }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Maximum elements to retrieve. Default to 20 if not specified.', 'number', 20) }}"
+            },
+            {
+              "name": "status",
+              "value": "={{ $fromAI('status', 'Status of the datapoint', 'string') }}"
+            },
+            {
+              "name": "tags",
+              "value": "={{ $fromAI('tags', 'A comma separated list of tags you want to filter with.', 'string') }}"
+            },
+            {
+              "name": "textSearch",
+              "value": "={{ $fromAI('textSearch', 'Filter fields by this pattern', 'string') }}"
+            },
+            {
+              "name": "onlyFavorites",
+              "value": "={{ $fromAI('onlyFavorites', 'Filter fields by favourite status', 'boolean') }}"
+            },
+            {
+              "name": "sortBy",
+              "value": "={{ $fromAI('sortBy', 'Field to sort by', 'string') }}"
+            },
+            {
+              "name": "sortDirection",
+              "value": "={{ $fromAI('sortDirection', 'Direction of sort \"asc\" or \"desc\"', 'string') }}"
+            },
+            {
+              "name": "createdAfter",
+              "value": "={{ $fromAI('createdAfter', 'Exclude datapoints created before this date (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "createdBefore",
+              "value": "={{ $fromAI('createdBefore', 'Exclude datapoints created after this date (YYYYMMDD)', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "List of all the datapoints associated to the retargeting script.\n\nParameters:\n- Path parameters:\n  • id (required) - Id of the retargeting script\n- Query parameters:\n  • offset (optional) - Where to start when retrieving elements. Default is 0 if not specified.\n  • limit (optional) - Maximum elements to retrieve. Default to 20 if not specified.\n  • status (optional) - Status of the datapoint\n  • tags (optional) - A comma separated list of tags you want to filter with.\n  • textSearch (optional) - Filter fields by this pattern\n  • onlyFavorites (optional) - Filter fields by favourite status\n  • sortBy (optional) - Field to sort by\n  • sortDirection (optional) - Direction of sort \"asc\" or \"desc\"\n  • createdAfter (optional) - Exclude datapoints created before this date (YYYYMMDD)\n  • createdBefore (optional) - Exclude datapoints created after this date (YYYYMMDD)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "fb372604-d792-4b32-b4c2-455a8895e725",
+      "name": "Get Retargeting 9",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        880,
+        2100
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/retargeting/{{ $fromAI('id', 'Id of the group', 'number') }}/datapoints/count",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "status",
+              "value": "={{ $fromAI('status', 'Status of the datapoint', 'string') }}"
+            },
+            {
+              "name": "tags",
+              "value": "={{ $fromAI('tags', 'A comma separated list of tags you want to filter with.', 'string') }}"
+            },
+            {
+              "name": "textSearch",
+              "value": "={{ $fromAI('textSearch', 'Filter fields by this pattern', 'string') }}"
+            },
+            {
+              "name": "onlyFavorites",
+              "value": "={{ $fromAI('onlyFavorites', 'Filter fields by favourite status', 'boolean') }}"
+            },
+            {
+              "name": "createdAfter",
+              "value": "={{ $fromAI('createdAfter', 'Exclude datapoints created before this date (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "createdBefore",
+              "value": "={{ $fromAI('createdBefore', 'Exclude datapoints created after this date (YYYYMMDD)', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Count the datapoints associated to the retargeting script.\n\nParameters:\n- Path parameters:\n  • id (required) - Id of the group\n- Query parameters:\n  • status (optional) - Status of the datapoint\n  • tags (optional) - A comma separated list of tags you want to filter with.\n  • textSearch (optional) - Filter fields by this pattern\n  • onlyFavorites (optional) - Filter fields by favourite status\n  • createdAfter (optional) - Exclude datapoints created before this date (YYYYMMDD)\n  • createdBefore (optional) - Exclude datapoints created after this date (YYYYMMDD)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "9a6bf7b1-8e42-4275-92a1-153ee4e15606",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        2300
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 2900,
+        "height": 200,
+        "content": "- Группируйте связанные операции и включайте только одну группу за раз"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "72ba153a-160d-489b-a853-92d12a62f56d",
+      "name": "Get Tags 2",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        2340
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/tags",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Where to start when retrieving elements. Default is 0 if not specified.', 'number', 0) }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Maximum elements to retrieve. Default to 20 if not specified.', 'number', 20) }}"
+            },
+            {
+              "name": "name",
+              "value": "={{ $fromAI('name', 'Name of the tag', 'string') }}"
+            },
+            {
+              "name": "datapoints",
+              "value": "={{ $fromAI('datapoints', 'Comma separated list of datapoints id to filter by', 'string') }}"
+            },
+            {
+              "name": "groups",
+              "value": "={{ $fromAI('groups', 'Comma separated list of groups id to filter by', 'string') }}"
+            },
+            {
+              "name": "type",
+              "value": "={{ $fromAI('type', 'Type of entity related to the tag', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "List of all the groups associated to the user filtered by this tag.\n\nParameters:\n- Query parameters:\n  • offset (optional) - Where to start when retrieving elements. Default is 0 if not specified.\n  • limit (optional) - Maximum elements to retrieve. Default to 20 if not specified.\n  • name (optional) - Name of the tag\n  • datapoints (optional) - Comma separated list of datapoints id to filter by\n  • groups (optional) - Comma separated list of groups id to filter by\n  • type (optional) - Type of entity related to the tag"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "87190697-1477-46cd-9426-dacdbc42b43d",
+      "name": "Create Tag 1",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        2340
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/tags",
+        "method": "POST",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Create a tag"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "9d9f3c7f-0d72-4d18-8958-c856dfe8ba09",
+      "name": "Get Tags 3",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        2340
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/tags/count",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{ $fromAI('name', 'Name of the tag', 'string') }}"
+            },
+            {
+              "name": "datapoints",
+              "value": "={{ $fromAI('datapoints', 'Comma separated list of datapoints id to filter by', 'string') }}"
+            },
+            {
+              "name": "groups",
+              "value": "={{ $fromAI('groups', 'Comma separated list of groups id to filter by', 'string') }}"
+            },
+            {
+              "name": "type",
+              "value": "={{ $fromAI('type', 'Type of entity related to the tag', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "List of all the groups associated to the user filtered by this tag.\n\nParameters:\n- Query parameters:\n  • name (optional) - Name of the tag\n  • datapoints (optional) - Comma separated list of datapoints id to filter by\n  • groups (optional) - Comma separated list of groups id to filter by\n  • type (optional) - Type of entity related to the tag"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "4f301a96-24ff-42ee-aaa4-bcd4c584cf49",
+      "name": "Delete Tag 3",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        80,
+        2340
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/tags/{{ $fromAI('tagId', 'Id of the tag', 'number') }}",
+        "method": "DELETE",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Delete a tag\n\nParameters:\n- Path parameters:\n  • tagId (required) - Id of the tag"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "6cd2e14a-4b1a-46f7-b4b4-fb3fa1fc2773",
+      "name": "Get Tag 5",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        280,
+        2340
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/tags/{{ $fromAI('tagId', 'Id of the tag', 'number') }}",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Retrieve a tag\n\nParameters:\n- Path parameters:\n  • tagId (required) - Id of the tag"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "6c5114c3-40a1-4ea2-adf3-fef819f00532",
+      "name": "Delete Tag 4",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        480,
+        2340
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/tags/{{ $fromAI('tagId', 'Id of the tag', 'number') }}/datapoints",
+        "method": "DELETE",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Delete the association of this tag with all datapoints\n\nParameters:\n- Path parameters:\n  • tagId (required) - Id of the tag"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "3330f19c-b343-461f-abad-386eb53ff5b2",
+      "name": "Get Tag 6",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        680,
+        2340
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/tags/{{ $fromAI('tagId', 'Id of the tag.', 'number') }}/datapoints",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Where to start when retrieving elements. Default is 0 if not specified.', 'number', 0) }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Maximum elements to retrieve. Default to 20 if not specified.', 'number', 20) }}"
+            },
+            {
+              "name": "type",
+              "value": "={{ $fromAI('type', 'Type of the datapoint (\"tp\"/\"tl\")', 'string') }}"
+            },
+            {
+              "name": "status",
+              "value": "={{ $fromAI('status', 'Status of the datapoint', 'string') }}"
+            },
+            {
+              "name": "textSearch",
+              "value": "={{ $fromAI('textSearch', 'Filter fields by this pattern', 'string') }}"
+            },
+            {
+              "name": "createdAfter",
+              "value": "={{ $fromAI('createdAfter', 'Exclude datapoints created before this date (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "createdBefore",
+              "value": "={{ $fromAI('createdBefore', 'Exclude datapoints created after this date (YYYYMMDD)', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "List of all the datapoints associated to the user filtered by this tag\n\nParameters:\n- Path parameters:\n  • tagId (required) - Id of the tag.\n- Query parameters:\n  • offset (optional) - Where to start when retrieving elements. Default is 0 if not specified.\n  • limit (optional) - Maximum elements to retrieve. Default to 20 if not specified.\n  • type (optional) - Type of the datapoint (\"tp\"/\"tl\")\n  • status (optional) - Status of the datapoint\n  • textSearch (optional) - Filter fields by this pattern\n  • createdAfter (optional) - Exclude datapoints created before this date (YYYYMMDD)\n  • createdBefore (optional) - Exclude datapoints created after this date (YYYYMMDD)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "90b826b5-05ef-411e-bcb4-1c67df83e954",
+      "name": "Get Tag 7",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        880,
+        2340
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/tags/{{ $fromAI('tagId', 'Id of the tag.', 'number') }}/datapoints/count",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "type",
+              "value": "={{ $fromAI('type', 'Type of the datapoint (\"tp\"/\"tl\")', 'string') }}"
+            },
+            {
+              "name": "status",
+              "value": "={{ $fromAI('status', 'Status of the datapoint', 'string') }}"
+            },
+            {
+              "name": "textSearch",
+              "value": "={{ $fromAI('textSearch', 'Filter fields by this pattern', 'string') }}"
+            },
+            {
+              "name": "createdAfter",
+              "value": "={{ $fromAI('createdAfter', 'Exclude datapoints created before this date (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "createdBefore",
+              "value": "={{ $fromAI('createdBefore', 'Exclude datapoints created after this date (YYYYMMDD)', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Count the datapoints associated to the user filtered by this tag\n\nParameters:\n- Path parameters:\n  • tagId (required) - Id of the tag.\n- Query parameters:\n  • type (optional) - Type of the datapoint (\"tp\"/\"tl\")\n  • status (optional) - Status of the datapoint\n  • textSearch (optional) - Filter fields by this pattern\n  • createdAfter (optional) - Exclude datapoints created before this date (YYYYMMDD)\n  • createdBefore (optional) - Exclude datapoints created after this date (YYYYMMDD)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e3140d72-2204-4459-a79a-b90dceb13c78",
+      "name": "Update Tag 3",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1080,
+        2340
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/tags/{{ $fromAI('tagId', 'Id of the tag', 'number') }}/datapoints/patch",
+        "method": "PUT",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Associate/Deassociate a tag with a datapoint\n\nParameters:\n- Path parameters:\n  • tagId (required) - Id of the tag"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b6323268-8360-4d13-abd7-7efbc2fde5b7",
+      "name": "Delete Tag 5",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1280,
+        2340
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/tags/{{ $fromAI('tagId', 'Id of the tag', 'number') }}/groups",
+        "method": "DELETE",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Delete the association of this tag with all groups\n\nParameters:\n- Path parameters:\n  • tagId (required) - Id of the tag"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e45eec41-cafd-4647-9555-a79bee2dcb2b",
+      "name": "Get Tag 8",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1480,
+        2340
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/tags/{{ $fromAI('tagId', 'Id of the tag.', 'number') }}/groups",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Where to start when retrieving elements. Default is 0 if not specified.', 'number', 0) }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Maximum elements to retrieve. Default to 20 if not specified.', 'number', 20) }}"
+            },
+            {
+              "name": "status",
+              "value": "={{ $fromAI('status', 'Status of the datapoint', 'string') }}"
+            },
+            {
+              "name": "textSearch",
+              "value": "={{ $fromAI('textSearch', 'Filter fields by this pattern', 'string') }}"
+            },
+            {
+              "name": "createdAfter",
+              "value": "={{ $fromAI('createdAfter', 'Exclude groups created before this date (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "createdBefore",
+              "value": "={{ $fromAI('createdBefore', 'Exclude groups created after this date (YYYYMMDD)', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "List of all the groups associated to the user filtered by this tag.\n\nParameters:\n- Path parameters:\n  • tagId (required) - Id of the tag.\n- Query parameters:\n  • offset (optional) - Where to start when retrieving elements. Default is 0 if not specified.\n  • limit (optional) - Maximum elements to retrieve. Default to 20 if not specified.\n  • status (optional) - Status of the datapoint\n  • textSearch (optional) - Filter fields by this pattern\n  • createdAfter (optional) - Exclude groups created before this date (YYYYMMDD)\n  • createdBefore (optional) - Exclude groups created after this date (YYYYMMDD)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "600ba434-db9f-4203-aecd-a0f2b484e13e",
+      "name": "Get Tag 9",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1680,
+        2340
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/tags/{{ $fromAI('tagId', 'Id of the tag.', 'number') }}/groups/count",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "status",
+              "value": "={{ $fromAI('status', 'Status of the datapoint', 'string') }}"
+            },
+            {
+              "name": "textSearch",
+              "value": "={{ $fromAI('textSearch', 'Filter fields by this pattern', 'string') }}"
+            },
+            {
+              "name": "createdAfter",
+              "value": "={{ $fromAI('createdAfter', 'Exclude groups created before this date (YYYYMMDD)', 'string') }}"
+            },
+            {
+              "name": "createdBefore",
+              "value": "={{ $fromAI('createdBefore', 'Exclude groups created after this date (YYYYMMDD)', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Count the groups associated to the user filtered by this tag\n\nParameters:\n- Path parameters:\n  • tagId (required) - Id of the tag.\n- Query parameters:\n  • status (optional) - Status of the datapoint\n  • textSearch (optional) - Filter fields by this pattern\n  • createdAfter (optional) - Exclude groups created before this date (YYYYMMDD)\n  • createdBefore (optional) - Exclude groups created after this date (YYYYMMDD)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "01707e86-8c0e-4f0c-bff5-a267f7e4f6d8",
+      "name": "Update Tag 4",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1880,
+        2340
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/tags/{{ $fromAI('tagId', 'Id of the tag', 'number') }}/groups/patch",
+        "method": "PUT",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Associate/Deassociate a tag with a group\n\nParameters:\n- Path parameters:\n  • tagId (required) - Id of the tag"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "abc3e578-1ad0-42bd-8322-5d4cd6a516d3",
+      "name": "Update Tag 5",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        2080,
+        2340
+      ],
+      "parameters": {
+        "url": "=http://apiv2.clickmeter.com:80/tags/{{ $fromAI('tagId', 'Id of the tag', 'number') }}/name",
+        "method": "PUT",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Fast patch a tag name\n\nParameters:\n- Path parameters:\n  • tagId (required) - Id of the tag"
+      },
+      "typeVersion": 4.2
+    }
+  ],
+  "active": false,
+  "shared": [
+    {
+      "role": "workflow:owner",
+      "project": {
+        "id": "G5fce9xGuBAsWBXe",
+        "icon": null,
+        "name": "David Ashby <david.ashby.lds@gmail.com>",
+        "type": "personal",
+        "createdAt": "2025-06-04T02:55:02.013Z",
+        "updatedAt": "2025-06-04T02:56:01.361Z",
+        "projectRelations": [
+          {
+            "role": "project:personalOwner",
+            "user": {
+              "id": "715c1c00-cb48-4712-9a32-f1f4b6db2b30",
+              "role": "global:owner",
+              "email": "david.ashby.lds@gmail.com",
+              "disabled": false,
+              "lastName": "Ashby",
+              "settings": {
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1749357655581
+                },
+                "userActivated": true,
+                "userActivatedAt": 1749075994495,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "3N3vVikZb3MckFYm"
+              },
+              "createdAt": "2025-06-04T02:55:01.745Z",
+              "firstName": "David",
+              "isPending": false,
+              "updatedAt": "2025-06-08T04:40:58.399Z",
+              "mfaEnabled": false,
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_n8n_version": "1.95.3",
+                "personalization_survey_submitted_at": "2025-06-04T02:56:07.075Z"
+              }
+            },
+            "userId": "715c1c00-cb48-4712-9a32-f1f4b6db2b30",
+            "createdAt": "2025-06-04T02:55:02.013Z",
+            "projectId": "G5fce9xGuBAsWBXe",
+            "updatedAt": "2025-06-04T02:55:02.013Z"
+          }
+        ]
+      },
+      "createdAt": "2025-07-02T00:06:25.951Z",
+      "projectId": "G5fce9xGuBAsWBXe",
+      "updatedAt": "2025-07-02T00:06:25.951Z",
+      "workflowId": "r6j2m5dcgZ5ZlYTt"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "timezone": "America/New_York"
+  },
+  "createdAt": "2025-07-02T00:06:25.948Z",
+  "updatedAt": "2025-07-02T00:10:44.000Z",
+  "versionId": "d04d60d5-707b-4808-9807-01c60e2f9a06",
+  "isArchived": false,
+  "staticData": null,
+  "connections": {
+    "Get Me 2": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Me 3": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Tag 5": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Tag 6": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Tag 7": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Tag 8": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Tag 9": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Hits 1": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Tags 2": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Tags 3": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Group 7": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Group 8": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Group 9": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Tag 1": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Tag 3": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Tag 4": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Tag 5": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Domain 1": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Group 10": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Group 11": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Group 12": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Group 13": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Groups 4": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Groups 5": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Groups 6": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Groups 7": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Tag 3": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Tag 4": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Tag 5": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Account 9": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Domains 2": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Domains 3": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Group 3": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Group 4": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Group 5": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Group 1": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Account 10": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Account 11": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Account 12": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Account 13": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Account 14": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Account 15": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Account 16": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Account 17": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Group 2": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Group 3": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Domain 2": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Domain 3": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Domain 1": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Datapoint 4": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Datapoint 5": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Datapoint 6": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Datapoint 7": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Account 6": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Account 7": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Account 8": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Account 9": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Account 3": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Account 4": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Account 5": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Aggregated 5": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Aggregated 6": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Aggregated 7": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Aggregated 8": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Aggregated 9": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Conversion 6": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Conversion 7": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Conversion 8": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Conversion 9": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Datapoints 4": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Datapoints 5": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Datapoints 6": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Datapoints 7": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Account 1": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Account 10": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Account 11": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Clickstream 1": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Conversion 10": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Conversion 11": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Conversions 3": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Conversions 4": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Conversions 5": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Retargeting 5": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Retargeting 6": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Retargeting 7": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Retargeting 8": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Retargeting 9": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Datapoint 3": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Datapoint 4": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Datapoint 5": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Datapoint 2": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Datapoint 3": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Datapoint 3": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Datapoint 4": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Datapoint 5": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Conversion 2": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Conversion 3": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Conversion 1": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Conversion 3": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Conversion 4": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Conversion 5": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Retargeting 2": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Retargeting 3": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Retargeting 1": {
+      "ai_tool": [
+        [
+          {
+            "node": "ClickMeter MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "triggerCount": 0
+}

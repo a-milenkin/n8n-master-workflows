@@ -1,0 +1,3015 @@
+{
+  "id": "nj7NS9J58jAqvo5R",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "API сервера данных колледжного футбола MCP",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "c720e56e-0a7d-4729-8e6e-a3e45488ff43",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1360,
+        -240
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 1240,
+        "content": "## 🛠️ Сервер данных колледжного футбола MCP ✅ 51 операция\n\n### О проекте\nЭто API для доступа ко всем видам данных колледжного футбола. Пожалуйста, обратите внимание, что ключи API должны быть предоставлены с префиксом \"Bearer \" (например, \"Bearer ваш_ключ\"). Ключи API можно получить на сайте CollegeFootballData.com.\n\n### 🔧 Как это работает\n\nЭтот рабочий процесс преобразует API данных колледжного футбола в интерфейс, совместимый с MCP для AI-агентов.\n\n• **MCP триггер**: служит конечной точкой вашего сервера для запросов AI-агентов  \n• **HTTP Request Nodes**: обрабатывают вызовы API к https://api.collegefootballdata.com  \n• **AI Expressions**: автоматически заполняют параметры через плейсхолдеры `$fromAI()`  \n• **Нативная интеграция**: возвращает ответы непосредственно AI-агенту  \n\n### 📋 Доступные операции (51 конечная точка)\n\n**Игры (9 операций)**  \nсезон, продвинутый, игры, игра, игрок, команда, вживую  \n\n**Тренеры (1 операция)**  \nтренерство  \n\n**Конференции (1 операция)**  \nконференции  \n\n**Драфт (3 операции)**  \nсписок  \n\n**Драйвы (1 операция)**  \nдрайв  \n\n**Ставки (1 операция)**  \nставки  \n\n**Игры (5 операций)**  \nвживую, типы, игра  \n\n**Метрики (7 операций)**  \nпобеда, предигровая, команда, игрок, предсказанная  \n\n**Игроки (5 операций)**  \nтрансфер, команда, поиск, игрок  \n\n**Рейтинги (1 операция)**  \nисторические  \n\n**Рейтинги (4 операции)**  \nисторические  \n\n**Рекрутинг (3 операции)**  \nрекрут, игрок, команда  \n\n**Команды (5 операций)**  \nкоманда, fbs  \n\n**Статистика (4 операции)**  \nкоманда, продвинутый  \n\n**Места (1 операция)**  \nарена  \n\n### ⚙️ Инструкции по настройке\n\n1. **Импорт рабочего процесса**: загрузите этот рабочий процесс в вашу инстанцию n8n  \n\n2. **Настройка аутентификации**: настройте учетные данные apiKey  \n   - Тип: API Key в заголовке  \n   - Имя ключа: Authorization  \n\n3. **Активировать рабочий процесс**: включите рабочий процесс, чтобы запустить сервер MCP  \n\n4. **Получить URL MCP**: скопируйте URL вебхука из триггера MCP  \n\n5. **Подключить AI-агента**: используйте URL MCP в конфигурации вашего AI-агента  \n\n### 💡 Примечания по использованию\n\n• Параметры автоматически заполняются AI с использованием выражений $fromAI()  \n• Доступно 51 конечная точка API в качестве инструментов  \n• Ответы сохраняют оригинальную структуру API  \n### 🛠️ Настройка\n\n• Добавьте узлы преобразования данных, если необходимо  \n• Реализуйте пользовательскую обработку ошибок  \n• Добавьте узлы логирования или мониторинга  \n\n• Измените значения по умолчанию параметров в любом узле HTTP-запроса по мере необходимости  \n\n### 💬 Нужна помощь?  \nПроверьте [документацию n8n](https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.toolmcp/) или напишите мне в [discord](https://discord.me/cfomodz) для получения рекомендаций по интеграции MCP или настройкам."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "572ab2f8-e48a-4f62-9a9d-a28941270e30",
+      "name": "College Football Data MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        0,
+        -240
+      ],
+      "webhookId": "45e8745d-a524-42ca-9cc1-3afad0bc13d5",
+      "parameters": {
+        "path": "college-football-data-mcp",
+        "authentication": "headerAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "Bq6FmBmPJOfTe6MM",
+          "name": "Test Header Auth Cred"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "30b24427-7d93-4449-b967-d23b312179a6",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -920,
+        20
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 1940,
+        "height": 180,
+        "content": "## Игры"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c8eb792a-91e6-4192-a563-3a39924caccf",
+      "name": "Season calendar",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -740,
+        40
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/calendar",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year filter', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Season calendar\n\nParameters:\n- Query parameters:\n  • year (required) - Year filter"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "Bq6FmBmPJOfTe6MM",
+          "name": "Test Header Auth Cred"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "315c8c13-df43-4901-823a-2a66d67b508e",
+      "name": "Advanced box scores",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -540,
+        40
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/game/box/advanced",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "gameId",
+              "value": "={{ $fromAI('gameId', 'Game id parameters', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Advanced box scores\n\nParameters:\n- Query parameters:\n  • gameId (required) - Game id parameters"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "73938163-7681-4da0-a040-903968dabdd7",
+      "name": "Games and results",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -340,
+        40
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/games",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year/season filter for games', 'number') }}"
+            },
+            {
+              "name": "week",
+              "value": "={{ $fromAI('week', 'Week filter', 'number') }}"
+            },
+            {
+              "name": "seasonType",
+              "value": "={{ $fromAI('seasonType', 'Season type filter (regular or postseason)', 'string', 'regular') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team', 'string') }}"
+            },
+            {
+              "name": "home",
+              "value": "={{ $fromAI('home', 'Home team filter', 'string') }}"
+            },
+            {
+              "name": "away",
+              "value": "={{ $fromAI('away', 'Away team filter', 'string') }}"
+            },
+            {
+              "name": "conference",
+              "value": "={{ $fromAI('conference', 'Conference abbreviation filter', 'string') }}"
+            },
+            {
+              "name": "division",
+              "value": "={{ $fromAI('division', 'Division classification filter (fbs/fcs/ii/iii)', 'string') }}"
+            },
+            {
+              "name": "id",
+              "value": "={{ $fromAI('id', 'id filter for querying a single game', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Games and results\n\nParameters:\n- Query parameters:\n  • year (required) - Year/season filter for games\n  • week (optional) - Week filter\n  • seasonType (optional) - Season type filter (regular or postseason)\n  • team (optional) - Team\n  • home (optional) - Home team filter\n  • away (optional) - Away team filter\n  • conference (optional) - Conference abbreviation filter\n  • division (optional) - Division classification filter (fbs/fcs/ii/iii)\n  • id (optional) - id filter for querying a single game"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "497d38b6-3290-4fa1-a329-a0d32d705700",
+      "name": "Game media information and schedules",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -140,
+        40
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/games/media",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year filter', 'number') }}"
+            },
+            {
+              "name": "week",
+              "value": "={{ $fromAI('week', 'Week filter', 'number') }}"
+            },
+            {
+              "name": "seasonType",
+              "value": "={{ $fromAI('seasonType', 'Season type filter (regular, postseason, or both)', 'string') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team filter', 'string') }}"
+            },
+            {
+              "name": "conference",
+              "value": "={{ $fromAI('conference', 'Conference filter', 'string') }}"
+            },
+            {
+              "name": "mediaType",
+              "value": "={{ $fromAI('mediaType', 'Media type filter (tv, radio, web, ppv, or mobile)', 'string') }}"
+            },
+            {
+              "name": "classification",
+              "value": "={{ $fromAI('classification', 'Division classification filter (fbs/fcs/ii/iii)', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Game media information and schedules\n\nParameters:\n- Query parameters:\n  • year (required) - Year filter\n  • week (optional) - Week filter\n  • seasonType (optional) - Season type filter (regular, postseason, or both)\n  • team (optional) - Team filter\n  • conference (optional) - Conference filter\n  • mediaType (optional) - Media type filter (tv, radio, web, ppv, or mobile)\n  • classification (optional) - Division classification filter (fbs/fcs/ii/iii)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "fb9d536b-b5be-4490-b204-65ee58fd0f30",
+      "name": "Player game stats",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        60,
+        40
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/games/players",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year/season filter for games', 'number') }}"
+            },
+            {
+              "name": "week",
+              "value": "={{ $fromAI('week', 'Week filter', 'number') }}"
+            },
+            {
+              "name": "seasonType",
+              "value": "={{ $fromAI('seasonType', 'Season type filter (regular or postseason)', 'string', 'regular') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team filter', 'string') }}"
+            },
+            {
+              "name": "conference",
+              "value": "={{ $fromAI('conference', 'Conference abbreviation filter', 'string') }}"
+            },
+            {
+              "name": "category",
+              "value": "={{ $fromAI('category', 'Category filter (e.g defensive)', 'string') }}"
+            },
+            {
+              "name": "gameId",
+              "value": "={{ $fromAI('gameId', 'Game id filter', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Player game stats\n\nParameters:\n- Query parameters:\n  • year (required) - Year/season filter for games\n  • week (optional) - Week filter\n  • seasonType (optional) - Season type filter (regular or postseason)\n  • team (optional) - Team filter\n  • conference (optional) - Conference abbreviation filter\n  • category (optional) - Category filter (e.g defensive)\n  • gameId (optional) - Game id filter"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d00506b5-c800-4bc9-9a23-c6674b46bed3",
+      "name": "Team game stats",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        260,
+        40
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/games/teams",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year/season filter for games', 'number') }}"
+            },
+            {
+              "name": "week",
+              "value": "={{ $fromAI('week', 'Week filter', 'number') }}"
+            },
+            {
+              "name": "seasonType",
+              "value": "={{ $fromAI('seasonType', 'Season type filter (regular or postseason)', 'string', 'regular') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team filter', 'string') }}"
+            },
+            {
+              "name": "conference",
+              "value": "={{ $fromAI('conference', 'Conference abbreviation filter', 'string') }}"
+            },
+            {
+              "name": "gameId",
+              "value": "={{ $fromAI('gameId', 'Game id filter', 'number') }}"
+            },
+            {
+              "name": "classification",
+              "value": "={{ $fromAI('classification', 'Division classification filter (fbs/fcs/ii/iii)', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Team game stats\n\nParameters:\n- Query parameters:\n  • year (required) - Year/season filter for games\n  • week (optional) - Week filter\n  • seasonType (optional) - Season type filter (regular or postseason)\n  • team (optional) - Team filter\n  • conference (optional) - Conference abbreviation filter\n  • gameId (optional) - Game id filter\n  • classification (optional) - Division classification filter (fbs/fcs/ii/iii)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "7d92017a-2e53-4705-bea7-b2259423c947",
+      "name": "Game weather information (Patreon only)",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        460,
+        40
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/games/weather",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "gameId",
+              "value": "={{ $fromAI('gameId', 'Game id filter (required if no year)', 'number') }}"
+            },
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year filter (required if no game id)', 'number') }}"
+            },
+            {
+              "name": "week",
+              "value": "={{ $fromAI('week', 'Week filter', 'number') }}"
+            },
+            {
+              "name": "seasonType",
+              "value": "={{ $fromAI('seasonType', 'Season type filter (regular, postseason, or both)', 'string') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team filter', 'string') }}"
+            },
+            {
+              "name": "conference",
+              "value": "={{ $fromAI('conference', 'Conference filter', 'string') }}"
+            },
+            {
+              "name": "classification",
+              "value": "={{ $fromAI('classification', 'Division classification filter (fbs/fcs/ii/iii)', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Game weather information (Patreon only)\n\nParameters:\n- Query parameters:\n  • gameId (optional) - Game id filter (required if no year)\n  • year (optional) - Year filter (required if no game id)\n  • week (optional) - Week filter\n  • seasonType (optional) - Season type filter (regular, postseason, or both)\n  • team (optional) - Team filter\n  • conference (optional) - Conference filter\n  • classification (optional) - Division classification filter (fbs/fcs/ii/iii)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "24011b60-a561-4a32-bb00-b2090bc6bd3c",
+      "name": "Team records",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        660,
+        40
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/records",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year filter', 'number') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team filter', 'string') }}"
+            },
+            {
+              "name": "conference",
+              "value": "={{ $fromAI('conference', 'Conference filter', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Team records\n\nParameters:\n- Query parameters:\n  • year (optional) - Year filter\n  • team (optional) - Team filter\n  • conference (optional) - Conference filter"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "8eb49809-7594-4e42-b183-a0995917f0ff",
+      "name": "Live game results (Patreon only)",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        860,
+        40
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/scoreboard",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "classification",
+              "value": "={{ $fromAI('classification', 'Classification filter (fbs, fcs, ii, or iii). Defaults to fbs.', 'string') }}"
+            },
+            {
+              "name": "conference",
+              "value": "={{ $fromAI('conference', 'Conference abbreviation filter.', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Live game results (Patreon only)\n\nParameters:\n- Query parameters:\n  • classification (optional) - Classification filter (fbs, fcs, ii, or iii). Defaults to fbs.\n  • conference (optional) - Conference abbreviation filter."
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f1971c95-2ba2-4b93-9905-f0b82d5e218a",
+      "name": "Description - games",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1020,
+        40
+      ],
+      "parameters": {
+        "width": 500,
+        "height": 150,
+        "content": "## 📋 Игры\n\nРезультаты игр и статистика"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "458437bc-a132-464a-ac36-78cf34ffaff4",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -920,
+        260
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 300,
+        "height": 180,
+        "content": "## Тренеры"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "865fadcd-8bfb-4fcb-8d2c-29fc9578b87e",
+      "name": "Coaching records and history",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -740,
+        280
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/coaches",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "firstName",
+              "value": "={{ $fromAI('firstName', 'First name filter', 'string') }}"
+            },
+            {
+              "name": "lastName",
+              "value": "={{ $fromAI('lastName', 'Last name filter', 'string') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team name filter', 'string') }}"
+            },
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year filter', 'number') }}"
+            },
+            {
+              "name": "minYear",
+              "value": "={{ $fromAI('minYear', 'Minimum year filter (inclusive)', 'number') }}"
+            },
+            {
+              "name": "maxYear",
+              "value": "={{ $fromAI('maxYear', 'Maximum year filter (inclusive)', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Coaching records and history\n\nParameters:\n- Query parameters:\n  • firstName (optional) - First name filter\n  • lastName (optional) - Last name filter\n  • team (optional) - Team name filter\n  • year (optional) - Year filter\n  • minYear (optional) - Minimum year filter (inclusive)\n  • maxYear (optional) - Maximum year filter (inclusive)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "ecb27ac7-72bf-4219-a648-e2b9ef3861b3",
+      "name": "Description - coaches",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -580,
+        300
+      ],
+      "parameters": {
+        "width": 500,
+        "height": 110,
+        "content": "## 📋 Тренеры\n\nИнформация о тренерах"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "836a38de-da0f-4452-98fb-87bfcbb72d39",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -920,
+        500
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 300,
+        "height": 180,
+        "content": "## Конференции"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7d732505-243a-49fd-933a-eb70808ca693",
+      "name": "Conferences",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -740,
+        520
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/conferences",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Conferences"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "34f33a6b-8714-448d-b0ad-97433f03564b",
+      "name": "Description - conferences",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -580,
+        520
+      ],
+      "parameters": {
+        "width": 500,
+        "height": 150,
+        "content": "## 📋 Конференции\n\nИнформация о конференциях"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "804e9b0b-5912-437e-9d6f-3827b74ffa34",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -920,
+        740
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 700,
+        "height": 180,
+        "content": "## Черновик"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7c497141-14f2-4fa2-bc4f-33af95c382ca",
+      "name": "List of NFL Draft picks",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -740,
+        760
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/draft/picks",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year filter', 'number') }}"
+            },
+            {
+              "name": "nflTeam",
+              "value": "={{ $fromAI('nflTeam', 'NFL team filter', 'string') }}"
+            },
+            {
+              "name": "college",
+              "value": "={{ $fromAI('college', 'Player college filter', 'string') }}"
+            },
+            {
+              "name": "conference",
+              "value": "={{ $fromAI('conference', 'College confrence abbreviation filter', 'string') }}"
+            },
+            {
+              "name": "position",
+              "value": "={{ $fromAI('position', 'NFL position filter', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "List of NFL Draft picks\n\nParameters:\n- Query parameters:\n  • year (optional) - Year filter\n  • nflTeam (optional) - NFL team filter\n  • college (optional) - Player college filter\n  • conference (optional) - College confrence abbreviation filter\n  • position (optional) - NFL position filter"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b26ddd28-9baa-43c3-9c33-7c38e25fab77",
+      "name": "List of NFL positions",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -540,
+        760
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/draft/positions",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "List of NFL positions"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f19e105f-2098-4ce0-8651-451f944a596b",
+      "name": "List of NFL teams",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -340,
+        760
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/draft/teams",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "List of NFL teams"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "646043bf-6d24-47be-82ce-3897d25057b6",
+      "name": "Description - draft",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -180,
+        760
+      ],
+      "parameters": {
+        "width": 500,
+        "height": 150,
+        "content": "## 📋 Черновик\n\nДанные драфта НФЛ"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c24efd97-38dc-4fac-aec7-6b6c491a1701",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -920,
+        980
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 300,
+        "height": 180,
+        "content": "## Диски"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ee4350c6-d448-4944-bf6b-6218e5e97bb1",
+      "name": "Drive data and results",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -740,
+        1000
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/drives",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "seasonType",
+              "value": "={{ $fromAI('seasonType', 'Season type filter', 'string', 'regular') }}"
+            },
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year filter', 'number') }}"
+            },
+            {
+              "name": "week",
+              "value": "={{ $fromAI('week', 'Week filter', 'number') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team filter', 'string') }}"
+            },
+            {
+              "name": "offense",
+              "value": "={{ $fromAI('offense', 'Offensive team filter', 'string') }}"
+            },
+            {
+              "name": "defense",
+              "value": "={{ $fromAI('defense', 'Defensive team filter', 'string') }}"
+            },
+            {
+              "name": "conference",
+              "value": "={{ $fromAI('conference', 'Conference filter', 'string') }}"
+            },
+            {
+              "name": "offenseConference",
+              "value": "={{ $fromAI('offenseConference', 'Offensive conference filter', 'string') }}"
+            },
+            {
+              "name": "defenseConference",
+              "value": "={{ $fromAI('defenseConference', 'Defensive conference filter', 'string') }}"
+            },
+            {
+              "name": "classification",
+              "value": "={{ $fromAI('classification', 'Division classification filter (fbs/fcs/ii/iii)', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Drive data and results\n\nParameters:\n- Query parameters:\n  • seasonType (optional) - Season type filter\n  • year (required) - Year filter\n  • week (optional) - Week filter\n  • team (optional) - Team filter\n  • offense (optional) - Offensive team filter\n  • defense (optional) - Defensive team filter\n  • conference (optional) - Conference filter\n  • offenseConference (optional) - Offensive conference filter\n  • defenseConference (optional) - Defensive conference filter\n  • classification (optional) - Division classification filter (fbs/fcs/ii/iii)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "52276d68-c7e4-4076-8a8c-3a925794f325",
+      "name": "Description - drives",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -580,
+        1000
+      ],
+      "parameters": {
+        "width": 500,
+        "height": 150,
+        "content": "## 📋 Диски\n\nДанные диска"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "95ee86dc-2ab2-4db2-a1b5-0b0b193b2cb4",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -920,
+        1220
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 300,
+        "height": 180,
+        "content": "## Ставки"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "12b66cf5-9a9d-467e-9976-1e4903886352",
+      "name": "Betting lines",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -740,
+        1240
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/lines",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "gameId",
+              "value": "={{ $fromAI('gameId', 'Game id filter', 'number') }}"
+            },
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year/season filter for games', 'number') }}"
+            },
+            {
+              "name": "week",
+              "value": "={{ $fromAI('week', 'Week filter', 'number') }}"
+            },
+            {
+              "name": "seasonType",
+              "value": "={{ $fromAI('seasonType', 'Season type filter (regular or postseason)', 'string', 'regular') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team', 'string') }}"
+            },
+            {
+              "name": "home",
+              "value": "={{ $fromAI('home', 'Home team filter', 'string') }}"
+            },
+            {
+              "name": "away",
+              "value": "={{ $fromAI('away', 'Away team filter', 'string') }}"
+            },
+            {
+              "name": "conference",
+              "value": "={{ $fromAI('conference', 'Conference abbreviation filter', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Betting lines\n\nParameters:\n- Query parameters:\n  • gameId (optional) - Game id filter\n  • year (optional) - Year/season filter for games\n  • week (optional) - Week filter\n  • seasonType (optional) - Season type filter (regular or postseason)\n  • team (optional) - Team\n  • home (optional) - Home team filter\n  • away (optional) - Away team filter\n  • conference (optional) - Conference abbreviation filter"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d1d60a6a-f6b0-4b61-ac9e-0a06c7c6e49a",
+      "name": "Description - betting",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -580,
+        1240
+      ],
+      "parameters": {
+        "width": 500,
+        "height": 150,
+        "content": "## 📋 Ставки\n\nЛинии ставок и данные"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "769289fd-21bb-410a-a8af-fa2063457bba",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -920,
+        1460
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 1100,
+        "height": 180,
+        "content": "## Игры"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f9fae995-7908-42a2-8f12-999e56945d77",
+      "name": "Live metrics and PBP (Patreon only)",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -740,
+        1480
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/live/plays",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "id",
+              "value": "={{ $fromAI('id', 'Game id', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Live metrics and PBP (Patreon only)\n\nParameters:\n- Query parameters:\n  • id (required) - Game id"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "74380e79-b501-424b-b794-8c64b6e61730",
+      "name": "Types of player play stats",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -540,
+        1480
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/play/stat/types",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Types of player play stats"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "ec2bc1a3-96ab-4aad-99ab-4df120332e5a",
+      "name": "Play stats by play",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -340,
+        1480
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/play/stats",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year filter', 'number') }}"
+            },
+            {
+              "name": "week",
+              "value": "={{ $fromAI('week', 'Week filter', 'number') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team filter', 'string') }}"
+            },
+            {
+              "name": "gameId",
+              "value": "={{ $fromAI('gameId', 'gameId filter (from /games endpoint)', 'number') }}"
+            },
+            {
+              "name": "athleteId",
+              "value": "={{ $fromAI('athleteId', 'athleteId filter (from /roster endpoint)', 'number') }}"
+            },
+            {
+              "name": "statTypeId",
+              "value": "={{ $fromAI('statTypeId', 'statTypeId filter (from /play/stat/types endpoint)', 'number') }}"
+            },
+            {
+              "name": "seasonType",
+              "value": "={{ $fromAI('seasonType', 'regular, postseason, or both', 'string') }}"
+            },
+            {
+              "name": "conference",
+              "value": "={{ $fromAI('conference', 'conference abbreviation filter', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Play stats by play\n\nParameters:\n- Query parameters:\n  • year (optional) - Year filter\n  • week (optional) - Week filter\n  • team (optional) - Team filter\n  • gameId (optional) - gameId filter (from /games endpoint)\n  • athleteId (optional) - athleteId filter (from /roster endpoint)\n  • statTypeId (optional) - statTypeId filter (from /play/stat/types endpoint)\n  • seasonType (optional) - regular, postseason, or both\n  • conference (optional) - conference abbreviation filter"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "7d8c0ede-fec3-41e0-a357-f3e4693a4382",
+      "name": "Play types",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -140,
+        1480
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/play/types",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Play types"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "97fb6eb8-e85e-4ac6-bb8d-85e97b15d24b",
+      "name": "Play by play data",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        60,
+        1480
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/plays",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "seasonType",
+              "value": "={{ $fromAI('seasonType', 'Season type filter', 'string', 'regular') }}"
+            },
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year filter', 'number') }}"
+            },
+            {
+              "name": "week",
+              "value": "={{ $fromAI('week', 'Week filter (required if team, offense, or defense, not specified)', 'number') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team filter', 'string') }}"
+            },
+            {
+              "name": "offense",
+              "value": "={{ $fromAI('offense', 'Offensive team filter', 'string') }}"
+            },
+            {
+              "name": "defense",
+              "value": "={{ $fromAI('defense', 'Defensive team filter', 'string') }}"
+            },
+            {
+              "name": "conference",
+              "value": "={{ $fromAI('conference', 'Conference filter', 'string') }}"
+            },
+            {
+              "name": "offenseConference",
+              "value": "={{ $fromAI('offenseConference', 'Offensive conference filter', 'string') }}"
+            },
+            {
+              "name": "defenseConference",
+              "value": "={{ $fromAI('defenseConference', 'Defensive conference filter', 'string') }}"
+            },
+            {
+              "name": "playType",
+              "value": "={{ $fromAI('playType', 'Play type filter', 'number') }}"
+            },
+            {
+              "name": "classification",
+              "value": "={{ $fromAI('classification', 'Division classification filter (fbs/fcs/ii/iii)', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Play by play data\n\nParameters:\n- Query parameters:\n  • seasonType (optional) - Season type filter\n  • year (required) - Year filter\n  • week (required) - Week filter (required if team, offense, or defense, not specified)\n  • team (optional) - Team filter\n  • offense (optional) - Offensive team filter\n  • defense (optional) - Defensive team filter\n  • conference (optional) - Conference filter\n  • offenseConference (optional) - Offensive conference filter\n  • defenseConference (optional) - Defensive conference filter\n  • playType (optional) - Play type filter\n  • classification (optional) - Division classification filter (fbs/fcs/ii/iii)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "ea10d718-1fe9-4fd5-ac7a-553cdb827d43",
+      "name": "Description - plays",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        1480
+      ],
+      "parameters": {
+        "width": 500,
+        "height": 150,
+        "content": "## 📋 Игры\n\nДанные по играм"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "049226b2-d2b4-4a44-b402-85470ee3dd65",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -920,
+        1700
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1500,
+        "height": 180,
+        "content": "## Метрики"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "71926f92-4a7c-4ff6-a7e1-c59f421ff4ea",
+      "name": "Win probability chart data",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -740,
+        1720
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/metrics/wp",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "gameId",
+              "value": "={{ $fromAI('gameId', 'Game id filter', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Win probability chart data\n\nParameters:\n- Query parameters:\n  • gameId (required) - Game id filter"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a66bda48-1f7a-4810-8e84-d208001ec469",
+      "name": "Pregame win probability data",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -540,
+        1720
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/metrics/wp/pregame",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year filter', 'number') }}"
+            },
+            {
+              "name": "week",
+              "value": "={{ $fromAI('week', 'Week filter', 'number') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team filter', 'string') }}"
+            },
+            {
+              "name": "seasonType",
+              "value": "={{ $fromAI('seasonType', 'regular or postseason', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Pregame win probability data\n\nParameters:\n- Query parameters:\n  • year (optional) - Year filter\n  • week (optional) - Week filter\n  • team (optional) - Team filter\n  • seasonType (optional) - regular or postseason"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "242ba2fd-88bb-437e-b8a6-6bdd2f24bc86",
+      "name": "Team Predicated Points Added (PPA/EPA) by game",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -340,
+        1720
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/ppa/games",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year filter', 'number') }}"
+            },
+            {
+              "name": "week",
+              "value": "={{ $fromAI('week', 'Week filter', 'number') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team filter', 'string') }}"
+            },
+            {
+              "name": "conference",
+              "value": "={{ $fromAI('conference', 'Conference filter', 'string') }}"
+            },
+            {
+              "name": "excludeGarbageTime",
+              "value": "={{ $fromAI('excludeGarbageTime', 'Filter to remove garbage time plays from calculations', 'boolean') }}"
+            },
+            {
+              "name": "seasonType",
+              "value": "={{ $fromAI('seasonType', 'Season type filter (regular or postseason)', 'string', 'regular') }}"
+            }
+          ]
+        },
+        "toolDescription": "Team Predicated Points Added (PPA/EPA) by game\n\nParameters:\n- Query parameters:\n  • year (required) - Year filter\n  • week (optional) - Week filter\n  • team (optional) - Team filter\n  • conference (optional) - Conference filter\n  • excludeGarbageTime (optional) - Filter to remove garbage time plays from calculations\n  • seasonType (optional) - Season type filter (regular or postseason)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "65b7bfa3-8407-4320-8de5-56cd90291b2f",
+      "name": "Player Predicated Points Added (PPA/EPA) broken do",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -140,
+        1720
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/ppa/players/games",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year filter', 'number') }}"
+            },
+            {
+              "name": "week",
+              "value": "={{ $fromAI('week', 'Week filter', 'number') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team filter', 'string') }}"
+            },
+            {
+              "name": "position",
+              "value": "={{ $fromAI('position', 'Position abbreviation filter', 'string') }}"
+            },
+            {
+              "name": "playerId",
+              "value": "={{ $fromAI('playerId', 'Player id filter', 'number') }}"
+            },
+            {
+              "name": "threshold",
+              "value": "={{ $fromAI('threshold', 'Minimum play threshold filter', 'string') }}"
+            },
+            {
+              "name": "excludeGarbageTime",
+              "value": "={{ $fromAI('excludeGarbageTime', 'Filter to remove garbage time plays from calculations', 'boolean') }}"
+            },
+            {
+              "name": "seasonType",
+              "value": "={{ $fromAI('seasonType', 'Season type filter (regular or postseason)', 'string', 'regular') }}"
+            }
+          ]
+        },
+        "toolDescription": "Player Predicated Points Added (PPA/EPA) broken down by game\n\nParameters:\n- Query parameters:\n  • year (optional) - Year filter\n  • week (optional) - Week filter\n  • team (optional) - Team filter\n  • position (optional) - Position abbreviation filter\n  • playerId (optional) - Player id filter\n  • threshold (optional) - Minimum play threshold filter\n  • excludeGarbageTime (optional) - Filter to remove garbage time plays from calculations\n  • seasonType (optional) - Season type filter (regular or postseason)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f7cfb0f4-37fe-4ba5-8419-4f61c25be14a",
+      "name": "Player Predicated Points Added (PPA/EPA) broken do 1",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        60,
+        1720
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/ppa/players/season",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year filter', 'number') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team filter', 'string') }}"
+            },
+            {
+              "name": "conference",
+              "value": "={{ $fromAI('conference', 'Conference abbreviation filter', 'string') }}"
+            },
+            {
+              "name": "position",
+              "value": "={{ $fromAI('position', 'Position abbreviation filter', 'string') }}"
+            },
+            {
+              "name": "playerId",
+              "value": "={{ $fromAI('playerId', 'Player id filter', 'number') }}"
+            },
+            {
+              "name": "threshold",
+              "value": "={{ $fromAI('threshold', 'Minimum play threshold filter', 'string') }}"
+            },
+            {
+              "name": "excludeGarbageTime",
+              "value": "={{ $fromAI('excludeGarbageTime', 'Filter to remove garbage time plays from calculations', 'boolean') }}"
+            }
+          ]
+        },
+        "toolDescription": "Player Predicated Points Added (PPA/EPA) broken down by season\n\nParameters:\n- Query parameters:\n  • year (optional) - Year filter\n  • team (optional) - Team filter\n  • conference (optional) - Conference abbreviation filter\n  • position (optional) - Position abbreviation filter\n  • playerId (optional) - Player id filter\n  • threshold (optional) - Minimum play threshold filter\n  • excludeGarbageTime (optional) - Filter to remove garbage time plays from calculations"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "1e60ce45-74cd-4d6a-8c57-440d55188b0c",
+      "name": "Predicted Points (i.e. Expected Points or EP)",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        260,
+        1720
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/ppa/predicted",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "down",
+              "value": "={{ $fromAI('down', 'Down filter', 'number') }}"
+            },
+            {
+              "name": "distance",
+              "value": "={{ $fromAI('distance', 'Distance filter', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Predicted Points (i.e. Expected Points or EP)\n\nParameters:\n- Query parameters:\n  • down (required) - Down filter\n  • distance (required) - Distance filter"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "63c7c48a-2f2b-4f4b-a767-b9d243eb4859",
+      "name": "Predicted Points Added (PPA/EPA) data by team",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        460,
+        1720
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/ppa/teams",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year filter (required if team not specified)', 'number') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team filter (required if year not specified)', 'string') }}"
+            },
+            {
+              "name": "conference",
+              "value": "={{ $fromAI('conference', 'Conference filter', 'string') }}"
+            },
+            {
+              "name": "excludeGarbageTime",
+              "value": "={{ $fromAI('excludeGarbageTime', 'Filter to remove garbage time plays from calculations', 'boolean') }}"
+            }
+          ]
+        },
+        "toolDescription": "Predicted Points Added (PPA/EPA) data by team\n\nParameters:\n- Query parameters:\n  • year (optional) - Year filter (required if team not specified)\n  • team (optional) - Team filter (required if year not specified)\n  • conference (optional) - Conference filter\n  • excludeGarbageTime (optional) - Filter to remove garbage time plays from calculations"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "dc9af0df-23c0-46bd-b792-9b06d7a15664",
+      "name": "Description - metrics",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        620,
+        1740
+      ],
+      "parameters": {
+        "width": 500,
+        "height": 110,
+        "content": "## 📋 Метрики\n\nДанные, относящиеся к Предсказанным Очкам и другим метрикам"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7d14b883-a4b7-49b7-8ffc-6dfe3a62bfbe",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -920,
+        1940
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1100,
+        "height": 180,
+        "content": "## Игроки"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "edc5ecd9-9677-4764-bdf6-8d34e1cd3e47",
+      "name": "Transfer portal by season",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -740,
+        1960
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/player/portal",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year filter', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Transfer portal by season\n\nParameters:\n- Query parameters:\n  • year (required) - Year filter"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "4731a8b8-e259-4de7-94af-8725dd436786",
+      "name": "Team returning production metrics",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -540,
+        1960
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/player/returning",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year filter', 'number') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team filter', 'string') }}"
+            },
+            {
+              "name": "conference",
+              "value": "={{ $fromAI('conference', 'Conference abbreviation filter', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Team returning production metrics\n\nParameters:\n- Query parameters:\n  • year (optional) - Year filter\n  • team (optional) - Team filter\n  • conference (optional) - Conference abbreviation filter"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "4c88c199-2b93-4e45-91f0-bc453bd81b2b",
+      "name": "Search for player information",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -340,
+        1960
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/player/search",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "searchTerm",
+              "value": "={{ $fromAI('searchTerm', 'Term to search on', 'string') }}"
+            },
+            {
+              "name": "position",
+              "value": "={{ $fromAI('position', 'Position abbreviation filter', 'string') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team filter', 'string') }}"
+            },
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year filter', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Search for player information\n\nParameters:\n- Query parameters:\n  • searchTerm (required) - Term to search on\n  • position (optional) - Position abbreviation filter\n  • team (optional) - Team filter\n  • year (optional) - Year filter"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "639c19d3-0a7a-4ebd-8510-5a3f4ce380c2",
+      "name": "Player usage metrics broken down by season",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -140,
+        1960
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/player/usage",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year filter', 'number', 2022) }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team filter', 'string') }}"
+            },
+            {
+              "name": "conference",
+              "value": "={{ $fromAI('conference', 'Conference abbreviation filter', 'string') }}"
+            },
+            {
+              "name": "position",
+              "value": "={{ $fromAI('position', 'Position abbreviation filter', 'string') }}"
+            },
+            {
+              "name": "playerId",
+              "value": "={{ $fromAI('playerId', 'Player id filter', 'number') }}"
+            },
+            {
+              "name": "excludeGarbageTime",
+              "value": "={{ $fromAI('excludeGarbageTime', 'Filter to remove garbage time plays from calculations', 'boolean') }}"
+            }
+          ]
+        },
+        "toolDescription": "Player usage metrics broken down by season\n\nParameters:\n- Query parameters:\n  • year (required) - Year filter\n  • team (optional) - Team filter\n  • conference (optional) - Conference abbreviation filter\n  • position (optional) - Position abbreviation filter\n  • playerId (optional) - Player id filter\n  • excludeGarbageTime (optional) - Filter to remove garbage time plays from calculations"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "fc91a37b-ef5c-4df4-a270-2825e648def8",
+      "name": "Player stats by season",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        60,
+        1960
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/stats/player/season",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year filter', 'number') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team filter', 'string') }}"
+            },
+            {
+              "name": "conference",
+              "value": "={{ $fromAI('conference', 'Conference abbreviation filter', 'string') }}"
+            },
+            {
+              "name": "startWeek",
+              "value": "={{ $fromAI('startWeek', 'Start week filter', 'number') }}"
+            },
+            {
+              "name": "endWeek",
+              "value": "={{ $fromAI('endWeek', 'Start week filter', 'number') }}"
+            },
+            {
+              "name": "seasonType",
+              "value": "={{ $fromAI('seasonType', 'Season type filter (regular, postseason, or both)', 'string') }}"
+            },
+            {
+              "name": "category",
+              "value": "={{ $fromAI('category', 'Stat category filter (e.g. passing)', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Player stats by season\n\nParameters:\n- Query parameters:\n  • year (required) - Year filter\n  • team (optional) - Team filter\n  • conference (optional) - Conference abbreviation filter\n  • startWeek (optional) - Start week filter\n  • endWeek (optional) - Start week filter\n  • seasonType (optional) - Season type filter (regular, postseason, or both)\n  • category (optional) - Stat category filter (e.g. passing)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "90872dee-ab30-43c7-9b1f-f6635629ec3e",
+      "name": "Description - players",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        1960
+      ],
+      "parameters": {
+        "width": 500,
+        "height": 150,
+        "content": "## 📋 Игроки\n\nИнформация и данные об игроках"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "07bebe93-2e49-454a-9508-321c3f037498",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -920,
+        2180
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 300,
+        "height": 180,
+        "content": "## Рейтинги"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "88e4705a-c3f0-4121-9547-afd83db24ee8",
+      "name": "Historical polls and rankings",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -740,
+        2200
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/rankings",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year/season filter for games', 'number') }}"
+            },
+            {
+              "name": "week",
+              "value": "={{ $fromAI('week', 'Week filter', 'number') }}"
+            },
+            {
+              "name": "seasonType",
+              "value": "={{ $fromAI('seasonType', 'Season type filter (regular or postseason)', 'string', 'regular') }}"
+            }
+          ]
+        },
+        "toolDescription": "Historical polls and rankings\n\nParameters:\n- Query parameters:\n  • year (required) - Year/season filter for games\n  • week (optional) - Week filter\n  • seasonType (optional) - Season type filter (regular or postseason)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "8c70351c-4294-46ae-8878-470843b04f2a",
+      "name": "Description - rankings",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -580,
+        2200
+      ],
+      "parameters": {
+        "width": 500,
+        "height": 150,
+        "content": "## 📋 Рейтинги\n\nИсторические рейтинги опросов"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1f643842-f0b4-4040-ad29-af0a312a36ca",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -920,
+        2420
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 900,
+        "height": 180,
+        "content": "## Рейтинги"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d99ccc06-4444-4f96-a455-1c23cf95782c",
+      "name": "Historical Elo ratings",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -740,
+        2440
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/ratings/elo",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Season filter', 'number') }}"
+            },
+            {
+              "name": "week",
+              "value": "={{ $fromAI('week', 'Maximum week filter', 'number') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team filter', 'string') }}"
+            },
+            {
+              "name": "conference",
+              "value": "={{ $fromAI('conference', 'Conference filter', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Historical Elo ratings\n\nParameters:\n- Query parameters:\n  • year (optional) - Season filter\n  • week (optional) - Maximum week filter\n  • team (optional) - Team filter\n  • conference (optional) - Conference filter"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "7feba738-5252-4dd6-8853-4a5e80170800",
+      "name": "Historical SP+ ratings",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -540,
+        2440
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/ratings/sp",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Season filter (required if team not specified)', 'number') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team filter (required if year not specified)', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Historical SP+ ratings\n\nParameters:\n- Query parameters:\n  • year (optional) - Season filter (required if team not specified)\n  • team (optional) - Team filter (required if year not specified)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "3a57d793-e178-43e3-b088-f31189edc636",
+      "name": "Historical SP+ ratings by conference",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -340,
+        2440
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/ratings/sp/conferences",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Season filter', 'number') }}"
+            },
+            {
+              "name": "conference",
+              "value": "={{ $fromAI('conference', 'Conference abbreviation filter', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Historical SP+ ratings by conference\n\nParameters:\n- Query parameters:\n  • year (optional) - Season filter\n  • conference (optional) - Conference abbreviation filter"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "573033f2-dbb5-46a5-9497-c6a254fbf193",
+      "name": "Historical SRS ratings",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -140,
+        2440
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/ratings/srs",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Season filter (required if team not specified)', 'number') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team filter (required if year not specified)', 'string') }}"
+            },
+            {
+              "name": "conference",
+              "value": "={{ $fromAI('conference', 'Conference filter', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Historical SRS ratings\n\nParameters:\n- Query parameters:\n  • year (optional) - Season filter (required if team not specified)\n  • team (optional) - Team filter (required if year not specified)\n  • conference (optional) - Conference filter"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "aa07c918-73ed-4e48-ab2e-d885bb9199ea",
+      "name": "Description - ratings",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        20,
+        2440
+      ],
+      "parameters": {
+        "width": 500,
+        "height": 150,
+        "content": "## 📋 Рейтинги\n\nДанные о рейтингах команды"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3d867e5f-b751-4948-a15f-fb232cac6360",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -920,
+        2660
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 700,
+        "height": 180,
+        "content": "## Набор персонала"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f9de01c4-b4ff-4c7a-8717-e598e0f3153a",
+      "name": "Recruit position group ratings",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -740,
+        2680
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/recruiting/groups",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "startYear",
+              "value": "={{ $fromAI('startYear', 'Starting year', 'number') }}"
+            },
+            {
+              "name": "endYear",
+              "value": "={{ $fromAI('endYear', 'Ending year', 'number') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team filter', 'string') }}"
+            },
+            {
+              "name": "conference",
+              "value": "={{ $fromAI('conference', 'conference filter', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Recruit position group ratings\n\nParameters:\n- Query parameters:\n  • startYear (optional) - Starting year\n  • endYear (optional) - Ending year\n  • team (optional) - Team filter\n  • conference (optional) - conference filter"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "deb0737d-ce1f-48b7-b2e3-809977c021df",
+      "name": "Player recruiting ratings and rankings",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -540,
+        2680
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/recruiting/players",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Recruiting class year (required if team no specified)', 'number') }}"
+            },
+            {
+              "name": "classification",
+              "value": "={{ $fromAI('classification', 'Type of recruit (HighSchool, JUCO, PrepSchool)', 'string', 'HighSchool') }}"
+            },
+            {
+              "name": "position",
+              "value": "={{ $fromAI('position', 'Position abbreviation filter', 'string') }}"
+            },
+            {
+              "name": "state",
+              "value": "={{ $fromAI('state', 'State or province abbreviation filter', 'string') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Committed team filter (required if year not specified)', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Player recruiting ratings and rankings\n\nParameters:\n- Query parameters:\n  • year (optional) - Recruiting class year (required if team no specified)\n  • classification (optional) - Type of recruit (HighSchool, JUCO, PrepSchool)\n  • position (optional) - Position abbreviation filter\n  • state (optional) - State or province abbreviation filter\n  • team (optional) - Committed team filter (required if year not specified)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "304d0d68-43a9-4fb0-bc5f-0f3e23c641b7",
+      "name": "Team recruiting rankings and ratings",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -340,
+        2680
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/recruiting/teams",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Recruiting class year', 'number') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team filter', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Team recruiting rankings and ratings\n\nParameters:\n- Query parameters:\n  • year (optional) - Recruiting class year\n  • team (optional) - Team filter"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f948e874-ba6d-48d2-b346-9d09d0225c8b",
+      "name": "Description - recruiting",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -180,
+        2680
+      ],
+      "parameters": {
+        "width": 500,
+        "height": 150,
+        "content": "## 📋 Набор\n\nРейтинги и данные по набору"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e373fc16-5205-458e-95bf-5065e68cf1f0",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -920,
+        2900
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 1100,
+        "height": 180,
+        "content": "## Команды"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3d3e974e-35f9-4101-9cb5-3b3dc8d1aee5",
+      "name": "Team rosters",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -740,
+        2920
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/roster",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team name', 'string') }}"
+            },
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Season year', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Team rosters\n\nParameters:\n- Query parameters:\n  • team (optional) - Team name\n  • year (optional) - Season year"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c4511e48-1aa0-4b7d-a95e-895ff3a60ff9",
+      "name": "Team talent composite rankings",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -540,
+        2920
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/talent",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year filter', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Team talent composite rankings\n\nParameters:\n- Query parameters:\n  • year (optional) - Year filter"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "781f8ebe-2d60-4169-93b7-8612c67a3c6f",
+      "name": "Team information",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -340,
+        2920
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/teams",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "conference",
+              "value": "={{ $fromAI('conference', 'Conference abbreviation filter', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Team information\n\nParameters:\n- Query parameters:\n  • conference (optional) - Conference abbreviation filter"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d80da101-e8f9-4450-937f-ab1e1237ee89",
+      "name": "FBS team list",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -140,
+        2920
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/teams/fbs",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year filter', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "FBS team list\n\nParameters:\n- Query parameters:\n  • year (optional) - Year filter"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "24105c92-cfc2-466e-a32c-ec72a5c80265",
+      "name": "Team matchup history",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        60,
+        2920
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/teams/matchup",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "team1",
+              "value": "={{ $fromAI('team1', 'First team', 'string') }}"
+            },
+            {
+              "name": "team2",
+              "value": "={{ $fromAI('team2', 'Second team', 'string') }}"
+            },
+            {
+              "name": "minYear",
+              "value": "={{ $fromAI('minYear', 'Minimum year', 'number') }}"
+            },
+            {
+              "name": "maxYear",
+              "value": "={{ $fromAI('maxYear', 'Maximum year', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Team matchup history\n\nParameters:\n- Query parameters:\n  • team1 (required) - First team\n  • team2 (required) - Second team\n  • minYear (optional) - Minimum year\n  • maxYear (optional) - Maximum year"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "4d1b9f3e-0992-4a84-b62a-6249c63492b7",
+      "name": "Description - teams",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        2920
+      ],
+      "parameters": {
+        "width": 500,
+        "height": 150,
+        "content": "## 📋 Команды\n\nИнформация о командах"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1d408c0c-9513-4733-b521-409150edc382",
+      "name": "Sticky Note14",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -920,
+        3140
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 900,
+        "height": 180,
+        "content": "## Статистика"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7fd07dc3-bf0e-4605-b5d7-30f2c30e1a6e",
+      "name": "Team stat categories",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -740,
+        3160
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/stats/categories",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Team stat categories"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "884acc8d-98ae-4537-aefe-3199181439cc",
+      "name": "Advanced team metrics by game",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -540,
+        3160
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/stats/game/advanced",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year filter (required if no team specified)', 'number') }}"
+            },
+            {
+              "name": "week",
+              "value": "={{ $fromAI('week', 'Week filter', 'number') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team filter (required if no year specified)', 'string') }}"
+            },
+            {
+              "name": "opponent",
+              "value": "={{ $fromAI('opponent', 'Opponent filter', 'string') }}"
+            },
+            {
+              "name": "excludeGarbageTime",
+              "value": "={{ $fromAI('excludeGarbageTime', 'Filter to remove garbage time plays from calculations', 'boolean') }}"
+            },
+            {
+              "name": "seasonType",
+              "value": "={{ $fromAI('seasonType', 'Season type filter (regular, postseason, or both)', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Advanced team metrics by game\n\nParameters:\n- Query parameters:\n  • year (optional) - Year filter (required if no team specified)\n  • week (optional) - Week filter\n  • team (optional) - Team filter (required if no year specified)\n  • opponent (optional) - Opponent filter\n  • excludeGarbageTime (optional) - Filter to remove garbage time plays from calculations\n  • seasonType (optional) - Season type filter (regular, postseason, or both)"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "ddc5b1a7-554c-4054-994c-e4b269867267",
+      "name": "Team statistics by season",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -340,
+        3160
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/stats/season",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year filter (required if no team specified)', 'number') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team filter (required if no year specified)', 'string') }}"
+            },
+            {
+              "name": "conference",
+              "value": "={{ $fromAI('conference', 'Conference abbreviation filter', 'string') }}"
+            },
+            {
+              "name": "startWeek",
+              "value": "={{ $fromAI('startWeek', 'Starting week filter', 'number') }}"
+            },
+            {
+              "name": "endWeek",
+              "value": "={{ $fromAI('endWeek', 'Starting week filter', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Team statistics by season\n\nParameters:\n- Query parameters:\n  • year (optional) - Year filter (required if no team specified)\n  • team (optional) - Team filter (required if no year specified)\n  • conference (optional) - Conference abbreviation filter\n  • startWeek (optional) - Starting week filter\n  • endWeek (optional) - Starting week filter"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f2e58660-6dc8-4a90-9ed7-29a39d7d0fe8",
+      "name": "Advanced team metrics by season",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -140,
+        3160
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/stats/season/advanced",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "year",
+              "value": "={{ $fromAI('year', 'Year filter (required if no team specified)', 'number') }}"
+            },
+            {
+              "name": "team",
+              "value": "={{ $fromAI('team', 'Team filter (required if no year specified)', 'string') }}"
+            },
+            {
+              "name": "excludeGarbageTime",
+              "value": "={{ $fromAI('excludeGarbageTime', 'Filter to remove garbage time plays from calculations', 'boolean') }}"
+            },
+            {
+              "name": "startWeek",
+              "value": "={{ $fromAI('startWeek', 'Starting week filter', 'number') }}"
+            },
+            {
+              "name": "endWeek",
+              "value": "={{ $fromAI('endWeek', 'Starting week filter', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Advanced team metrics by season\n\nParameters:\n- Query parameters:\n  • year (optional) - Year filter (required if no team specified)\n  • team (optional) - Team filter (required if no year specified)\n  • excludeGarbageTime (optional) - Filter to remove garbage time plays from calculations\n  • startWeek (optional) - Starting week filter\n  • endWeek (optional) - Starting week filter"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "fe86a85a-be1b-4286-8451-e5bfe1468304",
+      "name": "Description - stats",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        20,
+        3160
+      ],
+      "parameters": {
+        "width": 500,
+        "height": 150,
+        "content": "## 📋 Статистика\n\nСтатистические данные"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0ffc77c9-9098-4572-af4d-028be87cee4f",
+      "name": "Sticky Note15",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -920,
+        3380
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 300,
+        "height": 180,
+        "content": "## Места проведения"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ea7e7c80-413d-4836-bf7c-345afa20814d",
+      "name": "Arena and venue information",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -740,
+        3400
+      ],
+      "parameters": {
+        "url": "=https://api.collegefootballdata.com/venues",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Arena and venue information"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "15139c98-1d98-40e2-b89a-1e366b2c955f",
+      "name": "Description - venues",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -580,
+        3400
+      ],
+      "parameters": {
+        "width": 500,
+        "height": 150,
+        "content": "## 📋 Места проведения\n\nИнформация о местах проведения"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "shared": [
+    {
+      "role": "workflow:owner",
+      "project": {
+        "id": "G5fce9xGuBAsWBXe",
+        "icon": null,
+        "name": "David Ashby <david.ashby.lds@gmail.com>",
+        "type": "personal",
+        "createdAt": "2025-06-04T02:55:02.013Z",
+        "updatedAt": "2025-06-04T02:56:01.361Z",
+        "projectRelations": [
+          {
+            "role": "project:personalOwner",
+            "user": {
+              "id": "715c1c00-cb48-4712-9a32-f1f4b6db2b30",
+              "role": "global:owner",
+              "email": "david.ashby.lds@gmail.com",
+              "disabled": false,
+              "lastName": "Ashby",
+              "settings": {
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1749357655581
+                },
+                "userActivated": true,
+                "userActivatedAt": 1749075994495,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "3N3vVikZb3MckFYm"
+              },
+              "createdAt": "2025-06-04T02:55:01.745Z",
+              "firstName": "David",
+              "isPending": false,
+              "updatedAt": "2025-06-08T04:40:58.399Z",
+              "mfaEnabled": false,
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_n8n_version": "1.95.3",
+                "personalization_survey_submitted_at": "2025-06-04T02:56:07.075Z"
+              }
+            },
+            "userId": "715c1c00-cb48-4712-9a32-f1f4b6db2b30",
+            "createdAt": "2025-06-04T02:55:02.013Z",
+            "projectId": "G5fce9xGuBAsWBXe",
+            "updatedAt": "2025-06-04T02:55:02.013Z"
+          }
+        ]
+      },
+      "createdAt": "2025-06-30T18:38:53.151Z",
+      "projectId": "G5fce9xGuBAsWBXe",
+      "updatedAt": "2025-06-30T18:38:53.151Z",
+      "workflowId": "nj7NS9J58jAqvo5R"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "timezone": "America/New_York"
+  },
+  "createdAt": "2025-06-30T18:38:53.148Z",
+  "updatedAt": "2025-06-30T19:11:02.000Z",
+  "versionId": "b3471d91-7ade-4f0a-9b85-8399007c33f0",
+  "isArchived": false,
+  "staticData": null,
+  "connections": {
+    "Play types": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conferences": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Team records": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Team rosters": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Betting lines": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FBS team list": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Season calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Team game stats": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Team information": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Games and results": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List of NFL teams": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Play by play data": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Player game stats": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Play stats by play": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Advanced box scores": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Team matchup history": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Team stat categories": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List of NFL positions": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Drive data and results": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Historical Elo ratings": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Historical SP+ ratings": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Historical SRS ratings": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Player stats by season": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List of NFL Draft picks": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Team statistics by season": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transfer portal by season": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Types of player play stats": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Win probability chart data": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Arena and venue information": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Coaching records and history": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pregame win probability data": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Advanced team metrics by game": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Historical polls and rankings": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search for player information": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recruit position group ratings": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Team talent composite rankings": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Advanced team metrics by season": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Live game results (Patreon only)": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Team returning production metrics": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Live metrics and PBP (Patreon only)": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Game media information and schedules": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Historical SP+ ratings by conference": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Team recruiting rankings and ratings": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Player recruiting ratings and rankings": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Game weather information (Patreon only)": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Player usage metrics broken down by season": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Predicted Points (i.e. Expected Points or EP)": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Predicted Points Added (PPA/EPA) data by team": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Team Predicated Points Added (PPA/EPA) by game": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Player Predicated Points Added (PPA/EPA) broken do": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Player Predicated Points Added (PPA/EPA) broken do 1": {
+      "ai_tool": [
+        [
+          {
+            "node": "College Football Data MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "triggerCount": 0
+}

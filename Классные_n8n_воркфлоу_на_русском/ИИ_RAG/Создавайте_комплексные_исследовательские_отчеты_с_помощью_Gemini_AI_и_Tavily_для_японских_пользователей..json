@@ -1,0 +1,429 @@
+{
+  "id": "Ud48ms2k7e8jttpp",
+  "meta": {
+    "instanceId": "7d3727b19183ed2ab8356c97f7b13d363d72dc0303b7e113b24052248c92d453",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "простое_глубокоеисследование_для_японских_пользователей_для_публикации",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "bdf85255-f3d9-4973-90a7-88728b1d0aec",
+      "name": "When clicking ‘Execute workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        120,
+        0
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "81ece876-1fb4-44d0-b739-6c2885faf6f4",
+      "name": "Query Generator",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        700,
+        0
+      ],
+      "parameters": {
+        "text": "=質問に対して有力なクエリを3つ作成してください。",
+        "options": {
+          "systemMessage": "=あなたはユーザーの質問から最適な検索クエリを抽出する専門家です。\n\nユーザーの質問：{{ $json.query }}\n\n## あなたの仕事：\nユーザーの質問を分析し、最も効果的な検索キーワードを3つ作成してください。\n\n## 重要な指示：\n- **検索クエリのみを出力**してください（説明や前置きは一切不要）\n- 英語の検索クエリが効果的な場合は英語で出力\n- 複数のキーワードを組み合わせて包括的な検索を可能にする\n- 有力と思われるクエリを3つ作成\n\n## 例：\n- 質問：「Google ADKとLangGraphの比較について教えて」\n- 出力：Google ADK LangGraph comparison features differences\n\n検索クエリのみを出力してください。"
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c3d07289-c5eb-486d-b72b-ac254081c5d2",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        700,
+        200
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-2.5-flash"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "54a580ae-8e1e-466e-b16a-03b595098e2f",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        880,
+        200
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n\t\t\"query1\": \"string\",\n\t\t\"query2\": \"string\",\n        \"query3\": \"string\"\n\t}\n}"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "56ed43ed-3130-4943-a437-47f7a5dfcbf8",
+      "name": "Google Gemini Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        1180,
+        180
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-2.5-flash"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "3Bm905JaJlmbNdSt",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0ace29b7-067d-4bf0-9ea4-a34d2f38ae67",
+      "name": "Tavily_Search_Tool",
+      "type": "@tavily/n8n-nodes-tavily.tavilyTool",
+      "position": [
+        1340,
+        180
+      ],
+      "parameters": {
+        "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Query', ``, 'string') }}",
+        "options": {
+          "max_results": 10,
+          "search_depth": "advanced",
+          "include_answer": "advanced"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4ff9b87a-4f50-4080-8bad-ca38c8292c1c",
+      "name": "Google Gemini Chat Model2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        1660,
+        180
+      ],
+      "parameters": {
+        "options": {
+          "maxOutputTokens": 6000
+        },
+        "modelName": "models/gemini-2.5-pro"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "3Bm905JaJlmbNdSt",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1801caa0-471a-4a9b-a86e-625118a56024",
+      "name": "Send a message",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2120,
+        0
+      ],
+      "webhookId": "874fc2c8-ae11-4c4a-ad57-8f89b302a8f4",
+      "parameters": {
+        "message": "={{ $json.output }}",
+        "options": {},
+        "subject": "={{ $('query').item.json.query }}"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "5d706b1d-7878-4e5d-8a4a-c11998060d3e",
+      "name": "Research Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1180,
+        0
+      ],
+      "parameters": {
+        "text": "受けとった3つのqueryを一つずつTavily_Search_Toolにqueryとして渡して3つのqueryに関して調査を実行し検索クエリと調査結果を省略せずにアウトプットしてください。。",
+        "options": {
+          "systemMessage": "=あなたはTavily_Search_Toolで検索調査を行う専門家です。検索クエリと検索調査結果の内容を省略せずにアウトプットしてください。これ以外の内容はアウトプットしなくて大丈夫です。\n\n## 処理手順：\n1. state内の検索クエリを確認:\n   - query1: {{ $json.output.query1 }}\n   - query2: {{ $json.output.query2 }}\n   - query3: {{ $json.output.query3 }}\n2. tavily_searchツールを呼び出し:\n   - query1~3を使用\n   - search_depth: \"advanced\"\n   - include_answer: true\n   - max_results: 10\n\n3. 特に以下に注目して分析：\n   - TavilyのAI生成回答の内容\n   - 最も関連性の高い情報の詳細\n   - 専門的な解説や分析\n\ntavily_searchツールを必ず使用して、収集した情報とAI分析を統合して提供してください。"
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c8e7f969-72d9-41f8-a553-6a75b0bc27d2",
+      "name": "Report Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1660,
+        0
+      ],
+      "parameters": {
+        "text": "調査結果を統合し、ユーザーの質問に対してわかりやすい構造化された包括的な最終レポートをHTML形式でアウトプットしてください。",
+        "options": {
+          "systemMessage": "=あなたは情報統合と分析を行いユーザーに対する質問に対して構造化された包括的なわかりやすい最終レポートをHTMLで作成する専門家です。以下のユーザーの質問に対して、調査結果を統合し、重複と矛盾を排除しながら包括的かつ内容に沿って構造化されたレポートをHTML形式で作成してください。データが不足している場合は、利用可能な情報のみで最善のレポートを作成してください。HTML形式の回答のみをアウトプットしてください。\n##ユーザーからの質問：{{ $('query').item.json.query }}\n##調査結果：{{ $json.output }}\n\n"
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "78256843-744f-4113-aae8-70122c93f19b",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -300,
+        -260
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 560,
+        "content": "## 📋 Простое глубокое исследование для японских пользователей\n\n**О данном рабочем процессе**\n\nЭтот рабочий процесс представляет собой автоматизированную систему исследования и анализа для пользователей японского языка. После ввода вопроса ИИ генерирует оптимальный поисковый запрос, исследует информацию с разных точек зрения с помощью Tavily и отправляет интегрированный всесторонний HTML-отчет по электронной почте.\n\n**Основные функции:**\n- Автоматическая генерация трех оптимизированных поисковых запросов из вопроса\n- Расширенное исследование с использованием Tavily\n- Генерация HTML-отчета, объединяющего несколько результатов исследований\n- Автоматическая отправка отчетов через Gmail\n\n**Инструкция по использованию:**\n1. Измените значение query в узле Edit Fields\n2. Запустите рабочий процесс\n3. Дождитесь получения HTML-отчета по электронной почте\n\n**Необходимые настройки:**\n- Учетные данные API Google Gemini\n- Учетные данные API Tavily\n- Учетные данные Gmail\n- Настройка адреса электронной почты получателя"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5bf63a62-71c9-4b71-92f1-35220c0acf98",
+      "name": "query",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        400,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "552f3fcd-1dc9-4d9b-b906-ead18b354034",
+              "name": "query",
+              "type": "string",
+              "value": "n8nとdifyの違い"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "29036268-0dce-406d-b478-550e1d3ecaee",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        320,
+        -400
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 280,
+        "height": 760,
+        "content": "## 🎯 Шаг 1: Настройка ввода запроса\n**Редактировать поля - クエリ設定**\n\nЗдесь вы настраиваете вопрос пользователя. По умолчанию установлен вопрос «в чем разница между n8n и dify».\n\n**Способы настройки:**\n- Измените значение поля `query`\n- Введите вопрос на японском языке\n- Вопросы на тему сравнения, анализа и исследования будут эффективными"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b8a3c415-4643-4a0a-bcfa-46cb9aaff345",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        640,
+        -400
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 400,
+        "height": 760,
+        "content": "## 🧠 Шаг 2: Генерация запросов ИИ\n**Генератор запросов - Оптимизация запросов**\n\nС помощью Google Gemini 2.5-flash генерируются 3 оптимизированных поисковых запроса на основе введенного вопроса.\n\n**Обработка:**\n- Анализ вопросов на японском языке\n- Извлечение ключевых слов, подходящих для поиска\n- Генерация английских запросов по мере необходимости\n- Генерация структурированного вывода с query1, query2, query3\n\n**Важно:** Необходимы учетные данные API Google Gemini"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5417921f-5cf9-445a-a731-4ea0f242271b",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1080,
+        -400
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 460,
+        "height": 720,
+        "content": "## 🔍 Шаг 3: Многофункциональное исследование\n**Агент исследования - 調査実行**\n\nИспользуйте сгенерированные 3 запроса для выполнения исследования в Tavily.\n\n**Настройки исследования:**\n- `search_depth`: \"advanced\"\n- `max_results`: 10\n- `include_answer`: \"advanced\"\n\n**Обработка:**\n- Выполнение поиска в Tavily по каждому запросу\n- Сбор ответов, сгенерированных ИИ\n- Извлечение наиболее релевантной информации\n- Интеграция профессиональных объяснений и анализа\n\n**Важно:** Необходимы учетные данные API Tavily"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5e73dace-b2dc-462a-b311-257799145ae1",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1580,
+        -400
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 720,
+        "content": "## 📊 Шаг 4: Генерация отчета\n**Агент отчета - レポート作成**\n\nИнтегрирует собранные результаты исследования и генерирует структурированный HTML-отчет.\n\n**Особенности отчета:**\n- Всеобъемлющая и понятная структура\n- Исключение дублирования и противоречий\n- Визуально удобный в формате HTML\n- Прямые ответы на вопросы пользователей\n\n**Используемая модель:** Google Gemini 2.5-pro (для высококачественного анализа)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cf3d13de-00b5-4dee-9f92-33735ee627f2",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2020,
+        -400
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 340,
+        "height": 720,
+        "content": "## 📧 Шаг 5: Доставка электронной почты\n**Отправить сообщение - レポート送信**\n\nОтправьте готовый HTML-отчет через Gmail.\n\n**Настройки отправки:**\n- Получатель: Установите получателя в поле \"Кому\"\n- Тема: Введенный вопрос\n- Текст: HTML-отчет\n\n**Настройка:** Пожалуйста, измените адрес электронной почты получателя соответствующим образом."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5575b0b2-68ef-4e9c-8cdf-b01bdc858f69",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -300,
+        340
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 360,
+        "content": "## 💡 Советы по настройке\n\n**Оптимизация запросов**\n- Вводите конкретные и четкие вопросы\n- Вопросы сравнительного анализа особенно эффективны\n- Рекомендуется вводить на японском языке\n\n**Повышение качества отчетов**\n- Если требуется более детальное исследование, увеличьте max_results\n- Увеличьте количество запросов до трех и более\n- Если вы специализируетесь на конкретной области, отрегулируйте системное сообщение\n\n**Настройки доставки**\n- Если отправляете на несколько адресов, дублируйте узел Send a message\n- Если планируете регулярное выполнение, рассмотрите возможность добавления Cron Trigger"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d5e15813-1520-4e67-ad60-557748e836bb",
+  "connections": {
+    "query": {
+      "main": [
+        [
+          {
+            "node": "Query Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Report Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research Agent": {
+      "main": [
+        [
+          {
+            "node": "Report Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query Generator": {
+      "main": [
+        [
+          {
+            "node": "Research Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tavily_Search_Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Research Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Query Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Query Generator",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Research Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Report Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

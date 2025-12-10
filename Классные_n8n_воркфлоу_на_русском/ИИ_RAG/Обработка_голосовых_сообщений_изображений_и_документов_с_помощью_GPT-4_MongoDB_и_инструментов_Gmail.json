@@ -1,0 +1,977 @@
+{
+  "id": "u1UDiWECb1RUnZNN",
+  "meta": {
+    "instanceId": "13d96e1ebd7901d1ed300d36db3a4447107e9ad60df51fe711e45683875362aa",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Многофункциональный AI-агент-помощник (GPT-4o и MongoDB) с использованием инструмента Gmail",
+  "tags": [
+    {
+      "id": "88Rkm7VaAFefsT34",
+      "name": "AI Agents",
+      "createdAt": "2025-05-06T22:52:26.053Z",
+      "updatedAt": "2025-07-21T00:33:33.971Z"
+    },
+    {
+      "id": "IEpRLlnMFuw6uI0n",
+      "name": "MongoDB",
+      "createdAt": "2025-07-21T00:34:02.234Z",
+      "updatedAt": "2025-07-21T00:34:02.234Z"
+    },
+    {
+      "id": "YKfqWKbhkj0tMP9a",
+      "name": "Assistant",
+      "createdAt": "2025-05-11T00:54:42.509Z",
+      "updatedAt": "2025-05-11T00:54:42.509Z"
+    },
+    {
+      "id": "s1UA6FThbKhQYbLu",
+      "name": "MultiModal",
+      "createdAt": "2025-05-06T22:52:35.914Z",
+      "updatedAt": "2025-05-06T22:52:35.914Z"
+    },
+    {
+      "id": "u0sDc9TmwaTimDuy",
+      "name": "Gmail",
+      "createdAt": "2025-05-11T00:53:52.260Z",
+      "updatedAt": "2025-05-11T00:53:52.260Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "007accc7-cc28-4904-a66e-e78e73b13b3b",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "position": [
+        -220,
+        -880
+      ],
+      "webhookId": "a10253d2-0645-46d0-95e7-f7bb41193431",
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "LvJD4EnUtBT8OCXQ",
+          "name": "Telegram account 2"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "8d5e865b-7a6b-4c1d-a850-68b9a25de56f",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        -20,
+        -880
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "photo",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "05a85c74-cb5e-4fa4-83be-bd258efc1464",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.message.photo[3]}}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "voice",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "4135a526-68a7-428d-82f3-d5882d9bc4e6",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.message.voice }}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "document",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "26c733da-6782-487d-9b37-61e7544e2e84",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.message.document }}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "text",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "b8457c94-8f58-4b84-866a-4b04f3df7779",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {},
+        "looseTypeValidation": true
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "1dc71295-3f8b-4d7a-9469-707db0828a16",
+      "name": "Transcribe a recording",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        680,
+        -400
+      ],
+      "parameters": {
+        "options": {},
+        "resource": "audio",
+        "operation": "transcribe"
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "RYBVUGi38HFcqZqp",
+          "name": "OpenAi account 2"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "31ab270f-3820-4113-b534-70fda48fc108",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1220,
+        600
+      ],
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "options": {
+          "systemMessage": "You are a helpful assistant.\n\nIf you don't have enough context to answer a question, use the MongoDB Atlas Vector Store Tool to check the vector store for more context before you formulate a response. "
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "25361e7d-6be5-4025-a1d7-b546bb248090",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1040,
+        880
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "RYBVUGi38HFcqZqp",
+          "name": "OpenAi account 2"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "aa026292-2ddb-41cb-b650-46b336a6607d",
+      "name": "Respond",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1600,
+        600
+      ],
+      "webhookId": "b8c042cd-b186-42e4-97c6-cb11ca708ab4",
+      "parameters": {
+        "text": "={{ $json.output }}",
+        "chatId": "={{ $('Switch').item.json.message.from.id }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "LvJD4EnUtBT8OCXQ",
+          "name": "Telegram account 2"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "b5e4eeec-b901-4121-9f97-6dc8bbdb92db",
+      "name": "MongoDB Chat Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryMongoDbChat",
+      "position": [
+        1240,
+        880
+      ],
+      "parameters": {
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.from.id }}",
+        "databaseName": "chat_messages",
+        "sessionIdType": "customKey",
+        "contextWindowLength": 100
+      },
+      "credentials": {
+        "mongoDb": {
+          "id": "ZW5dFVMhek3Ia8Nb",
+          "name": "MongoDB account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "638201f8-1e90-46e6-af59-a4ddc8bf5bf9",
+      "name": "ConvertAPI HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        460,
+        -880
+      ],
+      "parameters": {
+        "": "",
+        "url": "https://v2.convertapi.com/convert/ai/to/png",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "sendQuery": false,
+        "curlImport": "",
+        "contentType": "multipart-form-data",
+        "infoMessage": "",
+        "sendHeaders": true,
+        "authentication": "none",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "StoreFile",
+              "value": "true",
+              "parameterType": "formData"
+            },
+            {
+              "name": "File",
+              "parameterType": "formBinaryData",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer ..."
+            }
+          ]
+        },
+        "httpVariantWarning": "",
+        "provideSslCertificates": false
+      },
+      "credentials": {
+        "convertApi": {
+          "id": "HGlTSw87jzs9hTfi",
+          "name": "ConvertAPI account"
+        }
+      },
+      "typeVersion": 4.2,
+      "extendsCredential": "convertApi"
+    },
+    {
+      "id": "10176355-04e5-49b5-a128-7aecb538e72a",
+      "name": "Get audio file",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        240,
+        -400
+      ],
+      "webhookId": "a26ace34-37e6-473e-8a57-5d1c908b7642",
+      "parameters": {
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "resource": "file"
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "LvJD4EnUtBT8OCXQ",
+          "name": "Telegram account 2"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "53e02e99-b01a-4115-8663-d4241bfbc8e5",
+      "name": "Get photo file",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        240,
+        -880
+      ],
+      "webhookId": "a26ace34-37e6-473e-8a57-5d1c908b7642",
+      "parameters": {
+        "fileId": "={{ $json.message.photo[3].file_id }}",
+        "resource": "file"
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "LvJD4EnUtBT8OCXQ",
+          "name": "Telegram account 2"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "f3341c7e-c303-49c7-be9c-37b6b03b76f7",
+      "name": "Analyze image",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        680,
+        -880
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o",
+          "cachedResultName": "GPT-4O"
+        },
+        "options": {},
+        "resource": "image",
+        "imageUrls": "={{ $json.Files[0].Url }}",
+        "operation": "analyze"
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "RYBVUGi38HFcqZqp",
+          "name": "OpenAi account 2"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "7aea5368-650e-440a-b986-31010ab82fdc",
+      "name": "Get text from Image",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        900,
+        -880
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "da1e0cdd-5633-4bb7-97bd-2caf2e3b45c1",
+              "name": "text",
+              "type": "string",
+              "value": "=I just submitted an images with this description: {{ $json.content }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "676ca8f7-bb55-4c66-ae26-1fab3bb36c77",
+      "name": "Get text from Audio",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        880,
+        -400
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5b1b84f3-b95b-4142-8891-397815757620",
+              "name": "text",
+              "type": "string",
+              "value": "={{ $json.text }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "f3ec9d7f-1e0e-42cb-bf8b-1bead0558289",
+      "name": "Get a file",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        240,
+        20
+      ],
+      "webhookId": "f7a8fa17-3d06-4913-a979-20f6048f5e23",
+      "parameters": {
+        "fileId": "={{ $('Telegram Trigger').item.json.message.document.file_id }}",
+        "resource": "file"
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "LvJD4EnUtBT8OCXQ",
+          "name": "Telegram account 2"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "25fc5879-8fa1-47a8-9888-d4129227beca",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        440,
+        20
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c56dbc4c-08c6-49a1-8a3b-fa7b13304c23",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "leftValue": "={{ $json.result.file_path }}",
+              "rightValue": "pdf"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "d48612ec-28e1-4685-a5f6-efb7cb53ba3b",
+      "name": "Extract from File",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        680,
+        20
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "pdf"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "36ec8656-502e-45dd-8309-4486bab3c0c8",
+      "name": "Get text from PDF",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        880,
+        20
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "da1e0cdd-5633-4bb7-97bd-2caf2e3b45c1",
+              "name": "text",
+              "type": "string",
+              "value": "=I just uploaded a file with details: \nName: {{ $json.info.Title }},\nContent :{{ $json.text }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "a06fe0fe-0c55-40fa-9711-0f8c39d44780",
+      "name": "Unsupported Input",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        680,
+        220
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "da1e0cdd-5633-4bb7-97bd-2caf2e3b45c1",
+              "name": "text",
+              "type": "string",
+              "value": "=User just uploaded the Word file but your system doesnt support such files just yet."
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "a32d4c7d-dd06-49e5-b302-09bb9926341c",
+      "name": "Get text from Message",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        220,
+        600
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "33f1c9df-bdb2-481d-8cf6-6633d23da23a",
+              "name": "text",
+              "type": "string",
+              "value": "={{$json.message.text}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "d1d4e397-d495-4584-b8c4-bf9c87174f48",
+      "name": "Send a message in Gmail",
+      "type": "n8n-nodes-base.gmailTool",
+      "position": [
+        1460,
+        880
+      ],
+      "webhookId": "b5e761ce-83d5-4636-b54b-45a26150a650",
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {},
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "7xeNUMGkl9ZTBgQc",
+          "name": "Gmail account 2"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "e4c44de2-e751-4baf-afcd-d329c4891d43",
+      "name": "Search for a messages in Gmail",
+      "type": "n8n-nodes-base.gmailTool",
+      "position": [
+        1660,
+        880
+      ],
+      "webhookId": "74970d71-72e1-4b20-9430-fdbdc971f6f6",
+      "parameters": {
+        "limit": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Limit', ``, 'number') }}",
+        "filters": {
+          "q": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Search', ``, 'string') }}"
+        },
+        "operation": "getAll"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "7xeNUMGkl9ZTBgQc",
+          "name": "Gmail account 2"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "30e70a97-136e-4dd7-bad2-48c4f0f63773",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -220,
+        -1160
+      ],
+      "parameters": {
+        "width": 2820,
+        "height": 240,
+        "content": "## 📝 Общий обзор\n\nЭтот рабочий процесс n8n создает многомодального AI-ассистента памяти, который захватывает и интеллектуально вспоминает информацию из голоса, изображений, документов и текстовых сообщений, отправленных через Telegram. Он использует GPT-4o для продвинутой обработки AI (включая понимание различных типов ввода, разбиение на части и генерацию) и MongoDB Atlas для постоянной, доступной для поиска памяти. Ассистент также может взаимодействовать с Gmail через интегрированные инструменты.\n\nРабочий процесс работает в двух основных фазах:\n\n    **Сбор**: Входящие сообщения (голос, изображение, документ, текст) обрабатываются, преобразуются в форматы, доступные для поиска, интеллектуально разбиваются на части и помечаются GPT-4o, а затем векторизуются и хранятся в MongoDB.\n\n    **Извлечение и ответ**: Когда пользователь задает вопрос, AI-агент извлекает соответствующие воспоминания из MongoDB Atlas, синтезирует ответ с помощью GPT-4o и отвечает через Telegram, потенциально используя инструменты Gmail, если это необходимо."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b67876a6-803d-46ba-ae08-f27b718efe2b",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1200,
+        -880
+      ],
+      "parameters": {
+        "width": 1400,
+        "height": 340,
+        "content": "## 📸 Обработка Фотографий\n\nЭтот раздел рабочего процесса обрабатывает входящие изображения из Telegram:\n\n    Триггер Telegram определяет входящие сообщения с фотографией.\n\n    Узел Получить файл фотографии загружает изображение с серверов Telegram.\n\n    Узел HTTP-запрос ConvertAPI обрабатывает загруженное изображение, обеспечивая единообразный формат (например, конвертация в PNG) для последующего шага ИИ.\n\n    Узел Анализ изображения (узел OpenAI GPT-4o Langchain) затем выполняет визуальный анализ изображения. Он генерирует подробное текстовое описание содержимого изображения, распознавая объекты, сцены и любой встроенный текст (OCR). Этот шаг преобразует визуальную информацию в формат текста, который можно искать.\n\n    Наконец, узел Получить текст из изображения (Set node) принимает это описание, сгенерированное ИИ, и подготавливает его в качестве стандартизированного текстового ввода для основного ИИ-агента для дальнейшей обработки, тегирования и хранения в MongoDB."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1369051f-00c7-4564-bed9-c07b35f92fc8",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1200,
+        20
+      ],
+      "parameters": {
+        "width": 1400,
+        "height": 420,
+        "content": "## 📄 Обработка документов и учет неподдерживаемых файлов\n\nЭтот раздел обрабатывает загрузку документов и предоставляет резервный вариант для неподдерживаемых типов файлов:\n\n    Триггер Telegram обнаруживает входящие документальные файлы.\n\n    Узел Получить файл загружает документ из Telegram.\n\n    Узел Если затем проверяет путь к файлу документа или MIME-тип, чтобы определить, является ли он PDF.\n\n        Если PDF: Рабочий процесс продолжается к узлу Извлечь из файла (утилита n8n), который выполняет извлечение текста из PDF. Это может включать базовое извлечение текста и потенциально возможности OCR для отсканированных PDF, в зависимости от конфигурации узла. Узел Получить текст из PDF (Установить узел) форматирует этот извлеченный контент для AI-агента.\n\n        Если не PDF: Рабочий процесс отклоняется к Узлу неподдерживаемого ввода (Установить узел). Этот узел генерирует предопределенное сообщение (например, \"Пользователь только что загрузил файл Word, но ваша система пока не поддерживает такие файлы.\"), чтобы вежливо проинформировать пользователя о том, что тип файла не может быть обработан, предотвращая ошибки и предоставляя четкую обратную связь.\n\n    Извлеченный текст (или сообщение об неподдерживаемом файле) затем передается AI-агенту для обработки."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4884964b-3a71-4459-9a0b-b4e2de51c90c",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1200,
+        -400
+      ],
+      "parameters": {
+        "width": 1400,
+        "height": 300,
+        "content": "## 🎙️ Обработка аудио\n\nЭта часть рабочего процесса управляет вводом голосовых заметок из Telegram:\n\n    Триггер Telegram захватывает входящие сообщения, которые являются голосовыми заметками.\n\n    Узел Получить аудиофайл загружает аудиофайл из Telegram.\n\n    Узел Транскрибировать запись (OpenAI Whisper или аналогичный узел Langchain, часть экосистемы OpenAI) преобразует аудио в письменный текст. Это критически важный шаг для того, чтобы произнесенные слова были доступны для поиска и понимания LLM.\n\n    Узел Получить текст из аудио (Установить узел) берет транскрибированный текст и форматирует его как стандартизированный ввод для основного AI-агента, готового к семантической обработке и хранению в MongoDB."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "791a2aa1-e747-4ac4-be8c-13375349a235",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1880,
+        600
+      ],
+      "parameters": {
+        "width": 720,
+        "height": 700,
+        "content": "## 🧠 Обработка AI-агента, хранилище векторов MongoDB и доступ к Gmail\n\nЭто основной интеллектуальный центр вашего помощника по памяти:\n\n    AI-агент (узел Langchain Agent) получает обработанный текстовый ввод (из голосовых транскрипций, описаний изображений, извлеченного содержимого документов или прямых текстовых сообщений).\n\n    Постоянная память (воспоминания MongoDB): AI-агент в первую очередь настроен на использование инструмента MongoDB Atlas Vector Store (который вы подключите как пользовательский инструмент, позволяющий RAG).\n\n        Когда агенту нужно извлечь информацию, он генерирует вектор запроса пользователя.\n\n        Затем он запрашивает ваш кластер MongoDB Atlas (который настроен с индексом Atlas Vector Search), чтобы найти наиболее семантически релевантные фрагменты памяти.\n\n        Эти извлеченные фрагменты служат контекстом для GPT-4o, чтобы сформулировать обоснованный и релевантный ответ. Это гарантирует, что помощник \"помнит\" информацию, которую вы предоставили ранее.\n\n    Языковая модель: Модель чата OpenAI (в частности, GPT-4o в этой настройке) действует как мозг для AI-агента. Она синтезирует ответы на основе своих собственных знаний, истории разговора (через память чата MongoDB для истории чата, отдельно от хранилища векторов) и, что особенно важно, извлеченного контекста из поиска векторов MongoDB Atlas.\n\n    Инструменты Gmail: AI-агент также получает доступ к инструментам Gmail (Отправить сообщение в Gmail и Поиск сообщений в Gmail). Это означает, что AI может выполнять действия, такие как:\n\n        Отправка электронных писем от вашего имени, если это указано.\n\n        Поиск ваших прошлых электронных писем для извлечения информации, действуя как внешний источник данных, помимо выделенного хранилища памяти.\n\n    Наконец, узел Ответа отправляет сгенерированный AI-агентом ответ обратно пользователю через Telegram."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "15a8fd13-ef3a-4df1-bb73-3971d9d3eab9",
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Unsupported Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Get photo file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get audio file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get a file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get text from Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze image": {
+      "main": [
+        [
+          {
+            "node": "Get text from Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get audio file": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get photo file": {
+      "main": [
+        [
+          {
+            "node": "ConvertAPI HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Get text from PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get text from PDF": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unsupported Input": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get text from Audio": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get text from Image": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get text from Message": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "Get text from Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ConvertAPI HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Analyze image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search for a messages in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,287 @@
+{
+  "id": "2v8K3VanHj11PubB",
+  "meta": {
+    "instanceId": "60046904b104f0f72b2629a9d88fe9f676be4035769f1f08dad1dd38a76b9480",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Изучите больше советов и учебных материалов здесь:",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "d143f06d-3ea0-4feb-9157-62bc3d28b2aa",
+      "name": "Start Workflow",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -460,
+        1720
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "579b56bf-35e6-4114-947c-9e62814a2bff",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2180,
+        1020
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 320,
+        "content": "======================================="
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bd02001c-f390-4138-8013-d43f89802ab5",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2180,
+        1360
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1289,
+        "height": 1718,
+        "content": "ПОМОЩЬ С РАБОЧИМ ПРОЦЕССОМ"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d22f87aa-4365-44f1-aab9-6e764af748f9",
+      "name": "RequestFetch Weather via Bright data",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -240,
+        1720
+      ],
+      "parameters": {
+        "url": "https://api.brightdata.com/request",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "zone",
+              "value": "n8n_unblocker"
+            },
+            {
+              "name": "url",
+              "value": "https://www.weather.com/weather/today/l/Paris,FR"
+            },
+            {
+              "name": "country",
+              "value": "fr"
+            },
+            {
+              "name": "format",
+              "value": "raw"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer API_KEY"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f28bf59a-1671-43af-9a98-0ce8cc9ca1e4",
+      "name": "Extract Weather Info",
+      "type": "n8n-nodes-base.html",
+      "position": [
+        20,
+        1720
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "Temperature",
+              "cssSelector": "<span data-testid=\"TemperatureValue\" class=\"CurrentConditions--tempValue--zUBSz\" dir=\"ltr\">81<span class=\"CurrentConditions--degreeSymbol--tzLy9\">°</span><span></span></span>"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "76410c0c-560c-48c2-87cd-68114b5de9ad",
+      "name": "Log to Weather Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        240,
+        1720
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "City": "Paris",
+            "Country": "France",
+            "Temperature": "={{ $json.a }}"
+          },
+          "schema": [
+            {
+              "id": "Country",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Country",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "City",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "City",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Temperature",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Temperature",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mpIFtKgbtV_LgxFD2LTeXbHdaMu-Qca1S9RRSlFpZWQ/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1mpIFtKgbtV_LgxFD2LTeXbHdaMu-Qca1S9RRSlFpZWQ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mpIFtKgbtV_LgxFD2LTeXbHdaMu-Qca1S9RRSlFpZWQ/edit?usp=drivesdk",
+          "cachedResultName": "Weather report"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "r2mDaisH6e9VkwHl",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "fe209422-9127-407b-8ac8-bff7951c18ca",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -500,
+        1040
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 420,
+        "height": 900,
+        "content": "======================================="
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "23e7ddee-8409-4633-a7de-e29ea9face06",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -20,
+        1020
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 420,
+        "height": 920,
+        "content": "По любым вопросам или для получения поддержки, пожалуйста, свяжитесь с:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aabc6470-727f-4d60-b390-44b52114821a",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        460,
+        1020
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 380,
+        "height": 240,
+        "content": "Yaron@nofluff.online"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4e7b1293-10f1-4bee-a389-42835314731d",
+  "connections": {
+    "Start Workflow": {
+      "main": [
+        [
+          {
+            "node": "RequestFetch Weather via Bright data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Weather Info": {
+      "main": [
+        [
+          {
+            "node": "Log to Weather Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RequestFetch Weather via Bright data": {
+      "main": [
+        [
+          {
+            "node": "Extract Weather Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

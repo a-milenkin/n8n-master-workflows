@@ -1,0 +1,161 @@
+{
+  "id": "Pye2skiTtHiD3nQF",
+  "meta": null,
+  "name": "OpenIndex Retrieval Plugin API MCP Сервер",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "1dc9d34c-6c2b-4720-86bf-58e70829378b",
+      "name": "Setup Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1380,
+        -240
+      ],
+      "parameters": {
+        "color": 4,
+        "height": 1060,
+        "content": "### ⚙️ Инструкции по настройке\n\n1. **Импорт рабочего процесса**: \nЗагрузите этот рабочий процесс в вашу инстанцию n8n\n\n2. **Аутентификация**: \nАутентификация не требуется\n\n3. **Активировать рабочий процесс**:\nВключите рабочий процесс, чтобы запустить сервер MCP\n\n4. **Получить URL MCP**: \nСкопируйте URL вебхука из триггера MCP\n\n5. **Подключить AI-агента**:\nИспользуйте URL MCP в конфигурации вашего AI-агента\n\n\n### 💡 Примечания по использованию\n• Параметры автоматически заполняются AI с помощью выражений $fromAI()\n• Доступно 1 API конечная точка в качестве инструментов\n• Ответы сохраняют оригинальную структуру API\n\n\n### 🛠️ Настройка\n• Добавьте узлы преобразования данных, если необходимо\n• Реализуйте пользовательскую обработку ошибок\n• Добавьте узлы логирования или мониторинга\n\n• Измените значения по умолчанию параметров в любом узле HTTP-запроса по мере необходимости\n\n### 💬 Нужна помощь?\nНапишите мне в [discord](https://discord.me/cfomodz) для получения рекомендаций по интеграции и пользовательским автоматизациям. Ознакомьтесь с [документацией n8n](https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.toolmcp/) для получения дополнительной информации."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fd039c2d-2867-4ece-b5da-e2d924615baa",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1120,
+        -240
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 740,
+        "content": "## 🛠️ Плагин извлечения OpenIndex MCP Server ✅ 1 операция\n\n### Описание\nAPI для извлечения, позволяющее запрашивать и фильтровать документы на основе запросов на естественном языке и метаданных\n\n### 🔧 Как это работает\n\nЭтот рабочий процесс преобразует API плагина извлечения OpenIndex в интерфейс, совместимый с MCP для ИИ-агентов.\n\n• **MCP триггер**: Служит конечной точкой вашего сервера для запросов ИИ-агентов  \n• **HTTP узлы запросов**: Обрабатывают API-вызовы к https://retriever.openindex.ai/sub  \n• **Выражения ИИ**: Автоматически заполняют параметры через заполнители `$fromAI()`  \n• **Нативная интеграция**: Возвращает ответы напрямую ИИ-агенту  \n\n\n### 📋 Доступные операции (1 конечная точка)\n\n**Запрос (1 операция)**  \nОтправить запрос"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "74b57803-8793-47aa-a02c-9da0e2cec3ab",
+      "name": "OpenIndex Retrieval Plugin MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        -620,
+        -240
+      ],
+      "webhookId": "808dfa92-dca6-4fe6-bb3d-1726e8b5b5a9",
+      "parameters": {
+        "path": "openindex-retrieval-plugin-mcp"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f700ebe8-ddaf-4243-a901-776e9b0d16d4",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        -100
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 300,
+        "height": 200,
+        "content": "## Запрос"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5c359c4b-9c94-4506-af07-dd4cad1ca1e5",
+      "name": "Submit Query",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        -60
+      ],
+      "parameters": {
+        "url": "=https://retriever.openindex.ai/sub/query",
+        "method": "POST",
+        "options": {},
+        "toolDescription": "Query"
+      },
+      "typeVersion": 4.2
+    }
+  ],
+  "active": false,
+  "shared": [
+    {
+      "role": "workflow:owner",
+      "project": {
+        "id": "G5fce9xGuBAsWBXe",
+        "icon": null,
+        "name": "David Ashby <david.ashby.lds@gmail.com>",
+        "type": "personal",
+        "createdAt": "2025-06-04T02:55:02.013Z",
+        "updatedAt": "2025-06-04T02:56:01.361Z",
+        "projectRelations": [
+          {
+            "role": "project:personalOwner",
+            "user": {
+              "id": "715c1c00-cb48-4712-9a32-f1f4b6db2b30",
+              "role": "global:owner",
+              "email": "david.ashby.lds@gmail.com",
+              "disabled": false,
+              "lastName": "Ashby",
+              "settings": {
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1749357655581
+                },
+                "userActivated": true,
+                "userActivatedAt": 1749075994495,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "3N3vVikZb3MckFYm"
+              },
+              "createdAt": "2025-06-04T02:55:01.745Z",
+              "firstName": "David",
+              "isPending": false,
+              "updatedAt": "2025-06-08T04:40:58.399Z",
+              "mfaEnabled": false,
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_n8n_version": "1.95.3",
+                "personalization_survey_submitted_at": "2025-06-04T02:56:07.075Z"
+              }
+            },
+            "userId": "715c1c00-cb48-4712-9a32-f1f4b6db2b30",
+            "createdAt": "2025-06-04T02:55:02.013Z",
+            "projectId": "G5fce9xGuBAsWBXe",
+            "updatedAt": "2025-06-04T02:55:02.013Z"
+          }
+        ]
+      },
+      "createdAt": "2025-07-03T05:55:17.874Z",
+      "projectId": "G5fce9xGuBAsWBXe",
+      "updatedAt": "2025-07-03T05:55:17.874Z",
+      "workflowId": "Pye2skiTtHiD3nQF"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "timezone": "America/New_York"
+  },
+  "createdAt": "2025-07-03T05:55:17.871Z",
+  "updatedAt": "2025-07-03T16:36:25.000Z",
+  "versionId": "16bce628-c6e3-49bc-a177-cfb3815b6246",
+  "isArchived": false,
+  "staticData": null,
+  "connections": {
+    "Submit Query": {
+      "ai_tool": [
+        [
+          {
+            "node": "OpenIndex Retrieval Plugin MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "triggerCount": 0
+}

@@ -1,0 +1,128 @@
+{
+  "id": "content-idea-generator",
+  "name": "Генерируйте идеи контента с помощью Gemini Pro и сохраняйте в Google Sheets.",
+  "tags": [
+    "marketing",
+    "ai",
+    "content-creation",
+    "google-sheets",
+    "beginner"
+  ],
+  "nodes": [
+    {
+      "id": "manual-input",
+      "name": "Manual Input",
+      "type": "n8n-nodes-base.manualInput",
+      "position": [
+        200,
+        200
+      ],
+      "parameters": {
+        "description": "Введите вручную тему или ключевое слово, для которого вы хотите сгенерировать идеи контента. Добавьте поле с именем 'topic' в JSON-ввод (например, {\"topic\": \"ваша желаемая тема\"})."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "google-ai",
+      "name": "Generate Ideas (Google AI)",
+      "type": "n8n-nodes-base.google-ai",
+      "position": [
+        450,
+        200
+      ],
+      "parameters": {
+        "model": "gemini-pro",
+        "prompt": "Generate 5 content ideas related to the topic: {{ $json.topic }}. Please format each idea as a short sentence or title.",
+        "operation": "generateContent",
+        "description": "Использует модель Google AI (Gemini Pro) для генерации идей контента на основе предоставленной темы из узла 'Manual Input'. Требуется настроить учетные данные Google AI в n8n.",
+        "additionalParameters": {}
+      },
+      "credentials": {
+        "googleAiApi": "YOUR_GOOGLE_AI_CREDENTIALS"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "format-ideas",
+      "name": "Format Ideas",
+      "type": "n8n-nodes-base.function",
+      "position": [
+        700,
+        200
+      ],
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  const ideas = item.json.candidates[0].content.parts[0].text.split('\\n').filter(idea => idea.trim() !== '');\n  return ideas.map(idea => ({ json: { idea: idea.trim() } }));\n}).flat();",
+        "description": "Обрабатывает необработанный текстовый вывод из узла 'Generate Ideas (Google AI)'. Он разделяет сгенерированные идеи (ожидается, что они разделены переводами строк) на отдельные элементы, подготавливая их к записи в виде отдельных строк в Google Sheets."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "google-sheets",
+      "name": "Write to Google Sheet",
+      "type": "n8n-nodes-base.google-sheets",
+      "position": [
+        950,
+        200
+      ],
+      "parameters": {
+        "range": "Sheet1!A:A",
+        "values": "={{ $json.idea }}",
+        "options": {},
+        "operation": "append",
+        "description": "Добавляет каждую отформатированную идею контента (из узла 'Format Ideas') как новую строку в указанный Google Sheet. Не забудьте заменить 'YOUR_GOOGLE_SHEET_ID' на ваш фактический идентификатор Google Sheet и подключить ваши учетные данные OAuth2 для Google Sheets.",
+        "spreadsheetId": "YOUR_GOOGLE_SHEET_ID"
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": "YOUR_GOOGLE_SHEETS_CREDENTIALS"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "events": {},
+  "folder": null,
+  "pinData": {},
+  "settings": {},
+  "timeZone": "Europe/Berlin",
+  "createdAt": "2025-05-27T00:00:00.000Z",
+  "updatedAt": "2025-05-27T00:00:00.000Z",
+  "versionId": null,
+  "staticData": null,
+  "connections": {
+    "google-ai": {
+      "main": [
+        [
+          {
+            "node": "format-ideas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "format-ideas": {
+      "main": [
+        [
+          {
+            "node": "google-sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "manual-input": {
+      "main": [
+        [
+          {
+            "node": "google-ai",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "description": "A beginner-friendly marketing workflow that uses AI (Google AI) to generate content ideas based on a given topic and then saves these ideas into a Google Sheet for easy organization and planning. This n8n workflow template uses community nodes and is only compatible with the self-hosted version of n8n.",
+  "triggerCount": 0
+}

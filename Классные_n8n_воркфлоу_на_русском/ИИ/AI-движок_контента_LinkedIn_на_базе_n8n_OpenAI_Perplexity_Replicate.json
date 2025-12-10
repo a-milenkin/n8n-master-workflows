@@ -1,0 +1,471 @@
+{
+  "meta": {
+    "instanceId": "INSTANCE_ID_HERE",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "121a6e68-f406-41f1-aaeb-dc04c8532c2c",
+      "name": "✍️ Content Creator - OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        -1300,
+        160
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "chatgpt-4o-latest",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "content": "=Вы создаете контент для LinkedIn для [ВАШЕ_ИМЯ], опытного предпринимателя и энтузиаста ИИ."
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "OPENAI_CREDENTIAL_ID_HERE",
+          "name": "OpenAI API"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "9eb1e5ef-f88c-41ca-9784-bf8c37a8a983",
+      "name": "🎨 Voice Refiner - OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        -924,
+        160
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "chatgpt-4o-latest",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "content": "**🧠 КОНТЕКСТ О ВАС:**"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "OPENAI_CREDENTIAL_ID_HERE",
+          "name": "OpenAI API"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "67b34c31-d345-4c03-992e-43d010d32c1f",
+      "name": "📊 Content Scorer",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -540,
+        160
+      ],
+      "parameters": {
+        "jsCode": "// Get the voice-refined content\nconst refinedPost = $input.first().json.message.content;\n\nconsole.log(\"Final post:\", refinedPost);\nconsole.log(\"Character count:\", refinedPost.length);\n\n// Simple scoring function\nfunction scorePost(post) {\n  let score = 0;\n  \n  // Length optimization\n  if (post.length >= 800 && post.length <= 1300) score += 3;\n  else if (post.length >= 500 && post.length <= 1500) score += 2;\n  else score += 1;\n  \n  // Engagement elements\n  if (post.includes('?')) score += 2;\n  if (post.match(/\\d+/g)) score += 2; // Contains numbers\n  if (post.includes('Here\\'s the thing')) score += 2;\n  if (post.includes(':')) score += 1;\n  \n  // Voice authenticity markers\n  if (post.includes('n8n') || post.includes('OpenAI') || post.includes('Mydra')) score += 1;\n  if (post.includes('minutes') || post.includes('hours')) score += 1;\n  \n  // Penalties for AI-speak\n  if (post.includes('game-changer') || post.includes('unlock')) score -= 3;\n  \n  return Math.max(0, score);\n}\n\nconst score = scorePost(refinedPost);\nconst timestamp = new Date().toISOString();\n\n// Simple status logic\nlet status;\nif (score >= 7) status = 'pending_review';\nelse if (score >= 5) status = 'needs_editing';\nelse status = 'needs_major_revision';\n\n// Return only the new scoring data\nreturn {\n  json: {\n    generated_post: refinedPost,\n    ai_score: score,\n    character_count: refinedPost.length,\n    status: status,\n    human_approved: false,\n    generated_at: timestamp\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3ef4644e-7c2e-4642-8bed-2ebbb30c9fb1",
+      "name": "🖼️ Image Prompt Generator",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        -328,
+        160
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "chatgpt-4o-latest",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "content": "- [ДОСТИЖЕНИЕ 1 - например, основал компанию X (описание, привлек $X)]"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "OPENAI_CREDENTIAL_ID_HERE",
+          "name": "OpenAI API"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "35fd1c63-3643-44d8-995a-af9fb6b5d42e",
+      "name": "🎨 Image Generator",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        268,
+        160
+      ],
+      "parameters": {
+        "url": "https://api.replicate.com/v1/models/black-forest-labs/flux-1.1-pro/predictions",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"input\": {\n    \"prompt\": \"{{ $json.clean_prompt }}\",\n    \"prompt_upsampling\": true,\n    \"width\": 1024,\n    \"height\": 1024,\n    \"num_outputs\": 1,\n    \"aspect_ratio\": \"1:1\",\n    \"output_format\": \"webp\",\n    \"output_quality\": 100,\n    \"guidance\": 4,\n    \"safety_tolerance\": 2\n  }\n}",
+        "sendBody": true,
+        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\",\n  \"Prefer\": \"wait\"\n}",
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "specifyHeaders": "json",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLICATE_API_KEY_HERE",
+          "name": "Replicate API"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f5c82bb7-8c7b-4dda-bd7f-a82012d77295",
+      "name": "💾 Save Results",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        488,
+        160
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Post": "={{ $('🎨 Voice Refiner - OpenAI').item.json.message.content }}",
+            "Image": "={{ $json.output }}",
+            "Topic": "={{ $('Webhook').item.json.body.Topic }}",
+            "Status": "={{ $('📊 Content Scorer').item.json.status }}",
+            "AI_Score": "={{ $('📊 Content Scorer').item.json.ai_score }}"
+          },
+          "schema": [
+            {
+              "id": "Topic",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Topic",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Post_type",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Post_type",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Length",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Length",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Include_Mydra",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Include_Mydra",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Personal_Story",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Personal_Story",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Additional context",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Additional context",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Category",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Post",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Post",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Image",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Image",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI_Score",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "AI_Score",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Scheduled_for",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Scheduled_for",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Posted_at",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Posted_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Topic"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/GOOGLE_SHEETS_ID_HERE/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "GOOGLE_SHEETS_ID_HERE"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GOOGLE_SHEETS_OAUTH_ID_HERE",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "afec1b86-eda6-42fd-b800-bd92663b5eb5",
+      "name": "🔍 Research & Trends",
+      "type": "n8n-nodes-base.perplexity",
+      "position": [
+        -1520,
+        160
+      ],
+      "parameters": {
+        "model": "sonar",
+        "options": {},
+        "messages": {
+          "message": [
+            {
+              "content": "=Research the topic:  {{ $json.body.Topic }}\n\nAdditional context: {{ $json.body.Additional_Context }}\n\nI need FACTUAL, VERIFIABLE information only. Please:\\n\\n1. Find recent news or developments (with specific dates and sources)\\n2. Look for actual statistics or data (cite the original studies/reports)\\n3. Identify real discussions happening on platforms like Reddit, HN, Twitter\\n4. Find genuine expert opinions from credible sources\\n\\nIMPORTANT RULES:\\n- Only include information you can verify with direct links\\n- If you can't find recent information, say 'No recent verifiable information found'\\n- Don't speculate or create plausible-sounding but unverified claims\\n- Provide direct URLs when possible\\n- If statistics seem outdated or unclear, mention the limitation\\n\\nFormat your response as:\\n**VERIFIED INSIGHTS:**\\n[List only factual findings with sources]\\n\\n**CONTENT ANGLES:**\\n[Suggest how this real information could be used for LinkedIn content]\\n\\n**LIMITATIONS:**\\n[Note what information wasn't available or needs verification]\n"
+            }
+          ]
+        },
+        "requestOptions": {}
+      },
+      "credentials": {
+        "perplexityApi": {
+          "id": "PERPLEXITY_API_KEY_HERE",
+          "name": "Perplexity account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "de8492e6-9fa5-4da6-90db-95a2c979ed2b",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        48,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const imagePrompt = $input.first().json.message.content\n\n// Clean and escape the prompt for JSON\nconst cleanPrompt = imagePrompt\n  .replace(/\"/g, '\\\\\"')  // Escape quotes\n  .replace(/\\n/g, ' ')   // Remove line breaks\n  .replace(/\\r/g, ' ')   // Remove carriage returns\n  .trim();               // Remove extra whitespace\n\nreturn {\n  json: {\n    clean_prompt: cleanPrompt\n  }\n};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1ff1849b-2ef7-488f-9ba5-610f8733cab8",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -1740,
+        160
+      ],
+      "webhookId": "WEBHOOK_ID_HERE",
+      "parameters": {
+        "path": "WEBHOOK_ID_HERE",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "🎨 Image Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "🔍 Research & Trends",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📊 Content Scorer": {
+      "main": [
+        [
+          {
+            "node": "🖼️ Image Prompt Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🎨 Image Generator": {
+      "main": [
+        [
+          {
+            "node": "💾 Save Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔍 Research & Trends": {
+      "main": [
+        [
+          {
+            "node": "✍️ Content Creator - OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🎨 Voice Refiner - OpenAI": {
+      "main": [
+        [
+          {
+            "node": "📊 Content Scorer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🖼️ Image Prompt Generator": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "✍️ Content Creator - OpenAI": {
+      "main": [
+        [
+          {
+            "node": "🎨 Voice Refiner - OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

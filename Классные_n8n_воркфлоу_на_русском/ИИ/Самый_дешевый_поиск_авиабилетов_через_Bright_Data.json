@@ -1,0 +1,225 @@
+{
+  "id": "YhwckWo4y8FNZ4v4",
+  "meta": {
+    "instanceId": "60046904b104f0f72b2629a9d88fe9f676be4035769f1f08dad1dd38a76b9480",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Изучите больше советов и учебных пособий здесь:",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "6da8e17f-3448-4195-b812-43564470d376",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -480,
+        2340
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "6e92c67b-3e06-4de8-ac8f-f09d33bc6115",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2460,
+        500
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 320,
+        "content": "======================================="
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ffb0ba94-e697-409d-9190-1e6f8656c775",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2460,
+        840
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1289,
+        "height": 2458,
+        "content": "ПОМОЩЬ С РАБОЧИМ ПРОЦЕССОМ"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3e3a26e0-eeed-4a0f-85bb-ac49e438eb43",
+      "name": "HTML",
+      "type": "n8n-nodes-base.html",
+      "position": [
+        20,
+        2340
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "Title",
+              "cssSelector": "<span class=\"flights-landing__flight-logo-txt\" data-translate=\"false\">United</span>"
+            },
+            {
+              "key": "Price",
+              "cssSelector": "<div class=\"flights-landing__flight-price\">$114</div>"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "4213760f-1d00-4d4c-b918-5b46728c78e8",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        240,
+        2340
+      ],
+      "parameters": {
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "r2mDaisH6e9VkwHl",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "c1bda948-e9f0-4539-ba18-fa37ac431d91",
+      "name": "Fetch flight details from skiplegged via bright data",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -260,
+        2340
+      ],
+      "parameters": {
+        "url": "https://api.brightdata.com/request",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "{\n  \"zone\": \"n8n_unblocker\",\n  \"url\": \"https://skiplagged.com/flights/NYC/LAX/2024-07-01\",\n  \"country\": \"ie\",\n  \"format\": \"raw\",\n  \"headers\": {\n    \"User-Agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36\",\n    \"Accept-Language\": \"en-US,en;q=0.9\",\n    \"Accept\": \"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\"\n  }\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer API_KEY"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "6f4009d4-bd47-4bda-a4b1-cd6bdfa59821",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -500,
+        1340
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 400,
+        "height": 1200,
+        "content": "======================================="
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "15115b20-c08a-4953-be0b-8e7a7f2a4030",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -20,
+        1080
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 400,
+        "height": 1460,
+        "content": "Если у вас есть вопросы или нужна поддержка, пожалуйста, свяжитесь с:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b151fc17-d628-4e38-a5e7-91b2555b8e1f",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        460,
+        1080
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 380,
+        "height": 240,
+        "content": "Yaron@nofluff.online"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d966578d-4e22-4067-b7b6-1b310276ba5a",
+  "connections": {
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch flight details from skiplegged via bright data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch flight details from skiplegged via bright data": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

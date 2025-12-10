@@ -1,0 +1,1763 @@
+{
+  "id": "GYu58JC0HXxXzg6c",
+  "meta": {
+    "instanceId": "95a1299fb2b16eb2219cb044f54e72c2d00dcd2c72efe717b3c308d200f29927"
+  },
+  "name": "Мой рабочий процесс 5",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "2840fe16-c0dc-48d9-abb1-538ea1fa8a6a",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -1640,
+        700
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "deaacb0e-a772-4f6c-861b-c7bae802ce5e",
+      "name": "Extract Domain",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        -1400,
+        700
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "options": {
+          "temperature": 0.2
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Ваше задание - извлечь только основной домен из URL. Пример: для 'http://www.example.com/home' вернуть 'example.com'. Для 'https://subdomain.site.co.uk/login' вернуть 'site.co.uk'. Ответьте только с доменом, без каких-либо комментариев."
+            },
+            {
+              "content": "=Извлеките основной домен из следующего URL: {{ $json.Website }}"
+            }
+          ]
+        },
+        "jsonOutput": true
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "SSQ6BcbSKW6I0uSn",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "86633b2a-2f58-480c-b850-31d1a367bffb",
+      "name": "Find Employees",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1060,
+        700
+      ],
+      "parameters": {
+        "url": "https://api.ghostgenius.fr/v2/private/sales-navigator",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "current_company",
+              "value": "={{ $('Loop Over Items').item.json.ID }}"
+            },
+            {
+              "name": "account_id",
+              "value": "={{ $('Set Variables').item.json['account_id (Ghost Genius API)'] }}"
+            },
+            {
+              "name": "page",
+              "value": "1"
+            },
+            {
+              "name": "keywords",
+              "value": "={{ $('Set Variables').item.json['Target Employees'] }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "czut032YCs6adYBp",
+          "name": "Ghost Genius - Lead Machine LK"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "c781f307-9165-4869-b2ef-87347a5df87a",
+      "name": "Check profiles Found",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -880,
+        700
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "62313990-929a-4859-aab7-0efe2f434dc9",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              },
+              "leftValue": "={{ $json.total }}",
+              "rightValue": 3
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "dbd1c384-5f47-47d3-a61d-ee2175ca089e",
+      "name": "Split Profiles",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        -680,
+        700
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "data"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aff3a2da-6288-446c-8f5d-ca6fb216d176",
+      "name": "Get Profile Details",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -480,
+        700
+      ],
+      "parameters": {
+        "url": "https://api.ghostgenius.fr/v2/profile",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 2000
+            }
+          }
+        },
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.url }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "XdFg4wGkcxwRPUMo",
+          "name": "Header Auth account 4"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "13a8de85-3069-4f64-9479-6b1aa0548af7",
+      "name": "Keep relevant information",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -280,
+        700
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const simplifiedItem = {\n  id: $json?.id || null,\n  url: $json?.url || null,\n  first_name: $json?.first_name || null,\n  last_name: $json?.last_name || null,\n  headline: $json?.headline || null,\n  position: $json?.experiences?.[0]?.position || null,\n  position_description: $json?.experiences?.[0]?.description || null,\n  company_website: $('Extract Domain').item.json.message.content.domain || null,\n  skills: $json?.skills || []\n};\nreturn simplifiedItem;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f054f4dd-3493-473a-b35b-bbaf0e4795d9",
+      "name": "Combine Profiles",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        -80,
+        700
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6aac2d3c-74ed-4555-bcb8-5b8eb016bac1",
+      "name": "Select Top 3 ",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        100,
+        700
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-3.5-turbo-0125",
+          "cachedResultName": "GPT-3.5-TURBO-0125"
+        },
+        "options": {
+          "temperature": 0.1
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "first_profile:\nsecond_profile:\nthird_profile:"
+            },
+            {
+              "content": "=Вот профили для анализа: {{ $json.data.toJsonString() }}\n\nВерните 3 лучших профиля.\n\nОжидаемый формат вывода JSON:\nfirst_profile:\nsecond_profile:\nthird_profile"
+            }
+          ]
+        },
+        "jsonOutput": true
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "SSQ6BcbSKW6I0uSn",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "b54d1798-498b-4570-b0a2-b630aa9f758c",
+      "name": "Split Out ",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        440,
+        700
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "message.content"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d1f5debc-649e-48d4-a030-fcc7fac3d9cb",
+      "name": "Generate Emails",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        720,
+        700
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Function to clean names by removing accents and special characters\nconst cleanName = (str) => {\n  return str.toLowerCase()\n    .normalize(\"NFD\").replace(/[\\u0300-\\u036f]/g, \"\") // Remove accents\n    .replace(/[^a-z0-9]/g, ''); // Remove special characters\n};\n\n// Clean the first and last name from the input JSON\nconst firstName = cleanName($json.first_name);\nconst lastName = cleanName($json.last_name);\n\n// Method 1 - Get the domain from the OpenAI3 node\n// This accesses the domain property from the previous node's output\nconst domain = $('Extract Domain').item.json.message.content.domain;\n\n// Generate various potential email formats using the first name, last name and domain\nconst emailFormats = [\n  `${firstName}.${lastName}@${domain}`, // format: firstname.lastname@domain\n  `${firstName}${lastName}@${domain}`,  // format: firstnamelastname@domain\n  `${firstName}@${domain}`,             // format: firstname@domain\n  `${firstName[0]}.${lastName}@${domain}`, // format: f.lastname@domain\n  `${firstName[0]}${lastName}@${domain}`,  // format: flastname@domain\n];\n\n// Return a new object containing all original properties \n// plus the potential emails and extracted domain\nreturn {\n  ...$json,  // Keep all properties from the original item\n  potential_emails: emailFormats,    // Add the generated email formats\n  extracted_domain: domain           // Add the extracted domain for debugging purposes\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1854e2b9-fd00-4f24-b8f4-81dadb6f66f6",
+      "name": "Split Out Mails",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        900,
+        700
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "potential_emails"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "19224753-9ddd-4f40-b5ca-b84fa86d8dea",
+      "name": "Verify Emails",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1080,
+        700
+      ],
+      "parameters": {
+        "url": "https://api.millionverifier.com/api/v3/",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "api",
+              "value": "={{ $('Set Variables').item.json['api_key MillionVerifier (millionverifier.com)'] }}"
+            },
+            {
+              "name": "email",
+              "value": "={{ $json.potential_emails }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "87e92aa9-a3cb-4624-aee6-5f1c01d3af33",
+      "name": "Combine Results",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        1260,
+        700
+      ],
+      "parameters": {
+        "include": "specifiedFields",
+        "options": {},
+        "aggregate": "aggregateAllItemData",
+        "fieldsToInclude": "email, quality"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ea9af1be-ba6a-42dc-8724-2620448b5176",
+      "name": "Filter Valid Emails",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        1440,
+        700
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "o3-mini",
+          "cachedResultName": "O3-MINI"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Вы получаете список электронных адресов, и вы должны вернуть те, у которых quality=good. Будьте осторожны, чтобы не вернуть электронные адреса с quality 'risky'.\n\nЕсли несколько хороших электронных адресов принадлежат одному и тому же человеку, верните один адрес электронной почты на человека. Если ни один адрес электронной почты не является хорошим, верните 'Нет найденных адресов электронной почты'.\n\nВы должны вернуть адреса электронной почты с соответствующим профилем LinkedIn для каждого адреса электронной почты.\n\nВот ожидаемая структура JSON (если хотя бы один адрес электронной почты 'good') для каждого адреса электронной почты:\n\nemail:\nquality:\nurl:\nid:\nfirst_name:\nlast_name:\nheadline:\ncurrent_position:\nposition_description:"
+            },
+            {
+              "content": "=Вот список электронных адресов:  {{ $json.data.toJsonString() }}\n\nВот список профилей LinkedIn: {{ $('Select Top 3 ').item.json.message.content.toJsonString() }}"
+            }
+          ]
+        },
+        "jsonOutput": true
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "SSQ6BcbSKW6I0uSn",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "6178af94-1885-47c9-9c68-f1fab9c01568",
+      "name": "Check Email Valid",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1780,
+        700
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "8620855f-065c-42fb-b5f5-10d254afeede",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.message.content.result }}",
+              "rightValue": "No email found"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "b74b3fe6-adb7-40f4-8e18-6beda82c2223",
+      "name": "Split Out",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        1980,
+        700
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "message.content.results"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2cd367fb-c781-4e5e-97d7-8af921a5addf",
+      "name": "Get Profile Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2260,
+        700
+      ],
+      "parameters": {
+        "url": "https://api.ghostgenius.fr/v2/profile/posts",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 2000
+            }
+          }
+        },
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.url }}"
+            },
+            {
+              "name": "page",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "XdFg4wGkcxwRPUMo",
+          "name": "Header Auth account 4"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "4af2bef9-ce0e-4d7c-9199-7b6c3d302ca2",
+      "name": "Create Personalization",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        2480,
+        700
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1",
+          "cachedResultName": "GPT-4.1"
+        },
+        "options": {
+          "temperature": 0.5
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "---SETUP FOR EMAIL AI---\nPROSPECT: [Имя и должность]\nCOMPANY: [Название компании]\nKEY INSIGHT: [Одна конкретная информация о перспективах/компании]\nPERSONALIZATION ANGLE: [Конкретный угол персонализации для использования]\nVALUE PROPOSITION: [Как наш продукт решает их конкретные потребности]"
+            },
+            {
+              "content": "=Информация о потенциальном клиенте:\n\nИмя: {{ $('Split Out').item.json.first_name }},\nЗаголовок: {{ $('Split Out').item.json.headline }},\nТекущая должность: {{ $('Split Out').item.json.current_position }},\nОписание должности: {{ $('Split Out').item.json.position_description }},\nПост 1 (опубликован {{ $json.data[0].published_at }}, является репостом?{{ $json.data[0].is_reshare }} ): {{ $json.data[0].text.content }},\nПост 2 (опубликован {{ $json.data[1].published_at }}, является репостом?{{ $json.data[1].is_reshare }}): \n{{ $json.data[1].text.content }},\nПост 3 (опубликован {{ $json.data[2].published_at }}, является репостом?{{ $json.data[2].is_reshare }}): {{ $json.data[1].text.content }},\nКомпания: {{ $('Loop Over Items').item.json.Name }},\nОписание компании: {{ $('Loop Over Items').item.json.Summary }}"
+            }
+          ]
+        },
+        "jsonOutput": true
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "SSQ6BcbSKW6I0uSn",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "4fdd3ee3-8320-43f6-9723-47431ebd96b0",
+      "name": "Generate Emails Messages",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        2860,
+        700
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1",
+          "cachedResultName": "GPT-4.1"
+        },
+        "options": {
+          "temperature": 0.5
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=Вы специалист по написанию холодных писем с высокой вероятностью ответа.\n\nВАЖНО: Вы создаете шаблоны писем, которые будут использоваться кем-то другим, а не общаетесь напрямую с потенциальными клиентами.\n\nВаша задача - написать 3 письма. \nВажно, чтобы каждое письмо не было написано с целью продажи, а только для привлечения внимания и получения ответа.\n\nВот правила, которые нужно соблюдать при написании каждого письма:\n- Письмо должно быть очень коротким (максимум 100 слов)\n- Оно должно быть написано на {{ $('Set Variables').item.json['Email Language'] }}\n- Используйте простые слова\n- Не говорите профессиональным языком, будьте прямыми и переходите к сути. Тон неформальный и прямой. Будьте позитивными.\n- Говорите от первого лица, как будто вы простой {{ $('Set Variables').item.json['Sender Role (your role)'] }}, который создал {{ $('Set Variables').item.json['Your product'] }}\n- Не комплиментируйте потенциального клиента\n\nВот структура письма (в порядке):\n- Вы приветствуете потенциального клиента по имени\n- Персонализированное предложение, использующее информацию о потенциальном клиенте, которое показывает, что вы провели исследование о нем\n- Предложение, объясняющее, что вы создали {{ $('Set Variables').item.json['Your product'] }} ({{ $('Set Variables').item.json['Product Benefits'] }}), и кратко объясняющее, почему это может быть интересно для их компании.\n- Вопрос в виде CTA, ориентированный на положительный ответ, который должен быть очень простым для потенциального клиента. Он не должен выглядеть как продажа и должен вызывать любопытство.\n- Без приветствия\n\nЦель этого первого письма - не продать продукт, а просто привлечь внимание для получения ответа."
+            },
+            {
+              "content": "=Вот информация о потенциальном клиенте и его компании:\n\nИмя контакта: {{ $('Split Out').item.json.first_name }}\n\nКомпания контакта: {{ $('Loop Over Items').item.json.Name }}\n\nАктуальная информация для персонализации:{{ $json.message.content.toJsonString() }}\n\nВерните только JSON (без Markdown) с тремя электронными письмами:\n1. initial_email\n2. first_follow_up (через 3 дня)\n3. second_follow_up (через 5 дней после первого)\n\nОтформатируйте письма с соответствующими переносами строк для удобочитаемости. Не включайте темы писем."
+            }
+          ]
+        },
+        "jsonOutput": true
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "SSQ6BcbSKW6I0uSn",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "4dbbf284-d32f-404e-805a-7c4d0b69fd5a",
+      "name": "Not enough employees",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -680,
+        960
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "ID": "={{ $('Loop Over Items').item.json.ID }}",
+            "State": "Not enough employees"
+          },
+          "schema": [
+            {
+              "id": "Name",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Website",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Website",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "LinkedIn",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "LinkedIn",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ID",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Summary",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Score",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Score",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "State",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "State",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "ID"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "id",
+          "value": "=gid=0"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1LfhqpyjimLjyQcmWY8mUr6YtNBcifiOVLIhAJGV9jiM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LfhqpyjimLjyQcmWY8mUr6YtNBcifiOVLIhAJGV9jiM/edit?usp=drivesdk",
+          "cachedResultName": "CRM"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Y8D8KsfgZCZmP2Vh",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "c02c6ce7-73a0-4bff-8c13-8baa7f424a00",
+      "name": "No mail founded",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1980,
+        960
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "ID": "={{ $('Loop Over Items').item.json.ID }}",
+            "State": "No mail founded"
+          },
+          "schema": [
+            {
+              "id": "Name",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Website",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Website",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "LinkedIn",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "LinkedIn",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ID",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Summary",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Score",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Score",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "State",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "State",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "ID"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10lxvwdeCf7vrAuWsNRGIsSTICEI3z-SUCDVHr8XzAYQ/edit#gid=0",
+          "cachedResultName": "Companies"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1LfhqpyjimLjyQcmWY8mUr6YtNBcifiOVLIhAJGV9jiM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LfhqpyjimLjyQcmWY8mUr6YtNBcifiOVLIhAJGV9jiM/edit?usp=drivesdk",
+          "cachedResultName": "CRM"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Y8D8KsfgZCZmP2Vh",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "809d7e65-76dc-4aa6-bb4c-e0de2df59098",
+      "name": "Lead(s) found",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3800,
+        700
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "ID": "={{ $('Loop Over Items').item.json.ID }}",
+            "State": "Lead(s) found"
+          },
+          "schema": [
+            {
+              "id": "Name",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Website",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Website",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "LinkedIn",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "LinkedIn",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ID",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Summary",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Score",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Score",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "State",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "State",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "ID"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10lxvwdeCf7vrAuWsNRGIsSTICEI3z-SUCDVHr8XzAYQ/edit#gid=0",
+          "cachedResultName": "Companies"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1LfhqpyjimLjyQcmWY8mUr6YtNBcifiOVLIhAJGV9jiM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LfhqpyjimLjyQcmWY8mUr6YtNBcifiOVLIhAJGV9jiM/edit?usp=drivesdk",
+          "cachedResultName": "CRM"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Y8D8KsfgZCZmP2Vh",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "3c418efe-9e43-4c7a-8997-f658959d2d02",
+      "name": "Add lead(s)",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3600,
+        700
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "ID": "={{ $('Split Out').item.json.id }}",
+            "Email": "={{ $('Split Out').item.json.email }}",
+            "Mail 1": "={{ $('Generate Emails Messages').item.json.message.content.initial_email }}",
+            "Mail 2": "={{ $('Generate Emails Messages').item.json.message.content.first_follow_up }}",
+            "Mail 3": "={{ $('Generate Emails Messages').item.json.message.content.second_follow_up }}",
+            "Tagline": "={{ $('Split Out').item.json.headline }}",
+            "Lastname": "={{ $('Split Out').item.json.last_name }}",
+            "LinkedIn": "={{ $('Split Out').item.json.url }}",
+            "Firstname": "={{ $('Split Out').item.json.first_name }}",
+            "Subject 1": "={{ $json.message.content.subject_1 }}",
+            "Subject 2": "={{ $json.message.content.subject_2 }}",
+            "Subject 3": "={{ $json.message.content.subject_3 }}",
+            "Company name": "={{ $('Loop Over Items').item.json.Name }}",
+            "Current Position": "={{ $('Split Out').item.json.current_position }}"
+          },
+          "schema": [
+            {
+              "id": "Firstname",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Firstname",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lastname",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Lastname",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "LinkedIn",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "LinkedIn",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ID",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tagline",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Tagline",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Company name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Current Position",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Current Position",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Mail 1",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Mail 1",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Mail 2",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Mail 2",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Mail 3",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Mail 3",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject 1",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Subject 1",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject 2",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Subject 2",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject 3",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Subject 3",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1352562819,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10lxvwdeCf7vrAuWsNRGIsSTICEI3z-SUCDVHr8XzAYQ/edit#gid=1352562819",
+          "cachedResultName": "Leads"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1LfhqpyjimLjyQcmWY8mUr6YtNBcifiOVLIhAJGV9jiM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LfhqpyjimLjyQcmWY8mUr6YtNBcifiOVLIhAJGV9jiM/edit?usp=drivesdk",
+          "cachedResultName": "CRM"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Y8D8KsfgZCZmP2Vh",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "2fe1ed3a-3a5d-4d2b-9b1d-aa85eae0fdec",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2700,
+        420
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 920,
+        "height": 460,
+        "content": "## Восстановление данных\nЭтот раздел извлекает высоко оцененные, квалифицированные компании из вашего Google Sheet CRM, которые ранее были определены как потенциальные клиенты. Рабочий процесс начинается с загрузки ваших пользовательских переменных, которые контролируют целевые роли, электронные сообщения и стратегии персонализации на протяжении всей автоматизации.\n\nКомпании фильтруются на основе их оценки (минимум 7) и статуса квалификации, чтобы гарантировать, что мы обрабатываем только самые многообещающие перспективы. Этот подход оптимизирует использование API и фокусирует ваши усилия на компаниях, которые с наибольшей вероятностью конвертируются.\n\nРабочий процесс для обогащения базового CRM, который служит отправной точкой для этого рабочего процесса, доступен [здесь]."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bfce76ea-8555-4ed5-bb94-626e6f795b0b",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1720,
+        420
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 2320,
+        "height": 460,
+        "content": "## Найдите и выберите подходящих сотрудников\nЭтот раздел определяет и выбирает наиболее релевантных лиц, принимающих решения, в каждой компании. \nПосле извлечения домена компании из URL-адреса сайта мы ищем сотрудников, соответствующих вашим целевым ролям, с помощью API GhostGenius.\nПроцесс:\n\n1. Поиск сотрудников в целевой компании\n2. Проверка наличия достаточного количества релевантных профилей (не менее 3)\n3. Получение подробной информации о каждом потенциальном контакте\n4. Использование ИИ для выбора 3 наиболее релевантных лиц, принимающих решения, на основе ваших критериев продукта/услуги\n\nЭтот интеллектуальный отбор экономит ваше время, сосредотачиваясь на лицах с наибольшими полномочиями для принятия решений о покупке, связанных с вашим предложением."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "968f2963-bf80-4c95-86ac-ea94466df840",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -840,
+        880
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 420,
+        "height": 260,
+        "content": "## Выход"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7b30a149-a8f9-4653-b744-3d9ed7e8361d",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1820,
+        880
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 420,
+        "height": 260,
+        "content": "## Выход"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cd8e73b5-680c-4c7f-a295-0b88f179a1e0",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        660,
+        420
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1480,
+        "height": 460,
+        "content": "## Обогащение и проверка электронной почты\nЭтот раздел генерирует и проверяет бизнес-адреса электронной почты для ваших выбранных контактов. Рабочий процесс:\n\nСоздает несколько потенциальных форматов электронной почты на основе имени контакта и домена компании\nПроверяет каждую электронную почту с помощью API MillionVerifier, чтобы определить, какие из них действительны\nФильтрует, чтобы оставить только действительные адреса электронной почты для каждого контакта\n\nПроверка электронной почты является критически важным шагом, который значительно увеличивает ваши показатели доставки и предотвращает пометку вашего обращения как спама. Этот подход гарантирует, что вы связываетесь с потенциальными клиентами только через действительные, профессиональные каналы."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1d0653ef-9233-44a8-9640-ec7da44a6f2b",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2200,
+        420
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 1800,
+        "height": 460,
+        "content": "## Генерация и хранение электронной почты\nЭтот раздел создает высоко персонализированные холодные электронные письма на основе активности потенциальных клиентов в LinkedIn и их профессионального контекста. Сложный процесс:\n\n1. Извлекает недавние посты в LinkedIn, чтобы понять текущие приоритеты потенциального клиента\n2. Использует ИИ для определения углов персонализации, связывающих ваш продукт с их конкретными потребностями\n3. Генерирует последовательность из трех персонализированных писем (первоначальное + два последующих)\n4. Создает привлекающие внимание темы для каждого письма\n5. Хранит полную контактную и электронную информацию в вашей CRM\n\nПерсонализация выходит далеко за пределы токенов \"{FirstName}\", создавая контекстуально релевантные сообщения, которые демонстрируют, что вы провели исследование, значительно увеличивая уровень откликов."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1a21c073-6987-4b36-bddd-89a402f5862d",
+      "name": "Companies Recovery",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -2200,
+        700
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LfhqpyjimLjyQcmWY8mUr6YtNBcifiOVLIhAJGV9jiM/edit#gid=0",
+          "cachedResultName": "Companies"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1LfhqpyjimLjyQcmWY8mUr6YtNBcifiOVLIhAJGV9jiM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LfhqpyjimLjyQcmWY8mUr6YtNBcifiOVLIhAJGV9jiM/edit?usp=drivesdk",
+          "cachedResultName": "CRM"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Y8D8KsfgZCZmP2Vh",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "817efa14-91f4-4669-b1c0-4f3b5368c407",
+      "name": "Filter Score and State",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        -1980,
+        700
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "146a686b-6a22-4a33-8e04-a4e7d0fc3eb9",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              },
+              "leftValue": "={{ $json.Score }}",
+              "rightValue": 7
+            },
+            {
+              "id": "31a8bdd6-1f27-4dec-9fbf-f5895087d54b",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.State }}",
+              "rightValue": "Qualified"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "e5073f54-480a-42be-88a9-b434a2f3f57d",
+      "name": "Set Variables",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -2420,
+        700
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "09d2e4ab-3555-4f6d-b176-fd61ac89c131",
+              "name": "account_id (Ghost Genius API)",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "993b61a7-7492-4b85-8bea-17ead8df6c93",
+              "name": "api_key MillionVerifier (millionverifier.com)",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "877ba906-c048-4120-8151-f5f30cad9221",
+              "name": "Your product",
+              "type": "string",
+              "value": "Sports & Entertainment partnership consulting services"
+            },
+            {
+              "id": "632373ca-6783-43cf-983c-50cc0b8690cf",
+              "name": "Interest",
+              "type": "string",
+              "value": "sports marketing partnerships, entertainment rights holders, brand visibility through sports"
+            },
+            {
+              "id": "e37f9bdc-cd30-49df-b161-3d9b3f30dd3a",
+              "name": "Target Audience",
+              "type": "string",
+              "value": "Brands seeking authentic sports partnerships to expand their marketing presence"
+            },
+            {
+              "id": "1d1fc889-339d-458c-b920-63d2910a7c74",
+              "name": "Target Employees",
+              "type": "string",
+              "value": "\"CTO\" OR \"CEO\" OR \"Marketing\""
+            },
+            {
+              "id": "7fbc3992-a0b9-4927-a247-aeebde32a930",
+              "name": "Irrelevant Use Case ",
+              "type": "string",
+              "value": "generic sponsorship packages without strategic alignment"
+            },
+            {
+              "id": "227467cb-0b68-4e0d-99bd-7433345b538d",
+              "name": "Email Language",
+              "type": "string",
+              "value": "English"
+            },
+            {
+              "id": "3076d3c6-1f9e-4595-8ad9-eb514511111e",
+              "name": "Sender Role (your role)",
+              "type": "string",
+              "value": "Manager of Global Partnerships"
+            },
+            {
+              "id": "43377c31-840e-4757-9e48-c16f15ceb9f8",
+              "name": "Product Benefits",
+              "type": "string",
+              "value": "data-driven partnership strategy, unparalleled access to sports rights holders, authentic brand-sport connections"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "956dc6ac-f441-46b5-bfcc-cc6098706d20",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 340,
+        "content": "### Затраты для 100 компаний\n- Найти сотрудников = 100 запросов = 1000 кредитов (частная конечная точка)\n- Получить детали профиля = 1500 запросов (высокий средний) = 1500 кредитов (публичная конечная точка)\n- Получить пост профиля = 300 запросов (макс) = 300 кредитов (публичная конечная точка)\n\n**Стоимость API Ghost Genius = 2800 кредитов для 100 компаний**\n\n\n- Проверить электронные почты = 1500 запросов = 1500 кредитов\n\n**Стоимость API MillionVerifier = 1500 кредитов для 100 компаний (2$)**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6fdfa1c7-39ea-4a75-bfe6-84f474c43de6",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        580,
+        0
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 340,
+        "content": "### Хорошо знать\n- Сложив затраты на 2 рабочих процесса, мы получаем общую стоимость в 2910 кредитов.\n- Обратите внимание, что 100 компаний в первом рабочем процессе не означает, что нам нужно обработать все 100 через этот рабочий процесс.\n\n**Почему?** Потому что у нас есть первый фильтр, который удаляет компании без веб-сайта, с недостаточным количеством подписчиков или недостаточным числом сотрудников. У нас также есть второй фильтр, который выбирает только компании с оценкой выше 75/100.\n\n**Пример:** Из 30 найденных компаний 12 удаляются первым фильтром, а 6 - вторым. Увеличивая это число, можно сказать, что из 100 компаний 40 компаний придется пройти через этот рабочий процесс. (оценка)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "540fd9d0-db8f-4736-b6f3-babea4199710",
+      "name": "Generate Emails Subjects",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        3240,
+        700
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1",
+          "cachedResultName": "GPT-4.1"
+        },
+        "options": {
+          "temperature": 0.2
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "{\n  \"subject_1\": \"Привет, {{ $('Set Variables').item.json['Prospect Name'] }}! У меня есть идея для вас\",\n  \"subject_2\": \"Не пропустите, {{ $('Set Variables').item.json['Prospect Name'] }}!\",\n  \"subject_3\": \"Все еще интересно, {{ $('Set Variables').item.json['Prospect Name'] }}?\"\n}"
+            },
+            {
+              "content": "=Вот последовательность электронных писем:\n\nОткрывающее письмо:  {{ $json.message.content.initial_email }}\n\nПервое последующее письмо: {{ $json.message.content.first_follow_up }}\n\nВторое последующее письмо: {{ $json.message.content.second_follow_up }}"
+            }
+          ]
+        },
+        "jsonOutput": true
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "SSQ6BcbSKW6I0uSn",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "0deef7b4-3ea9-436d-b6d0-056ce1fb8294",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -2620,
+        700
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "79699808-e344-4f60-a000-45e7a03ac2b4",
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Set Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Get Profile Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out ": {
+      "main": [
+        [
+          {
+            "node": "Generate Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add lead(s)": {
+      "main": [
+        [
+          {
+            "node": "Lead(s) found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead(s) found": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select Top 3 ": {
+      "main": [
+        [
+          {
+            "node": "Split Out ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Variables": {
+      "main": [
+        [
+          {
+            "node": "Companies Recovery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify Emails": {
+      "main": [
+        [
+          {
+            "node": "Combine Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Domain": {
+      "main": [
+        [
+          {
+            "node": "Find Employees",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Employees": {
+      "main": [
+        [
+          {
+            "node": "Check profiles Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Profiles": {
+      "main": [
+        [
+          {
+            "node": "Get Profile Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Results": {
+      "main": [
+        [
+          {
+            "node": "Filter Valid Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Emails": {
+      "main": [
+        [
+          {
+            "node": "Split Out Mails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Extract Domain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No mail founded": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Mails": {
+      "main": [
+        [
+          {
+            "node": "Verify Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Profiles": {
+      "main": [
+        [
+          {
+            "node": "Select Top 3 ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Profile Post": {
+      "main": [
+        [
+          {
+            "node": "Create Personalization",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Email Valid": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No mail founded",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Companies Recovery": {
+      "main": [
+        [
+          {
+            "node": "Filter Score and State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Valid Emails": {
+      "main": [
+        [
+          {
+            "node": "Check Email Valid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Profile Details": {
+      "main": [
+        [
+          {
+            "node": "Keep relevant information",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check profiles Found": {
+      "main": [
+        [
+          {
+            "node": "Split Profiles",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Not enough employees",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Not enough employees": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Personalization": {
+      "main": [
+        [
+          {
+            "node": "Generate Emails Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Score and State": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Emails Messages": {
+      "main": [
+        [
+          {
+            "node": "Generate Emails Subjects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Emails Subjects": {
+      "main": [
+        [
+          {
+            "node": "Add lead(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep relevant information": {
+      "main": [
+        [
+          {
+            "node": "Combine Profiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

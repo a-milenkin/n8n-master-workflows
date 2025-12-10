@@ -1,0 +1,559 @@
+{
+  "id": "wbY4XFrDGp8DBQgi",
+  "meta": {
+    "instanceId": "ed6d846a2fce1f660ede2e7da800724cca01dc3d0685524a3c917881b7cfcfe9"
+  },
+  "name": "Этот инструмент идеально подходит для тех, кто нуждается в сборе бизнес-адресов электронной почты для outreach, исследований или маркетинга, особенно для тех, чей успех зависит от построения и управления бизнес-отношениями в большом масштабе.",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "59b4ce0a-ddf4-4fc4-8adc-c25aec2008d7",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -680,
+        200
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "7d1e4c89-b5f0-49a0-ad67-0eb89dbc0680",
+      "name": "Filter",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        280,
+        200
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "7ecfbe72-c09a-482e-8f81-43d9e7bb2917",
+              "operator": {
+                "type": "string",
+                "operation": "notRegex"
+              },
+              "leftValue": "={{ $json.url }}",
+              "rightValue": "(google|gstatic|ggpht|schema|example)"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "dc7e6daa-0aa0-4fad-a32f-e6aa3bd905e6",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        1400,
+        200
+      ],
+      "parameters": {
+        "options": {
+          "mergeLists": true
+        },
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "emails"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0c6199c1-7272-41b6-b765-bc89e5fc4925",
+      "name": "Split Out",
+      "type": "n8n-nodes-base.splitOut",
+      "onError": "continueRegularOutput",
+      "position": [
+        1600,
+        200
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "emails"
+      },
+      "typeVersion": 1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "05de993d-c2e5-44b5-accc-afa324e90c36",
+      "name": "Remove Site Duplicates",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        500,
+        200
+      ],
+      "parameters": {
+        "compare": "selectedFields",
+        "options": {},
+        "fieldsToCompare": "url"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f5445655-192b-493b-8bb7-2dad086133c4",
+      "name": "Remove Email Duplicates",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "onError": "continueRegularOutput",
+      "position": [
+        1800,
+        200
+      ],
+      "parameters": {
+        "compare": "selectedFields",
+        "options": {},
+        "fieldsToCompare": "emails"
+      },
+      "typeVersion": 2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "fdf831d5-a819-413f-87e2-6d6bdba7d27a",
+      "name": "Google Sheets - Update Data",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2000,
+        200
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Emails": "={{ $json.emails }}",
+            "Keyword": "={{ $('Fields - Set Keyword / Phrase').first().json.keyword }}"
+          },
+          "schema": [
+            {
+              "id": "Keyword",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Keyword",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Emails",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Emails",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Emails"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17y_MmRHfBbW67bVyRuep1hkpoh2BV3yF5_Woxt0W9kk/edit#gid=0",
+          "cachedResultName": "Emails"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "17y_MmRHfBbW67bVyRuep1hkpoh2BV3yF5_Woxt0W9kk",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17y_MmRHfBbW67bVyRuep1hkpoh2BV3yF5_Woxt0W9kk/edit?usp=drivesdk",
+          "cachedResultName": "Google Maps - Crawl Email By Keyword"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "pe6UD1A6MWIk2X91",
+          "name": "Google Sheets - toan.ngo"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "6483643a-ca6d-4708-aa6e-0f279aef4991",
+      "name": "Loop Websites",
+      "type": "n8n-nodes-base.splitInBatches",
+      "onError": "continueErrorOutput",
+      "position": [
+        720,
+        200
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "2faaf6c1-00f1-44e8-8d84-229e85718a64",
+      "name": "Loop Emails",
+      "type": "n8n-nodes-base.splitInBatches",
+      "onError": "continueErrorOutput",
+      "position": [
+        940,
+        360
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "bc5361c6-21ca-4011-97f9-313504681019",
+      "name": "HTTP Request - Get Emails",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        940,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a25ea232-e3c0-4f15-a2c7-c340245eaee5",
+      "name": "HTTP Request - Get Sites",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -140,
+        200
+      ],
+      "parameters": {
+        "url": "=https://www.google.com/maps/search/{{ $json.keyword }}",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a9867f9c-0841-432f-b25f-b179c74819b1",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -780,
+        -260
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 600,
+        "height": 800,
+        "content": "## 1. Установите ключевое слово и начните рабочий процесс"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cd625a6d-a8be-4e37-b6a8-e09c2c67cbbc",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -520,
+        120
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 300,
+        "height": 240,
+        "content": "- Целевое ключевое слово (например, \"n8n workflow\") должно быть введено в узел **Поля - Установить ключевое слово / Фразу**."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f0a61644-cc59-4938-980f-88795742d9a4",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1520,
+        -260
+      ],
+      "parameters": {
+        "width": 720,
+        "height": 1680,
+        "content": "- Затем процесс запускается нажатием на **Тестировать рабочий процесс** или **Выполнить рабочий процесс**."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "352594b0-528b-45c6-a110-b38db22c716d",
+      "name": "Code - Matching URL",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        80,
+        200
+      ],
+      "parameters": {
+        "jsCode": "const urls = $input.first().json.data.match(/https?:\\/\\/[^\\/]+/g);\nreturn urls.map(url => ({json: {url: url}}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a82989e4-69c0-485e-8158-2ed201baf6f7",
+      "name": "Code - Match Email",
+      "type": "n8n-nodes-base.code",
+      "onError": "continueRegularOutput",
+      "position": [
+        1200,
+        360
+      ],
+      "parameters": {
+        "jsCode": "const blockExtensions = [\n  'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg',\n  'mp4', 'avi', 'mov', 'webm', 'mkv',\n  'js', 'css', 'json', 'ts', 'jsx', 'tsx'\n];\n\nconst regex = new RegExp(\n  `[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.(?!${blockExtensions.join('|')})[a-zA-Z]{2,}`,\n  'gi'\n);\n\nconst text = $input.first().json.data;\nconst emails = text.match(regex);\n\nreturn { json: { emails: emails } };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f74128d6-40bb-4c6b-8278-90d653a495f4",
+      "name": "Fields - Set Keyword / Phrase",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -420,
+        200
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0543578e-56af-4bd7-b05f-f61652f47315",
+              "name": "keyword",
+              "type": "string",
+              "value": "n8n workflow"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "6e41a17b-59bc-4cc0-9db0-77613e660b35",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -160,
+        -260
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 820,
+        "height": 800,
+        "content": "## Измените ключевое слово здесь"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8babfc9b-4c40-434a-8887-257e3baa7984",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        680,
+        -260
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 680,
+        "height": 800,
+        "content": "## [n8n Автоматизация] Автоматический извлекатель электронной почты по ключевому слову из Google Maps - Попробуйте!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "669fcf0e-34e0-445e-8491-97ff3f493cba",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1380,
+        -260
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 780,
+        "height": 800,
+        "content": "**Этот рабочий процесс демонстрирует, как автоматизировать извлечение бизнес-электронных адресов из результатов Google Maps с использованием конкретного ключевого слова. Он упрощает процесс поиска, фильтрации и сохранения контактных электронных адресов в Google Таблицы, устраняя необходимость в утомительном ручном исследовании.**"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b27f6a74-6321-4082-b1fd-c124a513b6e7",
+  "connections": {
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Remove Site Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Remove Email Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Emails": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code - Match Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Websites": {
+      "main": [
+        [
+          {
+            "node": "Loop Emails",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request - Get Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Match Email": {
+      "main": [
+        [
+          {
+            "node": "Loop Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Matching URL": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Site Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Loop Websites",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Email Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Update Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Get Sites": {
+      "main": [
+        [
+          {
+            "node": "Code - Matching URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Get Emails": {
+      "main": [
+        [
+          {
+            "node": "Loop Websites",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fields - Set Keyword / Phrase": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Get Sites",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Fields - Set Keyword / Phrase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

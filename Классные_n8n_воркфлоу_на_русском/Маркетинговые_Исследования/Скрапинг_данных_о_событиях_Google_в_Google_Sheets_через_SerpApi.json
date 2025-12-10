@@ -1,0 +1,404 @@
+{
+  "id": "NypEKbAcGEmuEpCP",
+  "meta": {
+    "instanceId": "6fbb2e76a4f4743fb890492ba219000e5322811de9fe9ceb63aae628bc0e9ca4",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "💡 Измените эти значения:",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "28a26329-303d-4f96-803a-4e9f3204f81a",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -260
+      ],
+      "parameters": {
+        "width": 280,
+        "height": 320,
+        "content": "🔧 НАСТРОЙКА ПОИСКА"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b30e38fa-b991-42cd-be31-3d2b8d427ede",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        180,
+        260
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 260,
+        "height": 280,
+        "content": "━━━━━━━━━━━━━━━━━━"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c266ccf6-c412-4d70-97d7-55ce07fda254",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        440,
+        -260
+      ],
+      "parameters": {
+        "color": 4,
+        "height": 320,
+        "content": "📍 Запрос: \"События в Техасе\""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a9423400-c246-49fa-8954-2ab6a23e561a",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        120,
+        -540
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 380,
+        "height": 260,
+        "content": "📊 Всего событий: 20"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "09315e90-1e0b-4dc2-8257-c9240591e514",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        640,
+        240
+      ],
+      "parameters": {
+        "width": 340,
+        "height": 220,
+        "content": "🚀 Начальная позиция: 0"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d6b61e68-aee6-415e-b68b-40bcba2cbc33",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -180,
+        80
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "7ff33746-1a70-473a-918c-0973e8df9b56",
+      "name": "Set Search Parameters",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        40,
+        80
+      ],
+      "parameters": {
+        "mode": "raw",
+        "options": {},
+        "jsonOutput": "{\n  \"query\": \"Events in Texas\",\n  \"total_events\": 10,\n  \"start\": 0\n}\n"
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "0aafd123-2beb-4dcc-b9a5-3180dda8e0ef",
+      "name": "SerpApi Events Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        260,
+        80
+      ],
+      "parameters": {
+        "url": "https://serpapi.com/search",
+        "options": {
+          "pagination": {
+            "pagination": {
+              "parameters": {
+                "parameters": [
+                  {
+                    "name": "start",
+                    "value": "={{ $json.start }}"
+                  }
+                ]
+              },
+              "maxRequests": "={{ $json.total_events/10 }}",
+              "requestInterval": 2000,
+              "limitPagesFetched": true
+            }
+          }
+        },
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "engine",
+              "value": "google_events"
+            },
+            {
+              "name": "q",
+              "value": "={{ $json.query }}"
+            },
+            {
+              "name": "hl",
+              "value": "en"
+            },
+            {
+              "name": "gl",
+              "value": "us"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "lCjZrbVUzLCjWLOK",
+          "name": "SerpApi(Naveen): Query Auth account"
+        }
+      },
+      "typeVersion": 4.2,
+      "alwaysOutputData": false
+    },
+    {
+      "id": "56757e55-daf1-4791-a7de-43ee59b4fa10",
+      "name": "Process & Flatten Events",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        480,
+        80
+      ],
+      "parameters": {
+        "jsCode": "const allItems = $input.all();\nlet flattenedEvents = [];\n\nfor (const item of allItems) {\n  const events = item.json.events_results || [];\n  const query = item.json.search_parameters?.q || \"\";\n\n  for (const event of events) {\n    // Add query to each event object\n    flattenedEvents.push({\n      json: {\n        ...event,\n        query: query\n      }\n    });\n  }\n}\n\nreturn flattenedEvents;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "63d157da-a93e-4fc6-88ae-133fb8d52915",
+      "name": "Save to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        700,
+        80
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "link": "={{ $json.link }}",
+            "when": "={{ $json.date.when }}",
+            "image": "={{ $json.image }}",
+            "query": "={{ $json.query }}",
+            "title": "={{ $json.title }}",
+            "venue": "={{ $json.venue }}",
+            "address": "={{ $json.address }}",
+            "start_date": "={{ $json.date.start_date }}",
+            "description": "={{ $json.description }}",
+            "ticket_info": "={{ $json.ticket_info }}",
+            "event_location_map": "={{ $json.event_location_map.link }}"
+          },
+          "schema": [
+            {
+              "id": "title",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "title",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "start_date",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "start_date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "when",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "when",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "address",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "address",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "link",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "link",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "event_location_map",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "event_location_map",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ticket_info",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "ticket_info",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "venue",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "venue",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "query",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "query",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "description",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "description",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "image",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "image",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DQo3tI8yKzCbLn-DWN2hureHgwj1XxvM1ogES1_77ts/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1DQo3tI8yKzCbLn-DWN2hureHgwj1XxvM1ogES1_77ts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DQo3tI8yKzCbLn-DWN2hureHgwj1XxvM1ogES1_77ts/edit?usp=drivesdk",
+          "cachedResultName": "Google Events API"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "4",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ff103f52-d64b-4303-b4f0-9334ee7aac05",
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Search Parameters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Search Parameters": {
+      "main": [
+        [
+          {
+            "node": "SerpApi Events Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SerpApi Events Request": {
+      "main": [
+        [
+          {
+            "node": "Process & Flatten Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process & Flatten Events": {
+      "main": [
+        [
+          {
+            "node": "Save to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

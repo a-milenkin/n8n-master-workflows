@@ -1,0 +1,431 @@
+{
+  "id": "5yOJSx1X0M3Q2VFM",
+  "meta": {
+    "instanceId": "5dba42e5bdf3c6768cdd77134dd4d4f17e9776e9bb98e38df67eb332e41d7b48",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "- **Запоминать предыдущие беседы** для каждого пользователя",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "1e7bc1dc-d577-4a46-8cfb-ab3f7b918922",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        320,
+        0
+      ],
+      "parameters": {
+        "text": "={{ $json.body.data.message_text }}",
+        "options": {
+          "systemMessage": "=You are Alex, a warm and friendly assistant. Talk naturally like a good friend would - never mention searching or looking up information. Just remember and respond naturally.\n\nAlways respond in the user's language (note: “salut” is in Romanian.). Be conversational, not robotic.\n\nTalking to: {{ $json.body.data.source_number }}\nTime: {{ $now.toISO() }}"
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "13fa7ec6-fdca-43ed-b5e7-5aae02b61fa6",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        100,
+        -240
+      ],
+      "webhookId": "1c9432a6-f982-4102-ad0e-39ec15876b0a",
+      "parameters": {
+        "path": "1c9432a6-f982-4102-ad0e-39ec15876b0a",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ed764250-105f-4a87-beb7-070c42473340",
+      "name": "WAMM: Send Message",
+      "type": "n8n-nodes-wamm.wammpro",
+      "position": [
+        880,
+        -240
+      ],
+      "parameters": {
+        "phone": "={{ $('Webhook').item.json.body.data.source_number }}",
+        "message": "={{ $json.output }}",
+        "instanceId": "68xxxxxxxxx3F"
+      },
+      "credentials": {
+        "wammApi": {
+          "id": "zPVzJdigC3Wmj8PB",
+          "name": "WAMM account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cb99b578-c02e-4469-b6b5-3ac95b9004f1",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        100,
+        360
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-2.5-flash"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "qoMkWsAqwNsJORtJ",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "01bddfd1-4a4e-42b9-9d3c-fa2d1670bf94",
+      "name": "Embeddings OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "position": [
+        960,
+        640
+      ],
+      "parameters": {
+        "model": "text-embedding-3-large",
+        "options": {
+          "dimensions": 3072
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "ayBlC1uXXm4XW5Qn",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "90ee2d53-da04-4105-b66d-7234ac13baac",
+      "name": "Processing data for Pinecone",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1320,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Pregătește datele pentru salvare în memorie\nconst aiAgentOutput = $('AI Agent').first().json.output;\nconst webhookData = $('Webhook').first().json.body.data;\n\n// Creează textul conversației\nconst conversationText = `Utilizator (${webhookData.source_number}): ${webhookData.message_text}\nAsistent: ${aiAgentOutput}\nTimestamp: ${new Date().toISOString()}`;\n\n// Returnează documentul în formatul cerut de Pinecone\nreturn {\n  json: {\n    pageContent: conversationText,\n    metadata: {\n      user_number: webhookData.source_number,\n      timestamp: new Date().toISOString()\n    }\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "94d3df7d-4680-46b7-9886-1439958a26c4",
+      "name": "Reading from Pinecone (from knowledge)",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "position": [
+        260,
+        360
+      ],
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "options": {},
+        "toolName": "reading_knowledge",
+        "pineconeIndex": {
+          "__rl": true,
+          "mode": "list",
+          "value": "knowledge",
+          "cachedResultName": "knowledge"
+        },
+        "toolDescription": "Use this tool to search the general knowledge base and standard answers to frequently asked questions."
+      },
+      "credentials": {
+        "pineconeApi": {
+          "id": "FEF68PPW7L8BPTIn",
+          "name": "PineconeApi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "f89342bf-eebc-40e5-8442-a228bc250a7d",
+      "name": "Reading from Pinecone (at phone number)",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "position": [
+        580,
+        360
+      ],
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "options": {},
+        "toolName": "reading_historywa",
+        "pineconeIndex": {
+          "__rl": true,
+          "mode": "list",
+          "value": "historywa",
+          "cachedResultName": "historywa"
+        },
+        "toolDescription": "Use this tool to search past conversation history with this user ( {{ $('Webhook').item.json.body.data.source_number }} ) and find relevant information to answer the user’s current question."
+      },
+      "credentials": {
+        "pineconeApi": {
+          "id": "FEF68PPW7L8BPTIn",
+          "name": "PineconeApi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "b474ec47-e34b-4065-a83b-a9a55452346c",
+      "name": "Pinecone Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "position": [
+        1600,
+        0
+      ],
+      "parameters": {
+        "mode": "insert",
+        "options": {},
+        "pineconeIndex": {
+          "__rl": true,
+          "mode": "list",
+          "value": "historywa",
+          "cachedResultName": "historywa"
+        }
+      },
+      "credentials": {
+        "pineconeApi": {
+          "id": "FEF68PPW7L8BPTIn",
+          "name": "PineconeApi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "b0e4114e-9775-4cce-a151-4a558dc97733",
+      "name": "Default Data Loader1",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "position": [
+        1480,
+        340
+      ],
+      "parameters": {
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "user_number",
+                "value": "={{ $json.metadata.user_number }}"
+              },
+              {
+                "name": "timestamp",
+                "value": "={{ $json.metadata.timestamp }}"
+              }
+            ]
+          }
+        },
+        "jsonData": "={{ $json.pageContent }}",
+        "jsonMode": "expressionData"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "affac18f-f2e6-42b2-8b75-f90a305935ce",
+      "name": "Recursive Character Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "position": [
+        1560,
+        600
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cd0c6f62-2e7c-405c-84fe-204ddf4ba51e",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -760,
+        -760
+      ],
+      "parameters": {
+        "width": 760,
+        "height": 1640,
+        "content": "# 🤖 WAMM AI Ассистент с памятью Pinecone - шаблон n8n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6c179b6f-5a31-4a49-8a4a-933686892234",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        640,
+        -760
+      ],
+      "parameters": {
+        "width": 540,
+        "height": 720,
+        "content": "## 📋 Описание"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "62a9577a-9cd6-49fa-ac36-f3a9b364569b",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        240,
+        320
+      ],
+      "parameters": {
+        "width": 1560,
+        "height": 560,
+        "content": "Этот шаблон создает интеллектуального AI ассистента для WhatsApp, который может:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8ece35d4-654d-4167-aa95-020f8d23194d",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        -760
+      ],
+      "parameters": {
+        "width": 400,
+        "height": 720,
+        "content": "- **Естественно отвечать** на сообщения, используя Google Gemini AI"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "83064b5e-171e-4c8c-8fc5-378fc3eadd8b",
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "WAMM: Send Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Reading from Pinecone (from knowledge)",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "Reading from Pinecone (at phone number)",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WAMM: Send Message": {
+      "main": [
+        [
+          {
+            "node": "Processing data for Pinecone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader1": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Processing data for Pinecone": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader1",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reading from Pinecone (from knowledge)": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reading from Pinecone (at phone number)": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

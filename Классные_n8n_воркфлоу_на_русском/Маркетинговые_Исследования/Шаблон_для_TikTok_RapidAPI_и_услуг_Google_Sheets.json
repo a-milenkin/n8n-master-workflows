@@ -1,0 +1,568 @@
+{
+  "meta": {
+    "instanceId": "60c025075753afcab9f803964b4caaca9402f435deb4efafbb8e3b93b54d8752",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "863dc7cd-d022-4d64-b729-236c13c76498",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        260,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        },
+        "authentication": "serviceAccount"
+      },
+      "credentials": {
+        "googleApi": {
+          "id": "Rt0RWApx8PL9t0RF",
+          "name": "Google Docs account"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "7dc09659-1a38-4be4-baf8-e07312379205",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        500,
+        0
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "3dd8c2aa-5dd9-4677-9ad7-a9cfa27c5da6",
+      "name": "Profile Stats",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1040,
+        20
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "date": "={{ $now }}",
+            "likes": "={{ $json.userProfile.heartCount }}",
+            "videos": "={{ $json.userProfile.videoCount }}",
+            "username": "={{ $('Loop Over Items').item.json.username }}",
+            "followers ": "={{ $json.userProfile.followerCount }}",
+            "following ": "={{ $json.userProfile.followingCount }}"
+          },
+          "schema": [
+            {
+              "id": "username",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "username",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "videos",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "videos",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "following ",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "following ",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "followers ",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "followers ",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "likes",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "likes",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        },
+        "authentication": "serviceAccount"
+      },
+      "credentials": {
+        "googleApi": {
+          "id": "Rt0RWApx8PL9t0RF",
+          "name": "Google Docs account"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "e8fc9e5c-5eb4-49fd-a60f-03ab3677f1c5",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "ca95ec8a-8dba-4821-a3d6-9fc96bd39fdc",
+      "name": "Fetch Profile",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        800,
+        20
+      ],
+      "parameters": {
+        "url": "https://tiktok-api42.p.rapidapi.com/user_profile.php",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "username",
+              "value": "={{ $json.username }}"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-rapidapi-host",
+              "value": "tiktok-api42.p.rapidapi.com"
+            },
+            {
+              "name": "x-rapidapi-key",
+              "value": "your key"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "3cceba32-d50e-46a6-8f66-ea36ee42bdb9",
+      "name": "Fetch Videos",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        660,
+        440
+      ],
+      "parameters": {
+        "url": "https://tiktok-api42.p.rapidapi.com/view_count.php",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "username",
+              "value": "={{ $('Loop Over Items').item.json.username }}"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-rapidapi-host",
+              "value": "tiktok-api42.p.rapidapi.com"
+            },
+            {
+              "name": "x-rapidapi-key",
+              "value": "your key"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "97890005-4e87-4204-8779-e9404fd3a75f",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -800,
+        -180
+      ],
+      "parameters": {
+        "width": 600,
+        "height": 1280,
+        "content": "# 📊 Автоматизация аналитики TikTok"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "26c5211b-bbf7-4cfa-998e-f2bdb0a94fa2",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        -200
+      ],
+      "parameters": {
+        "height": 360,
+        "content": "## 📝 Описание"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "66fe6fa5-7266-441d-a469-077715887da3",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        200,
+        -200
+      ],
+      "parameters": {
+        "height": 360,
+        "content": "Этот рабочий процесс в n8n автоматизирует процесс получения данных пользователей TikTok с помощью сервиса RapidAPI, обрабатывает данные партиями и записывает аналитику в Google Sheet. Он запускается по расписанию и обрабатывает несколько имен пользователей TikTok."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "83162a57-ffb5-4d24-ab62-288ff2e07d4e",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        460,
+        -200
+      ],
+      "parameters": {
+        "height": 360,
+        "content": "---"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f7a65bc9-e008-4e75-afe1-d477cd16d246",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        720,
+        -200
+      ],
+      "parameters": {
+        "height": 360,
+        "content": "## ✅ Преимущества"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ec2d2a17-ce62-434c-9f2c-727cb7a9967f",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        600,
+        280
+      ],
+      "parameters": {
+        "height": 320,
+        "content": "- ⏰ Автоматизирует ежедневную или запланированную аналитику профилей TikTok."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5fbbbff4-97b3-4aa5-92ca-b6f903660a6a",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1200,
+        260
+      ],
+      "parameters": {
+        "height": 340,
+        "content": "- 📤 Получает статистику профиля и видео через RapidAPI."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2b69a5a1-2e3f-4646-a495-05b2f6c63f90",
+      "name": "Videos Stats",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1300,
+        440
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "date": "={{ $now }}",
+            "days": "={{ $json.days }}",
+            "user": "={{ $json.user }}",
+            "videos": "={{ $json.videos }}",
+            "success": "={{ $json.success }}",
+            "username": "={{ $('Loop Over Items').item.json.username }}",
+            "total_posts": "={{ $json.total_posts }}",
+            "total_views": "={{ $json.total_views }}"
+          },
+          "schema": [
+            {
+              "id": "username",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "username",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "date",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "success",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "success",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total_posts",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "total_posts",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total_views",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "total_views",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "videos",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "videos",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "user",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "user",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "days",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "days",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        },
+        "authentication": "serviceAccount"
+      },
+      "credentials": {
+        "googleApi": {
+          "id": "Rt0RWApx8PL9t0RF",
+          "name": "Google Docs account"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "15d42bde-0278-47c7-9cb5-46d41056cac5",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        980,
+        -200
+      ],
+      "parameters": {
+        "height": 360,
+        "content": "- 📋 Читает имена пользователей из исходного Google Sheet."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Fetch Videos": {
+      "main": [
+        [
+          {
+            "node": "Videos Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Videos Stats": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Profile": {
+      "main": [
+        [
+          {
+            "node": "Profile Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Profile Stats": {
+      "main": [
+        [
+          {
+            "node": "Fetch Videos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Fetch Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

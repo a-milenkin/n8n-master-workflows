@@ -1,0 +1,348 @@
+{
+  "meta": {
+    "instanceId": "bf40384a063e00f3b983f4f9bada22b57a8231a04c0fb48d363e26d7b0f2b7e7",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "4e2acf3b-3629-4719-b6dd-80e0efdd1cad",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        200,
+        20
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 300,
+        "height": 180,
+        "content": "Проверьте, имеет ли ответ то же значение, что и ожидаемый ответ"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "08f2b16f-766f-4d80-8a16-7b41ce4da472",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1200,
+        40
+      ],
+      "parameters": {
+        "width": 200,
+        "height": 500,
+        "content": "## Как это работает"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e8674263-6cb6-49dc-9b93-3ce167b35608",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -960,
+        280
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 220,
+        "height": 220,
+        "content": "Этот шаблон показывает, как рассчитать метрику оценки рабочего процесса: **соответствует ли выходной результат ожидаемому выходному результату** (т.е. имеет то же значение)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "edcd9964-51a1-49bd-8a9e-ebc9b4d0e963",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -440,
+        420
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "Ag9qPAsY7lpIGkvC",
+          "name": "JPs n8n openAI key"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "f5b9f75a-9a9c-48cf-93a6-16407c730340",
+      "name": "When fetching a dataset row",
+      "type": "n8n-nodes-base.evaluationTrigger",
+      "position": [
+        -900,
+        340
+      ],
+      "parameters": {
+        "sheetName": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://docs.google.com/spreadsheets/d/1uuPS5cHtSNZ6HNLOi75A2m8nVWZrdBZ_Ivf58osDAS8/edit?gid=662663849#gid=662663849"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://docs.google.com/spreadsheets/d/1uuPS5cHtSNZ6HNLOi75A2m8nVWZrdBZ_Ivf58osDAS8/edit?gid=662663849#gid=662663849"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "bpr2LoSELMlxpwnN",
+          "name": "Google Sheets account David"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "411fb522-c5d4-4c24-ba0f-cb830e1b63c4",
+      "name": "Evaluating?",
+      "type": "n8n-nodes-base.evaluation",
+      "position": [
+        -60,
+        200
+      ],
+      "parameters": {
+        "operation": "checkIfEvaluating"
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "01b7bd96-00e5-4618-9797-8477b41ad78b",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -440,
+        200
+      ],
+      "parameters": {
+        "text": "={{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "You are a helpful assistant. Answer the user's questions, but be very concise (max one sentence)"
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "886ee0aa-db8a-4b64-a9d6-ac4fc865a36b",
+      "name": "Calculate correctness metric",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        220,
+        80
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Рабочий процесс принимает вопросы о причинах исторических событий и сравнивает их с эталонными ответами в наборе данных."
+            },
+            {
+              "content": "Вы можете найти дополнительную информацию о оценке рабочего процесса [здесь](https://docs.n8n.io/advanced-ai/evaluations/overview), а также другие примеры метрик [здесь](https://docs.n8n.io/advanced-ai/evaluations/metric-based-evaluations/#2-calculate-metrics)."
+            }
+          ]
+        },
+        "jsonOutput": true
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "Ag9qPAsY7lpIGkvC",
+          "name": "JPs n8n openAI key"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "6157d456-aa3c-4cca-9d9e-9f5fd19eae68",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        -900,
+        100
+      ],
+      "webhookId": "aa00c171-d603-4373-90c2-f2c2b97e2273",
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "75aec6a1-376a-489e-940c-4868e8d8bcbb",
+      "name": "Match chat format",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -680,
+        340
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "93f89095-7918-45ad-aa74-a0bbcf0d5788",
+              "name": "chatInput",
+              "type": "string",
+              "value": "={{ $json.question }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "04548ab1-8644-47d3-9652-4552d798853a",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        100
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 150,
+        "height": 260,
+        "content": "Прочитайте [этот тестовый набор данных](https://docs.google.com/spreadsheets/d/1uuPS5cHtSNZ6HNLOi75A2m8nVWZrdBZ_Ivf58osDAS8/edit?gid=662663849#gid=662663849) вопросов"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "792ccfd0-387a-46bc-b68b-948fcd2098dd",
+      "name": "Return chat response",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        220,
+        340
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "1bb9466a-439a-41ff-a425-5550127786d4",
+      "name": "Set metrics",
+      "type": "n8n-nodes-base.evaluation",
+      "position": [
+        580,
+        80
+      ],
+      "parameters": {
+        "metrics": {
+          "assignments": [
+            {
+              "id": "230589eb-34c8-4d10-9296-4a78d673077a",
+              "name": "similarity",
+              "type": "number",
+              "value": "={{ $json.message.content.score }}"
+            }
+          ]
+        },
+        "operation": "setMetrics"
+      },
+      "typeVersion": 4.6
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Evaluating?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluating?": {
+      "main": [
+        [
+          {
+            "node": "Calculate correctness metric",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return chat response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Match chat format": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When fetching a dataset row": {
+      "main": [
+        [
+          {
+            "node": "Match chat format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate correctness metric": {
+      "main": [
+        [
+          {
+            "node": "Set metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

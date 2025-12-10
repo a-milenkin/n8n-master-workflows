@@ -1,0 +1,4449 @@
+{
+  "id": "mcrrPHQ2vb1qNmFo",
+  "meta": null,
+  "name": "Сервер радиослужб и музыкальных услуг MCP",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "a6e0306a-0937-4d82-881f-43e7fc1e9db2",
+      "name": "Advanced Warning",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1380,
+        -900
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1380,
+        "height": 620,
+        "content": "# ⚠️ ТОЛЬКО ДЛЯ ПРОДВИНУТЫХ ПОЛЬЗОВАТЕЛЕЙ\n\n### 🚨 Этот рабочий процесс предназначен только для продвинутых пользователей!\n\nЭтот MCP сервер содержит **75 операций**, что значительно больше рекомендуемого максимума в 40 инструментов для большинства AI клиентов.\n\n### 🔍 Рекомендуемая альтернатива\n**Ищите упрощенный MCP сервер**, который использует официальную реализацию инструмента n8n для Радио и Музыкальных Сервисов, если это возможно, так как это будет более эффективно и проще в управлении.\n\n### 🛠️ Инструкции по продвинутому использованию\n\n**ПЕРЕД добавлением этого MCP сервера в ваш клиент:**\n### Отключите или удалите неиспользуемые узлы - Просмотрите разделы и отключите/удалите те, которые вам не нужны\n\n**ПОСЛЕ добавления MCP сервера в ваш клиент:**\n1. **Выборочное включение инструментов** - Вместо того чтобы включать все инструменты (по умолчанию), вручную выберите только те инструменты, которые вам нужны для *этого* рабочего процесса MCP клиента.\n2. **Мониторинг производительности** - Слишком много инструментов может замедлить ответы AI\n\n### 💡 Советы профессионалов\n**Держите максимум 40 включенных инструментов** - Большинство AI клиентов работают лучше с меньшим количеством инструментов\n- Группируйте связанные операции и включайте только одну группу за раз\n- Используйте обзорную заметку, чтобы понять, что делает каждая группа операций\n- Рассмотрите возможность создания нескольких меньших MCP серверов для разных случаев использования\n- Напишите мне в [discord](https://discord.me/cfomodz), если вашему бизнесу нужно это реализовать профессионально"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cae84a58-0b6a-47ad-ac10-3e687d97bc17",
+      "name": "Setup Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1380,
+        -240
+      ],
+      "parameters": {
+        "color": 4,
+        "height": 1060,
+        "content": "### ⚙️ Инструкции по настройке\n\n1. **Импорт рабочего процесса**:  \nЗагрузите этот рабочий процесс в вашу инстанцию n8n\n\n2. **Аутентификация**:  \nАутентификация не требуется\n\n3. **Активировать рабочий процесс**:  \nВключите рабочий процесс, чтобы запустить сервер MCP\n\n4. **Получить URL MCP**:  \nСкопируйте URL вебхука из триггера MCP\n\n5. **Подключить AI-агента**:  \nИспользуйте URL MCP в конфигурации вашего AI-агента\n\n\n### 💡 Примечания по использованию\n• Параметры автоматически заполняются AI с помощью выражений $fromAI()  \n• Доступно 75 API-эндпоинтов в качестве инструментов  \n• Ответы сохраняют оригинальную структуру API  \n\n\n### 🛠️ Настройка\n• Добавьте узлы преобразования данных, если это необходимо  \n• Реализуйте обработку ошибок по своему усмотрению  \n• Добавьте узлы логирования или мониторинга  \n\n• Измените значения параметров по умолчанию в любом узле HTTP-запроса по мере необходимости  \n\n### 💬 Нужна помощь?  \nНапишите мне в [discord](https://discord.me/cfomodz) для получения рекомендаций по интеграции и пользовательским автоматизациям. Ознакомьтесь с [документацией n8n](https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.toolmcp/) для получения дополнительной информации."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "356726b0-5f35-4c97-8b46-60fd8f5d087d",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1120,
+        -240
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 1480,
+        "content": "## 🛠️ Радио и Музыкальные Сервисы MCP Сервер ✅ 75 операций\n\n### О нас\nМы инкапсулируем бизнес-логику Радио и Музыки для продуктов iPlayer Radio и BBC Music на всех платформах. Мы добавляем ценность, надежно предоставляя правильную смесь метаданных, необходимых клиентам.\n\n### 🔧 Как это работает\n\nЭтот рабочий процесс преобразует API Радио и Музыкальных Сервисов в интерфейс, совместимый с MCP для AI-агентов.\n\n• **MCP Триггер**: Служит конечной точкой вашего сервера для запросов AI-агентов  \n• **HTTP Запросы**: Обрабатывают API вызовы к https://rms.api.bbc.co.uk/  \n• **AI Выражения**: Автоматически заполняют параметры через `$fromAI()` заполнители  \n• **Нативная Интеграция**: Возвращает ответы непосредственно AI-агенту  \n\n\n### 📋 Доступные Операции (75 конечных точек)\n\n**Эфиры (3 операции)**  \nэфиры, последние  \n\n**Категории (2 операции)**  \nсписок, категория  \n\n**Коллекции (1 операция)**  \nколлекция  \n\n**Опыт (1 операция)**  \nглавная страница  \n\n**Музыка (22 операции)**  \nпопулярная, сингл, избранное, подписанные  \n\n**Персонализированные Категории (3 операции)**  \nотписаться, список, подписаться  \n\n**Экспорт Музыки (11 операций)**  \nмузыка  \n\n**Персонализированные Сети (3 операции)**  \nотписаться, список, подписаться  \n\n**Персонализированные Проигрывания (1 операция)**  \nзаписать  \n\n**Игровое Пространство (2 операции)**  \nпредложенные, игровое пространство  \n\n**Программы (4 операции)**  \nрекомендуемые, популярные, радио, доступные  \n\n**Радио (17 операций)**  \nизбранное, подписанные, сыгранные  \n\n**Подкасты (4 операции)**  \nвсе, избранные, подкаст  \n\n**Сети (1 операция)**  \nсети"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "837919f7-cfea-424d-a4ef-2aeff05833d4",
+      "name": "Radio & Music Services MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        -620,
+        -240
+      ],
+      "webhookId": "4e307964-ed8e-44fd-947c-56c97d969ee4",
+      "parameters": {
+        "path": "radio-&-music-services-mcp"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "be1e0e3b-fc0a-4ff1-96a5-5d1e9a343224",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        -100
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 700,
+        "height": 200,
+        "content": "## Трансляции"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "64a299d3-4240-428c-a2fe-bb41d7fa672e",
+      "name": "Broadcasts",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        -60
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//broadcasts",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Paginated results offset', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Paginated results limit', 'number') }}"
+            },
+            {
+              "name": "service_id",
+              "value": "={{ $fromAI('service_id', 'Filter by Service ID. E.g. bbc_radio_fourfm', 'string') }}"
+            },
+            {
+              "name": "date",
+              "value": "={{ $fromAI('date', 'Filter by date. E.g. 2016-06-17', 'string') }}"
+            },
+            {
+              "name": "sort",
+              "value": "={{ $fromAI('sort', 'Sort by provided query. E.g. 'start_at' sorts in ascending order, and '-start_at' sorts in descending order', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Broadcasts\n\nParameters:\n- Query parameters:\n  • offset (optional) - Paginated results offset\n  • limit (optional) - Paginated results limit\n  • service_id (optional) - Filter by Service ID. E.g. bbc_radio_fourfm\n  • date (optional) - Filter by date. E.g. 2016-06-17\n  • sort (optional) - Sort by provided query. E.g. 'start_at' sorts in ascending order, and '-start_at' sorts in descending order\n- Header parameters:\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c1c95d3b-e5c5-41d7-bd8b-35c75f869a21",
+      "name": "Latest Broadcasts",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        -60
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//broadcasts/latest",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Paginated results offset', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Paginated results limit', 'number') }}"
+            },
+            {
+              "name": "service_id",
+              "value": "={{ $fromAI('service_id', 'Filter by Service ID. E.g. bbc_radio_fourfm', 'string') }}"
+            },
+            {
+              "name": "on_air",
+              "value": "={{ $fromAI('on_air', 'Filter what is on air. E.g. 'now' returns current programme being broadcasted.', 'string') }}"
+            },
+            {
+              "name": "next",
+              "value": "={{ $fromAI('next', 'Filter what will be on air next in minutes. E.g. '240' returns programmes broadcasted in the next four hurs', 'string') }}"
+            },
+            {
+              "name": "previous",
+              "value": "={{ $fromAI('previous', 'Filter what was on air previously in minutes. E.g. '240' returns programmes broadcasted in the previous four hurs', 'string') }}"
+            },
+            {
+              "name": "sort",
+              "value": "={{ $fromAI('sort', 'Sort by provided query. E.g. 'start_at' sorts in ascending order, and '-start_at' sorts in descending order', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Latest Broadcasts\n\nParameters:\n- Query parameters:\n  • offset (optional) - Paginated results offset\n  • limit (optional) - Paginated results limit\n  • service_id (optional) - Filter by Service ID. E.g. bbc_radio_fourfm\n  • on_air (optional) - Filter what is on air. E.g. 'now' returns current programme being broadcasted.\n  • next (optional) - Filter what will be on air next in minutes. E.g. '240' returns programmes broadcasted in the next four hurs\n  • previous (optional) - Filter what was on air previously in minutes. E.g. '240' returns programmes broadcasted in the previous four hurs\n  • sort (optional) - Sort by provided query. E.g. 'start_at' sorts in ascending order, and '-start_at' sorts in descending order\n- Header parameters:\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e5278e54-5d87-4b95-9135-5092ed086c8c",
+      "name": "Broadcasts by PID",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        -60
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//broadcasts/{{ $fromAI('pid', 'pid', 'string') }}",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Broadcasts by PID\n\nParameters:\n- Path parameters:\n  • pid (required) - pid\n- Header parameters:\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a03f7115-9d7e-4119-9bc3-18cd561b31ab",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        140
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 500,
+        "height": 200,
+        "content": "## Категории"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c1992a61-3f9c-4522-ab9c-d6ea6e41360d",
+      "name": "List of categories",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        180
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//categories",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "kind",
+              "value": "={{ $fromAI('kind', 'Filter by provided query. E.g. 'promoted' returns promoted categories', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "List of categories\n\nParameters:\n- Query parameters:\n  • kind (optional) - Filter by provided query. E.g. 'promoted' returns promoted categories\n- Header parameters:\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "ce519809-8054-4246-92f6-f6a28c48ac31",
+      "name": "Category by ID",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        180
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//categories/{{ $fromAI('id', 'Retrieve information about the category. E.g. 'sport-football-europeanchampionship'', 'string') }}",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Category by ID\n\nParameters:\n- Path parameters:\n  • id (required) - Retrieve information about the category. E.g. 'sport-football-europeanchampionship'\n- Header parameters:\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "fc0c6085-35a4-4143-bcfa-2f59e9bfa760",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        380
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 300,
+        "height": 200,
+        "content": "## Коллекции"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f2f339ba-9ad0-4a2f-b978-13d6af195b02",
+      "name": "Collection Members",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        420
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//collections/{{ $fromAI('pid', 'pid', 'string') }}/members",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Paginated results offset', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Paginated results limit', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Collection Members\n\nParameters:\n- Path parameters:\n  • pid (required) - pid\n- Query parameters:\n  • offset (optional) - Paginated results offset\n  • limit (optional) - Paginated results limit\n- Header parameters:\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "5bb0d7a6-fb3e-423b-a027-4aba7a3d966b",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        620
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 300,
+        "height": 200,
+        "content": "## Опыт"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4c596579-80b8-4149-a845-543650ec5369",
+      "name": "Homepage Experience",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        660
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//experience/homepage",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Homepage Experience\n\nParameters:\n- Header parameters:\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "3536d38b-adbf-4f13-a337-54f1690294e3",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        860
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 4500,
+        "height": 200,
+        "content": "## Музыка"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ab73e134-16f9-4c7a-ba53-96b4376e22ee",
+      "name": "Popular Artists",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        900
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//music/popular/artists",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "since",
+              "value": "={{ $fromAI('since', 'ISO 8601 Date yyyy-mm-dd. Returns items between given time period and now', 'string') }}"
+            },
+            {
+              "name": "until",
+              "value": "={{ $fromAI('until', 'ISO 8601 Date yyyy-mm-dd. Returns items between given 'since' and 'until' date params', 'string') }}"
+            },
+            {
+              "name": "decomposed",
+              "value": "={{ $fromAI('decomposed', 'In addition to the overall score, return a list of scores broken down by day N.B Must be used in conjunction with since and/or until and since is >= 31 days', 'boolean') }}"
+            },
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Paginated results offset', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Paginated results limit', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Popular Artists\n\nParameters:\n- Query parameters:\n  • since (optional) - ISO 8601 Date yyyy-mm-dd. Returns items between given time period and now\n  • until (optional) - ISO 8601 Date yyyy-mm-dd. Returns items between given 'since' and 'until' date params\n  • decomposed (optional) - In addition to the overall score, return a list of scores broken down by day N.B Must be used in conjunction with since and/or until and since is >= 31 days\n  • offset (optional) - Paginated results offset\n  • limit (optional) - Paginated results limit\n- Header parameters:\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "94da50fc-9609-42e4-9a55-c7fe9cead60b",
+      "name": "Single Artist Popularity",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        900
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//music/popular/artists/{{ $fromAI('id', 'MusicBrainz Id - Used to get single resource score', 'string') }}",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "since",
+              "value": "={{ $fromAI('since', 'ISO 8601 Date yyyy-mm-dd. Returns items between given time period and now', 'string') }}"
+            },
+            {
+              "name": "until",
+              "value": "={{ $fromAI('until', 'ISO 8601 Date yyyy-mm-dd. Returns items between given 'since' and 'until' date params', 'string') }}"
+            },
+            {
+              "name": "decomposed",
+              "value": "={{ $fromAI('decomposed', 'In addition to the overall score, return a list of scores broken down by day N.B Must be used in conjunction with since and/or until and since is >= 31 days', 'boolean') }}"
+            }
+          ]
+        },
+        "toolDescription": "Single Artist Popularity\n\nParameters:\n- Path parameters:\n  • id (required) - MusicBrainz Id - Used to get single resource score\n- Query parameters:\n  • since (optional) - ISO 8601 Date yyyy-mm-dd. Returns items between given time period and now\n  • until (optional) - ISO 8601 Date yyyy-mm-dd. Returns items between given 'since' and 'until' date params\n  • decomposed (optional) - In addition to the overall score, return a list of scores broken down by day N.B Must be used in conjunction with since and/or until and since is >= 31 days\n- Header parameters:\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "fc0f1eed-2cd8-445f-8c9d-0b96f7702691",
+      "name": "Popular Playlists",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        900
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//music/popular/playlists",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "since",
+              "value": "={{ $fromAI('since', 'ISO 8601 Date yyyy-mm-dd. Returns items between given time period and now', 'string') }}"
+            },
+            {
+              "name": "until",
+              "value": "={{ $fromAI('until', 'ISO 8601 Date yyyy-mm-dd. Returns items between given 'since' and 'until' date params', 'string') }}"
+            },
+            {
+              "name": "decomposed",
+              "value": "={{ $fromAI('decomposed', 'In addition to the overall score, return a list of scores broken down by day N.B Must be used in conjunction with since and/or until and since is >= 31 days', 'boolean') }}"
+            },
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Paginated results offset', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Paginated results limit', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Popular Playlists\n\nParameters:\n- Query parameters:\n  • since (optional) - ISO 8601 Date yyyy-mm-dd. Returns items between given time period and now\n  • until (optional) - ISO 8601 Date yyyy-mm-dd. Returns items between given 'since' and 'until' date params\n  • decomposed (optional) - In addition to the overall score, return a list of scores broken down by day N.B Must be used in conjunction with since and/or until and since is >= 31 days\n  • offset (optional) - Paginated results offset\n  • limit (optional) - Paginated results limit\n- Header parameters:\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "bc95ec0d-ca4b-42a9-8d00-36e79d0792af",
+      "name": "Single Playlist Popularity",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        80,
+        900
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//music/popular/playlists/{{ $fromAI('id', 'BBC Music Playlist Id - Used to get single resource score', 'string') }}",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "since",
+              "value": "={{ $fromAI('since', 'ISO 8601 Date yyyy-mm-dd. Returns items between given time period and now', 'string') }}"
+            },
+            {
+              "name": "until",
+              "value": "={{ $fromAI('until', 'ISO 8601 Date yyyy-mm-dd. Returns items between given 'since' and 'until' date params', 'string') }}"
+            },
+            {
+              "name": "decomposed",
+              "value": "={{ $fromAI('decomposed', 'In addition to the overall score, return a list of scores broken down by day N.B Must be used in conjunction with since and/or until and since is >= 31 days', 'boolean') }}"
+            }
+          ]
+        },
+        "toolDescription": "Single Playlist Popularity\n\nParameters:\n- Path parameters:\n  • id (required) - BBC Music Playlist Id - Used to get single resource score\n- Query parameters:\n  • since (optional) - ISO 8601 Date yyyy-mm-dd. Returns items between given time period and now\n  • until (optional) - ISO 8601 Date yyyy-mm-dd. Returns items between given 'since' and 'until' date params\n  • decomposed (optional) - In addition to the overall score, return a list of scores broken down by day N.B Must be used in conjunction with since and/or until and since is >= 31 days\n- Header parameters:\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "fb880a2f-76ac-44b1-a1de-93ea31f9a5b6",
+      "name": "Popular Tracks",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        280,
+        900
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//music/popular/tracks",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "since",
+              "value": "={{ $fromAI('since', 'ISO 8601 Date yyyy-mm-dd. Returns items between given time period and now', 'string') }}"
+            },
+            {
+              "name": "until",
+              "value": "={{ $fromAI('until', 'ISO 8601 Date yyyy-mm-dd. Returns items between given 'since' and 'until' date params', 'string') }}"
+            },
+            {
+              "name": "network",
+              "value": "={{ $fromAI('network', 'Return items with given Network ID', 'string') }}"
+            },
+            {
+              "name": "programme",
+              "value": "={{ $fromAI('programme', 'Items with given Programme Pid', 'string') }}"
+            },
+            {
+              "name": "artist",
+              "value": "={{ $fromAI('artist', 'MusicBrainz artist ID', 'string') }}"
+            },
+            {
+              "name": "decomposed",
+              "value": "={{ $fromAI('decomposed', 'In addition to the overall score, return a list of scores broken down by day N.B Must be used in conjunction with since and/or until and since is >= 31 days', 'boolean') }}"
+            },
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Paginated results offset', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Paginated results limit', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Popular Tracks\n\nParameters:\n- Query parameters:\n  • since (optional) - ISO 8601 Date yyyy-mm-dd. Returns items between given time period and now\n  • until (optional) - ISO 8601 Date yyyy-mm-dd. Returns items between given 'since' and 'until' date params\n  • network (optional) - Return items with given Network ID\n  • programme (optional) - Items with given Programme Pid\n  • artist (optional) - MusicBrainz artist ID\n  • decomposed (optional) - In addition to the overall score, return a list of scores broken down by day N.B Must be used in conjunction with since and/or until and since is >= 31 days\n  • offset (optional) - Paginated results offset\n  • limit (optional) - Paginated results limit\n- Header parameters:\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e5753dd8-c891-4b76-a0f6-fae1bcb14de4",
+      "name": "Single Track Popularity",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        480,
+        900
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//music/popular/tracks/{{ $fromAI('id', 'BBC Music Track Id - Used to get single resource score', 'string') }}",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "since",
+              "value": "={{ $fromAI('since', 'ISO 8601 Date yyyy-mm-dd. Returns items between given time period and now', 'string') }}"
+            },
+            {
+              "name": "until",
+              "value": "={{ $fromAI('until', 'ISO 8601 Date yyyy-mm-dd. Returns items between given 'since' and 'until' date params', 'string') }}"
+            },
+            {
+              "name": "network",
+              "value": "={{ $fromAI('network', 'Return items with given Network ID', 'string') }}"
+            },
+            {
+              "name": "programme",
+              "value": "={{ $fromAI('programme', 'Items with given Programme Pid', 'string') }}"
+            },
+            {
+              "name": "artist",
+              "value": "={{ $fromAI('artist', 'MusicBrainz artist ID', 'string') }}"
+            },
+            {
+              "name": "decomposed",
+              "value": "={{ $fromAI('decomposed', 'In addition to the overall score, return a list of scores broken down by day N.B Must be used in conjunction with since and/or until and since is >= 31 days', 'boolean') }}"
+            }
+          ]
+        },
+        "toolDescription": "Single Track Popularity\n\nParameters:\n- Path parameters:\n  • id (required) - BBC Music Track Id - Used to get single resource score\n- Query parameters:\n  • since (optional) - ISO 8601 Date yyyy-mm-dd. Returns items between given time period and now\n  • until (optional) - ISO 8601 Date yyyy-mm-dd. Returns items between given 'since' and 'until' date params\n  • network (optional) - Return items with given Network ID\n  • programme (optional) - Items with given Programme Pid\n  • artist (optional) - MusicBrainz artist ID\n  • decomposed (optional) - In addition to the overall score, return a list of scores broken down by day N.B Must be used in conjunction with since and/or until and since is >= 31 days\n- Header parameters:\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d8622a12-1d95-45bf-ba73-780ba949f062",
+      "name": "Favourite Tracks or Clips",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        680,
+        900
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/music/favourites",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Paginated results offset', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Paginated results limit', 'number') }}"
+            },
+            {
+              "name": "action",
+              "value": "={{ $fromAI('action', 'Filters activities based on the type of action', 'string') }}"
+            },
+            {
+              "name": "music-data",
+              "value": "={{ $fromAI('music-data', 'Omits music data from the response, defaults to true', 'boolean') }}"
+            }
+          ]
+        },
+        "toolDescription": "Favourite Tracks or Clips\n\nParameters:\n- Query parameters:\n  • offset (optional) - Paginated results offset\n  • limit (optional) - Paginated results limit\n  • action (optional) - Filters activities based on the type of action\n  • music-data (optional) - Omits music data from the response, defaults to true\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "caea51d4-ad58-428f-87eb-8bda5720967c",
+      "name": "Favourite Tracks or Clips 1",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        880,
+        900
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/music/favourites",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Favourite Tracks or Clips\n\nParameters:\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "4725d1c1-bea1-4f78-b7f5-90342f8ddf43",
+      "name": "Favourite Tracks or Clips 2",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1080,
+        900
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/music/favourites",
+        "method": "PUT",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Favourite Tracks or Clips\n\nParameters:\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "290fa651-e2fd-4651-9ab7-9a1b860bcabf",
+      "name": "Favourite Tracks or Clips by Type",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1280,
+        900
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/music/favourites/{{ $fromAI('type', 'Supported Music favourite types: Clips or Tracks', 'string') }}",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "={{ $fromAI('action', 'Filters activities based on the type of action', 'string') }}"
+            },
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Paginated results offset', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Paginated results limit', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Favourite Tracks or Clips by Type\n\nParameters:\n- Path parameters:\n  • type (required) - Supported Music favourite types: Clips or Tracks\n- Query parameters:\n  • action (optional) - Filters activities based on the type of action\n  • offset (optional) - Paginated results offset\n  • limit (optional) - Paginated results limit\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "342c76ef-7c07-43f4-bd5f-7ea16b2f7c70",
+      "name": "Favourite Track or Clip",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1480,
+        900
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/music/favourites/{{ $fromAI('type', 'Supported Music favourite types: Clips or Tracks', 'string') }}/{{ $fromAI('id', 'Clip PID or Track ID', 'string') }}",
+        "method": "DELETE",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Favourite Track or Clip\n\nParameters:\n- Path parameters:\n  • type (required) - Supported Music favourite types: Clips or Tracks\n  • id (required) - Clip PID or Track ID\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "62ec7f0a-d2d6-4466-8b87-0d9d25c104c8",
+      "name": "Favourite Track or Clip 1",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1680,
+        900
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/music/favourites/{{ $fromAI('type', 'Supported Music favourite types: Clips or Tracks', 'string') }}/{{ $fromAI('id', 'Clip PID or Track ID', 'string') }}",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Favourite Track or Clip\n\nParameters:\n- Path parameters:\n  • type (required) - Supported Music favourite types: Clips or Tracks\n  • id (required) - Clip PID or Track ID\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "23e0aac7-0d48-4302-88d7-66acb1a5f088",
+      "name": "Favourite Track or Clip 2",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1880,
+        900
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/music/favourites/{{ $fromAI('type', 'Supported Music favourite types: Clips or Tracks', 'string') }}/{{ $fromAI('id', 'Clip PID or Track ID', 'string') }}",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Favourite Track or Clip\n\nParameters:\n- Path parameters:\n  • type (required) - Supported Music favourite types: Clips or Tracks\n  • id (required) - Clip PID or Track ID\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "ac9e5dd1-a1ba-4afb-9df4-8c28a831f78e",
+      "name": "Favourite Track or Clip 3",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        2080,
+        900
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/music/favourites/{{ $fromAI('type', 'Supported Music favourite types: Clips or Tracks', 'string') }}/{{ $fromAI('id', 'Clip PID or Track ID', 'string') }}",
+        "method": "PUT",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Favourite Track or Clip\n\nParameters:\n- Path parameters:\n  • type (required) - Supported Music favourite types: Clips or Tracks\n  • id (required) - Clip PID or Track ID\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b3a0452e-e292-4cc7-ac46-831177520569",
+      "name": "Followed Networks, Categories, Artists, Playlists and Genres",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        2280,
+        900
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/music/follows",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "={{ $fromAI('action', 'Filters activities based on the type of action', 'string') }}"
+            },
+            {
+              "name": "music-data",
+              "value": "={{ $fromAI('music-data', 'Omits music data from the response, defaults to true', 'boolean') }}"
+            },
+            {
+              "name": "music_context",
+              "value": "={{ $fromAI('music_context', 'Specify context to be passed to Music API', 'string') }}"
+            },
+            {
+              "name": "music_within_uk",
+              "value": "={{ $fromAI('music_within_uk', 'Specify location to be passed to Music API', 'boolean') }}"
+            },
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Paginated results offset', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Paginated results limit', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Followed Networks, Categories, Artists, Playlists and Genres\n\nParameters:\n- Query parameters:\n  • action (optional) - Filters activities based on the type of action\n  • music-data (optional) - Omits music data from the response, defaults to true\n  • music_context (optional) - Specify context to be passed to Music API\n  • music_within_uk (optional) - Specify location to be passed to Music API\n  • offset (optional) - Paginated results offset\n  • limit (optional) - Paginated results limit\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "7a37b2f3-3c02-4596-a42e-a6d45bf53da4",
+      "name": "Followed Networks, Categories, Artists, Playlists and Genres 1",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        2480,
+        900
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/music/follows",
+        "method": "POST",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "={{ $fromAI('action', 'Filters activities based on the type of action', 'string') }}"
+            },
+            {
+              "name": "music-data",
+              "value": "={{ $fromAI('music-data', 'Omits music data from the response, defaults to true', 'boolean') }}"
+            },
+            {
+              "name": "music_context",
+              "value": "={{ $fromAI('music_context', 'Specify context to be passed to Music API', 'string') }}"
+            },
+            {
+              "name": "music_within_uk",
+              "value": "={{ $fromAI('music_within_uk', 'Specify location to be passed to Music API', 'boolean') }}"
+            }
+          ]
+        },
+        "toolDescription": "Followed Networks, Categories, Artists, Playlists and Genres\n\nParameters:\n- Query parameters:\n  • action (optional) - Filters activities based on the type of action\n  • music-data (optional) - Omits music data from the response, defaults to true\n  • music_context (optional) - Specify context to be passed to Music API\n  • music_within_uk (optional) - Specify location to be passed to Music API\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c7c07c5e-9363-4136-ac29-04e67d50a1c5",
+      "name": "Followed Networks, Categories, Artists, Playlists and Genres 2",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        2680,
+        900
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/music/follows",
+        "method": "PUT",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "={{ $fromAI('action', 'Filters activities based on the type of action', 'string') }}"
+            },
+            {
+              "name": "music-data",
+              "value": "={{ $fromAI('music-data', 'Omits music data from the response, defaults to true', 'boolean') }}"
+            },
+            {
+              "name": "music_context",
+              "value": "={{ $fromAI('music_context', 'Specify context to be passed to Music API', 'string') }}"
+            },
+            {
+              "name": "music_within_uk",
+              "value": "={{ $fromAI('music_within_uk', 'Specify location to be passed to Music API', 'boolean') }}"
+            }
+          ]
+        },
+        "toolDescription": "Followed Networks, Categories, Artists, Playlists and Genres\n\nParameters:\n- Query parameters:\n  • action (optional) - Filters activities based on the type of action\n  • music-data (optional) - Omits music data from the response, defaults to true\n  • music_context (optional) - Specify context to be passed to Music API\n  • music_within_uk (optional) - Specify location to be passed to Music API\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d1fbe1f9-6654-4257-a1b5-487843e69d79",
+      "name": "Followed Networks, Categories, Artists, Playlists and Genres 3",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        2880,
+        900
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/music/follows/{{ $fromAI('type', 'Supported Music follows types: Playlists, Services, Genres & Artists', 'string') }}",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "={{ $fromAI('action', 'Filters activities based on the type of action', 'string') }}"
+            },
+            {
+              "name": "music-data",
+              "value": "={{ $fromAI('music-data', 'Omits music data from the response, defaults to true', 'boolean') }}"
+            },
+            {
+              "name": "music_context",
+              "value": "={{ $fromAI('music_context', 'Specify context to be passed to Music API', 'string') }}"
+            },
+            {
+              "name": "music_within_uk",
+              "value": "={{ $fromAI('music_within_uk', 'Specify location to be passed to Music API', 'boolean') }}"
+            },
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Paginated results offset', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Paginated results limit', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Followed Networks, Categories, Artists, Playlists and Genres by Type\n\nParameters:\n- Path parameters:\n  • type (required) - Supported Music follows types: Playlists, Services, Genres & Artists\n- Query parameters:\n  • action (optional) - Filters activities based on the type of action\n  • music-data (optional) - Omits music data from the response, defaults to true\n  • music_context (optional) - Specify context to be passed to Music API\n  • music_within_uk (optional) - Specify location to be passed to Music API\n  • offset (optional) - Paginated results offset\n  • limit (optional) - Paginated results limit\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e7549de2-8b9e-4588-843e-e5cd1047a1ca",
+      "name": "Followed Network, Category, Artist, Playlist and Genre",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        3080,
+        900
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/music/follows/{{ $fromAI('type', 'Supported Music follows types: Playlists, Services, Genres & Artists', 'string') }}/{{ $fromAI('id', 'Playlists, Services, Networks, Genres, Categories or Artists ID', 'string') }}",
+        "method": "DELETE",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "music-data",
+              "value": "={{ $fromAI('music-data', 'Omits music data from the response, defaults to true', 'boolean') }}"
+            },
+            {
+              "name": "music_context",
+              "value": "={{ $fromAI('music_context', 'Specify context to be passed to Music API', 'string') }}"
+            },
+            {
+              "name": "music_within_uk",
+              "value": "={{ $fromAI('music_within_uk', 'Specify location to be passed to Music API', 'boolean') }}"
+            }
+          ]
+        },
+        "toolDescription": "Followed Network, Category, Artist, Playlist and Genre\n\nParameters:\n- Path parameters:\n  • type (required) - Supported Music follows types: Playlists, Services, Genres & Artists\n  • id (required) - Playlists, Services, Networks, Genres, Categories or Artists ID\n- Query parameters:\n  • music-data (optional) - Omits music data from the response, defaults to true\n  • music_context (optional) - Specify context to be passed to Music API\n  • music_within_uk (optional) - Specify location to be passed to Music API\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "56e5fe9a-5474-4dbb-89c5-593c91ef7a99",
+      "name": "Followed Network, Category, Artist, Playlist and Genre 1",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        3280,
+        900
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/music/follows/{{ $fromAI('type', 'Supported Music follows types: Playlists, Services, Genres & Artists', 'string') }}/{{ $fromAI('id', 'Playlists, Services, Networks, Genres, Categories or Artists ID', 'string') }}",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "music-data",
+              "value": "={{ $fromAI('music-data', 'Omits music data from the response, defaults to true', 'boolean') }}"
+            },
+            {
+              "name": "music_context",
+              "value": "={{ $fromAI('music_context', 'Specify context to be passed to Music API', 'string') }}"
+            },
+            {
+              "name": "music_within_uk",
+              "value": "={{ $fromAI('music_within_uk', 'Specify location to be passed to Music API', 'boolean') }}"
+            }
+          ]
+        },
+        "toolDescription": "Followed Network, Category, Artist, Playlist and Genre\n\nParameters:\n- Path parameters:\n  • type (required) - Supported Music follows types: Playlists, Services, Genres & Artists\n  • id (required) - Playlists, Services, Networks, Genres, Categories or Artists ID\n- Query parameters:\n  • music-data (optional) - Omits music data from the response, defaults to true\n  • music_context (optional) - Specify context to be passed to Music API\n  • music_within_uk (optional) - Specify location to be passed to Music API\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "10a24a12-99a4-416f-858c-1965f4a52d52",
+      "name": "Followed Network, Category, Artist, Playlist and Genre 2",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        3480,
+        900
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/music/follows/{{ $fromAI('type', 'Supported Music follows types: Playlists, Services, Genres & Artists', 'string') }}/{{ $fromAI('id', 'Playlists, Services, Networks, Genres, Categories or Artists ID', 'string') }}",
+        "method": "POST",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "music-data",
+              "value": "={{ $fromAI('music-data', 'Omits music data from the response, defaults to true', 'boolean') }}"
+            },
+            {
+              "name": "music_context",
+              "value": "={{ $fromAI('music_context', 'Specify context to be passed to Music API', 'string') }}"
+            },
+            {
+              "name": "music_within_uk",
+              "value": "={{ $fromAI('music_within_uk', 'Specify location to be passed to Music API', 'boolean') }}"
+            }
+          ]
+        },
+        "toolDescription": "Followed Network, Category, Artist, Playlist and Genre\n\nParameters:\n- Path parameters:\n  • type (required) - Supported Music follows types: Playlists, Services, Genres & Artists\n  • id (required) - Playlists, Services, Networks, Genres, Categories or Artists ID\n- Query parameters:\n  • music-data (optional) - Omits music data from the response, defaults to true\n  • music_context (optional) - Specify context to be passed to Music API\n  • music_within_uk (optional) - Specify location to be passed to Music API\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "2dd71313-df6a-47e4-9ed4-e1428c5db522",
+      "name": "Followed Network, Category, Artist, Playlist and Genre 3",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        3680,
+        900
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/music/follows/{{ $fromAI('type', 'Supported Music follows types: Playlists, Services, Genres & Artists', 'string') }}/{{ $fromAI('id', 'Playlists, Services, Networks, Genres, Categories or Artists ID', 'string') }}",
+        "method": "PUT",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "music-data",
+              "value": "={{ $fromAI('music-data', 'Omits music data from the response, defaults to true', 'boolean') }}"
+            },
+            {
+              "name": "music_context",
+              "value": "={{ $fromAI('music_context', 'Specify context to be passed to Music API', 'string') }}"
+            },
+            {
+              "name": "music_within_uk",
+              "value": "={{ $fromAI('music_within_uk', 'Specify location to be passed to Music API', 'boolean') }}"
+            }
+          ]
+        },
+        "toolDescription": "Followed Network, Category, Artist, Playlist and Genre\n\nParameters:\n- Path parameters:\n  • type (required) - Supported Music follows types: Playlists, Services, Genres & Artists\n  • id (required) - Playlists, Services, Networks, Genres, Categories or Artists ID\n- Query parameters:\n  • music-data (optional) - Omits music data from the response, defaults to true\n  • music_context (optional) - Specify context to be passed to Music API\n  • music_within_uk (optional) - Specify location to be passed to Music API\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "380fc97e-be8e-49b9-b237-55a2e4ae9bae",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        1100
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 700,
+        "height": 200,
+        "content": "## Персонализированные категории"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1d67be64-8656-485e-9803-d6957afcb68a",
+      "name": "Unfollow category",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        1140
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/categories/follows",
+        "method": "DELETE",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Unfollow category\n\nParameters:\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "be786011-ac20-47ac-819e-3e013ae7f987",
+      "name": "List of followed categories",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        1140
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/categories/follows",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Paginated results offset', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Paginated results limit', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "List of followed categories\n\nParameters:\n- Query parameters:\n  • offset (optional) - Paginated results offset\n  • limit (optional) - Paginated results limit\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "7c8bc52e-3509-459a-99eb-107115fb8b85",
+      "name": "Follow category",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        1140
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/categories/follows",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Follow category\n\nParameters:\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "219be694-4287-4e4b-8800-687993b14107",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        1340
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 2300,
+        "height": 200,
+        "content": "## Экспорт Музыки"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3fcba2a8-1872-4a44-a41a-4bd09910ffc2",
+      "name": "Music Exports",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        1380
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/music/export",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Paginated results offset', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Paginated results limit', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Music Exports\n\nParameters:\n- Query parameters:\n  • offset (optional) - Paginated results offset\n  • limit (optional) - Paginated results limit\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0f8bd3ee-7b7f-49b8-bd5d-1db0ec928616",
+      "name": "Music Export Jobs",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        1380
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/music/exports/jobs",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "over16",
+              "value": "={{ $fromAI('over16', 'Boolean age check', 'boolean') }}"
+            },
+            {
+              "name": "vendor",
+              "value": "={{ $fromAI('vendor', 'Specify Vendor Jobs', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Music Export Jobs\n\nParameters:\n- Query parameters:\n  • over16 (required) - Boolean age check\n  • vendor (optional) - Specify Vendor Jobs\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "45a0ebb7-8a21-4e8d-9925-4a7009c0acff",
+      "name": "Music Export Jobs 1",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        1380
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/music/exports/jobs",
+        "method": "POST",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "over16",
+              "value": "={{ $fromAI('over16', 'Boolean age check', 'boolean') }}"
+            },
+            {
+              "name": "vendor",
+              "value": "={{ $fromAI('vendor', 'Specify Vendor Jobs', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Music Export Jobs\n\nParameters:\n- Query parameters:\n  • over16 (required) - Boolean age check\n  • vendor (optional) - Specify Vendor Jobs\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "9ff79c0a-b5a6-454a-97a3-930bfd0ddfa0",
+      "name": "Music Export Tracks",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        80,
+        1380
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/music/exports/tracks",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "over16",
+              "value": "={{ $fromAI('over16', 'Boolean age check', 'boolean') }}"
+            },
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Paginated results offset', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Paginated results limit', 'number') }}"
+            },
+            {
+              "name": "vendor",
+              "value": "={{ $fromAI('vendor', 'Specify Vendor Tracks', 'string') }}"
+            },
+            {
+              "name": "status",
+              "value": "={{ $fromAI('status', 'Specify Track status', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Music Export Tracks\n\nParameters:\n- Query parameters:\n  • over16 (required) - Boolean age check\n  • offset (optional) - Paginated results offset\n  • limit (optional) - Paginated results limit\n  • vendor (optional) - Specify Vendor Tracks\n  • status (optional) - Specify Track status\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "62c60e8e-4f8a-4a70-9cc5-c7a815da75a2",
+      "name": "Music Export Preferences",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        280,
+        1380
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/music/preferences/export",
+        "method": "DELETE",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Music Export Preferences\n\nParameters:\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b2231ed8-0466-482d-b3e3-b7ac2a5498da",
+      "name": "Music Export Preferences 1",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        480,
+        1380
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/music/preferences/export",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Music Export Preferences\n\nParameters:\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0a9ddb21-f032-4741-9218-66fe09c4b664",
+      "name": "Music Export Preferences 2",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        680,
+        1380
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/music/preferences/export",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Music Export Preferences\n\nParameters:\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "6a67f169-4f69-4ed0-83d9-6bdf4f309315",
+      "name": "Music Export Vendor Preferences",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        880,
+        1380
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/music/preferences/export/{{ $fromAI('vendor', 'Supported 3rd Party Vendor', 'string') }}",
+        "method": "DELETE",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Music Export Vendor Preferences\n\nParameters:\n- Path parameters:\n  • vendor (required) - Supported 3rd Party Vendor\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "5a8572e4-118a-4baa-83f7-ea233ea0c3a5",
+      "name": "Music Export Vendor Preferences 1",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1080,
+        1380
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/music/preferences/export/{{ $fromAI('vendor', 'Supported 3rd Party Vendor', 'string') }}",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Music Export Vendor Preferences\n\nParameters:\n- Path parameters:\n  • vendor (required) - Supported 3rd Party Vendor\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "5ec75186-49e8-490c-ac9c-71d2ec00c4d9",
+      "name": "Music Export Vendor Preferences 2",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1280,
+        1380
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/music/preferences/export/{{ $fromAI('vendor', 'Supported 3rd Party Vendor', 'string') }}",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Music Export Vendor Preferences\n\nParameters:\n- Path parameters:\n  • vendor (required) - Supported 3rd Party Vendor\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "7155915f-5a88-4b85-bbac-4906926411ef",
+      "name": "Music Export Vendor Preferences 3",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1480,
+        1380
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/music/preferences/export/{{ $fromAI('vendor', 'Supported 3rd Party Vendor', 'string') }}",
+        "method": "PUT",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Music Export Vendor Preferences\n\nParameters:\n- Path parameters:\n  • vendor (required) - Supported 3rd Party Vendor\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "53281308-0e56-43ec-b950-98939462aef8",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        1580
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 700,
+        "height": 200,
+        "content": "## Персонализированные сети"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4df8f561-9af9-4f1f-93d6-e93bdabae011",
+      "name": "Unfollow network",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        1620
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/networks/follows",
+        "method": "DELETE",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Paginated results offset', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Paginated results limit', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Unfollow network\n\nParameters:\n- Query parameters:\n  • offset (optional) - Paginated results offset\n  • limit (optional) - Paginated results limit\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "cd9e8ae1-5466-483b-ae9c-9b287e79740f",
+      "name": "List of followed networks",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        1620
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/networks/follows",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Paginated results offset', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Paginated results limit', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "List of followed networks\n\nParameters:\n- Query parameters:\n  • offset (optional) - Paginated results offset\n  • limit (optional) - Paginated results limit\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "1db91b81-a281-4af7-bc77-24e6a539385c",
+      "name": "Follow network",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        1620
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/networks/follows",
+        "method": "POST",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Paginated results offset', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Paginated results limit', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Follow network\n\nParameters:\n- Query parameters:\n  • offset (optional) - Paginated results offset\n  • limit (optional) - Paginated results limit\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "7717e52d-9cf9-4d4e-8960-1039b1ed01f5",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        1820
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 300,
+        "height": 200,
+        "content": "## Персонализированные пьесы"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0e8ed3d7-5f40-4055-8155-9c062132a99c",
+      "name": "Write Play Event",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        1860
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/plays",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Write Play Event\n\nParameters:\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "60f27a38-b19e-4836-a43e-4a9c5374c5a5",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        2060
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 500,
+        "height": 200,
+        "content": "## Игровое пространство"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dfce8e67-3533-46e7-925c-03abdda3fe35",
+      "name": "Suggested Playspace Container",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        2100
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/playspace/containers/suggested",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "previous_pid",
+              "value": "={{ $fromAI('previous_pid', 'Clip or Episode PID of the previous or first content item in the Playspace stream.', 'string') }}"
+            },
+            {
+              "name": "previous_container",
+              "value": "={{ $fromAI('previous_container', 'Container ID of the previous container in the Playspace stream.', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Suggested Playspace Container\n\nParameters:\n- Query parameters:\n  • previous_pid (required) - Clip or Episode PID of the previous or first content item in the Playspace stream.\n  • previous_container (optional) - Container ID of the previous container in the Playspace stream.\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "079ef8db-175d-41b6-81f6-280b00eb82cc",
+      "name": "Playspace Container by ID",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        2100
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/playspace/containers/{{ $fromAI('id', 'Playspace Container ID', 'string') }}",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Playspace Container by ID\n\nParameters:\n- Path parameters:\n  • id (required) - Playspace Container ID\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "288dd4c0-2a7a-4f8a-a4ff-af63f4aa2746",
+      "name": "Description - Playspace",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -120,
+        2100
+      ],
+      "parameters": {
+        "width": 500,
+        "height": 120,
+        "content": "## 📋 Игровое пространство\n\nДокументация клиента"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6b456468-652a-4337-83f1-25596766c3db",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        2300
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 900,
+        "height": 200,
+        "content": "## Программы"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a6933c9e-fee7-46cb-9b55-bfc403be7076",
+      "name": "Recommended Programmes",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        2340
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/programmes/recommendations",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Paginated results offset', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Paginated results limit', 'number') }}"
+            },
+            {
+              "name": "rights",
+              "value": "={{ $fromAI('rights', 'Only return available results for the web/mobile.', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Recommended Programmes\n\nParameters:\n- Query parameters:\n  • offset (optional) - Paginated results offset\n  • limit (optional) - Paginated results limit\n  • rights (required) - Only return available results for the web/mobile.\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "5cd1fdce-38c6-473d-86ff-dd197b416024",
+      "name": "Popular Episodes & Clips",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        2340
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//radio/popular",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "type",
+              "value": "={{ $fromAI('type', 'Programme type required. Accepts comma separated values', 'string') }}"
+            },
+            {
+              "name": "distinct",
+              "value": "={{ $fromAI('distinct', 'Filter by deduplication rule. E.g. 'tleo' returns programmes with distinct top level episode objects', 'string') }}"
+            },
+            {
+              "name": "network",
+              "value": "={{ $fromAI('network', 'Filter by network master brand ID (mid). Accepts comma separated values', 'string') }}"
+            },
+            {
+              "name": "network_url_key",
+              "value": "={{ $fromAI('network_url_key', 'Filter by network URL key. Accepts comma separated values', 'string') }}"
+            },
+            {
+              "name": "category",
+              "value": "={{ $fromAI('category', 'Filter by category. Accepts comma separated values', 'string') }}"
+            },
+            {
+              "name": "format",
+              "value": "={{ $fromAI('format', 'Filter by format. Accepts comma separated values', 'string') }}"
+            },
+            {
+              "name": "group",
+              "value": "={{ $fromAI('group', 'Filter by group. Accepts comma separated values', 'string') }}"
+            },
+            {
+              "name": "media_type",
+              "value": "={{ $fromAI('media_type', 'Filter by programme media type. Accepts comma separated values', 'string') }}"
+            },
+            {
+              "name": "container",
+              "value": "={{ $fromAI('container', 'Filter by container. Accepts any pid e.g. brand,series,episode', 'string') }}"
+            },
+            {
+              "name": "media_set",
+              "value": "={{ $fromAI('media_set', 'Filter by media set name. Accepts comma separated combinations of the following: pc,mobile-download,android-download-high,apple-ios-download-high,mobile-cellular-main,mobile-phone-main,iptv-all', 'json') }}"
+            },
+            {
+              "name": "q",
+              "value": "={{ $fromAI('q', 'Search query String', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Popular Episodes & Clips\n\nParameters:\n- Query parameters:\n  • type (optional) - Programme type required. Accepts comma separated values\n  • distinct (optional) - Filter by deduplication rule. E.g. 'tleo' returns programmes with distinct top level episode objects\n  • network (optional) - Filter by network master brand ID (mid). Accepts comma separated values\n  • network_url_key (optional) - Filter by network URL key. Accepts comma separated values\n  • category (optional) - Filter by category. Accepts comma separated values\n  • format (optional) - Filter by format. Accepts comma separated values\n  • group (optional) - Filter by group. Accepts comma separated values\n  • media_type (optional) - Filter by programme media type. Accepts comma separated values\n  • container (optional) - Filter by container. Accepts any pid e.g. brand,series,episode\n  • media_set (optional) - Filter by media set name. Accepts comma separated combinations of the following: pc,mobile-download,android-download-high,apple-ios-download-high,mobile-cellular-main,mobile-phone-main,iptv-all\n  • q (optional) - Search query String\n- Header parameters:\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e74e78dd-d29f-4f9a-8394-bec09d28d1fe",
+      "name": "Radio programmes",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        2340
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//radio/programmes",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "kind",
+              "value": "={{ $fromAI('kind', 'Filter by provided query. E.g. 'tleo' returns top level objects, ie. brands, orphaned series, and orphaned episodes', 'string') }}"
+            },
+            {
+              "name": "network",
+              "value": "={{ $fromAI('network', 'Filter by network master brand ID (mid). Accepts comma separated values', 'string') }}"
+            },
+            {
+              "name": "network_url_key",
+              "value": "={{ $fromAI('network_url_key', 'Filter by network URL key. Accepts comma separated values', 'string') }}"
+            },
+            {
+              "name": "category",
+              "value": "={{ $fromAI('category', 'Filter by category id. Accepts comma separated values. See /category endpoint below for the type of response provided', 'string') }}"
+            },
+            {
+              "name": "sort",
+              "value": "={{ $fromAI('sort', 'Sort by provided query. E.g. 'title' sorts in ascending order, and -title sorts in descending order', 'string') }}"
+            },
+            {
+              "name": "container",
+              "value": "={{ $fromAI('container', 'Filter by container. Accepts any brand or series pid', 'string') }}"
+            },
+            {
+              "name": "type",
+              "value": "={{ $fromAI('type', 'Filter by programme type. Accepts comma separated values', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Radio programmes\n\nParameters:\n- Query parameters:\n  • kind (optional) - Filter by provided query. E.g. 'tleo' returns top level objects, ie. brands, orphaned series, and orphaned episodes\n  • network (optional) - Filter by network master brand ID (mid). Accepts comma separated values\n  • network_url_key (optional) - Filter by network URL key. Accepts comma separated values\n  • category (optional) - Filter by category id. Accepts comma separated values. See /category endpoint below for the type of response provided\n  • sort (optional) - Sort by provided query. E.g. 'title' sorts in ascending order, and -title sorts in descending order\n  • container (optional) - Filter by container. Accepts any brand or series pid\n  • type (optional) - Filter by programme type. Accepts comma separated values\n- Header parameters:\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "da9d5601-bf0f-45f0-8220-07148a1811dd",
+      "name": "Available radio programme by Pid",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        80,
+        2340
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//radio/programmes/{{ $fromAI('pid', 'pid', 'string') }}",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Available radio programme by Pid\n\nParameters:\n- Path parameters:\n  • pid (required) - pid\n- Header parameters:\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "9b7ec36d-5174-42b1-ba94-841bde76055f",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        2540
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 3500,
+        "height": 200,
+        "content": "## Радио"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c65b98e1-e4eb-437f-b38e-edd711e62001",
+      "name": "Favourite Episodes and Clips",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        2580
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/radio/favourites",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Paginated results offset', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Paginated results limit', 'number') }}"
+            },
+            {
+              "name": "sort",
+              "value": "={{ $fromAI('sort', 'Sort order for Personalised Radio results', 'string') }}"
+            },
+            {
+              "name": "show_all_activity",
+              "value": "={{ $fromAI('show_all_activity', 'Include items which have been 'soft' unfavourited in response. I.e items with UAS type of 'unfavourited'', 'boolean') }}"
+            }
+          ]
+        },
+        "toolDescription": "Favourite Episodes and Clips\n\nParameters:\n- Query parameters:\n  • offset (optional) - Paginated results offset\n  • limit (optional) - Paginated results limit\n  • sort (optional) - Sort order for Personalised Radio results\n  • show_all_activity (optional) - Include items which have been 'soft' unfavourited in response. I.e items with UAS type of 'unfavourited'\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "Bq6FmBmPJOfTe6MM",
+          "name": "Test Header Auth Cred"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "1bfe5624-4a34-4c6e-90fc-f2aca8fe09f4",
+      "name": "Favourite Episodes and Clips 1",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        2580
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/radio/favourites",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Favourite Episodes and Clips\n\nParameters:\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "Bq6FmBmPJOfTe6MM",
+          "name": "Test Header Auth Cred"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "6edcc776-b8c6-434f-ae85-63163aace003",
+      "name": "Favourite Episodes and Clips 2",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        2580
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/radio/favourites",
+        "method": "PUT",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Favourite Episodes and Clips\n\nParameters:\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "Bq6FmBmPJOfTe6MM",
+          "name": "Test Header Auth Cred"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "84c75d71-96f6-47f3-9048-67db021ec3c5",
+      "name": "Favourite Episodes and Clips by Type",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        80,
+        2580
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/radio/favourites/{{ $fromAI('type', 'Supported Radio favourite types: Clips or Episodes', 'string') }}",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "sort",
+              "value": "={{ $fromAI('sort', 'Sort order for Personalised Radio results', 'string') }}"
+            },
+            {
+              "name": "show_all_activity",
+              "value": "={{ $fromAI('show_all_activity', 'Include items which have been 'soft' unfavourited in response. I.e items with UAS type of 'unfavourited'', 'boolean') }}"
+            },
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Paginated results offset', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Paginated results limit', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Favourite Episodes and Clips by Type\n\nParameters:\n- Path parameters:\n  • type (required) - Supported Radio favourite types: Clips or Episodes\n- Query parameters:\n  • sort (optional) - Sort order for Personalised Radio results\n  • show_all_activity (optional) - Include items which have been 'soft' unfavourited in response. I.e items with UAS type of 'unfavourited'\n  • offset (optional) - Paginated results offset\n  • limit (optional) - Paginated results limit\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "Bq6FmBmPJOfTe6MM",
+          "name": "Test Header Auth Cred"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "aad75d1c-6101-4c1c-9633-5afe3d43aa6e",
+      "name": "Favourite Episode or Clip",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        280,
+        2580
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/radio/favourites/{{ $fromAI('type', 'Supported Radio favourite types: Clips or Episodes', 'string') }}/{{ $fromAI('pid', 'pid', 'string') }}",
+        "method": "DELETE",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Favourite Episode or Clip\n\nParameters:\n- Path parameters:\n  • type (required) - Supported Radio favourite types: Clips or Episodes\n  • pid (required) - pid\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "fc800315-8cf8-4267-b6e1-794829da49ed",
+      "name": "Favourite Episode or Clip 1",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        480,
+        2580
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/radio/favourites/{{ $fromAI('type', 'Supported Radio favourite types: Clips or Episodes', 'string') }}/{{ $fromAI('pid', 'pid', 'string') }}",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "show_all_activity",
+              "value": "={{ $fromAI('show_all_activity', 'Include items which have been 'soft' unfavourited in response. I.e items with UAS type of 'unfavourited'', 'boolean') }}"
+            }
+          ]
+        },
+        "toolDescription": "Favourite Episode or Clip\n\nParameters:\n- Path parameters:\n  • type (required) - Supported Radio favourite types: Clips or Episodes\n  • pid (required) - pid\n- Query parameters:\n  • show_all_activity (optional) - Include items which have been 'soft' unfavourited in response. I.e items with UAS type of 'unfavourited'\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "6601b758-b7c0-4899-ae2d-ecce5a1831ff",
+      "name": "Favourite Episode or Clip 2",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        680,
+        2580
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/radio/favourites/{{ $fromAI('type', 'Supported Radio favourite types: Clips or Episodes', 'string') }}/{{ $fromAI('pid', 'pid', 'string') }}",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Favourite Episode or Clip\n\nParameters:\n- Path parameters:\n  • type (required) - Supported Radio favourite types: Clips or Episodes\n  • pid (required) - pid\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "98a0d352-f660-4c3b-8f2c-da5b798119a7",
+      "name": "Favourite Episode or Clip 3",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        880,
+        2580
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/radio/favourites/{{ $fromAI('type', 'Supported Radio favourite types: Clips or Episodes', 'string') }}/{{ $fromAI('pid', 'pid', 'string') }}",
+        "method": "PUT",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Favourite Episode or Clip\n\nParameters:\n- Path parameters:\n  • type (required) - Supported Radio favourite types: Clips or Episodes\n  • pid (required) - pid\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "8df12f72-3c58-48f2-8058-f641c3d056a4",
+      "name": "Followed Brands and Series",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1080,
+        2580
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/radio/follows",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Paginated results offset', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Paginated results limit', 'number') }}"
+            },
+            {
+              "name": "sort",
+              "value": "={{ $fromAI('sort', 'Sort order for Personalised Radio results', 'string') }}"
+            },
+            {
+              "name": "show_all_activity",
+              "value": "={{ $fromAI('show_all_activity', 'Include items which have been 'soft' unfollowed in response. I.e items with UAS type of 'unfollowed'', 'boolean') }}"
+            }
+          ]
+        },
+        "toolDescription": "Followed Brands and Series\n\nParameters:\n- Query parameters:\n  • offset (optional) - Paginated results offset\n  • limit (optional) - Paginated results limit\n  • sort (optional) - Sort order for Personalised Radio results\n  • show_all_activity (optional) - Include items which have been 'soft' unfollowed in response. I.e items with UAS type of 'unfollowed'\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a1faf69b-22ae-4422-9de6-4000c5a9c544",
+      "name": "Followed Brands and Series 1",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1280,
+        2580
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/radio/follows",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Followed Brands and Series\n\nParameters:\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b54ac0b9-8c0e-408b-99cd-8da208bbad79",
+      "name": "Followed Brands and Series 2",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1480,
+        2580
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/radio/follows",
+        "method": "PUT",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Followed Brands and Series\n\nParameters:\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f4aeb604-de0c-4889-ad7a-932c589f017c",
+      "name": "Followed Brands or Series by Type",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1680,
+        2580
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/radio/follows/{{ $fromAI('type', 'Supported Radio follows types: Brands or Series', 'string') }}",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "sort",
+              "value": "={{ $fromAI('sort', 'Sort order for Personalised Radio results', 'string') }}"
+            },
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Paginated results offset', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Paginated results limit', 'number') }}"
+            },
+            {
+              "name": "show_all_activity",
+              "value": "={{ $fromAI('show_all_activity', 'Include items which have been 'soft' unfollowed in response. I.e items with UAS type of 'unfollowed'', 'boolean') }}"
+            }
+          ]
+        },
+        "toolDescription": "Followed Brands or Series by Type\n\nParameters:\n- Path parameters:\n  • type (required) - Supported Radio follows types: Brands or Series\n- Query parameters:\n  • sort (optional) - Sort order for Personalised Radio results\n  • offset (optional) - Paginated results offset\n  • limit (optional) - Paginated results limit\n  • show_all_activity (optional) - Include items which have been 'soft' unfollowed in response. I.e items with UAS type of 'unfollowed'\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "147c5da7-bfea-49c0-be1e-e904a9f5c376",
+      "name": "Followed Brand or Series",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1880,
+        2580
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/radio/follows/{{ $fromAI('type', 'Supported Radio follows types: Brands or Series', 'string') }}/{{ $fromAI('pid', 'pid', 'string') }}",
+        "method": "DELETE",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Followed Brand or Series\n\nParameters:\n- Path parameters:\n  • type (required) - Supported Radio follows types: Brands or Series\n  • pid (required) - pid\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "8f846ce5-dc63-40ff-8895-73bc5b3f1386",
+      "name": "Followed Brand or Series 1",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        2080,
+        2580
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/radio/follows/{{ $fromAI('type', 'Supported Radio follows types: Brands or Series', 'string') }}/{{ $fromAI('pid', 'pid', 'string') }}",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Followed Brand or Series\n\nParameters:\n- Path parameters:\n  • type (required) - Supported Radio follows types: Brands or Series\n  • pid (required) - pid\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "64094476-c476-43b0-988f-a398513dd04f",
+      "name": "Followed Brand or Series 2",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        2280,
+        2580
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/radio/follows/{{ $fromAI('type', 'Supported Radio follows types: Brands or Series', 'string') }}/{{ $fromAI('pid', 'pid', 'string') }}",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Followed Brand or Series\n\nParameters:\n- Path parameters:\n  • type (required) - Supported Radio follows types: Brands or Series\n  • pid (required) - pid\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "50fca6c2-0ffa-4f92-b09c-d8e79fe14d91",
+      "name": "Followed Brand or Series 3",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        2480,
+        2580
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/radio/follows/{{ $fromAI('type', 'Supported Radio follows types: Brands or Series', 'string') }}/{{ $fromAI('pid', 'pid', 'string') }}",
+        "method": "PUT",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Followed Brand or Series\n\nParameters:\n- Path parameters:\n  • type (required) - Supported Radio follows types: Brands or Series\n  • pid (required) - pid\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "fafa20dc-3bce-43ad-b6d4-a52df05235c9",
+      "name": "Played Episode or Clip",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        2680,
+        2580
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//my/radio/plays",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Paginated results offset', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Paginated results limit', 'number') }}"
+            },
+            {
+              "name": "sort",
+              "value": "={{ $fromAI('sort', 'Sort order for Personalised Radio results', 'string') }}"
+            },
+            {
+              "name": "show_all_activity",
+              "value": "={{ $fromAI('show_all_activity', 'Include expired/unavailable items', 'boolean') }}"
+            }
+          ]
+        },
+        "toolDescription": "Played Episode or Clip\n\nParameters:\n- Query parameters:\n  • offset (optional) - Paginated results offset\n  • limit (optional) - Paginated results limit\n  • sort (optional) - Sort order for Personalised Radio results\n  • show_all_activity (optional) - Include expired/unavailable items\n- Header parameters:\n  • Authorization (required) - Bearer OAUTH_TOKEN\n  • X-Authentication-Provider (required) - Authentication type\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $fromAI('Authorization', 'Bearer OAUTH_TOKEN', 'string', 'Bearer OAUTH_TOKEN') }}"
+            },
+            {
+              "name": "X-Authentication-Provider",
+              "value": "={{ $fromAI('X-Authentication-Provider', 'Authentication type', 'string', 'idv5') }}"
+            },
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a2e90c69-503b-48a8-9e76-7d91e86fb340",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        2780
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 900,
+        "height": 200,
+        "content": "## Подкасты"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2c527c52-e866-46eb-8eaa-e158d240a599",
+      "name": "All Podcasts",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        2820
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//podcasts",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Paginated results offset', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Paginated results limit', 'number') }}"
+            },
+            {
+              "name": "sort",
+              "value": "={{ $fromAI('sort', 'Sort order for Podcasts results', 'string') }}"
+            },
+            {
+              "name": "network",
+              "value": "={{ $fromAI('network', 'Network Master Brand ID (mid)', 'string') }}"
+            },
+            {
+              "name": "network_url_key",
+              "value": "={{ $fromAI('network_url_key', 'Network URL key', 'string') }}"
+            },
+            {
+              "name": "category",
+              "value": "={{ $fromAI('category', 'Category ID', 'string') }}"
+            },
+            {
+              "name": "q",
+              "value": "={{ $fromAI('q', 'Search query String', 'string') }}"
+            },
+            {
+              "name": "coverage",
+              "value": "={{ $fromAI('coverage', 'Local, National or Regional Coverage', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "All Podcasts\n\nParameters:\n- Query parameters:\n  • offset (optional) - Paginated results offset\n  • limit (optional) - Paginated results limit\n  • sort (optional) - Sort order for Podcasts results\n  • network (optional) - Network Master Brand ID (mid)\n  • network_url_key (optional) - Network URL key\n  • category (optional) - Category ID\n  • q (optional) - Search query String\n  • coverage (optional) - Local, National or Regional Coverage\n- Header parameters:\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0a4bf8c6-455d-4610-9164-bc93da8f3d1d",
+      "name": "Featured Podcasts",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        2820
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//podcasts/featured",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Featured Podcasts\n\nParameters:\n- Header parameters:\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "30834dc7-d1e8-4212-9f4d-c621403249d6",
+      "name": "Podcast",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        2820
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//podcasts/{{ $fromAI('pid', 'pid', 'string') }}",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Paginated results offset', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Paginated results limit', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Podcast\n\nParameters:\n- Path parameters:\n  • pid (required) - pid\n- Query parameters:\n  • offset (optional) - Paginated results offset\n  • limit (optional) - Paginated results limit\n- Header parameters:\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "043aa9cc-1fce-4daf-80d2-6b970a855a6b",
+      "name": "Podcast Episodes",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        80,
+        2820
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//podcasts/{{ $fromAI('pid', 'pid', 'string') }}/episodes",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "={{ $fromAI('offset', 'Paginated results offset', 'number') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', 'Paginated results limit', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Podcast Episodes\n\nParameters:\n- Path parameters:\n  • pid (required) - pid\n- Query parameters:\n  • offset (optional) - Paginated results offset\n  • limit (optional) - Paginated results limit\n- Header parameters:\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "72f10fc8-b12f-4c46-9350-b99739b8c8b2",
+      "name": "Sticky Note14",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        3020
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 300,
+        "height": 200,
+        "content": "## Сети"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d08b156e-1f44-4adb-bdf1-e9b65902dafc",
+      "name": "Networks",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        3060
+      ],
+      "parameters": {
+        "url": "=https://rms.api.bbc.co.uk//radio/networks.json",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "preset",
+              "value": "={{ $fromAI('preset', 'Returns all networks needed for iPlayer Radio responsive web navigation', 'boolean') }}"
+            },
+            {
+              "name": "international",
+              "value": "={{ $fromAI('international', 'Returns all networks available internationally', 'boolean') }}"
+            }
+          ]
+        },
+        "toolDescription": "Networks\n\nParameters:\n- Query parameters:\n  • preset (optional) - Returns all networks needed for iPlayer Radio responsive web navigation\n  • international (optional) - Returns all networks available internationally\n- Header parameters:\n  • X-API-Key (required) - API_KEY",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $fromAI('X-API-Key', 'API_KEY', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    }
+  ],
+  "active": false,
+  "shared": [
+    {
+      "role": "workflow:owner",
+      "project": {
+        "id": "G5fce9xGuBAsWBXe",
+        "icon": null,
+        "name": "David Ashby <david.ashby.lds@gmail.com>",
+        "type": "personal",
+        "createdAt": "2025-06-04T02:55:02.013Z",
+        "updatedAt": "2025-06-04T02:56:01.361Z",
+        "projectRelations": [
+          {
+            "role": "project:personalOwner",
+            "user": {
+              "id": "715c1c00-cb48-4712-9a32-f1f4b6db2b30",
+              "role": "global:owner",
+              "email": "david.ashby.lds@gmail.com",
+              "disabled": false,
+              "lastName": "Ashby",
+              "settings": {
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1749357655581
+                },
+                "userActivated": true,
+                "userActivatedAt": 1749075994495,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "3N3vVikZb3MckFYm"
+              },
+              "createdAt": "2025-06-04T02:55:01.745Z",
+              "firstName": "David",
+              "isPending": false,
+              "updatedAt": "2025-06-08T04:40:58.399Z",
+              "mfaEnabled": false,
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_n8n_version": "1.95.3",
+                "personalization_survey_submitted_at": "2025-06-04T02:56:07.075Z"
+              }
+            },
+            "userId": "715c1c00-cb48-4712-9a32-f1f4b6db2b30",
+            "createdAt": "2025-06-04T02:55:02.013Z",
+            "projectId": "G5fce9xGuBAsWBXe",
+            "updatedAt": "2025-06-04T02:55:02.013Z"
+          }
+        ]
+      },
+      "createdAt": "2025-07-01T21:19:33.293Z",
+      "projectId": "G5fce9xGuBAsWBXe",
+      "updatedAt": "2025-07-01T21:19:33.293Z",
+      "workflowId": "mcrrPHQ2vb1qNmFo"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "timezone": "America/New_York"
+  },
+  "createdAt": "2025-07-01T21:19:33.290Z",
+  "updatedAt": "2025-07-01T21:21:15.000Z",
+  "versionId": "f98bf93f-2d7a-4fe7-bedd-bc71f97e7459",
+  "isArchived": false,
+  "staticData": null,
+  "connections": {
+    "Podcast": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Networks": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Broadcasts": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "All Podcasts": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Music Exports": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Category by ID": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Follow network": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Popular Tracks": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Follow category": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Popular Artists": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Podcast Episodes": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Radio programmes": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unfollow network": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Play Event": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Broadcasts by PID": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Featured Podcasts": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Latest Broadcasts": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Music Export Jobs": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Popular Playlists": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unfollow category": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collection Members": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List of categories": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Homepage Experience": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Music Export Jobs 1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Music Export Tracks": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Played Episode or Clip": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recommended Programmes": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Favourite Track or Clip": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Single Track Popularity": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Followed Brand or Series": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Music Export Preferences": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Popular Episodes & Clips": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Single Artist Popularity": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Favourite Episode or Clip": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Favourite Track or Clip 1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Favourite Track or Clip 2": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Favourite Track or Clip 3": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Favourite Tracks or Clips": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List of followed networks": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Playspace Container by ID": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Followed Brand or Series 1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Followed Brand or Series 2": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Followed Brand or Series 3": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Followed Brands and Series": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Music Export Preferences 1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Music Export Preferences 2": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Single Playlist Popularity": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Favourite Episode or Clip 1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Favourite Episode or Clip 2": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Favourite Episode or Clip 3": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Favourite Tracks or Clips 1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Favourite Tracks or Clips 2": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List of followed categories": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Favourite Episodes and Clips": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Followed Brands and Series 1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Followed Brands and Series 2": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Suggested Playspace Container": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Favourite Episodes and Clips 1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Favourite Episodes and Clips 2": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Music Export Vendor Preferences": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Available radio programme by Pid": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Favourite Tracks or Clips by Type": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Followed Brands or Series by Type": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Music Export Vendor Preferences 1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Music Export Vendor Preferences 2": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Music Export Vendor Preferences 3": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Favourite Episodes and Clips by Type": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Followed Network, Category, Artist, Playlist and Genre": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Followed Network, Category, Artist, Playlist and Genre 1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Followed Network, Category, Artist, Playlist and Genre 2": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Followed Network, Category, Artist, Playlist and Genre 3": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Followed Networks, Categories, Artists, Playlists and Genres": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Followed Networks, Categories, Artists, Playlists and Genres 1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Followed Networks, Categories, Artists, Playlists and Genres 2": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Followed Networks, Categories, Artists, Playlists and Genres 3": {
+      "ai_tool": [
+        [
+          {
+            "node": "Radio & Music Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "triggerCount": 0
+}

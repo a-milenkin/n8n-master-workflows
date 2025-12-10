@@ -1,0 +1,572 @@
+{
+  "id": "LIOY5U6r4W8pmkrH",
+  "meta": {
+    "instanceId": "60046904b104f0f72b2629a9d88fe9f676be4035769f1f08dad1dd38a76b9480",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "* 📝 **Подготовка запроса**: Этот шаг **настраивает ввод** — например, выбор регионов для сбора данных, фильтры по датам или любые специальные параметры, которые вы хотите использовать для сканера.",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "0568c8de-17a3-4a9b-a3d7-cf9a9e937888",
+      "name": "Weekly Territory Check",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "065eaed2-28b0-4866-8173-5ec742a40e47",
+      "name": "Prepare Request Params",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        200,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "01dce1c2-299c-4def-a8d0-0194cae94ea2",
+              "name": "url",
+              "type": "string",
+              "value": "example.com"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "71435f74-f8bf-485e-b16e-0a9092dfdec7",
+      "name": "Run Bright Data Scraper",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "text": "=From the following URL, extract fields the below fields.\n\nStore ID\nName\nAddress\nRegion\n\nURL: {{ $json.url }}",
+        "options": {},
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "26363bd7-51e1-4a01-a489-e16f4b877b52",
+      "name": "Send Notification Email",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1040,
+        -240
+      ],
+      "webhookId": "0c0b75ed-5603-4dd4-a38f-fdf95c10e71d",
+      "parameters": {
+        "sendTo": "shahkar.genai@gmail.com",
+        "message": "=Hello Team!\n\nThe Regional sales data has updated in the google sheets. So go and check it out fast.\n\nRegards,\nYour Name",
+        "options": {},
+        "subject": "Regional Sales data has updated",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "AQDSl75AdzK3vmqJ",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "bf4afd69-2309-4aed-89d5-34c704812bc9",
+      "name": "Split Stores to Items",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1040,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// n8n Function Node\n// Purpose: Takes wrapped `output` array, returns each store as its own item\n\nconst results = [];\n\n// Grab the output array from first item\nconst stores = items[0].json.output;\n\n// Loop through each store\nfor (const store of stores) {\n  results.push({ json: store });\n}\n\nreturn results;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6c9ea046-2bc1-40e5-a95e-66a7afbc3bad",
+      "name": "Update Regional Data Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1260,
+        0
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Region": "={{ $json.region }}",
+            "Address": "={{ $json.address }}",
+            "Store ID": "={{ $json.store_id }}",
+            "Store name": "={{ $json.store_name }}",
+            "Last updated": "={{ $json.last_updated }}",
+            "Estimated sales": "={{ $json.estimated_sales }}"
+          },
+          "schema": [
+            {
+              "id": "Store ID",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Store ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Store name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Store name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Address",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Address",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Region",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Region",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Estimated sales",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Estimated sales",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last updated",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Last updated",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12hjlzSEhesN4r05t4Bq9w4ttEBzwXEmddDSJZ30N0tA/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "12hjlzSEhesN4r05t4Bq9w4ttEBzwXEmddDSJZ30N0tA",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12hjlzSEhesN4r05t4Bq9w4ttEBzwXEmddDSJZ30N0tA/edit?usp=drivesdk",
+          "cachedResultName": "Store data"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "r2mDaisH6e9VkwHl",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "f4d0b4ea-5842-4730-8cf5-e6627ab54329",
+      "name": "Bright Data MCP Tool",
+      "type": "n8n-nodes-mcp.mcpClientTool",
+      "position": [
+        580,
+        280
+      ],
+      "parameters": {
+        "toolName": "scrape_as_markdown",
+        "operation": "executeTool",
+        "toolParameters": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Tool_Parameters', ``, 'json') }}"
+      },
+      "credentials": {
+        "mcpClientApi": {
+          "id": "eqq94k789oJCd6jU",
+          "name": "MCP Client (STDIO) account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d3e22591-7bc7-494d-b917-934a4ffe419a",
+      "name": "LLM Prompt Handler",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        400,
+        280
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8sEyPDkC5p4w4Jha",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "f100c167-e28b-480a-87d5-6c143812a96a",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        -640
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 380,
+        "height": 820,
+        "content": "## ✅ **🔹 Раздел 1: Запуск и Подготовка**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8548ff7c-748e-464c-87b4-39b1bd973bde",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        420,
+        -1000
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 300,
+        "height": 1180,
+        "content": "**Узлы:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "17a66823-bde6-4205-b1e4-3c6cd1969f2b",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1000,
+        -780
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 400,
+        "height": 960,
+        "content": "1️⃣ `Еженедельная проверка территории` *(Запуск по расписанию)*"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "666629f1-e070-49f3-a31b-1c6375c75734",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1480,
+        -780
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 380,
+        "height": 240,
+        "content": "2️⃣ `Подготовить параметры запроса` *(Редактировать поля)*"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f4e125ba-f6df-465d-8ce0-b0a6c996f3e0",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1680,
+        -640
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 320,
+        "content": "**💡 Что это делает:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ec9115e3-3507-44e6-b57c-37e5fe7ed046",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1680,
+        -300
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1289,
+        "height": 2398,
+        "content": "* ⏰ **Еженедельный запуск**: Автоматизация начинается **автоматически** по установленному расписанию — например, каждый понедельник в 6 утра — так что вам не нужно помнить о запуске."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8d32a7e9-423f-4c22-8356-d59302e9afd5",
+      "name": "Auto-fixing Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "position": [
+        720,
+        280
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "02d03b02-4186-4c9a-aa7c-dd9a0eddf39c",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        700,
+        500
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8sEyPDkC5p4w4Jha",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "85bbb951-75ca-48ba-bd56-9763b0d8bd58",
+      "name": "Structured Output Parser1",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        860,
+        500
+      ],
+      "parameters": {
+        "jsonSchemaExample": "[\n  {\n    \"store_id\": \"ST-101\",\n    \"store_name\": \"SuperMart Downtown\",\n    \"address\": \"123 Main St, Springfield\",\n    \"region\": \"North Region\",\n    \"estimated_sales\": 125000,\n    \"last_updated\": \"2025-07-09\"\n  },\n  {\n    \"store_id\": \"ST-102\",\n    \"store_name\": \"SuperMart East Side\",\n    \"address\": \"456 Maple Ave, Springfield\",\n    \"region\": \"North Region\",\n    \"estimated_sales\": 98000,\n    \"last_updated\": \"2025-07-09\"\n  },\n  {\n    \"store_id\": \"ST-103\",\n    \"store_name\": \"SuperMart Riverside\",\n    \"address\": \"789 River Rd, Rivertown\",\n    \"region\": \"South Region\",\n    \"estimated_sales\": 73000,\n    \"last_updated\": \"2025-07-09\"\n  },\n  {\n    \"store_id\": \"ST-104\",\n    \"store_name\": \"SuperMart Uptown\",\n    \"address\": \"321 Oak St, Rivertown\",\n    \"region\": \"South Region\",\n    \"estimated_sales\": 67000,\n    \"last_updated\": \"2025-07-09\"\n  },\n  {\n    \"store_id\": \"ST-105\",\n    \"store_name\": \"SuperMart West End\",\n    \"address\": \"555 Elm St, Lake City\",\n    \"region\": \"West Region\",\n    \"estimated_sales\": 115000,\n    \"last_updated\": \"2025-07-09\"\n  }\n]\n"
+      },
+      "typeVersion": 1.2
+    }
+  ],
+  "active": false,
+  "pinData": {
+    "Run Bright Data Scraper": [
+      {
+        "json": {
+          "output": [
+            {
+              "region": "North Region",
+              "address": "123 Main St, Springfield",
+              "store_id": "ST-101",
+              "store_name": "SuperMart Downtown",
+              "last_updated": "2025-07-09",
+              "estimated_sales": 125000
+            },
+            {
+              "region": "North Region",
+              "address": "456 Maple Ave, Springfield",
+              "store_id": "ST-102",
+              "store_name": "SuperMart East Side",
+              "last_updated": "2025-07-09",
+              "estimated_sales": 98000
+            },
+            {
+              "region": "South Region",
+              "address": "789 River Rd, Rivertown",
+              "store_id": "ST-103",
+              "store_name": "SuperMart Riverside",
+              "last_updated": "2025-07-09",
+              "estimated_sales": 73000
+            },
+            {
+              "region": "South Region",
+              "address": "321 Oak St, Rivertown",
+              "store_id": "ST-104",
+              "store_name": "SuperMart Uptown",
+              "last_updated": "2025-07-09",
+              "estimated_sales": 67000
+            },
+            {
+              "region": "West Region",
+              "address": "555 Elm St, Lake City",
+              "store_id": "ST-105",
+              "store_name": "SuperMart West End",
+              "last_updated": "2025-07-09",
+              "estimated_sales": 115000
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e5410ef0-2611-442f-894a-4ebf7ab5ba3d",
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM Prompt Handler": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Run Bright Data Scraper",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bright Data MCP Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Run Bright Data Scraper",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Stores to Items": {
+      "main": [
+        [
+          {
+            "node": "Update Regional Data Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Request Params": {
+      "main": [
+        [
+          {
+            "node": "Run Bright Data Scraper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly Territory Check": {
+      "main": [
+        [
+          {
+            "node": "Prepare Request Params",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Bright Data Scraper": {
+      "main": [
+        [
+          {
+            "node": "Split Stores to Items",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Notification Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-fixing Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Run Bright Data Scraper",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

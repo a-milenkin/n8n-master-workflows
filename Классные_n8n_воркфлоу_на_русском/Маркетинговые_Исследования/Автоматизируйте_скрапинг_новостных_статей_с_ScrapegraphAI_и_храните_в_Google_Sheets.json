@@ -1,0 +1,235 @@
+{
+  "id": "MIllJmbqayQrZM1F",
+  "meta": {
+    "instanceId": "521567c5f495f323b77849c4cfd0c9f4f2396c986e324e0e66c8425b6f124744",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "- Используйте естественный язык для описания данных, которые нужно извлечь",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "37df323b-5c75-495f-ba19-b8642c02d96f",
+      "name": "Automated News Collection Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        700,
+        820
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "efd61ca5-e248-4027-b705-6d9c5dabe820",
+      "name": "AI-Powered News Article Scraper",
+      "type": "n8n-nodes-scrapegraphai.scrapegraphAi",
+      "position": [
+        1380,
+        820
+      ],
+      "parameters": {
+        "userPrompt": "Extract all the articles from this site. Use the following schema for response {   \"request_id\": \"5a9de102-8a43-4e89-8aae-397c9ca80a9b\",   \"status\": \"completed\",   \"website_url\": \"https://www.bbc.com/\",   \"user_prompt\": \"Extract all the articles from this site.\",   \"title\": \"'My friend died right in front of me' - Student describes moment air force jet crashed into school\",   \"url\": \"https://www.bbc.com/news/articles/cglzw8y5wy5o\",   \"category\": \"Asia\" }",
+        "websiteUrl": "https://www.bbc.com/"
+      },
+      "credentials": {
+        "scrapegraphAIApi": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "976d9123-7585-4700-9972-5b2838571a44",
+      "name": "Google Sheets News Storage",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2980,
+        820
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "title",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "title",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "url",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "url",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "category",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "category",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "6d11ae64-e2f8-47ed-854a-c749881ce72c",
+      "name": "News Data Formatting and Processing",
+      "type": "n8n-nodes-base.code",
+      "notes": "Hey this is where \nyou \nformat results ",
+      "position": [
+        2140,
+        820
+      ],
+      "parameters": {
+        "jsCode": "// Get the input data\nconst inputData = $input.all()[0].json;\n\n// Extract articles array\nconst articles = inputData.result.articles;\n\n// Map each article and return only title, url, category\nreturn articles.map(article => ({\n  json: {\n    title: article.title,\n    url: article.url,\n    category: article.category\n  }\n}));"
+      },
+      "notesInFlow": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "ca78baaf-0480-490d-aa9a-3663ca93f5d0",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1180,
+        460
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 574.9363634768473,
+        "height": 530.4701664623029,
+        "content": "# Шаг 2: Скрапер новостных статей на основе ИИ 🤖"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "51a1337b-6a50-43a5-8d6f-8345bc771c7b",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1920,
+        460
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 574.9363634768473,
+        "height": 530.4701664623029,
+        "content": "Это основной узел, который использует ScrapeGraphAI для интеллектуального извлечения новостных статей с любого веб-сайта."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2e8cde8e-f534-4f37-a1f9-bcf0fe0b09f9",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        460,
+        460
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 574.9363634768473,
+        "height": 530.4701664623029,
+        "content": "## Как использовать"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5606537c-a531-490a-b4ff-6d0dc5e642b4",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2680,
+        460
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 574.9363634768473,
+        "height": 530.4701664623029,
+        "content": "- Настройте URL целевого новостного веб-сайта"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c2fee060-f99e-48aa-a280-ac5492715fd9",
+  "connections": {
+    "AI-Powered News Article Scraper": {
+      "main": [
+        [
+          {
+            "node": "News Data Formatting and Processing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Automated News Collection Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI-Powered News Article Scraper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "News Data Formatting and Processing": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets News Storage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "meta": {
+    "instanceId": "cd59eaaeb7b34d06e24511380db94cdb7fbce6037cc4de22e539c5158ab9cdfc"
+  },
+  "nodes": [
+    {
+      "id": "c87a1e26-1254-4895-b4c1-d8648b499ed4",
+      "name": "Workflow Overview 0",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1460,
+        -260
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 760,
+        "content": "## 🛠️ Инструмент Mailcheck MCP Server"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "37c6a3cf-261a-4557-b47e-58b34cc99175",
+      "name": "Mailcheck Tool MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        -820,
+        -160
+      ],
+      "webhookId": "480fc81a-ca0c-4c3d-aa84-552340a857de",
+      "parameters": {
+        "path": "mailcheck-tool-mcp"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7ebd82d9-afae-4baa-8da4-43ee5636394c",
+      "name": "Check an email",
+      "type": "n8n-nodes-base.mailcheckTool",
+      "position": [
+        -800,
+        140
+      ],
+      "parameters": {
+        "email": "={{ $fromAI('Email', ``, 'string') }}"
+      },
+      "credentials": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "69b0a0f1-9226-4b66-865a-af143e582329",
+      "name": "Sticky Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1000,
+        120
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 400,
+        "content": "### 📋 Доступные операции (всего 1)"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Check an email": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mailcheck Tool MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,476 @@
+{
+  "id": "icW2uoM7g7pFZhsR",
+  "meta": {
+    "instanceId": "60c025075753afcab9f803964b4caaca9402f435deb4efafbb8e3b93b54d8752",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "**Извлечение данных о конкурентах**",
+  "tags": [
+    {
+      "id": "QXtLNWbsCSABOTNm",
+      "name": "Digital Marketing",
+      "createdAt": "2025-05-29T11:14:57.099Z",
+      "updatedAt": "2025-05-29T11:14:57.099Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "f3824049-9114-447c-8c3f-e3a08af34d12",
+      "name": "Google Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        400,
+        -120
+      ],
+      "parameters": {
+        "url": "https://www.googleapis.com/customsearch/v1",
+        "options": {},
+        "queryParametersUi": {
+          "parameter": [
+            {
+              "name": "key",
+              "value": "your key"
+            },
+            {
+              "name": "cx",
+              "value": "your cx"
+            },
+            {
+              "name": "q",
+              "value": "=intitle:\"{{ $json.title }}\" (pricing OR features OR buy OR software) -medium.com -quora.com -youtube.com -linkedin.com "
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "840baf66-d14c-4d2c-90f5-05ba174bcc15",
+      "name": "Extract Competitor Data",
+      "type": "n8n-nodes-base.function",
+      "position": [
+        680,
+        -100
+      ],
+      "parameters": {
+        "functionCode": "let allTitles = [];\nlet allDescriptions = [];\nlet allKeywords = [];\n\nfor (const item of $json.items) {\n  allTitles.push(item.title);\n  allDescriptions.push(item.snippet);\n\n  const keywords = item.title\n    .toLowerCase()\n    .replace(/[^a-zA-Z0-9 ]/g, '')\n    .split(' ')\n    .filter(w => w.length > 3);\n\n  allKeywords.push(...keywords);\n}\n\n// Create unique keywords\nconst uniqueKeywords = [...new Set(allKeywords)];\n\nreturn [\n  {\n    json: {\n      chatInput: `\nTitle List:\n${allTitles.join('\\n')}\n\nDescription List:\n${allDescriptions.join('\\n')}\n\nKeywords:\n${uniqueKeywords.join(', ')}\n      `.trim()\n    }\n  }\n];\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0a2929a1-d6fc-4a37-b142-54b0e2135652",
+      "name": "Basic LLM Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        920,
+        -100
+      ],
+      "parameters": {
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are an expert SEO content writer and product copywriter.  generate the following in one output:  1. SEO Meta Data: - Title: (exact product title, must be the same as product title below) - Description: A concise, persuasive meta description optimized for Google SEO best practices. Make sure it is between 120-160 characters, includes main keywords naturally, and encourages clicks. - Keywords: A list of relevant, highly ranked keywords related to the product.  2. Product Content: - Product Title: (exact same title as SEO Meta Data Title) - Product Description: A detailed, engaging product description of minimum 150 words that highlights the product’s key features, benefits, and usage. Use natural language with relevant keywords but avoid keyword stuffing.  Format the output exactly like this:  --- SEO Meta Data: Title: ... Description: ... Keywords: ...  Product Content: Product Title: ... Product Description: ...  ---  Ensure that the SEO Meta Data Title and Product Title are exactly the same string. Follow SEO best practices for titles, descriptions, and keyword usage to maximize Google ranking potential."
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "797456cf-d4a2-49b7-8134-d5ebbf062cc7",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        940,
+        360
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-2.0-flash"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Xpxt71RcelLLFyE3",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "44d6ebd9-ad12-4838-aee0-9b8a4a847a6b",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1660,
+        -140
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "type",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "type",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "title",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "title",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "description",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "description",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "keywords",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "keywords",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "product_title",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "product_title",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "product_description",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "product_description",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [
+            "text"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        },
+        "authentication": "serviceAccount"
+      },
+      "credentials": {
+        "googleApi": {
+          "id": "Rt0RWApx8PL9t0RF",
+          "name": "Google Docs account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "571bb379-f061-42ae-b633-3e80467a0a3d",
+      "name": "On form submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        -180,
+        -140
+      ],
+      "webhookId": "f7e2c20d-4cd1-45f1-b6f7-54eb48c2ad91",
+      "parameters": {
+        "options": {},
+        "formTitle": "Product Research ",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "title",
+              "placeholder": "Enter product title",
+              "requiredField": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "0a4b670a-50b3-4a60-ae51-e3bb958f573a",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        120,
+        -140
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "39f794ce-8c11-4f72-b8d9-4ad0894d1e05",
+              "name": "title",
+              "type": "string",
+              "value": "={{ $json.title }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "85ecfcba-215a-4dbc-8bcf-4fe32b95687a",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1160,
+        -500
+      ],
+      "parameters": {
+        "width": 640,
+        "height": 1340,
+        "content": "# 🚀 Автоматизация исследования продуктов и SEO-контента на основе ИИ"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7f656ef7-50ce-40bd-a38b-74f3b4556311",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -240,
+        -300
+      ],
+      "parameters": {
+        "height": 340,
+        "content": "**Автоматизация на основе ИИ**, которая выполняет исследование продуктов, извлекает данные о конкурентах и генерирует SEO-оптимизированный контент для продуктов с использованием Google Search и большой языковой модели (LLM), такой как Google Gemini или OpenAI. Результат структурирован и сохранен в Google Sheets — готов к публикации."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e6567de3-ed0d-4bcd-9f10-1e8abc374539",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        60,
+        -300
+      ],
+      "parameters": {
+        "height": 340,
+        "content": "### Этапы рабочего процесса:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2d75a14d-8d4b-4ea0-aad9-a3626e0caa1c",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        340,
+        -300
+      ],
+      "parameters": {
+        "height": 340,
+        "content": "**При отправке формы**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e3f73de9-6b55-45ee-aa31-b9ee4268d6fe",
+      "name": "Code Formatting",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1340,
+        -100
+      ],
+      "parameters": {
+        "jsCode": "const inputText = $json.text; // Your combined text input\n\nfunction getFieldValue(text, field) {\n  const regex = new RegExp(field + ':\\\\s*([\\\\s\\\\S]*?)(?=\\\\n\\\\S|$)', 'i');\n  const match = text.match(regex);\n  return match ? match[1].trim() : '';\n}\n\nfunction splitSections(text) {\n  // Extract sections by titles\n  const seoMetaMatch = text.match(/SEO Meta Data:\\n([\\s\\S]*?)\\n\\nProduct Content:/i);\n  const productContentMatch = text.match(/Product Content:\\n([\\s\\S]*)/i);\n\n  const seoMeta = seoMetaMatch ? seoMetaMatch[1].trim() : '';\n  const productContent = productContentMatch ? productContentMatch[1].trim() : '';\n\n  return [\n    {\n      json: {\n        type: 'seo_meta_data',\n        title: getFieldValue(seoMeta, 'Title'),\n        description: getFieldValue(seoMeta, 'Description'),\n        keywords: getFieldValue(seoMeta, 'Keywords'),\n        product_title: '',          // empty for SEO row\n        product_description: ''     // empty for SEO row\n      }\n    },\n    {\n      json: {\n        type: 'product_content',\n        title: '',                  // empty for Product row\n        description: '',\n        keywords: '',\n        product_title: getFieldValue(productContent, 'Product Title'),\n        product_description: getFieldValue(productContent, 'Product Description')\n      }\n    }\n  ];\n}\n\nreturn splitSections($input.first().json.text);\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4811155c-a560-430c-b284-0730fc10b0c7",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        620,
+        -300
+      ],
+      "parameters": {
+        "height": 340,
+        "content": "*Пользователь предоставляет название продукта через форму.*"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1f0f8a48-2d72-4695-85c0-9e4d260da954",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        900,
+        -300
+      ],
+      "parameters": {
+        "width": 320,
+        "height": 340,
+        "content": "**Редактирование полей**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "74c7341e-281e-4ec2-a24e-f4ea9d0df3a6",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        900,
+        160
+      ],
+      "parameters": {
+        "width": 260,
+        "height": 320,
+        "content": "*Название продукта подготавливается для запроса в Google.*"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1dd0fee3-9c48-4748-b707-00abf0cd6475",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1280,
+        -300
+      ],
+      "parameters": {
+        "height": 340,
+        "content": "**Поиск в Google**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7360db3c-7c8a-4a00-9bd3-a462df36df05",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1600,
+        -300
+      ],
+      "parameters": {
+        "height": 340,
+        "content": "*Выполняется поиск в Google по конкурентным продуктам и соответствующей информации.*"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b27669ea-0c40-4b53-b972-ed79aedf17a7",
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Google Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Search": {
+      "main": [
+        [
+          {
+            "node": "Extract Competitor Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Code Formatting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Formatting": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Competitor Data": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

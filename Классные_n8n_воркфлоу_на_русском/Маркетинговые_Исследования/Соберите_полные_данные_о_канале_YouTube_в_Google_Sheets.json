@@ -1,0 +1,845 @@
+{
+  "id": "RrOJMiVIAruC9gFU",
+  "meta": {
+    "instanceId": "ed6d846a2fce1f660ede2e7da800724cca01dc3d0685524a3c917881b7cfcfe9",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "- Рабочий процесс начинается, когда вы вручную нажимаете **Тестировать рабочий процесс** или **Выполнить рабочий процесс** в N8N.",
+  "tags": [
+    {
+      "id": "CEVEeZJa4qgPvdpK",
+      "name": "youtube",
+      "createdAt": "2025-05-27T02:29:43.874Z",
+      "updatedAt": "2025-05-27T02:29:43.874Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "6d81882f-1b1d-41e9-8bf0-7e62afeca99f",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -720,
+        280
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "e4575f9b-070f-4565-b363-568617d61e24",
+      "name": "If - Check Success Response",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        820,
+        80
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "bce76f94-5904-4fdb-b172-adc1134855f9",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.body.pageInfo.totalResults }}",
+              "rightValue": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "8964eaa0-676d-4bf5-bdd1-3f3e8c53bd2e",
+      "name": "Google Sheets - Update Data",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1120,
+        180
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "title": "={{ $json.body.items[0].snippet.title }}",
+            "status": "finish",
+            "country": "={{ $json.body.items[0].brandingSettings.channel.country || '' }}",
+            "keywords": "={{ $json.body.items[0].brandingSettings.channel.keywords || '' }}",
+            "channel_id": "={{ $json.body.items[0].id }}",
+            "custom_url": "={{ $json.body.items[0].snippet.customUrl }}",
+            "row_number": "={{ $('Google Sheets - Get Channel URLs').item.json.row_number }}",
+            "thumbnails": "={{ $json.body.items[0].snippet.thumbnails.default.url }}",
+            "view_count": "={{ $json.body.items[0].statistics.viewCount }}",
+            "description": "={{ $json.body.items[0].snippet.description }}",
+            "video_count": "={{ $json.body.items[0].statistics.videoCount }}",
+            "published_at": "={{ $json.body.items[0].snippet.publishedAt.toString().slice(0, 19).replace('T', ' ') }}",
+            "subscriber_count": "={{ $json.body.items[0].statistics.subscriberCount || 0 }}",
+            "last_fetched_time": "={{ $now.toISO().toString().slice(0, 19).replace('T', ' ') }}"
+          },
+          "schema": [
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "channel_url",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "channel_url",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_fetched_time",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "last_fetched_time",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "title",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "title",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "description",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "description",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "channel_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "channel_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "custom_url",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "custom_url",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "published_at",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "published_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "thumbnails",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "thumbnails",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "view_count",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "view_count",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "subscriber_count",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "subscriber_count",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "video_count",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "video_count",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "keywords",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "keywords",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "country",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "country",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "row_number"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 426418282,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1easnNMrm8ovxhlZQwPUge6UbPnUVFKBeaQY5EmmG1gM/edit#gid=426418282",
+          "cachedResultName": "Channel Urls"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1easnNMrm8ovxhlZQwPUge6UbPnUVFKBeaQY5EmmG1gM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1easnNMrm8ovxhlZQwPUge6UbPnUVFKBeaQY5EmmG1gM/edit?usp=drivesdk",
+          "cachedResultName": "YouTube - Get Channel Information"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "pe6UD1A6MWIk2X91",
+          "name": "Google Sheets - toan.ngo"
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 4.5
+    },
+    {
+      "id": "fc68d632-6349-4c95-9243-97e2f4476afd",
+      "name": "Google Sheets - Update Data - Error",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1120,
+        400
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "status": "error",
+            "row_number": "={{ $('Google Sheets - Get Channel URLs').item.json.row_number }}",
+            "last_fetched_time": "={{ $now.toISO().toString().slice(0, 19).replace('T', ' ') }}"
+          },
+          "schema": [
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "channel_url",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "channel_url",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_fetched_time",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "last_fetched_time",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "title",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "title",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "description",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "description",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "channel_id",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "channel_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "custom_url",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "custom_url",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "published_at",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "published_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "thumbnails",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "thumbnails",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "view_count",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "view_count",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "subscriber_count",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "subscriber_count",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "video_count",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "video_count",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "keywords",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "keywords",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "country",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "country",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "row_number"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 426418282,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1easnNMrm8ovxhlZQwPUge6UbPnUVFKBeaQY5EmmG1gM/edit#gid=426418282",
+          "cachedResultName": "Channel Urls"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1easnNMrm8ovxhlZQwPUge6UbPnUVFKBeaQY5EmmG1gM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1easnNMrm8ovxhlZQwPUge6UbPnUVFKBeaQY5EmmG1gM/edit?usp=drivesdk",
+          "cachedResultName": "YouTube - Get Channel Information"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "pe6UD1A6MWIk2X91",
+          "name": "Google Sheets - toan.ngo"
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 4.5
+    },
+    {
+      "id": "9e3960f0-5982-4deb-a38b-488cfbd808a5",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -300,
+        280
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "25556915-5243-4881-be05-7b0df816744c",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1700,
+        -320
+      ],
+      "parameters": {
+        "width": 780,
+        "height": 1520,
+        "content": "## [Информация о канале YouTube для рабочего процесса N8N Agent Circle] Попробуйте!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "abbc6aa8-ab44-4c43-ab1b-2e3349f61cb8",
+      "name": "Google Sheets - Get Channel URLs",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -520,
+        280
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "ready",
+              "lookupColumn": "status"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 426418282,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1easnNMrm8ovxhlZQwPUge6UbPnUVFKBeaQY5EmmG1gM/edit#gid=426418282",
+          "cachedResultName": "Channel Urls"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1easnNMrm8ovxhlZQwPUge6UbPnUVFKBeaQY5EmmG1gM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1easnNMrm8ovxhlZQwPUge6UbPnUVFKBeaQY5EmmG1gM/edit?usp=drivesdk",
+          "cachedResultName": "YouTube - Get Channel Information"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "pe6UD1A6MWIk2X91",
+          "name": "Google Sheets - toan.ngo"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "4d53d340-e41a-4b8e-a01b-51aa72b33430",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -780,
+        -320
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 680,
+        "height": 980,
+        "content": "**Этот шаблон N8N демонстрирует, как использовать наш инструмент для сбора ключевой информации с любого канала YouTube - включая название, описание, пользовательский URL, статистику (просмотры, подписчики, видео), дату создания, страну, ключевые слова, миниатюры и идентификатор канала. Все данные извлекаются и сохраняются непосредственно в связанной таблице Google.**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "75deba24-d050-4ef1-96fd-b8a004c12487",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        20,
+        -320
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 580,
+        "height": 980,
+        "content": "Существует множество вариантов использования: будь вы частью MCN или сети каналов YouTube, цифрового маркетингового агентства, аналитика влияния или консультанта по росту на YouTube, этот инструмент помогает вам мгновенно получить доступ к подробным данным о канале для поиска, бенчмаркинга и стратегического планирования. Он идеально подходит для конкурентных исследований, проверки брендов или создания вашей следующей панели производительности."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dfa8fe7d-448c-44ba-beee-b26b33c35a80",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        720,
+        -320
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 580,
+        "height": 980,
+        "content": "## Как это работает"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8f057b52-f6f1-4722-b5cd-2a0d831cebc4",
+      "name": "HTTP Request - Get Channel Info By Full URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        420,
+        -40
+      ],
+      "parameters": {
+        "url": "https://www.googleapis.com/youtube/v3/channels",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendQuery": true,
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "part",
+              "value": "id,snippet,statistics,contentDetails,brandingSettings"
+            },
+            {
+              "name": "id",
+              "value": "={{ $json.channel_url.match(/channel\\/([A-Za-z0-9_-]+)/)[1] || ''}}"
+            }
+          ]
+        },
+        "nodeCredentialType": "youTubeOAuth2Api"
+      },
+      "credentials": {
+        "youTubeOAuth2Api": {
+          "id": "KhD0GLQGWl8MtqCs",
+          "name": "YouTube - toan.ngo"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "eb1eadd5-2f80-4a35-940b-0997369d7738",
+      "name": "HTTP Request - Get Channel Info By Custom URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        420,
+        160
+      ],
+      "parameters": {
+        "url": "https://www.googleapis.com/youtube/v3/channels",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendQuery": true,
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "part",
+              "value": "id,snippet,statistics,contentDetails,brandingSettings"
+            },
+            {
+              "name": "forHandle",
+              "value": "={{ $json.channel_url.split('@')[1] || ''}}"
+            }
+          ]
+        },
+        "nodeCredentialType": "youTubeOAuth2Api"
+      },
+      "credentials": {
+        "youTubeOAuth2Api": {
+          "id": "KhD0GLQGWl8MtqCs",
+          "name": "YouTube - toan.ngo"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "cc9f9b53-f751-4368-9bc2-d05f7ca352f3",
+      "name": "Switch - Detect URL Type",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        100,
+        80
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "cb81ca70-cc67-457a-b810-20c2e3f726f6",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    },
+                    "leftValue": "={{ $json.channel_url }}",
+                    "rightValue": "/UC[A-Za-z0-9_-]{22}/"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "d7fc8f6c-3c0e-4c50-8986-ca3d7d76fc02",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    },
+                    "leftValue": "={{ $json.channel_url }}",
+                    "rightValue": "/@([^/]+)/"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {},
+        "looseTypeValidation": true
+      },
+      "typeVersion": 3.2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9999c389-9e87-4a1e-a3e6-84a27321fc01",
+  "connections": {
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Switch - Detect URL Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch - Detect URL Type": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Get Channel Info By Full URL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request - Get Channel Info By Custom URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Update Data": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If - Check Success Response": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Update Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets - Update Data - Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Get Channel URLs": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Get Channel URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Update Data - Error": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Get Channel Info By Full URL": {
+      "main": [
+        [
+          {
+            "node": "If - Check Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Get Channel Info By Custom URL": {
+      "main": [
+        [
+          {
+            "node": "If - Check Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

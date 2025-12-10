@@ -1,0 +1,359 @@
+{
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "name": "Система генерации предложений ИИ",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "12f23b4f-a653-45ad-87b7-e60ba30e70cb",
+      "name": "Replace Text",
+      "type": "n8n-nodes-base.googleSlides",
+      "position": [
+        1300,
+        1100
+      ],
+      "parameters": {
+        "textUi": {
+          "textValues": [
+            {
+              "text": "{{proposalTitle}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.proposalTitle }}"
+            },
+            {
+              "text": "{{descriptionName}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.descriptionName }}"
+            },
+            {
+              "text": "{{oneParagraphProblemSummary}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.oneParagraphProblemSummary }}"
+            },
+            {
+              "text": "{{solutionHeadingOne}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.solutionHeadingOne }}"
+            },
+            {
+              "text": "{{solutionHeadingTwo}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.solutionHeadingTwo }}"
+            },
+            {
+              "text": "{{solutionHeadingThree}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.solutionHeadingThree }}"
+            },
+            {
+              "text": "{{solutionDescriptionOne}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.solutionDescriptionOne }}"
+            },
+            {
+              "text": "{{solutionDescriptionTwo}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.solutionDescriptionTwo }}"
+            },
+            {
+              "text": "{{solutionDescriptionThree}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.solutionDescriptionThree }}"
+            },
+            {
+              "text": "{{shortScopeTitleOne}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.shortScopeTitleOne }}"
+            },
+            {
+              "text": "{{shortScopeTitleTwo}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.shortScopeTitleTwo }}"
+            },
+            {
+              "text": "{{shortScopeTitleThree}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.shortScopeTitleThree }}"
+            },
+            {
+              "text": "{{shortScopeDescriptionOne}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.shortScopeDescriptionOne }}"
+            },
+            {
+              "text": "{{shortScopeDescriptionTwo}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.shortScopeDescriptionTwo }}"
+            },
+            {
+              "text": "{{shortScopeDescriptionThree}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.shortScopeDescriptionThree }}"
+            },
+            {
+              "text": "{{milestoneOneDay}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.milestoneOneDay }}"
+            },
+            {
+              "text": "{{milestoneTwoDay}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.milestoneTwoDay }}"
+            },
+            {
+              "text": "{{milestoneThreeDay}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.milestoneThreeDay }}"
+            },
+            {
+              "text": "{{milestoneFourDay}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.milestoneFourDay }}"
+            },
+            {
+              "text": "{{milestoneDescriptionOne}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.milestoneDescriptionOne }}"
+            },
+            {
+              "text": "{{milestoneDescriptionTwo}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.milestoneDescriptionTwo }}"
+            },
+            {
+              "text": "{{milestoneDescriptionThree}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.milestoneDescriptionThree }}"
+            },
+            {
+              "text": "{{milestoneDescriptionFour}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.milestoneDescriptionFour }}"
+            },
+            {
+              "text": "{{cost}}",
+              "replaceText": "={{ $('On form submission').item.json.Cost }}"
+            }
+          ]
+        },
+        "options": {},
+        "operation": "replaceText",
+        "presentationId": "={{ $json.id }}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "da8060cf-ac55-439f-ab44-a973d5e4ee18",
+      "name": "OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        700,
+        1100
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o",
+          "cachedResultName": "GPT-4O"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Вы полезный, умный помощник в написании."
+            },
+            {
+              "content": "{\n  \"proposalTitle\": \"Growth Automation Proposal\",\n  \"descriptionName\": \"custom automation solutions for your business\",\n  \"oneParagraphProblemSummary\": \"Your current systems are slowing down growth and revenue operations.\",\n  \"solutionHeadingOne\": \"Streamlined Processes\",\n  \"solutionDescriptionOne\": \"Automate repetitive tasks to save time and resources.\",\n  \"solutionHeadingTwo\": \"Data-Driven Insights\",\n  \"solutionDescriptionTwo\": \"Implement analytics to drive informed decision-making.\",\n  \"solutionHeadingThree\": \"Scalable Systems\",\n  \"solutionDescriptionThree\": \"Build flexible systems that grow with your business needs.\",\n  \"shortScopeTitleOne\": \"Task Automation\",\n  \"shortScopeTitleTwo\": \"Analytics Integration\",\n  \"shortScopeTitleThree\": \"System Scalability\",\n  \"shortScopeDescriptionOne\": \"Identify and automate key workflows for efficiency.\",\n  \"shortScopeDescriptionTwo\": \"Integrate analytics tools for real-time insights.\",\n  \"shortScopeDescriptionThree\": \"Design systems that adapt to changing demands.\",\n  \"milestoneOneDay\": \"Day 1\",\n  \"milestoneTwoDay\": \"Day 5\",\n  \"milestoneThreeDay\": \"Day 10\",\n  \"milestoneFourDay\": \"Day 15\",\n  \"milestoneDescriptionOne\": \"Kick-off meeting to define project scope.\",\n  \"milestoneDescriptionTwo\": \"Complete initial automation setup.\",\n  \"milestoneDescriptionThree\": \"Launch analytics integration.\",\n  \"milestoneDescriptionFour\": \"Final review and adjustments.\"\n}"
+            },
+            {
+              "content": "{\n  \"companyName\":\"1SecondCopy\",\n  \"problem\": \"они не могут генерировать лиды. все основано на рекомендациях на данный момент.\",\n  \"solution\": \"система генерации лидов через холодные email, система реактивации клиентов и обучение продажам лучшего класса для закрытия сделок\",\n  \"scope\": \"инфраструктура холодных email на 1к/день, 30к email лидов, 4 еженедельные сессии Zoom для обучения продажам\",\n  \"currentDate\":\"4 февраля 2025\",\n  \"howSoon\": \"два месяца\",\n  \"depositCost\": \"$1,845\",\n}"
+            },
+            {
+              "role": "assistant",
+              "content": "{\n  \"proposalTitle\": \"Система генерации лидов для 1SecondCopy\\n\",\n  \"descriptionName\": \"Простая, масштабируемая система генерации лидов, созданная для помощи в развитии ваших контентных усилий и соединения вас с нужными людьми.\\n\",\n  \"oneParagraphProblemSummary\": \"В данный момент 1SecondCopy испытывает трудности с генерацией квалифицированных лидов. Большинство ваших новых клиентов приходят по рекомендациям, что, хотя и приятно, не является масштабируемым и надежным. Построение альтернативной стратегии — такой, которая позволяет вам превращать холодные лиды в закрытые сделки — жизненно важно для здоровья и долговечности компании, и именно в этом мы вам поможем.\\n\",\n  \"solutionHeadingOne\": \"Холодная генерация лидов\",\n  \"solutionDescriptionOne\": \"Мы внедрим для вас надежную систему холодной электронной почты, используя лучшие практики.\",\n  \"solutionHeadingTwo\": \"Система реактивации клиентов\",\n  \"solutionDescriptionTwo\": \"Мы создадим простую, но высокоэффективную систему реактивации, чтобы вы могли извлекать ценность из существующих клиентов.\",\n  \"solutionHeadingThree\": \"Обучение продажам лучшего класса\",\n  \"solutionDescriptionThree\": \"Мы обучим вашу команду мировым механизмам установки и закрытия сделок.\",\n  \"shortScopeTitleOne\": \"Инфраструктура холодной электронной почты, отправляющая ~1K писем в день\",\n  \"shortScopeTitleTwo\": \"30K высококачественных собранных лидов по электронной почте (включено)\",\n  \"shortScopeTitleThree\": \"Четыре еженедельные одночасовые сессии обучения продажам через Zoom\",\n  \"shortScopeDescriptionOne\": \"12 доменов, 36 почтовых ящиков, оптимизация DNS и прогрев включены.\",\n  \"shortScopeDescriptionTwo\": \"30,000 лидов на вашем целевом рынке, предоставленных в формате CSV.\",\n  \"shortScopeDescriptionThree\": \"Мы поднимем вашу команду продаж с 0 до 1.\",\n  \"milestoneOneDay\": \"8 февраля 2025 года\",\n  \"milestoneTwoDay\": \"28 февраля 2025 года\",\n  \"milestoneThreeDay\": \"10 марта 2025 года\",\n  \"milestoneFourDay\": \"17 марта - 1 апреля 2025 года\",\n  \"milestoneDescriptionOne\": \"Система холодной электронной почты готова и готова к прогреву.\",\n  \"milestoneDescriptionTwo\": \"Система холодной электронной почты полностью прогрета и функционирует.\",\n  \"milestoneDescriptionThree\": \"Отправлено 10,000 исходящих писем; анализ и обучение #1.\",\n  \"milestoneDescriptionFour\": \"Одно обучение продажам в неделю наряду с итерацией и передачей.\"\n}"
+            },
+            {
+              "content": "={\n  \"companyName\":\"{{ $json['Название компании'] }}\",\n  \"problem\": \"{{ $json.Проблема }}\",\n  \"solution\": \"{{ $json.Решение}}\",\n  \"scope\": \"{{ $json.Объем }}\",\n  \"currentDate\":\"{{ $now.toLocaleString({ dateStyle: 'medium' }) }}\",\n  \"howSoon\": \"{{ $json['Как скоро?'] }}\",\n  \"depositCost\": \"{{ $json.Стоимость }}\",\n}"
+            }
+          ]
+        },
+        "jsonOutput": true
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "7e52e4c7-49da-499a-a9ea-3e421611fb87",
+      "name": "Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        1080,
+        1100
+      ],
+      "parameters": {
+        "name": "={{ $json.message.content.proposalTitle }}",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_WITH_YOUR_GOOGLE_SLIDES_TEMPLATE_ID"
+        },
+        "options": {
+          "copyRequiresWriterPermission": false
+        },
+        "operation": "copy"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "5a0508ab-4eaa-49f0-96f9-a664a1e7a5eb",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1520,
+        1100
+      ],
+      "webhookId": "WEBHOOK_ID_WILL_BE_GENERATED",
+      "parameters": {
+        "sendTo": "={{ $('On form submission').item.json.Email }}",
+        "message": "=Hey {{ $('On form submission').item.json['First Name'] }},\n\nThanks for the great call earlier. I had a moment after our chat to put together a detailed proposal for you—please take a look at your earliest convenience and let me know your thoughts.\n\nYou'll find it here: https://docs.google.com/presentation/d/{{ $json.presentationId }}/edit\n\nIf you have any questions, just ask. I've also sent over an invoice for the project (just to keep things convenient) and we can get started anytime that's sorted.\n\nThanks,\n[YOUR NAME]",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "=Re: Proposal for  {{ $('On form submission').item.json['Company Name'] }}",
+        "emailType": "text"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "5be2415f-96f1-4e05-b589-bc4992c2a231",
+      "name": "On form submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        480,
+        1100
+      ],
+      "webhookId": "WEBHOOK_ID_WILL_BE_GENERATED",
+      "parameters": {
+        "options": {
+          "appendAttribution": false
+        },
+        "formTitle": "Sales Call Logging Form",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "First Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Last Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Company Name",
+              "requiredField": true
+            },
+            {
+              "fieldType": "email",
+              "fieldLabel": "Email"
+            },
+            {
+              "fieldLabel": "Website",
+              "requiredField": true
+            },
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Problem",
+              "requiredField": true
+            },
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Solution",
+              "requiredField": true
+            },
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Scope",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Cost",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "How soon?",
+              "requiredField": true
+            }
+          ]
+        },
+        "formDescription": "This form logs a sales call & automatically generates a proposal."
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "4ae579fb-779d-4312-a163-d438507b8918",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        440,
+        980
+      ],
+      "parameters": {
+        "width": 1220,
+        "height": 280,
+        "content": "## Генератор предложений AI для Google Slides\n**Этот процесс создает предложения с использованием ИИ и бесплатного решения Google Slides**."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {
+    "On form submission": [
+      {
+        "json": {
+          "Cost": "$2,500",
+          "Email": "john@example.com",
+          "Scope": "Setup and 1 month training",
+          "Problem": "Low sales due to lead generation problems",
+          "Website": "www.example.com",
+          "Solution": "AI automation system for lead generation",
+          "formMode": "test",
+          "How soon?": "Within 2 weeks",
+          "Last Name": "Doe",
+          "First Name": "John",
+          "submittedAt": "2025-05-13T09:10:33.001+01:00",
+          "Company Name": "Example Corp"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "timezone": "UTC",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Replace Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Text": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

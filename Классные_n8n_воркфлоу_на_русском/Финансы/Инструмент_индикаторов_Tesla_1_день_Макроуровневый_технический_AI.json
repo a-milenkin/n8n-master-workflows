@@ -1,0 +1,244 @@
+{
+  "id": "Zqt7sbkAXvx0pir1",
+  "meta": {
+    "instanceId": "a5283507e1917a33cc3ae615b2e7d5ad2c1e50955e6f831272ddd5ab816f3fb6",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "## Модель GPT для рассуждений",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "9eb2431e-0649-4cda-b3a7-8f9480538581",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        160,
+        -200
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "message"
+            },
+            {
+              "name": "sessionId"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "00654438-d958-4503-b735-57c3c5d43ffe",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        680,
+        100
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "a2c45d6b-fc24-4701-a82c-aad504ed551a",
+      "name": "Tesla 1day Indicators Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        580,
+        -200
+      ],
+      "parameters": {
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "You are a **Tesla 1-Day Technical Indicators Analyst AI**.\n\nYour purpose is to evaluate long-term trading conditions for Tesla (TSLA) using daily interval technical indicators sourced from **Alpha Vantage**. These indicators help identify macro-level momentum, price extremes, and trend health for swing and position trading strategies.\n\n---\n\n### 🔧 You have access to the following tools:\n\n1. **RSI (Relative Strength Index)** – Detects long-term overbought or oversold conditions.\n2. **BBANDS (Bollinger Bands)** – Gauges price volatility and positioning relative to moving averages.\n3. **SMA (Simple Moving Average)** – Identifies prevailing long-term price trends.\n4. **EMA (Exponential Moving Average)** – Highlights recent directional shifts with faster reaction time.\n5. **ADX (Average Directional Index)** – Measures trend strength independent of direction.\n6. **MACD (Moving Average Convergence Divergence)** – Signals potential trend reversals and momentum shifts.\n\n---\n\n### 🛠 Data Workflow:\n\nAll indicator data is retrieved via HTTPS calls to a secured **webhook** endpoint:\n\n* The webhook then queries Alpha Vantage with a premium API key.\n* It returns the latest **20 values** for each indicator, properly trimmed and formatted as JSON.\n* These JSON results are delivered to you (the Analyst AI Agent) to perform structured evaluation.\n\nYou are supported by:\n\n* **OpenAI GPT-4.1** for LLM processing\n* A short-term **memory module** for contextual continuity\n* The **Tesla Financial Market Analyst Tool**, which uses your output for comprehensive multi-timeframe analysis\n\n---\n\n### 🧪 Your Tasks:\n\n1. **Parse** and interpret the most recent indicator values from the webhook response.\n2. **Assess** whether the market is trending, reversing, or consolidating at the daily timeframe.\n3. **Output** a structured response including:\n\n   * A concise summary of overall trend conditions\n   * Exact indicator values in JSON format\n\n---\n\n### 📤 Output Format:\n\n```json\n{\n  \"summary\": \"TSLA shows consolidation on the daily chart. RSI is neutral, Bollinger Bands are contracting, and MACD is flattening. Trend strength is weak per ADX.\",\n  \"timeframe\": \"1d\",\n  \"indicators\": {\n    \"RSI\": 51.3,\n    \"BBANDS\": {\n      \"upper\": 192.80,\n      \"lower\": 168.20,\n      \"middle\": 180.50,\n      \"close\": 179.90\n    },\n    \"SMA\": 181.10,\n    \"EMA\": 179.75,\n    \"ADX\": 15.8,\n    \"MACD\": {\n      \"macd\": -0.25,\n      \"signal\": -0.20,\n      \"histogram\": -0.05\n    }\n  }\n}\n```\n\n---\n\nOnly draw conclusions based on clear evidence from the indicators. Avoid vague language. Remain structured, concise, and aligned with professional financial analysis standards.\n"
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "a952286a-2848-49eb-93cc-6336bf4c2ea3",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        340,
+        120
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1",
+          "cachedResultName": "gpt-4.1"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "yUizd8t0sD5wMYVG",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "04d50d38-9bbf-4676-a76a-f23fa65a317d",
+      "name": "1day Data",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1040,
+        100
+      ],
+      "parameters": {
+        "url": "https://treasurium.app.n8n.cloud/webhook/1dayData",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "86bba663-c22a-4b41-ab2b-c12baac09eac",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        520,
+        -440
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 420,
+        "height": 420,
+        "content": "## Технические индикаторы Tesla на 1 день ИИ"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cdc88028-e238-40ed-9cf6-1fb644322a8c",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        -400
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 280,
+        "height": 380,
+        "content": "• Обрабатывает **данные вебхука** и **проводит оценку на дневном таймфрейме для TSLA**."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c40b515d-7888-4bb4-80df-f0b824bdf776",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        260,
+        60
+      ],
+      "parameters": {
+        "color": 2,
+        "height": 380,
+        "content": "• Выводит **JSON-резюме** **рыночного состояния, состояния тренда и всех значений индикаторов**."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "07a5c3c4-a9ee-4a19-a7e7-e1fa38ddeca1",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        600,
+        60
+      ],
+      "parameters": {
+        "color": 3,
+        "height": 380,
+        "content": "• Это интегрируется в более широкий **Анализатор финансовых рыночных данных Tesla**."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4bc1a27f-b082-4983-94cf-2863add312fc",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        960,
+        60
+      ],
+      "parameters": {
+        "color": 6,
+        "height": 480,
+        "content": "## Триггер из родительского рабочего процесса"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "431807cd-8af2-471a-9181-179c94c1c9d6",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1400,
+        -1760
+      ],
+      "parameters": {
+        "width": 1240,
+        "height": 2300,
+        "content": "Этот узел активирует рабочий процесс, когда вызывается для выполнения действия рабочего процесса из **Инструмента анализа финансовых рынков Tesla**. Убедитесь, что переданы правильные входные данные **сообщение, sessionId**."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a225a383-1063-4b3d-843e-63162a17c154",
+  "connections": {
+    "1day Data": {
+      "ai_tool": [
+        [
+          {
+            "node": "Tesla 1day Indicators Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Tesla 1day Indicators Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Tesla 1day Indicators Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Tesla 1day Indicators Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,181 @@
+{
+  "id": "hQXDUS1zEZFI37kU",
+  "meta": {
+    "instanceId": "2000c64071c20843606b95c63795bb0797c41036047055a6586498e855b96efc"
+  },
+  "name": "## 🔧 Консалтинг n8n",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "81dd117a-81f3-4dff-a7c7-664bc161987e",
+      "name": "When clicking 'Test workflow'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -420,
+        80
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "6f507b8c-8a8d-4c89-acdf-f0f4eda9fa94",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        -260
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 580,
+        "content": "# 🧱 Учебник по дедупликации данных"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "eadab384-f0d6-48b1-b4dd-e0eb106228ac",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -240,
+        220
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 300,
+        "height": 360,
+        "content": "**Автор:** Дэвид Олушола"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "745ba692-ffa8-4ac6-851f-fb9dde8392f2",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        100,
+        220
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 300,
+        "height": 380,
+        "content": "## 🚀 Коучинг n8n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8bc4bd06-b031-4909-8210-5ec1f11366ff",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        460,
+        220
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 300,
+        "height": 380,
+        "content": "Раскройте весь потенциал n8n с помощью персонализированного коучинга один на один. Независимо от того, только ли вы начинаете или нуждаетесь в помощи в решении конкретной задачи, я проведу вас шаг за шагом, чтобы вы могли строить уверенно и эффективно."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "75a624be-73e9-4b35-ae58-33bc45a0208c",
+      "name": "Create Sample Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -200,
+        80
+      ],
+      "parameters": {
+        "jsCode": "// Create sample data with intentional duplicates\nconst usersWithDuplicates = [\n  { id: 1, name: \"John Doe\", email: \"john@example.com\", department: \"Engineering\" },\n  { id: 2, name: \"Jane Smith\", email: \"jane@example.com\", department: \"Marketing\" },\n  { id: 3, name: \"John Doe\", email: \"john@example.com\", department: \"Engineering\" }, // Duplicate\n  { id: 4, name: \"Bob Johnson\", email: \"bob@example.com\", department: \"Sales\" },\n  { id: 5, name: \"Alice Brown\", email: \"alice@example.com\", department: \"HR\" },\n  { id: 6, name: \"Jane Smith Updated\", email: \"jane@example.com\", department: \"Marketing\" } // Duplicate\n];\n\n// Return the sample data as a single item with usersJson property\nreturn [{\n  json: {\n    usersJson: JSON.stringify(usersWithDuplicates),\n    totalCount: usersWithDuplicates.length,\n    message: \"Sample data with duplicates created\"\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "909634f2-52ad-4f98-aad0-7c3d8a8b8e43",
+      "name": "Deduplicate Users",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        140,
+        80
+      ],
+      "parameters": {
+        "jsCode": "// 🧱 Data Deduplication Code Node\n// Use Case: Clean up duplicates before inserting into DB or CRM\n\n// Parse the users JSON from the previous node\nconst users = JSON.parse(items[0].json.usersJson);\n\n// Deduplicate users based on email address\n// This keeps the first occurrence of each unique email\nconst uniqueUsers = users.filter(\n  (user, index, self) => \n    index === self.findIndex(u => u.email === user.email)\n);\n\n// Log the deduplication results\nconsole.log(`Original count: ${users.length}`);\nconsole.log(`Deduplicated count: ${uniqueUsers.length}`);\nconsole.log(`Duplicates removed: ${users.length - uniqueUsers.length}`);\n\n// Return the deduplicated users in n8n format\n// Each user becomes a separate item in the workflow\nreturn uniqueUsers.map(user => ({ json: user }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "59855549-51e4-42df-b586-730ff1e59e67",
+      "name": "Display Results",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        500,
+        80
+      ],
+      "parameters": {
+        "jsCode": "// Display the final results with statistics\nconst currentItems = items;\nconst uniqueCount = currentItems.length;\n\n// Create a summary of the deduplication process\nconst summary = {\n  deduplicated_users: currentItems.map(item => item.json),\n  statistics: {\n    unique_users_count: uniqueCount,\n    process_completed: true,\n    timestamp: new Date().toISOString()\n  },\n  message: `Successfully deduplicated data - ${uniqueCount} unique users remaining`\n};\n\nreturn [{ json: summary }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2a5c40fc-ff56-4e54-b06e-4c56e2c4da0e",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -140,
+        -240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 430,
+        "height": 330,
+        "content": "👉 [Записаться на коучинг](mailto:david@daexai.com?subject=n8n%20Coaching%20Request)"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "03170dda-ff22-468b-be1c-e32424a27c66",
+  "connections": {
+    "Deduplicate Users": {
+      "main": [
+        [
+          {
+            "node": "Display Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Sample Data": {
+      "main": [
+        [
+          {
+            "node": "Deduplicate Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking 'Test workflow'": {
+      "main": [
+        [
+          {
+            "node": "Create Sample Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

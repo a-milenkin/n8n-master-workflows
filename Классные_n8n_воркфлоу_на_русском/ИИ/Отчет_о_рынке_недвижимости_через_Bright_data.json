@@ -1,0 +1,252 @@
+{
+  "id": "TmVkR7VvM0nMMgE8",
+  "meta": {
+    "instanceId": "60046904b104f0f72b2629a9d88fe9f676be4035769f1f08dad1dd38a76b9480",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Изучите больше советов и учебных материалов здесь:",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "8891d7b5-79a7-4270-9bf2-374928f36c2a",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2160,
+        260
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 320,
+        "content": "======================================="
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "edafc05e-31ee-4451-b0cf-89f83db0cbca",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2160,
+        600
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1289,
+        "height": 2218,
+        "content": "ПОМОЩЬ В РАБОЧЕМ ПРОЦЕССЕ"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f1c420c9-ad46-48a5-83cf-f43a6377241c",
+      "name": "Weekly Market Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -400,
+        1660
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "a8acbc10-66cf-4568-b81d-4fce0ec576e7",
+      "name": "Fetch Listings via Bright Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -180,
+        1660
+      ],
+      "parameters": {
+        "url": "https://api.brightdata.com/request",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "zone",
+              "value": "n8n_unblocker"
+            },
+            {
+              "name": "url",
+              "value": "https://www.crexi.com/properties?geo=san-francisco-ca"
+            },
+            {
+              "name": "country",
+              "value": "us"
+            },
+            {
+              "name": "format",
+              "value": "raw"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer API_KEY"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "800989c9-af12-4c5f-b7a4-4a2ea290110f",
+      "name": "Extract Listing Details (HTML)",
+      "type": "n8n-nodes-base.html",
+      "position": [
+        120,
+        1660
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "Price",
+              "cssSelector": "<span _ngcontent-ng-c2107907900=\"\" data-cy=\"propertyPrice\" class=\"ng-star-inserted\">$3,995,000</span>",
+              "returnArray": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "54724fca-c18d-44df-a0e7-f267ddd09d73",
+      "name": "Save to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        340,
+        1660
+      ],
+      "parameters": {
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "r2mDaisH6e9VkwHl",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "3d8af14f-3cb5-4f4f-aa71-be521322c113",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -440,
+        720
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 420,
+        "height": 1120,
+        "content": "======================================="
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2fd2d9bb-ec9c-48c7-a745-bd5b653e76b5",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        60,
+        700
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 420,
+        "height": 1140,
+        "content": "Если у вас есть вопросы или нужна поддержка, пожалуйста, свяжитесь с:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "82aa81aa-39af-410e-9434-ee6189aabc7b",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        560,
+        700
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 380,
+        "height": 240,
+        "content": "Yaron@nofluff.online"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b60c01a8-a0b5-43de-bde0-5fa9fd1bb732",
+  "connections": {
+    "Weekly Market Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Listings via Bright Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Listing Details (HTML)": {
+      "main": [
+        [
+          {
+            "node": "Save to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Listings via Bright Data": {
+      "main": [
+        [
+          {
+            "node": "Extract Listing Details (HTML)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

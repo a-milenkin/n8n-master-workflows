@@ -1,0 +1,585 @@
+{
+  "meta": {
+    "instanceId": "d6e2f2f655b1125bbcac14a4cac6d2e46c7a150e927f85fc96fdca1a6dc39e0e",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "5f0e5680-7bb4-4c96-b427-233f0fd35d9a",
+      "name": "Add Client to QBO",
+      "type": "n8n-nodes-base.quickbooks",
+      "onError": "continueRegularOutput",
+      "position": [
+        540,
+        500
+      ],
+      "parameters": {
+        "operation": "create",
+        "displayName": "={{ $json.output.company_name ? $json.output.company_name : $json.output.client_full_name }}",
+        "additionalFields": {
+          "BillAddr": {
+            "details": {
+              "City": "={{ $json.output.city }}",
+              "Line1": "={{ $json.output.address_line_1 }}",
+              "PostalCode": "={{ $json.output.postal_code }}",
+              "CountrySubDivisionCode": "CA"
+            }
+          },
+          "GivenName": "={{ $json.output.client_first_name }}",
+          "FamilyName": "={{ $json.output.client_last_name }}",
+          "CompanyName": "={{ $json.output.company_name ? $json.output.company_name : \"\" }}",
+          "PrimaryPhone": "={{ $json.output.client_phone }}",
+          "PrimaryEmailAddr": "={{ $json.output.client_email }}"
+        }
+      },
+      "credentials": {
+        "quickBooksOAuth2Api": {
+          "id": "6ufAa1KkttZDj17m",
+          "name": "QuickBooks Online account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8d3af3f2-77ab-4788-8a92-2efc7be5ca42",
+      "name": "Get Messages w/ Invoice Needed Label",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        220,
+        20
+      ],
+      "webhookId": "1cb550a2-0c63-45a3-baa5-c04cd8d03f68",
+      "parameters": {
+        "simple": false,
+        "filters": {
+          "labelIds": [
+            "Label_6581962793477761592"
+          ]
+        },
+        "options": {},
+        "operation": "getAll",
+        "returnAll": true
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YVZiLPppXZw84rIU",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "c76c499b-fd1b-440e-be22-3737a223c02c",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        60,
+        720
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "XqsFFpRk48U68Fou",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "6ef8c67e-c5ba-4dc0-97e9-eebfc1a47db0",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        280,
+        720
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n\t\t\"client_first_name\": {\n\t\t\t\"type\": \"string\"\n\t\t},\n        \"client_last_name\": {\n  \t\t\t\"type\": \"string\"\n  \t\t},\n        \"client_full_name\": {\n  \t\t\t\"type\": \"string\"\n  \t\t},\n        \"company_name\": {\n  \t\t\t\"type\": \"string\"\n  \t\t},\n        \"client_email\": {\n  \t\t\t\"type\": \"string\"\n  \t\t},\n        \"client_phone\": {\n  \t\t\t\"type\": \"string\"\n  \t\t},\n        \"address_line_1\": {\n  \t\t\t\"type\": \"string\"\n  \t\t},\n        \"city\": {\n  \t\t\t\"type\": \"string\"\n  \t\t},\n        \"province\": {\n  \t\t\t\"type\": \"string\"\n  \t\t},\n        \"postal_code\": {\n  \t\t\t\"type\": \"string\"\n  \t\t},\n        \"invoiceAmount\": {\n  \t\t\t\"type\": \"double\"\n  \t\t},\n        \"invoiceDescription\": {\n  \t\t\t\"type\": \"text\"\n  \t\t}\n\t}\n}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "8e74cb95-64fa-4969-88ef-782631a1dbe9",
+      "name": "Find Existing Customer",
+      "type": "n8n-nodes-base.quickbooks",
+      "position": [
+        800,
+        500
+      ],
+      "parameters": {
+        "limit": 1,
+        "filters": {
+          "query": "=WHERE DisplayName = '{{ $('AI Agent: Extract Customer & Invoice Details').item.json.output.company_name ? $('AI Agent: Extract Customer & Invoice Details').item.json.output.company_name : $('AI Agent: Extract Customer & Invoice Details').item.json.output.client_full_name }}'"
+        },
+        "operation": "getAll"
+      },
+      "credentials": {
+        "quickBooksOAuth2Api": {
+          "id": "6ufAa1KkttZDj17m",
+          "name": "QuickBooks Online account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4c7cb8d6-97d2-49a7-9307-9faeb04b2573",
+      "name": "Create A New Invoice",
+      "type": "n8n-nodes-base.quickbooks",
+      "position": [
+        1060,
+        520
+      ],
+      "parameters": {
+        "Line": [
+          {
+            "Amount": "={{ $('AI Agent: Extract Customer & Invoice Details').item.json.output.invoiceAmount }}",
+            "itemId": "13",
+            "DetailType": "SalesItemLineDetail",
+            "TaxCodeRef": "5",
+            "Description": "={{ $('AI Agent: Extract Customer & Invoice Details').item.json.output.invoiceDescription }}"
+          }
+        ],
+        "resource": "invoice",
+        "operation": "create",
+        "CustomerRef": "={{ $json.Id ? $json.Id : $('Add Client to QBO').item.json.Id }}",
+        "additionalFields": {
+          "DueDate": "={{ $now }}"
+        }
+      },
+      "credentials": {
+        "quickBooksOAuth2Api": {
+          "id": "6ufAa1KkttZDj17m",
+          "name": "QuickBooks Online account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1df01733-3f95-478f-bc2e-2eba2d3da4a9",
+      "name": "Download Invoice",
+      "type": "n8n-nodes-base.quickbooks",
+      "position": [
+        640,
+        940
+      ],
+      "parameters": {
+        "download": true,
+        "fileName": "=Invoice - {{ $json.CustomerRef.name ? $json.CustomerRef.name : $json.TxnDate }}.pdf",
+        "resource": "invoice",
+        "invoiceId": "={{ $json.Id }}",
+        "binaryProperty": "invoice"
+      },
+      "credentials": {
+        "quickBooksOAuth2Api": {
+          "id": "6ufAa1KkttZDj17m",
+          "name": "QuickBooks Online account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6ca60364-5d5b-45e0-9d73-63c34b20c47d",
+      "name": "Write Draft Reply to Client",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        920,
+        940
+      ],
+      "webhookId": "433b7c52-32b5-4bac-8d88-9b0cc63da43b",
+      "parameters": {
+        "message": "=<p>Hello {{ $('AI Agent: Extract Customer & Invoice Details').item.json.output.client_first_name }},</p>\n<p>Please see attached for your invoice:</p>\n<p>Best,<br>An Efficient Person</p>",
+        "options": {
+          "threadId": "={{ $('Combine all Messages in a Thread').item.json.threadId }}",
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "invoice"
+              }
+            ]
+          }
+        },
+        "subject": "=",
+        "resource": "draft",
+        "emailType": "html"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YVZiLPppXZw84rIU",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "f5c6f49d-5e21-48ae-bc4e-750cd4d5bd4a",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -40,
+        20
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "c01cc24c-99cd-4c16-80db-db71a6362859",
+      "name": "AI Agent: Extract Customer & Invoice Details",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        60,
+        500
+      ],
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a helpful assistant who needs to create an invoice based on the email(s) provided. Please extract the necessary details to create an invoice:\n- Customer name and/or company name (if provided) (Required)\n- The amount of the invoice before taxes (Required)\n- The description of the product/service being purchased\n- Billing Address\n- client phone number\n- client email address\n- "
+        },
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "60aeb85f-b6ef-4c47-bb88-d2431a95f7f2",
+      "name": "Remove Invoice Needed Label",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1180,
+        940
+      ],
+      "webhookId": "406d3985-d16c-421e-b6a8-5e36b5df7db8",
+      "parameters": {
+        "labelIds": [
+          "Label_6581962793477761592"
+        ],
+        "resource": "thread",
+        "threadId": "={{ $json.message.threadId }}",
+        "operation": "removeLabels"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YVZiLPppXZw84rIU",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "13d90021-d6b4-464c-bbf4-d2866e4452b8",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -800,
+        -280
+      ],
+      "parameters": {
+        "width": 660,
+        "height": 1700,
+        "content": "## Автоматически создавайте и черновики счетов-фактур из помеченных электронных писем с помощью ИИ + QuickBooks"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "124c54fc-301d-48dc-8569-083ae9350cbf",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -100,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 360,
+        "content": "## Что это делает"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3657dde0-5110-4ea8-95bc-0301e9da5045",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        160,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 360,
+        "content": "Этот рабочий процесс читает потоки Gmail с меткой `Счет-фактура необходим`, извлекает данные о счете и клиенте с помощью ИИ-агента и создает черновик счета в QuickBooks Online. Затем он загружает счет в формате PDF и составляет ответное письмо с приложенным счетом — все автоматически."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4d6af4d6-99a3-418b-9e05-7364ae71df30",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        420,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 360,
+        "content": "Идеально подходит для фрилансеров, агентств или малых предприятий, стремящихся оптимизировать выставление счетов клиентам по электронной почте."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1adecc9c-446b-4f4d-a9dd-c333773ca0e3",
+      "name": "Combine all Messages in a Thread",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        480,
+        40
+      ],
+      "parameters": {
+        "jsCode": "const threads = {};\n\nfor (const item of items) {\n  const msg = item.json;\n  const threadId = msg.threadId;\n\n  if (!threads[threadId]) {\n    threads[threadId] = [];\n  }\n\n  // Add To and From Addresses\n  let finalMessage = \"From: \" + msg.headers.from;\n  finalMessage += \"To: \" + msg.headers.to;\n  finalMessage += \"Message: \" + msg.textAsHtml\n\n  threads[threadId].push(finalMessage);\n}\n\nreturn Object.keys(threads).map(threadId => ({\n  json: {\n    threadId,\n    chatInput: threads[threadId],\n  }\n}));\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "276e3175-c11a-4ae9-94ab-9703e20b89bf",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        20,
+        300
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 560,
+        "content": "## Предварительные требования"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "de08bb58-b868-4c70-80b9-b63c5f607856",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        300
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 380,
+        "content": "Чтобы использовать этот рабочий процесс, вам потребуется:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3344c904-9c17-4cf0-9d15-bbf1ce4d856d",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        740,
+        300
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 380,
+        "content": "- Учетные данные OAuth2 для Gmail"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "88e1b763-ca25-4e0e-8881-d03d32003f14",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1000,
+        300
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 380,
+        "content": "- Учетные данные OAuth2 для QuickBooks"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cb087959-e777-4749-b734-d31ed64c09c1",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        600,
+        760
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 360,
+        "content": "- Учетные данные OpenAI (для извлечения данных с помощью ИИ)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b7a83ee4-678a-4477-9b54-a21dd6099412",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        860,
+        760
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 360,
+        "content": "## Как помечать потоки"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4faa7895-c3dd-4607-9f55-35ee5e19728e",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1120,
+        760
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 360,
+        "content": "- В Gmail примените метку `Счет-фактура необходим` к любому потоку электронной почты, который содержит детали запроса на счет."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Download Invoice": {
+      "main": [
+        [
+          {
+            "node": "Write Draft Reply to Client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Messages w/ Invoice Needed Label",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Client to QBO": {
+      "main": [
+        [
+          {
+            "node": "Find Existing Customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent: Extract Customer & Invoice Details",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create A New Invoice": {
+      "main": [
+        [
+          {
+            "node": "Download Invoice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Existing Customer": {
+      "main": [
+        [
+          {
+            "node": "Create A New Invoice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent: Extract Customer & Invoice Details",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Draft Reply to Client": {
+      "main": [
+        [
+          {
+            "node": "Remove Invoice Needed Label",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine all Messages in a Thread": {
+      "main": [
+        [
+          {
+            "node": "AI Agent: Extract Customer & Invoice Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Messages w/ Invoice Needed Label": {
+      "main": [
+        [
+          {
+            "node": "Combine all Messages in a Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent: Extract Customer & Invoice Details": {
+      "main": [
+        [
+          {
+            "node": "Add Client to QBO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

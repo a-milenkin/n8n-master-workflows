@@ -1,0 +1,516 @@
+{
+  "id": "NJU1HOhEmf4zUtrg",
+  "meta": {
+    "instanceId": "43be9f61b7bb4f51d68445a423b853efd7e8b9e9fd6740b29ef3248f194460da",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "✅ Соответствие нормативным требованиям (GDPR, HIPAA, PCI, SOX)",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "enhanced-pii-analyzer",
+      "name": "Enhanced PII Pattern Analyzer",
+      "type": "n8n-nodes-base.code",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        -20,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// Enhanced PII Detection with ML-like scoring and masking\nconst crypto = require('crypto');\n\n// Enhanced PII patterns with confidence scoring\nconst piiPatterns = {\n  // High confidence patterns\n  ssn: {\n    pattern: /\\b\\d{3}-\\d{2}-\\d{4}\\b/g,\n    confidence: 0.95,\n    severity: 'critical',\n    mask: true\n  },\n  creditCard: {\n    pattern: /\\b(?:\\d{4}[\\s-]?){3}\\d{4}\\b/g,\n    confidence: 0.90,\n    severity: 'critical', \n    mask: true\n  },\n  \n  // Medium confidence patterns\n  email: {\n    pattern: /\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b/g,\n    confidence: 0.85,\n    severity: 'high',\n    mask: false\n  },\n  phone: {\n    pattern: /\\b(?:\\+?1[-.\\s]?)?\\(?\\d{3}\\)?[-.\\s]?\\d{3}[-.\\s]?\\d{4}\\b/g,\n    confidence: 0.80,\n    severity: 'medium',\n    mask: true\n  },\n  \n  // Context-aware patterns\n  ipAddress: {\n    pattern: /\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b/g,\n    confidence: 0.70,\n    severity: 'medium',\n    mask: false\n  },\n  zipCode: {\n    pattern: /\\b\\d{5}(?:-\\d{4})?\\b/g,\n    confidence: 0.60,\n    severity: 'low',\n    mask: false\n  },\n  \n  // Enhanced patterns\n  driversLicense: {\n    pattern: /\\b[A-Z]{1,2}\\d{6,8}\\b/g,\n    confidence: 0.75,\n    severity: 'high',\n    mask: true\n  },\n  dateOfBirth: {\n    pattern: /\\b(?:0?[1-9]|1[0-2])[/-](?:0?[1-9]|[12]\\d|3[01])[/-](?:19|20)\\d{2}\\b/g,\n    confidence: 0.70,\n    severity: 'medium',\n    mask: true\n  },\n  \n  // New patterns\n  accountNumber: {\n    pattern: /\\b(?:account|acct)[\\s#:]*\\d{6,12}\\b/gi,\n    confidence: 0.85,\n    severity: 'high',\n    mask: true\n  },\n  medicalId: {\n    pattern: /\\b(?:patient|medical)[\\s#:]*\\d{6,10}\\b/gi,\n    confidence: 0.90,\n    severity: 'critical',\n    mask: true\n  }\n};\n\n// Enhanced context detection\nconst contextPatterns = {\n  financial: /\\b(?:bank|credit|loan|mortgage|investment|portfolio)\\b/gi,\n  medical: /\\b(?:patient|doctor|hospital|diagnosis|medication|treatment)\\b/gi,\n  legal: /\\b(?:attorney|lawyer|case|litigation|settlement|contract)\\b/gi,\n  personal: /\\b(?:family|spouse|children|address|home|personal)\\b/gi\n};\n\n// Masking functions\nfunction maskPII(text, pattern, maskChar = '*') {\n  return text.replace(pattern, (match) => {\n    if (match.length <= 4) return maskChar.repeat(match.length);\n    return match.substring(0, 2) + maskChar.repeat(match.length - 4) + match.substring(match.length - 2);\n  });\n}\n\nfunction generateSessionId() {\n  return crypto.randomBytes(16).toString('hex');\n}\n\nconst results = [];\nconst sessionId = generateSessionId();\n\nfor (const item of items) {\n  const chatInput = item.json.body?.message || item.json.message || item.json.chatInput || JSON.stringify(item.json);\n  const timestamp = new Date().toISOString();\n  \n  if (!chatInput) {\n    results.push({\n      json: {\n        ...item.json,\n        sessionId,\n        timestamp,\n        error: \"No chat input found\",\n        piiDetected: false,\n        detectedPatterns: [],\n        routeToOrchestrator: 2,\n        riskScore: 0,\n        context: 'unknown'\n      }\n    });\n    continue;\n  }\n  \n  const detectedPatterns = [];\n  let maskedContent = chatInput;\n  let hasPII = false;\n  let totalRiskScore = 0;\n  let highestSeverity = 'low';\n  \n  // Detect context\n  let detectedContext = 'general';\n  for (const [contextType, pattern] of Object.entries(contextPatterns)) {\n    if (pattern.test(chatInput)) {\n      detectedContext = contextType;\n      break;\n    }\n  }\n  \n  // Enhanced PII detection with scoring\n  for (const [patternName, config] of Object.entries(piiPatterns)) {\n    const matches = chatInput.match(config.pattern);\n    if (matches && matches.length > 0) {\n      hasPII = true;\n      \n      // Calculate risk score\n      const patternRisk = config.confidence * matches.length;\n      totalRiskScore += patternRisk;\n      \n      // Track highest severity\n      const severityLevels = { low: 1, medium: 2, high: 3, critical: 4 };\n      if (severityLevels[config.severity] > severityLevels[highestSeverity]) {\n        highestSeverity = config.severity;\n      }\n      \n      // Mask content if required\n      if (config.mask) {\n        maskedContent = maskPII(maskedContent, config.pattern);\n      }\n      \n      detectedPatterns.push({\n        type: patternName,\n        count: matches.length,\n        confidence: config.confidence,\n        severity: config.severity,\n        examples: config.mask ? \n          matches.slice(0, 1).map(m => maskPII(m, config.pattern)) : \n          matches.slice(0, 1), // Only 1 example for security\n        masked: config.mask\n      });\n    }\n  }\n  \n  // Determine routing with enhanced logic\n  let routeToOrchestrator;\n  let routingReason;\n  \n  if (!hasPII) {\n    routeToOrchestrator = 2; // Cloud\n    routingReason = \"No PII detected - using cloud model\";\n  } else if (highestSeverity === 'critical' || totalRiskScore > 2.0) {\n    routeToOrchestrator = 1; // Local\n    routingReason = \"Critical PII or high risk score - using local model\";\n  } else if (detectedContext === 'medical' || detectedContext === 'financial') {\n    routeToOrchestrator = 1; // Local\n    routingReason = \"Sensitive context detected - using local model\";\n  } else {\n    routeToOrchestrator = 1; // Local (default for any PII)\n    routingReason = \"PII detected - using local model\";\n  }\n  \n  // Enhanced logging and monitoring\n  const processingMetrics = {\n    processingTime: Date.now(),\n    inputLength: chatInput.length,\n    patternsChecked: Object.keys(piiPatterns).length,\n    patternsDetected: detectedPatterns.length\n  };\n  \n  results.push({\n    json: {\n      // Core data\n      originalMessage: chatInput,\n      maskedMessage: maskedContent,\n      piiDetected: hasPII,\n      detectedPatterns: detectedPatterns,\n      \n      // Enhanced routing\n      routeToOrchestrator: routeToOrchestrator,\n      routingReason: routingReason,\n      \n      // Risk assessment\n      riskScore: Math.round(totalRiskScore * 100) / 100,\n      highestSeverity: highestSeverity,\n      context: detectedContext,\n      \n      // Security & compliance\n      sessionId: sessionId,\n      timestamp: timestamp,\n      processingMetrics: processingMetrics,\n      \n      // Data classification\n      dataClassification: highestSeverity === 'critical' ? 'confidential' : \n                         highestSeverity === 'high' ? 'internal' : 'public',\n      \n      // Compliance flags\n      complianceFlags: {\n        gdpr: detectedContext === 'personal' || hasPII,\n        hipaa: detectedContext === 'medical',\n        pci: detectedPatterns.some(p => p.type === 'creditCard'),\n        sox: detectedContext === 'financial'\n      },\n      \n      // Include safe original data\n      ...item.json\n    }\n  });\n}\n\n// Log processing summary (without PII)\nconsole.log(`Processing Summary:`);\nconsole.log(`- Messages processed: ${results.length}`);\nconsole.log(`- PII detected in: ${results.filter(r => r.json.piiDetected).length} messages`);\nconsole.log(`- High-risk messages: ${results.filter(r => r.json.riskScore > 1.5).length}`);\nconsole.log(`- Session ID: ${sessionId}`);\n\nreturn results;"
+      },
+      "retryOnFail": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "enhanced-routing-switch",
+      "name": "Enhanced PII Routing Switch",
+      "type": "n8n-nodes-base.switch",
+      "onError": "continueRegularOutput",
+      "position": [
+        480,
+        300
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "Critical PII - Local Only",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "or",
+                "conditions": [
+                  {
+                    "id": "critical-pii-condition",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.highestSeverity }}",
+                    "rightValue": "critical"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "PII Detected - Local Processing",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "or",
+                "conditions": [
+                  {
+                    "id": "pii-detected-condition",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.piiDetected }}",
+                    "rightValue": true
+                  },
+                  {
+                    "id": "high-risk-condition",
+                    "operator": {
+                      "type": "number",
+                      "operation": "gte"
+                    },
+                    "leftValue": "={{ $json.riskScore }}",
+                    "rightValue": 1.5
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Clean - Cloud Processing",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "no-pii-condition",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.piiDetected }}",
+                    "rightValue": false
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "compliance-logger",
+      "name": "Compliance & Audit Logger",
+      "type": "n8n-nodes-base.code",
+      "onError": "continueRegularOutput",
+      "position": [
+        720,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Enhanced logging for compliance and monitoring\nconst auditEntries = [];\nconst timestamp = new Date().toISOString();\n\nfor (const item of items) {\n  // Create comprehensive audit log (without actual PII content)\n  const auditEntry = {\n    timestamp: timestamp,\n    sessionId: item.json.sessionId,\n    messageId: require('crypto').randomBytes(8).toString('hex'),\n    \n    // Processing details\n    processingRoute: item.json.routeToOrchestrator === 1 ? 'local' : 'cloud',\n    routingReason: item.json.routingReason,\n    \n    // Risk assessment\n    piiDetected: item.json.piiDetected || false,\n    riskScore: item.json.riskScore || 0,\n    highestSeverity: item.json.highestSeverity || 'none',\n    context: item.json.context || 'general',\n    \n    // Pattern summary (no actual content)\n    patternsSummary: {\n      totalPatterns: item.json.detectedPatterns?.length || 0,\n      patternTypes: item.json.detectedPatterns?.map(p => p.type) || [],\n      severityLevels: item.json.detectedPatterns?.map(p => p.severity) || []\n    },\n    \n    // Compliance flags\n    complianceFlags: item.json.complianceFlags || {},\n    dataClassification: item.json.dataClassification || 'public',\n    \n    // Performance metrics\n    processingMetrics: item.json.processingMetrics || {},\n    \n    // User interaction (safe metadata only)\n    userMetadata: {\n      inputLength: item.json.originalMessage?.length || 0,\n      responseGenerated: true,\n      errorOccurred: false\n    }\n  };\n  \n  auditEntries.push(auditEntry);\n  \n  // Enhanced console logging for monitoring\n  console.log(`=== PRIVACY-AWARE AI AUDIT LOG ===`);\n  console.log(`Timestamp: ${timestamp}`);\n  console.log(`Session: ${auditEntry.sessionId}`);\n  console.log(`Route: ${auditEntry.processingRoute.toUpperCase()}`);\n  console.log(`PII Status: ${auditEntry.piiDetected ? 'DETECTED' : 'CLEAN'}`);\n  console.log(`Risk Score: ${auditEntry.riskScore}`);\n  console.log(`Context: ${auditEntry.context}`);\n  console.log(`Compliance: ${JSON.stringify(auditEntry.complianceFlags)}`);\n  console.log(`Classification: ${auditEntry.dataClassification}`);\n  console.log(`=====================================`);\n}\n\n// Generate summary metrics\nconst summary = {\n  totalMessages: auditEntries.length,\n  piiMessages: auditEntries.filter(e => e.piiDetected).length,\n  localProcessing: auditEntries.filter(e => e.processingRoute === 'local').length,\n  cloudProcessing: auditEntries.filter(e => e.processingRoute === 'cloud').length,\n  highRiskMessages: auditEntries.filter(e => e.riskScore > 1.5).length,\n  complianceBreaches: 0, // Track any compliance issues\n  averageRiskScore: auditEntries.reduce((sum, e) => sum + e.riskScore, 0) / auditEntries.length\n};\n\nconsole.log(`\\n=== SESSION SUMMARY ===`);\nconsole.log(`Total Messages: ${summary.totalMessages}`);\nconsole.log(`PII Detected: ${summary.piiMessages}`);\nconsole.log(`Local Processing: ${summary.localProcessing}`);\nconsole.log(`Cloud Processing: ${summary.cloudProcessing}`);\nconsole.log(`High Risk: ${summary.highRiskMessages}`);\nconsole.log(`Avg Risk Score: ${summary.averageRiskScore.toFixed(2)}`);\nconsole.log(`=======================`);\n\nreturn items.map((item, index) => ({\n  json: {\n    ...item.json,\n    auditEntry: auditEntries[index],\n    sessionSummary: summary,\n    complianceStatus: 'compliant',\n    privacyScore: 100 - (auditEntries[index].riskScore * 10) // Convert risk to privacy score\n  }\n}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "error-handler",
+      "name": "Error Handler & Recovery",
+      "type": "n8n-nodes-base.code",
+      "onError": "continueRegularOutput",
+      "position": [
+        1240,
+        20
+      ],
+      "parameters": {
+        "jsCode": "// Centralized error handling and recovery\nconst errors = [];\nconst recoveryActions = [];\n\nfor (const item of items) {\n  try {\n    // Check for processing errors\n    if (item.json.error) {\n      errors.push({\n        timestamp: new Date().toISOString(),\n        sessionId: item.json.sessionId,\n        errorType: 'processing_error',\n        errorMessage: item.json.error,\n        severity: 'medium',\n        recoveryAction: 'logged_and_continued'\n      });\n    }\n    \n    // Check for PII detection failures\n    if (!item.json.detectedPatterns && item.json.piiDetected === undefined) {\n      errors.push({\n        timestamp: new Date().toISOString(),\n        sessionId: item.json.sessionId,\n        errorType: 'pii_detection_failure',\n        errorMessage: 'PII detection did not complete properly',\n        severity: 'high',\n        recoveryAction: 'defaulted_to_local_processing'\n      });\n      \n      // Recovery: Default to safe local processing\n      item.json.piiDetected = true;\n      item.json.routeToOrchestrator = 1;\n      item.json.routingReason = 'Error recovery - defaulted to local';\n      \n      recoveryActions.push('defaulted_to_local_processing');\n    }\n    \n    // Check for compliance violations\n    if (item.json.complianceFlags) {\n      const violations = Object.entries(item.json.complianceFlags)\n        .filter(([key, value]) => value === true)\n        .map(([key]) => key);\n      \n      if (violations.length > 0 && item.json.routeToOrchestrator !== 1) {\n        errors.push({\n          timestamp: new Date().toISOString(),\n          sessionId: item.json.sessionId,\n          errorType: 'compliance_violation',\n          errorMessage: `Compliance-sensitive data routed to cloud: ${violations.join(', ')}`,\n          severity: 'critical',\n          recoveryAction: 'force_local_routing'\n        });\n        \n        // Recovery: Force local processing\n        item.json.routeToOrchestrator = 1;\n        item.json.routingReason = 'Compliance violation recovery - forced local';\n        \n        recoveryActions.push('force_local_routing');\n      }\n    }\n    \n  } catch (error) {\n    errors.push({\n      timestamp: new Date().toISOString(),\n      sessionId: item.json.sessionId || 'unknown',\n      errorType: 'unexpected_error',\n      errorMessage: error.message,\n      severity: 'critical',\n      recoveryAction: 'system_fallback'\n    });\n    \n    // System fallback\n    item.json = {\n      ...item.json,\n      error: 'System error - using safe defaults',\n      piiDetected: true,\n      routeToOrchestrator: 1,\n      routingReason: 'System error recovery',\n      riskScore: 10,\n      highestSeverity: 'critical'\n    };\n    \n    recoveryActions.push('system_fallback');\n  }\n}\n\n// Log all errors and recoveries\nif (errors.length > 0) {\n  console.log(`\\n🚨 ERROR REPORT 🚨`);\n  console.log(`Total Errors: ${errors.length}`);\n  console.log(`Recovery Actions: ${recoveryActions.length}`);\n  \n  errors.forEach((error, index) => {\n    console.log(`\\nError ${index + 1}:`);\n    console.log(`  Type: ${error.errorType}`);\n    console.log(`  Severity: ${error.severity}`);\n    console.log(`  Message: ${error.errorMessage}`);\n    console.log(`  Recovery: ${error.recoveryAction}`);\n    console.log(`  Session: ${error.sessionId}`);\n  });\n  \n  console.log(`\\n🔧 RECOVERY SUMMARY:`);\n  const recoveryStats = recoveryActions.reduce((acc, action) => {\n    acc[action] = (acc[action] || 0) + 1;\n    return acc;\n  }, {});\n  console.log(JSON.stringify(recoveryStats, null, 2));\n}\n\nreturn items.map(item => ({\n  json: {\n    ...item.json,\n    errorHandling: {\n      errorsDetected: errors.length,\n      recoveryActionsApplied: recoveryActions.length,\n      systemHealth: errors.length === 0 ? 'healthy' : \n                   errors.filter(e => e.severity === 'critical').length > 0 ? 'critical' : 'degraded'\n    }\n  }\n}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "monitoring-dashboard",
+      "name": "Real-time Monitoring Dashboard",
+      "type": "n8n-nodes-base.code",
+      "onError": "continueRegularOutput",
+      "position": [
+        1840,
+        160
+      ],
+      "parameters": {
+        "jsCode": "// Real-time monitoring and alerting\nconst alerts = [];\nconst metrics = {\n  timestamp: new Date().toISOString(),\n  performance: {},\n  security: {},\n  compliance: {},\n  system: {}\n};\n\nfor (const item of items) {\n  const processingTime = Date.now() - new Date(item.json.timestamp).getTime();\n  \n  // Performance monitoring\n  metrics.performance = {\n    averageProcessingTime: processingTime,\n    piiDetectionAccuracy: item.json.detectedPatterns ? 100 : 0,\n    routingEfficiency: item.json.routingReason ? 100 : 0,\n    systemLatency: processingTime\n  };\n  \n  // Security monitoring\n  metrics.security = {\n    piiLeakageRisk: item.json.routeToOrchestrator === 2 && item.json.piiDetected ? 100 : 0,\n    dataClassificationAccuracy: item.json.dataClassification ? 100 : 0,\n    privacyScore: item.json.privacyScore || 100,\n    riskScore: item.json.riskScore || 0\n  };\n  \n  // Compliance monitoring\n  const complianceFlags = item.json.complianceFlags || {};\n  metrics.compliance = {\n    gdprCompliance: complianceFlags.gdpr && item.json.routeToOrchestrator === 1 ? 100 : \n                    complianceFlags.gdpr ? 0 : 100,\n    hipaaCompliance: complianceFlags.hipaa && item.json.routeToOrchestrator === 1 ? 100 :\n                     complianceFlags.hipaa ? 0 : 100,\n    pciCompliance: complianceFlags.pci && item.json.routeToOrchestrator === 1 ? 100 :\n                   complianceFlags.pci ? 0 : 100,\n    overallCompliance: Object.values(complianceFlags).every(flag => \n      !flag || item.json.routeToOrchestrator === 1) ? 100 : 0\n  };\n  \n  // System monitoring\n  metrics.system = {\n    errorRate: item.json.errorHandling?.errorsDetected > 0 ? \n               (item.json.errorHandling.errorsDetected / 1) * 100 : 0,\n    recoveryRate: item.json.errorHandling?.recoveryActionsApplied > 0 ? 100 : 0,\n    systemHealth: item.json.errorHandling?.systemHealth || 'healthy',\n    uptime: 100 // Assume 100% for now\n  };\n  \n  // Generate alerts\n  if (metrics.security.piiLeakageRisk > 0) {\n    alerts.push({\n      level: 'CRITICAL',\n      type: 'PII_LEAKAGE_RISK',\n      message: 'PII detected but routed to cloud processing',\n      timestamp: new Date().toISOString(),\n      sessionId: item.json.sessionId,\n      action: 'IMMEDIATE_REVIEW_REQUIRED'\n    });\n  }\n  \n  if (metrics.compliance.overallCompliance < 100) {\n    alerts.push({\n      level: 'HIGH',\n      type: 'COMPLIANCE_VIOLATION',\n      message: 'Compliance requirements not met',\n      timestamp: new Date().toISOString(),\n      sessionId: item.json.sessionId,\n      details: complianceFlags,\n      action: 'AUDIT_TRAIL_REVIEW'\n    });\n  }\n  \n  if (metrics.performance.averageProcessingTime > 5000) {\n    alerts.push({\n      level: 'MEDIUM',\n      type: 'PERFORMANCE_DEGRADATION',\n      message: `Processing time exceeded threshold: ${metrics.performance.averageProcessingTime}ms`,\n      timestamp: new Date().toISOString(),\n      sessionId: item.json.sessionId,\n      action: 'PERFORMANCE_OPTIMIZATION_NEEDED'\n    });\n  }\n}\n\n// Display monitoring dashboard\nconsole.log(`\\n📊 REAL-TIME MONITORING DASHBOARD 📊`);\nconsole.log(`Timestamp: ${metrics.timestamp}`);\nconsole.log(`\\n🚀 PERFORMANCE METRICS:`);\nconsole.log(`  Processing Time: ${metrics.performance.averageProcessingTime}ms`);\nconsole.log(`  PII Detection: ${metrics.performance.piiDetectionAccuracy}%`);\nconsole.log(`  Routing Efficiency: ${metrics.performance.routingEfficiency}%`);\n\nconsole.log(`\\n🔒 SECURITY METRICS:`);\nconsole.log(`  Privacy Score: ${metrics.security.privacyScore}%`);\nconsole.log(`  Risk Score: ${metrics.security.riskScore}`);\nconsole.log(`  PII Leakage Risk: ${metrics.security.piiLeakageRisk}%`);\n\nconsole.log(`\\n⚖️ COMPLIANCE METRICS:`);\nconsole.log(`  GDPR: ${metrics.compliance.gdprCompliance}%`);\nconsole.log(`  HIPAA: ${metrics.compliance.hipaaCompliance}%`);\nconsole.log(`  PCI: ${metrics.compliance.pciCompliance}%`);\nconsole.log(`  Overall: ${metrics.compliance.overallCompliance}%`);\n\nconsole.log(`\\n🛠️ SYSTEM HEALTH:`);\nconsole.log(`  Error Rate: ${metrics.system.errorRate}%`);\nconsole.log(`  Recovery Rate: ${metrics.system.recoveryRate}%`);\nconsole.log(`  Health Status: ${metrics.system.systemHealth}`);\nconsole.log(`  Uptime: ${metrics.system.uptime}%`);\n\nif (alerts.length > 0) {\n  console.log(`\\n🚨 ACTIVE ALERTS (${alerts.length}):`);\n  alerts.forEach((alert, index) => {\n    console.log(`  ${index + 1}. [${alert.level}] ${alert.type}`);\n    console.log(`     ${alert.message}`);\n    console.log(`     Action: ${alert.action}`);\n    console.log(`     Session: ${alert.sessionId}`);\n  });\n} else {\n  console.log(`\\n✅ NO ACTIVE ALERTS - SYSTEM OPERATING NORMALLY`);\n}\n\nconsole.log(`\\n========================================`);\n\nreturn items.map(item => ({\n  json: {\n    ...item.json,\n    monitoring: {\n      metrics: metrics,\n      alerts: alerts,\n      dashboardGenerated: true,\n      lastCheck: new Date().toISOString()\n    }\n  }\n}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5824055a-a3ba-4f20-a45c-1849cb164a38",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        -700,
+        60
+      ],
+      "webhookId": "dfadeb7b-13c1-4969-9788-74c1a90d75cc",
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "ad6004ea-e216-496f-a292-dbcff70bf3e3",
+      "name": "Ollama Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "position": [
+        2360,
+        520
+      ],
+      "parameters": {
+        "model": "llama2:7b",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ab205aa5-76d3-4d39-81de-e379ac1e825c",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        1220,
+        700
+      ],
+      "parameters": {
+        "contextWindowLength": 50
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "dbc77760-ba26-430b-b93a-ba1c262a4841",
+      "name": "Agent [Edge]",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1120,
+        500
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "debcae47-c352-4c58-9abc-c1e2dd46c3ea",
+      "name": "AI Agent [Private]",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        2360,
+        320
+      ],
+      "parameters": {
+        "text": "={{ $json.maskedMessage }}",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bbfe5682-a06a-4744-a6f7-df298ea8595c",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1360,
+        240
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 980,
+        "height": 1480,
+        "content": "## Роутер с учетом конфиденциальности: Концепция улучшенного рабочего процесса обнаружения ПДн [НАЧНИТЕ ЗДЕСЬ]"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3482b42a-0547-4fd5-bc5f-932891d01a50",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -260,
+        480
+      ],
+      "parameters": {
+        "width": 540,
+        "height": 1240,
+        "content": "Автор: Чарльз О, https://www.linkedin.com/in/codetender/"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a540749b-c283-4f98-9ce4-7d44c4b8ddf8",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        300,
+        480
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 500,
+        "height": 740,
+        "content": "* Эта живая концепция предназначена только для ДЕМОНСТРАЦИИ и разработана как стартовая основа для рабочих процессов с учетом конфиденциальности."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d90f9215-3ac9-42e8-a05c-e3905267461f",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        520,
+        -1120
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 1640,
+        "height": 240,
+        "content": "* Вам понадобятся учетные данные для ваших поставщиков моделей LLM (щелкните по модели на каждом агенте и просмотрите документацию n8n для получения информации)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a9769940-0153-414a-a72b-7a3df0a4905d",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        920,
+        860
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 580,
+        "height": 520,
+        "content": "## Понимание вашей архитектуры ИИ с приоритетом конфиденциальности"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3664412c-918f-496d-8e6a-5399a9c55753",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        520,
+        -860
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 500,
+        "height": 1020,
+        "content": "🏗️**ОБЗОР АРХИТЕКТУРЫ**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e670b576-d808-453d-a33f-d5b2ded2691d",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1040,
+        -860
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 540,
+        "height": 1020,
+        "content": "**Основная проблема, которую мы решаем**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "caf87df6-41ea-4680-b474-c060abe96ee9",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1600,
+        -860
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 560,
+        "height": 1180,
+        "content": "Современные системы ИИ мощные, но представляют риски для конфиденциальности при обработке чувствительных данных. Организациям нужны возможности ИИ, обеспечивая:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8b4453f7-4a4a-421a-9449-e4840c409186",
+      "name": "OpenRouter Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "position": [
+        1080,
+        700
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1241c848-1667-4e74-9341-ecf06a96a4a5",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2340,
+        140
+      ],
+      "parameters": {
+        "width": 400,
+        "content": "✅ Чувствительные данные никогда не покидают защищенные среды"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "versionId": "0bd6474e-4088-40c1-a92c-bdc91c288e92",
+  "connections": {
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agent [Edge]",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent [Private]",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent [Edge]",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Handler & Recovery": {
+      "main": [
+        [
+          {
+            "node": "Real-time Monitoring Dashboard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compliance & Audit Logger": {
+      "main": [
+        [
+          {
+            "node": "Error Handler & Recovery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Enhanced PII Pattern Analyzer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enhanced PII Routing Switch": {
+      "main": [
+        [
+          {
+            "node": "Compliance & Audit Logger",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Compliance & Audit Logger",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Agent [Edge]",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enhanced PII Pattern Analyzer": {
+      "main": [
+        [
+          {
+            "node": "Enhanced PII Routing Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Real-time Monitoring Dashboard": {
+      "main": [
+        [
+          {
+            "node": "AI Agent [Private]",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

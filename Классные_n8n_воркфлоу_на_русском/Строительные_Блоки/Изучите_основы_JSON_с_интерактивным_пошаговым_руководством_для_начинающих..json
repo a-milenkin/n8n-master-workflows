@@ -1,0 +1,534 @@
+{
+  "meta": {
+    "instanceId": "e409ea34548a2afe2dffba31130cd1cf2e98ebe2afaeed2a63caf2a0582d1da0"
+  },
+  "nodes": [
+    {
+      "id": "8edca697-2dc4-490e-9850-60a96284c299",
+      "name": "Execute to Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -2000,
+        100
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "cb671298-90c8-4c39-a91c-d993c8ecf1b2",
+      "name": "String",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -1380,
+        100
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e87952cb-878e-4feb-8261-342eaf887838",
+              "name": "json_example_string",
+              "type": "string",
+              "value": "This is a simple string. In JSON, it's always enclosed in double quotes."
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "a2331e78-a752-433f-a5e3-d95a373d202b",
+      "name": "Key & Value",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -1660,
+        100
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e87952cb-878e-4feb-8261-342eaf887838",
+              "name": "key",
+              "type": "string",
+              "value": "value"
+            },
+            {
+              "id": "b5f030f4-6650-4181-881f-de44790bb24b",
+              "name": "another_key",
+              "type": "string",
+              "value": "another_value"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "f6ffeffb-98c3-4278-8ec5-2aa39220924d",
+      "name": "Number",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -1100,
+        100
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e87952cb-878e-4feb-8261-342eaf887838",
+              "name": "json_example_integer",
+              "type": "number",
+              "value": 10
+            },
+            {
+              "id": "12345",
+              "name": "json_example_float",
+              "type": "number",
+              "value": 12.5
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "410682bb-a744-4db6-b08b-a63f67741576",
+      "name": "Boolean",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -820,
+        100
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e87952cb-878e-4feb-8261-342eaf887838",
+              "name": "json_example_boolean",
+              "type": "boolean",
+              "value": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "5e2948b0-6d60-4f4a-a150-89d41e8c4ed7",
+      "name": "Array",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -260,
+        100
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e87952cb-878e-4feb-8261-342eaf887838",
+              "name": "json_example_array",
+              "type": "array",
+              "value": "[\"first element\", 2, false, null]"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "8f7dc470-f140-4427-970d-738cef81b7fa",
+      "name": "Object",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        20,
+        100
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e87952cb-878e-4feb-8261-342eaf887838",
+              "name": "json_example_object",
+              "type": "object",
+              "value": "{\"key\":\"value\",\"array\":[1,2,3],\"boolean\":false,\"integer\":123,\"sub_object\":{\"sub_key\":\"Find me!\"}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "0622c22e-920c-4122-9143-15c310da3861",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2220,
+        -360
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 460,
+        "height": 620,
+        "content": "### Учебник - Что такое JSON?"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9be83d5e-2a5f-4ae2-8480-520ba0f5fa6b",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1740,
+        -240
+      ],
+      "parameters": {
+        "width": 260,
+        "height": 500,
+        "content": "Добро пожаловать! Этот рабочий процесс научит вас основам JSON, языка, который приложения и узлы n8n используют для обмена информацией."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a4855cf1-8d0d-4c2f-acaf-0f9127a58418",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1460,
+        -240
+      ],
+      "parameters": {
+        "width": 260,
+        "height": 500,
+        "content": "**Что такое JSON?**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "016132fc-2d78-4ef3-87ed-c4e91ccca2f4",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1180,
+        -240
+      ],
+      "parameters": {
+        "width": 260,
+        "height": 500,
+        "content": "Представьте себе карточку контакта:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b5122335-74de-4f59-b72d-898e9e0a0667",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -900,
+        -240
+      ],
+      "parameters": {
+        "width": 260,
+        "height": 500,
+        "content": "- **Имя:** Джон Доу"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e697becb-8572-4ab5-b675-d7bb9015fc09",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -340,
+        -240
+      ],
+      "parameters": {
+        "width": 260,
+        "height": 500,
+        "content": "#### Тип данных: Массив"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7a5e09f8-3a36-43c3-8740-deb602c320ef",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        -240
+      ],
+      "parameters": {
+        "width": 280,
+        "height": 500,
+        "content": "Массив — это **упорядоченный список** элементов."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "295696bd-cc6a-4812-aad3-9c0189166120",
+      "name": "Null",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -540,
+        100
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e87952cb-878e-4feb-8261-342eaf887838",
+              "name": "json_example_null",
+              "type": "null",
+              "value": null
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "9fd77ab6-99aa-4b1f-90df-ba2cfbd99410",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -620,
+        -240
+      ],
+      "parameters": {
+        "width": 260,
+        "height": 500,
+        "content": "- **Синтаксис:** Начинается с `[` и заканчивается `]`. Элементы разделяются запятыми."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ffb386b3-73c9-48d5-8b85-31bcb20ad301",
+      "name": "Using JSON (Expressions)",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        360,
+        100
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e87952cb-878e-4feb-8261-342eaf887838",
+              "name": "message",
+              "type": "string",
+              "value": "=Hello, the number from the tutorial is: {{ $('Number').item.json.json_example_integer }}"
+            },
+            {
+              "id": "61f385f4-b8e2-4c69-b873-9ffc3ab3fe94",
+              "name": "sub_key",
+              "type": "string",
+              "value": "={{ $json.json_example_object.sub_object.sub_key }}"
+            },
+            {
+              "id": "bd752a0f-64bf-44b1-b39b-fca28e86aa5b",
+              "name": "array_second_item",
+              "type": "string",
+              "value": "={{ $json.json_example_object.array[1] }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "43dae41f-2bfc-4acb-a4b5-072d5bc1c20a",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        240,
+        -240
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 340,
+        "height": 500,
+        "content": "Массив может содержать всё: строки, числа, булевы значения и даже другие массивы или объекты!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "34aeec49-684c-4b49-9c64-9946d5554e4e",
+      "name": "Final Exam",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        720,
+        100
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e87952cb-878e-4feb-8261-342eaf887838",
+              "name": "summary_string",
+              "type": "string",
+              "value": "={{ $('String').item.json.json_example_string }}"
+            },
+            {
+              "id": "12345",
+              "name": "summary_number",
+              "type": "number",
+              "value": "={{ $('Number').item.json.json_example_integer }}"
+            },
+            {
+              "id": "67890",
+              "name": "summary_boolean",
+              "type": "boolean",
+              "value": "={{ $('Boolean').item.json.json_example_boolean }}"
+            },
+            {
+              "id": "abcde",
+              "name": "summary_null",
+              "type": "null",
+              "value": "={{ $('Null').item.json.json_example_null }}"
+            },
+            {
+              "id": "fghij",
+              "name": "summary_array",
+              "type": "array",
+              "value": "={{ $('Array').item.json.json_example_array }}"
+            },
+            {
+              "id": "klmno",
+              "name": "summary_object",
+              "type": "object",
+              "value": "={{ $('Object').item.json.json_example_object }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "6f605bd8-20e4-4e0c-af7a-927e6e4ef854",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        600,
+        -240
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 340,
+        "height": 500,
+        "content": "#### Тип данных: Объект (JSON Объект)"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Null": {
+      "main": [
+        [
+          {
+            "node": "Array",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Array": {
+      "main": [
+        [
+          {
+            "node": "Object",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Number": {
+      "main": [
+        [
+          {
+            "node": "Boolean",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Object": {
+      "main": [
+        [
+          {
+            "node": "Using JSON (Expressions)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "String": {
+      "main": [
+        [
+          {
+            "node": "Number",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Boolean": {
+      "main": [
+        [
+          {
+            "node": "Null",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Key & Value": {
+      "main": [
+        [
+          {
+            "node": "String",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute to Start": {
+      "main": [
+        [
+          {
+            "node": "Key & Value",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Using JSON (Expressions)": {
+      "main": [
+        [
+          {
+            "node": "Final Exam",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

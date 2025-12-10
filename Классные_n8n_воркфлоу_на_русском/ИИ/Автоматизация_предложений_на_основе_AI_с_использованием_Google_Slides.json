@@ -1,0 +1,348 @@
+{
+  "id": "UZFZZMrmUMPf3KRG",
+  "meta": {
+    "instanceId": "2000c64071c20843606b95c63795bb0797c41036047055a6586498e855b96efc"
+  },
+  "name": "\"descriptionName\": \"\",",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "712f76e1-2520-46c7-8268-eaa601e22dff",
+      "name": "Replace Text",
+      "type": "n8n-nodes-base.googleSlides",
+      "position": [
+        260,
+        200
+      ],
+      "parameters": {
+        "textUi": {
+          "textValues": [
+            {
+              "text": "{{proposalTitle}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.proposalTitle }}"
+            },
+            {
+              "text": "{{descriptionName}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.descriptionName }}"
+            },
+            {
+              "text": "{{oneParagraphProblemSummary}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.oneParagraphProblemSummary }}"
+            },
+            {
+              "text": "{{solutionHeadingOne}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.solutionHeadingOne }}"
+            },
+            {
+              "text": "{{solutionHeadingTwo}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.solutionHeadingTwo }}"
+            },
+            {
+              "text": "{{solutionHeadingThree}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.solutionHeadingThree }}"
+            },
+            {
+              "text": "{{solutionDescriptionOne}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.solutionDescriptionOne }}"
+            },
+            {
+              "text": "{{solutionDescriptionTwo}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.solutionDescriptionTwo }}"
+            },
+            {
+              "text": "{{solutionDescriptionThree}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.solutionDescriptionThree }}"
+            },
+            {
+              "text": "{{shortScopeTitleOne}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.shortScopeTitleOne }}"
+            },
+            {
+              "text": "{{shortScopeTitleTwo}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.shortScopeTitleTwo }}"
+            },
+            {
+              "text": "{{shortScopeTitleThree}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.shortScopeTitleThree }}"
+            },
+            {
+              "text": "{{shortScopeDescriptionOne}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.shortScopeDescriptionOne }}"
+            },
+            {
+              "text": "{{shortScopeDescriptionTwo}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.shortScopeDescriptionTwo }}"
+            },
+            {
+              "text": "{{shortScopeDescriptionThree}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.shortScopeDescriptionThree }}"
+            },
+            {
+              "text": "{{milestoneOneDay}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.milestoneOneDay }}"
+            },
+            {
+              "text": "{{milestoneTwoDay}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.milestoneTwoDay }}"
+            },
+            {
+              "text": "{{milestoneThreeDay}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.milestoneThreeDay }}"
+            },
+            {
+              "text": "{{milestoneFourDay}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.milestoneFourDay }}"
+            },
+            {
+              "text": "{{milestoneDescriptionOne}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.milestoneDescriptionOne }}"
+            },
+            {
+              "text": "{{milestoneDescriptionTwo}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.milestoneDescriptionTwo }}"
+            },
+            {
+              "text": "{{milestoneDescriptionThree}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.milestoneDescriptionThree }}"
+            },
+            {
+              "text": "{{milestoneDescriptionFour}}",
+              "replaceText": "={{ $('OpenAI').item.json.message.content.milestoneDescriptionFour }}"
+            },
+            {
+              "text": "{{cost}}",
+              "replaceText": "={{ $json.Cost }}"
+            }
+          ]
+        },
+        "options": {},
+        "operation": "replaceText",
+        "presentationId": "={{ $json.id }}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3bdb5c98-f074-4e0f-a132-aed892b0247e",
+      "name": "OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        760,
+        0
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o",
+          "cachedResultName": "GPT-4O"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Вы Дэвид Олусола, генеральный директор DaeX AI - эксперта в создании систем автоматизации ИИ для малого бизнеса."
+            },
+            {
+              "content": "Ваша задача - создать индивидуальное предложение по автоматизации ИИ, используя данные, полученные в ходе звонка с клиентом. Это предложение должно быть высокоспецифичным и профессиональным, отражая экспертизу DaeX AI в рабочих процессах n8n, интеграции с Google Sheets, автоматизации платформ обмена сообщениями и системах генерации лидов."
+            },
+            {
+              "content": "Контекст: DaeX AI специализируется на помощи малым предприятиям в оптимизации операций, генерации лидов и персонализации взаимодействия с клиентами с помощью интеллектуальных систем автоматизации."
+            },
+            {
+              "role": "assistant",
+              "content": "Шаблон предложения требует конкретных полей. Верните их в этом точном формате JSON:"
+            },
+            {
+              "content": "{"
+            }
+          ]
+        },
+        "jsonOutput": true
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "AAQM78g30SkuHYxB",
+          "name": "OpenAi success"
+        }
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "01abcd8b-f115-4ccf-b53e-3ba62740c760",
+      "name": "Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        60,
+        200
+      ],
+      "parameters": {
+        "name": "={{ $json.message.content.proposalTitle }}",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1fHzjDQtZouAwfv4kn5uvgpTWqwhTAlPrGkdtkbYBkNE"
+        },
+        "options": {
+          "copyRequiresWriterPermission": false
+        },
+        "operation": "copy"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "138339d1-bbac-4e94-83ac-bf613b5d8baf",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        520,
+        200
+      ],
+      "webhookId": "b989215e-e975-44a7-9dc7-fd51e7310cba",
+      "parameters": {
+        "sendTo": "={{ $('On form submission').item.json.Email }}",
+        "message": "=Hi {{ $('On form submission').item.json['First Name'] }},\n\nGreat connecting with you today. I've put together a detailed automation proposal that addresses the specific challenges we discussed for {{ $('On form submission').item.json['Company Name'] }}.\n\nView your proposal here: https://docs.google.com/presentation/d/{{ $json.presentationId }}/edit\n\nThis outlines exactly how we'll streamline your operations and boost efficiency with our AI automation systems. The solution is designed specifically for your needs and includes everything from setup to training.\n\nHappy to jump on a quick call to walk through any questions or discuss next steps.\n\nBest,\nDavid Olusola\nCEO, DaeX AI",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "Your Custom AI Automation Proposal - DaeX AI",
+        "emailType": "text"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "85344c7a-c7c2-4d0b-b6bf-7a7886b87b16",
+      "name": "On form submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        540,
+        0
+      ],
+      "webhookId": "24fd835d-9132-4faf-b715-755e75aee9be",
+      "parameters": {
+        "options": {
+          "appendAttribution": false
+        },
+        "formTitle": "DaeX AI - Client Discovery Form",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "First Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Last Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Company Name",
+              "requiredField": true
+            },
+            {
+              "fieldType": "email",
+              "fieldLabel": "Email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Website",
+              "requiredField": true
+            },
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Problem",
+              "requiredField": true
+            },
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Solution",
+              "requiredField": true
+            },
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Scope",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Cost",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "How soon?",
+              "requiredField": true
+            }
+          ]
+        },
+        "formDescription": "This form captures client requirements and automatically generates a customized AI automation proposal."
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "caf30bb1-a385-491d-b17c-0e3a906063c8",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -20,
+        -120
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1260,
+        "height": 440,
+        "content": "\"proposalTitle\": \"\","
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b3e5098d-3df0-49f1-a250-f4e520e7b446",
+  "connections": {
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Replace Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Text": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

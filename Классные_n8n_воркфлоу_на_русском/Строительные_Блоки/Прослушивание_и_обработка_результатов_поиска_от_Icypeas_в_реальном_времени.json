@@ -1,0 +1,111 @@
+{
+  "meta": {
+    "instanceId": "257476b1ef58bf3cb6a46e65fac7ee34a53a5e1a8492d5c6e4da5f87c9b82833"
+  },
+  "nodes": [
+    {
+      "id": "23dc1873-b376-473e-935b-b1df5e663c9e",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        1100,
+        1120
+      ],
+      "webhookId": "c80ce133-899b-41c9-b2ae-2c876694f9fd",
+      "parameters": {
+        "path": "c80ce133-899b-41c9-b2ae-2c876694f9fd",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "417ddfd1-8a27-498b-b203-0f410f8092b8",
+      "name": "Set",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1320,
+        1120
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "email",
+              "value": "={{ $json.body.data.results.emails[0].email }}"
+            },
+            {
+              "name": "firstname",
+              "value": "={{ $json.body.data.results.firstname }}"
+            },
+            {
+              "name": "lastname",
+              "value": "={{ $json.body.data.results.lastname }}"
+            }
+          ]
+        },
+        "options": {},
+        "keepOnlySet": true
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ecf055ad-3f12-43c0-8dcc-0868fdfff5d8",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        660,
+        760
+      ],
+      "parameters": {
+        "height": 395,
+        "content": "## Прослушивание и обработка результатов поиска в реальном времени с Icypeas."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1c4410ef-d5c8-4da1-8f7a-104082a1aacd",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        980,
+        886
+      ],
+      "parameters": {
+        "width": 332,
+        "height": 882.9729093050651,
+        "content": "‍"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "03417e50-c191-4f75-91e7-158a16e5ee55",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1310,
+        857
+      ],
+      "parameters": {
+        "width": 237,
+        "height": 628,
+        "content": "Этот рабочий процесс с вебхуком позволяет вам получать результаты ваших поисков с Icypeas (https://www.icypeas.com/) и перенаправлять их куда угодно."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Set",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

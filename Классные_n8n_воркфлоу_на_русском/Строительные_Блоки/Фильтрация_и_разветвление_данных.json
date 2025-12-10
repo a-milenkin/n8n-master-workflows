@@ -1,0 +1,189 @@
+{
+  "nodes": [
+    {
+      "name": "On clicking 'execute'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        20,
+        720
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "name": "Customer Datastore",
+      "type": "n8n-nodes-base.n8nTrainingCustomerDatastore",
+      "position": [
+        220,
+        720
+      ],
+      "parameters": {
+        "operation": "getAllPeople"
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        500,
+        600
+      ],
+      "parameters": {
+        "width": 520,
+        "height": 280,
+        "content": "## 2. Если с условиями И/ИЛИ"
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        500,
+        920
+      ],
+      "parameters": {
+        "width": 520,
+        "height": 360,
+        "content": "Установите поле **Сочетать** на:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        500,
+        300
+      ],
+      "parameters": {
+        "width": 520,
+        "height": 260,
+        "content": "`ALL` для условия `AND`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -520,
+        660
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 240,
+        "content": "`ANY` для условия `OR`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Country equals US",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        540,
+        420
+      ],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"country\"]}}",
+              "value2": "US"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Country is empty or Name contains 'Max'",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        540,
+        720
+      ],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"country\"]}}",
+              "operation": "isEmpty"
+            },
+            {
+              "value1": "={{$json[\"name\"]}}",
+              "value2": "Max",
+              "operation": "contains"
+            }
+          ]
+        },
+        "combineOperation": "any"
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Country based branching",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        540,
+        1120
+      ],
+      "parameters": {
+        "rules": {
+          "rules": [
+            {
+              "value2": "US"
+            },
+            {
+              "output": 1,
+              "value2": "CO"
+            },
+            {
+              "output": 2,
+              "value2": "UK"
+            }
+          ]
+        },
+        "value1": "={{$json[\"country\"]}}",
+        "dataType": "string",
+        "fallbackOutput": 3
+      },
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "Customer Datastore": {
+      "main": [
+        [
+          {
+            "node": "Country is empty or Name contains 'Max'",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Country based branching",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Country equals US",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On clicking 'execute'": {
+      "main": [
+        [
+          {
+            "node": "Customer Datastore",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

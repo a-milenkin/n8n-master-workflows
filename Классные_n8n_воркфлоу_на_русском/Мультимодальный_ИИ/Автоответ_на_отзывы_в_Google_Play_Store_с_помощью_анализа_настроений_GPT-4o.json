@@ -1,0 +1,617 @@
+{
+  "id": "WRYFuxP8spwY5D0d",
+  "meta": {
+    "instanceId": "8c9297025d782e1a7702d6cf5ed0962cc619ffa3e36d29df5cf55629cbd80c9d",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Оценки: {{ $json.reviews[0].comments[0].userComment.starRating }} из 5 звезд",
+  "tags": [
+    {
+      "id": "RA6S6zmKMK9XBvsU",
+      "name": "ASO",
+      "createdAt": "2025-06-22T13:15:21.255Z",
+      "updatedAt": "2025-06-22T13:15:21.255Z"
+    },
+    {
+      "id": "gfcLb8VQxHMG16G5",
+      "name": "Customer Experience",
+      "createdAt": "2025-06-22T13:15:21.259Z",
+      "updatedAt": "2025-06-22T13:15:21.259Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "b7919e56-bad2-47de-acbe-1a9b3664fe34",
+      "name": "User Review Memory4",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "notes": "{\n  \"brand\": \"App Name\",\n  \"features\": [\n    \"Feature 1\",\n    \"Feature 2\",\n    \"Feature 3\",\n    \"Feature 4\",\n    \"Feature 5\",\n  \"tone_guidelines\": {\n    \"voice\": \"friendly, helpful, and warm\",\n    \"length_limit\": \"350 characters\",\n    \"greeting\": \"Hi [UserName] 👋\",\n    \"signature\": \"– Your Name, Company Name\"\n  },\n  \"escalation_contact\": {\n    \"whatsapp\": \"+91 9999999999\",\n    \"email\": \"help@youremail.in\"\n  },\n  \"review_reply_rules\": [\n    \"Never overpromise on fixes.\",\n    \"If 4-star review is extremely positive, thank and ask what can improve.\",\n    \"Always acknowledge user concern or praise.\",\n    \"Avoid repeating user’s words verbatim unless necessary.\",\n    \"When confused, lean on support tone and contact sharing.\"\n  ]",
+      "position": [
+        1220,
+        720
+      ],
+      "parameters": {
+        "sessionKey": "yourapp_memory",
+        "sessionIdType": "customKey",
+        "contextWindowLength": 1
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "c12cb3b4-6d8e-4a04-a63f-ee30754a6d40",
+      "name": "OpenAI GPT 4o mini4",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1040,
+        720
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "w5A792RXx6tK4h8Y",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "213d3568-0e7c-4b54-9dad-b6080f56d75b",
+      "name": "Post Reply to Play Store4",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        80,
+        760
+      ],
+      "parameters": {
+        "url": "=https://androidpublisher.googleapis.com/androidpublisher/v3/applications/your.app.package.name/reviews/{{ $('HTTPS').item.json.reviews[0].reviewId }}:reply",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"replyText\": \"{{$node['AI Agent'].json['output']}}\"\n}\n",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleApi"
+      },
+      "credentials": {
+        "googleApi": {
+          "id": "scFPJjSalskMul2S",
+          "name": "Google Service Account account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "7aebe5a2-eaaf-47b0-be2a-ed7ef9050bed",
+      "name": "Slack4",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        360,
+        760
+      ],
+      "webhookId": "1076c010-ec99-4e03-88be-320cb756585e",
+      "parameters": {
+        "text": "=📢 *Attention: New Review*  \n\n👤 *Name:* {{ $('HTTPS').item.json.reviews[0].authorName }} \n⭐ *Rating:* {{ $('HTTPS').item.json.reviews[0].comments[0].userComment.starRating }}/5 \n💬 *Review:*{{ $('HTTPS').item.json.reviews[0].comments[0].userComment.text }}  \n\n🤖 *Reply by AI:* \n{{ $json.result.replyText }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#general"
+        },
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "VKhyDOB7wcs9Wtxs",
+          "name": "Slack account"
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "26bce2e8-5015-4abd-9c72-8f170affb85d",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "disabled": true,
+      "position": [
+        60,
+        120
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "cfe27626-7889-428a-8df4-673b4fb07e4c",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 260,
+        "height": 280,
+        "content": "## Проверьте новые отзывы"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f959caa1-151c-43d0-8816-994067b9b7e3",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        280,
+        0
+      ],
+      "parameters": {
+        "width": 300,
+        "height": 280,
+        "content": "## Получить отзывы из Play Store"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "154f89be-be4f-42b3-86de-c2bd502267ef",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        600,
+        0
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 300,
+        "height": 280,
+        "content": "## Отфильтровать неотвеченные отзывы"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "838d6c0f-10ce-4cb5-b755-4661044f7b54",
+      "name": "Filter",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        680,
+        120
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "3c5d5310-656b-46f1-88b4-b8ffd6d3548f",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.reviews[0].comments[1].developerComment.text }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "34e6d04c-1640-4ac1-951c-dcfb9d4c780b",
+      "name": "HTTPS",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        360,
+        120
+      ],
+      "parameters": {
+        "url": "https://androidpublisher.googleapis.com/androidpublisher/v3/applications/your.app.package.name/reviews",
+        "options": {},
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleApi"
+      },
+      "credentials": {
+        "googleApi": {
+          "id": "scFPJjSalskMul2S",
+          "name": "Google Service Account account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "6f088b42-8067-48af-b105-ef367833e27c",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        920,
+        0
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 460,
+        "height": 280,
+        "content": "## Определить настроение отзыва"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9f367b7a-17d1-4032-b015-e75a0fc0711c",
+      "name": "OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        1000,
+        120
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "chatgpt-4o-latest",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "content": "=В качестве помощника по успеху клиентов ваша задача - провести тщательный анализ предоставленного отзыва пользователя и его связанной оценки. Начните с изучения настроения, выраженного в отзыве, определяя, является ли оно положительным, отрицательным или нейтральным. Обратите особое внимание на любые несоответствия, которые могут возникнуть между числовой оценкой (из 5 звезд) и качественным содержанием отзыва."
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "w5A792RXx6tK4h8Y",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "49883fb3-efed-461e-b88e-4ab9fb0983cd",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        320
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 260,
+        "height": 280,
+        "content": "В вашем резюме, пожалуйста, включите следующие ключевые компоненты:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fb0909ca-c460-4c29-926a-b52e05f28932",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        280,
+        320
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 400,
+        "height": 280,
+        "content": "Ключевые моменты: Подчеркните основные темы и сообщения, переданные в отзыве, отметив любые конкретные функции или аспекты продукта или услуги, о которых упомянул пользователь."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f1ade1a5-b05d-46a2-a7ae-d9b768a9126b",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        700,
+        320
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 260,
+        "height": 280,
+        "content": "Опыт пользователя: Опишите общий опыт пользователя, отраженный в отзыве, включая их удовлетворенность, разочарования или любые конкретные инциденты, которые могли повлиять на их точку зрения."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5c52fb4c-e3eb-4581-9865-ac77941a4145",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        980,
+        320
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 400,
+        "height": 600,
+        "content": "Значимые цитаты: Извлеките и представьте любые особенно значимые или раскрывающие цитаты из отзыва, которые отражают настроение пользователя или подчеркивают важные моменты."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "777aa702-bcf3-435b-aa11-1fd8fc74d5eb",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        640
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 260,
+        "height": 280,
+        "content": "Соответствие оценки: Оцените, соответствует ли данная оценка общему настроению и содержанию отзыва. Обсудите любые несоответствия, такие как высокая оценка в сочетании с критическими отзывами или низкая оценка, несмотря на положительные замечания."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "030b990e-3ea4-4408-839f-d0163c0ac0a2",
+      "name": "Sticky Note14",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        280,
+        640
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 260,
+        "height": 280,
+        "content": "Действия: Если применимо, предложите потенциальные действия или улучшения, которые могут быть предприняты в ответ на отзывы, предоставленные в отзыве. Это может включать решение конкретных проблем, улучшение обслуживания клиентов или внедрение улучшений продукта."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "45b92bdc-ac6e-4328-8701-ae06425f50ed",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1040,
+        440
+      ],
+      "parameters": {
+        "text": "=You are a friendly and thoughtful Customer Success Assistant for the {app short desription}, {app name}.\n\nYour job is to craft short, personalized replies to Play Store reviews using the input below.\n\nConstraints:\n- Your reply must not exceed **350 characters**.\n- Avoid sounding robotic or overly formal.\n- Always address the user by their first name.\n\nInput:\nReviewer Name: {{ $json.reviews[0].authorName }}\nStar Rating: {{ $json.reviews[0].comments[0].userComment.starRating }} out of 5\nReview Text: \"{{ $json.reviews[0].comments[0].userComment.text }}\"\nSentiment Summary: {{ $json.message.content }}\n\nReply Guidelines:\n1. If the review is **positive** and **rating is 4 or 5**, express genuine appreciation.\n   - Optionally mention a relevant feature like “Feature 1”, “Feature 2”, or “Feature 3”.\n   - If it’s 4 stars with strong praise, thank them and gently ask what could improve to 5.\n\n2. If the review contains **issues, bugs, or confusion**, apologize sincerely.\n   - Offer help via Email: support@yourcompany.com\n\n3. If the user mentions {keywords}:\n   - Mention how {your app} helps for that {problem} (via feature 1, feature 2, or feature 3).\n\n4. If the user's review sentiment is positive and has given 4 or 5 star rating:\n   - Thank them and suggest exploring other features like “Feature 1, Feature 2, Feature 3, Feature 4, Feature 5”\n\n5. Don't add line breaks, and try adding contextual emojis based on sentiment of the review.\n\nNow craft a human-sounding, concise, emotionally intelligent reply:",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "cfc8740f-7f60-43ac-9e7f-1d4440968595",
+      "name": "Merge1",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        80,
+        440
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combineBy": "combineByPosition"
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "600f052b-4ce7-4132-80ba-0ab25239d1d9",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        780,
+        440
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combineBy": "combineByPosition"
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "6a85b0e8-c6ea-439f-80d7-beffb44b997f",
+      "name": "Verify Analysis",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        340,
+        440
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "chatgpt-4o-latest",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "content": "Пожалуйста, проанализируйте содержание отзыва и оценки, предоставленные ниже:"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "w5A792RXx6tK4h8Y",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "43259679-d4ea-4df0-8219-7556d73d61b7",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -600,
+        0
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 700,
+        "content": "Содержание отзыва: {{ $json.reviews[0].comments[0].userComment.text }}"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e05e2090-e889-47cd-8dcd-27cd2954f0a1",
+  "connections": {
+    "HTTPS": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [],
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Verify Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Post Reply to Play Store4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify Analysis": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTPS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI GPT 4o mini4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "User Review Memory4": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Reply to Play Store4": {
+      "main": [
+        [
+          {
+            "node": "Slack4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

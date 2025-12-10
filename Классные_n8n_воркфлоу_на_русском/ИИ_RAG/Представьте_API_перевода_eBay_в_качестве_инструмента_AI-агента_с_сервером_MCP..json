@@ -1,0 +1,163 @@
+{
+  "id": "pbHuFlScZi2w6LS5",
+  "meta": null,
+  "name": "[eBay] API перевода MCP сервер",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "841295ac-87fe-407e-b958-aa08491e59e9",
+      "name": "Setup Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1380,
+        -240
+      ],
+      "parameters": {
+        "color": 4,
+        "height": 1020,
+        "content": "### ⚙️ Инструкции по настройке\n\n1. **Импорт рабочего процесса**:  \nЗагрузите этот рабочий процесс в вашу инстанцию n8n\n\n2. **Настройка аутентификации**:  \nНастройте учетные данные oauth2\n\n3. **Активировать рабочий процесс**:  \nВключите рабочий процесс, чтобы запустить сервер MCP\n\n4. **Получить URL MCP**:  \nСкопируйте URL вебхука из триггера MCP\n\n5. **Подключить AI-агента**:  \nИспользуйте URL MCP в настройках вашего AI-агента\n\n\n### 💡 Примечания по использованию\n• Параметры автоматически заполняются AI с помощью выражений $fromAI()  \n• Доступно 1 API конечная точка в качестве инструмента  \n• Ответы сохраняют оригинальную структуру API  \n\n\n### 🛠️ Настройка\n• Добавьте узлы преобразования данных при необходимости  \n• Реализуйте пользовательскую обработку ошибок  \n• Добавьте узлы для ведения журнала или мониторинга  \n\n• Измените значения по умолчанию параметров в любом узле HTTP-запроса по мере необходимости  \n\n### 💬 Нужна помощь?  \nНапишите мне в [discord](https://discord.me/cfomodz) для получения рекомендаций по интеграции и пользовательским автоматизациям. Ознакомьтесь с [документацией n8n](https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.toolmcp/) для получения дополнительной информации."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7f5af637-8958-4392-876f-27943d529486",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1120,
+        -240
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 920,
+        "content": "## 🛠️ Перевод MCP Сервер ✅ 1 операция\n\n### Описание\nЭтот API позволяет сторонним разработчикам переводить название предмета, описание, поисковый запрос.\n\n### 🔧 Как это работает\n\nЭтот рабочий процесс преобразует API перевода в интерфейс, совместимый с MCP, для AI-агентов.\n\n• **MCP Триггер**: Служит вашей конечной точкой сервера для запросов AI-агентов  \n• **HTTP Запросы**: Обрабатывает API вызовы к https://api.ebay.com{basePath}  \n• **AI Выражения**: Автоматически заполняет параметры через `$fromAI()` заполнители  \n• **Нативная Интеграция**: Возвращает ответы напрямую AI-агенту  \n\n\n### 📋 Доступные операции (1 конечная точка)\n\n**Язык (1 операция)**  \nПеревести текст"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e121197b-ae6a-4503-8478-d68b017dfe8c",
+      "name": "Translation MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        -620,
+        -240
+      ],
+      "webhookId": "8a2b6273-65e5-4e54-a076-240b367e363a",
+      "parameters": {
+        "path": "translation-mcp"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b65221f0-3cff-46b6-ba25-fd05df96f660",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        -100
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 300,
+        "height": 200,
+        "content": "## Язык"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3bc98229-a139-4698-96ef-7deb3b117624",
+      "name": "Translate Text",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        -60
+      ],
+      "parameters": {
+        "url": "=https://api.ebay.com{basePath}/translate",
+        "method": "POST",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Translates input text inot a given language."
+      },
+      "typeVersion": 4.2
+    }
+  ],
+  "active": false,
+  "shared": [
+    {
+      "role": "workflow:owner",
+      "project": {
+        "id": "G5fce9xGuBAsWBXe",
+        "icon": null,
+        "name": "David Ashby <david.ashby.lds@gmail.com>",
+        "type": "personal",
+        "createdAt": "2025-06-04T02:55:02.013Z",
+        "updatedAt": "2025-06-04T02:56:01.361Z",
+        "projectRelations": [
+          {
+            "role": "project:personalOwner",
+            "user": {
+              "id": "715c1c00-cb48-4712-9a32-f1f4b6db2b30",
+              "role": "global:owner",
+              "email": "david.ashby.lds@gmail.com",
+              "disabled": false,
+              "lastName": "Ashby",
+              "settings": {
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1749357655581
+                },
+                "userActivated": true,
+                "userActivatedAt": 1749075994495,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "3N3vVikZb3MckFYm"
+              },
+              "createdAt": "2025-06-04T02:55:01.745Z",
+              "firstName": "David",
+              "isPending": false,
+              "updatedAt": "2025-06-08T04:40:58.399Z",
+              "mfaEnabled": false,
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_n8n_version": "1.95.3",
+                "personalization_survey_submitted_at": "2025-06-04T02:56:07.075Z"
+              }
+            },
+            "userId": "715c1c00-cb48-4712-9a32-f1f4b6db2b30",
+            "createdAt": "2025-06-04T02:55:02.013Z",
+            "projectId": "G5fce9xGuBAsWBXe",
+            "updatedAt": "2025-06-04T02:55:02.013Z"
+          }
+        ]
+      },
+      "createdAt": "2025-07-02T03:11:20.015Z",
+      "projectId": "G5fce9xGuBAsWBXe",
+      "updatedAt": "2025-07-02T03:11:20.015Z",
+      "workflowId": "pbHuFlScZi2w6LS5"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "timezone": "America/New_York"
+  },
+  "createdAt": "2025-07-02T03:11:20.013Z",
+  "updatedAt": "2025-07-02T03:14:52.000Z",
+  "versionId": "1b950cf0-6ffd-4f96-b6e7-b9fb2706efd4",
+  "isArchived": false,
+  "staticData": null,
+  "connections": {
+    "Translate Text": {
+      "ai_tool": [
+        [
+          {
+            "node": "Translation MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "triggerCount": 0
+}

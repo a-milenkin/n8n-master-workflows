@@ -1,0 +1,371 @@
+{
+  "id": "9GW2AVoU4cVMOrkr",
+  "meta": {
+    "instanceId": "c38e3b8a7e4240e6cdca062743f016c1029f385bf40345b6291939dfd83bfd77",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "* Вы **вручную запускаете** рабочий процесс, нажав кнопку **\"Выполнить\"** в n8n.",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "eedd4234-2cee-42a5-bd0e-389361be7b9b",
+      "name": "🔘 Trigger: Manual Execution",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -300,
+        -100
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "49faaaf3-e19f-4a60-a703-fe61db31544b",
+      "name": "🔗 Set Yelp Business URL for Dr",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -80,
+        -100
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d1dc3293-4616-498b-a682-432445d59eb0",
+              "name": "URL",
+              "type": "string",
+              "value": "https://www.yelp.com/biz/william-kimbrough-md-washington"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "a2c73d83-2ad9-423f-b025-e1171bc7dc6c",
+      "name": "🤖 Agent: Scrape Yelp Business Info",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        200,
+        -100
+      ],
+      "parameters": {
+        "text": "=You are a data extraction agent.\n\nScrape the following Yelp URL:\n{{ $json.URL }}\n\nExtract data for businesses (Doctors) listed on this page. For each business, provide the following details: \n\n- `Business Name`: The name of the business (Doctor's name or practice).\n- `Location`: The full address or location of the business.\n- `Contact Phone`: The contact Phone of the business (if available, otherwise dont return ).\n- `Category`: The category or type of business (e.g., \"Doctors\").\n- `Rating`: The Yelp rating (numeric value, e.g., \"4.5\").\n- `Reviews`: The number of reviews.\n- `Website`: The website of the business (if available, otherwise dont return ).\n",
+        "options": {},
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1dfe9fc1-9053-479d-8819-ea1cfe5d4cb9",
+      "name": "💬 AI Model: Process Data",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        140,
+        160
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "kmqnyfHdWfA8k1KC",
+          "name": "OpenAi account 3"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "211bda52-986c-4941-9949-805df3e89c3e",
+      "name": "🌐 Bright Data MCP Client",
+      "type": "n8n-nodes-mcp.mcpClientTool",
+      "position": [
+        280,
+        160
+      ],
+      "parameters": {
+        "toolName": "scrape_as_markdown",
+        "operation": "executeTool",
+        "toolParameters": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Tool_Parameters', ``, 'json') }}"
+      },
+      "credentials": {
+        "mcpClientApi": {
+          "id": "dGu6Ys11ijXSTxcV",
+          "name": "MCP Client (STDIO) account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bd66a3af-19ff-48e4-ba33-4481ef65e04c",
+      "name": "📧 Send Partnership Proposal to Business Email",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        660,
+        -100
+      ],
+      "webhookId": "7ce2b97d-e13a-427d-85ee-b37a6f25fdf6",
+      "parameters": {
+        "sendTo": "shahkar.genai@gmail.com",
+        "message": "=Dear {{ $json.output[0].business_name }},\n\nI hope this message finds you well. I am reaching out to explore a potential partnership with your business, as I noticed your exceptional reputation on Yelp with a rating of {{ $json.output[0].rating }}. We specialize in providing innovative solutions for businesses in the {{ $json.output[0].category }} industry, and I believe there is a strong synergy between our services.\n\nPlease let us know if you're open to discussing further details. You can visit our website at {{ $json.output[0].website }}, or feel free to reach out via email at shahkar.genai@gmail.com.\n\nLooking forward to hearing from you soon.\n\nBest regards,\n[Your Name]\n[Your Company]\n",
+        "options": {},
+        "subject": "=Potential Partnership with {{ $json.output[0].business_name }}",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "fZQRQuE7FmCr9daN",
+          "name": "Gmail account 2"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "763b2b0e-acc7-4c3f-a5bc-dd62664dbff1",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -340,
+        -860
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 420,
+        "height": 960,
+        "content": "### 🔹 **РАЗДЕЛ 1: Триггер и установка URL бизнеса на Yelp**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d2cf6b8c-6d00-4eed-8a95-815088f8daf2",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        120,
+        -980
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 420,
+        "height": 1080,
+        "content": "#### 🧩 **Узлы:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ee19e06d-a7ef-4e6b-b70d-404149c97365",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        580,
+        -820
+      ],
+      "parameters": {
+        "width": 340,
+        "height": 920,
+        "content": "* `⚡ Триггер: Ручное выполнение`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "11578249-29a6-43ef-a786-4172ca69285a",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1840,
+        -940
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 2360,
+        "content": "* `📝 Установить URL бизнеса на Yelp для доктора Уильяма Кимброу, MD`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bc8b2708-6f3c-4386-9a06-338e145ace83",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        940,
+        -820
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 380,
+        "height": 240,
+        "content": "#### 💡 **Что происходит:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "eacc825c-0715-4bbd-b7b8-b137128ea38c",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1840,
+        -1300
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 320,
+        "content": "**Запуск рабочего процесса:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "10525ffe-08f0-4b5a-b099-64a36f417f20",
+      "name": "Auto-fixing Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "position": [
+        400,
+        160
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a59d20f8-71ee-4921-8e83-59c496b8fd62",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        340,
+        380
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "kmqnyfHdWfA8k1KC",
+          "name": "OpenAi account 3"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "7c657853-2328-4169-9ffe-99b195015dec",
+      "name": "📝 Parse Scraped Data into JSON1",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        520,
+        360
+      ],
+      "parameters": {
+        "jsonSchemaExample": "[\n  {\n    \"business_name\": \"William Kimbrough, MD\",\n    \"location\": \"1350 Connecticut Ave Ste 1250 One Medical, Washington, DC 20036\",\n    \"contact_phone\": \"(202) 660-0005\",\n    \"category\": \"Internal Medicine, Family Practice\",\n    \"rating\": 5.0,\n    \"reviews\": 6,\n    \"website\": \"http://www.onemedical.com/dc/doctors?utm_medium=referral&utm_source=yelp.com&utm_campaign=sitelink\"\n  }\n]\n"
+      },
+      "typeVersion": 1.3
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c1faa689-fe24-40a9-b121-fd63be1ebe1b",
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-fixing Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "🤖 Agent: Scrape Yelp Business Info",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🌐 Bright Data MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "🤖 Agent: Scrape Yelp Business Info",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "💬 AI Model: Process Data": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "🤖 Agent: Scrape Yelp Business Info",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔘 Trigger: Manual Execution": {
+      "main": [
+        [
+          {
+            "node": "🔗 Set Yelp Business URL for Dr",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔗 Set Yelp Business URL for Dr": {
+      "main": [
+        [
+          {
+            "node": "🤖 Agent: Scrape Yelp Business Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📝 Parse Scraped Data into JSON1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🤖 Agent: Scrape Yelp Business Info": {
+      "main": [
+        [
+          {
+            "node": "📧 Send Partnership Proposal to Business Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

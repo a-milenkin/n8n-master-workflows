@@ -1,0 +1,324 @@
+{
+  "id": "FwN3BphNMsHcoKWs",
+  "meta": {
+    "instanceId": "d0d71f2b19047684364bc40e1849decba4ddefa59c8eafc13c3b9455fdec45b5",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Настройте свою воронку продаж в Systeme.io, чтобы [создать и активировать вебхук после подписки](https://help.systeme.io/article/144-how-to-create-and-trigger-a-webhook-after-an-opt-in-or-a-sale)",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "6617a5d6-38a5-44e9-a42e-c4b89ebcf2a7",
+      "name": "Clean Data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -800,
+        0
+      ],
+      "parameters": {
+        "mode": "raw",
+        "options": {},
+        "jsonOutput": "={\n  \"email\": \"{{ $('On New Systeme.io Optin').item.json.body.data.contact.email }}\",\n  \"first_name\": \"{{ $('On New Systeme.io Optin').item.json.body.data.contact.fields.first_name ?? \"\" }}\",\n  \"last_name\" : \"{{ $('On New Systeme.io Optin').item.json.body.data.contact.fields.surname ?? \"\" }}\",\n  \"referring_site\" : \"{{ $('On New Systeme.io Optin').item.json.body.data.source_url.replace(/\\?.*$/, '') }}\",\n  \"utm_source\" : \"{{ $('On New Systeme.io Optin').item.json.body.data.source_url.match(/[?&]utm_source=([^&]*)/)?.[1] ?? \"\" }}\",\n  \"utm_medium\" : \"{{ $('On New Systeme.io Optin').item.json.body.data.source_url.match(/[?&]utm_medium=([^&]*)/)?.[1] ?? \"\" }}\",\n  \"utm_campaign\" : \"{{ $('On New Systeme.io Optin').item.json.body.data.source_url.match(/[?&]utm_campaign=([^&]*)/)?.[1] ?? \"\" }}\"\n}"
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "dca87621-6a51-4a02-a597-2d53ad59d793",
+      "name": "Create New Beehiiv Subscriber",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -460,
+        0
+      ],
+      "parameters": {
+        "url": "=https://api.beehiiv.com/v2/publications/{{ $('Configure Workflow').item.json.beehiiv_publication_id }}/subscriptions",
+        "method": "POST",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          }
+        },
+        "jsonBody": "={\n  \"email\": \"{{ $json.email }}\",\n  \"utm_source\": \"{{ $json.utm_source }}\",\n  \"utm_medium\": \"{{ $json.utm_medium }}\",\n  \"utm_campaign\": \"{{ $json.utm_campaign }}\",\n  \"referring_site\": \"{{ $json.referring_site }}\",\n  \"custom_fields\": [\n    {\n      \"name\": \"{{ $('Configure Workflow').item.json.beehiiv_firstname_field_name }}\",\n      \"value\": \"{{ $json.first_name }}\"\n    },\n    {\n      \"name\": \"{{ $('Configure Workflow').item.json.beehiiv_lastname_field_name }}\",\n      \"value\": \"{{ $json.last_name }}\"\n    }\n  ]\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "bff73db0-e3f8-4760-b2ab-3be9ccc32558",
+      "name": "Subscriber Created?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -140,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "10a13ffe-eea9-4c39-83fc-82ada98ac937",
+              "operator": {
+                "type": "number",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.statusCode }}",
+              "rightValue": 200
+            },
+            {
+              "id": "8fedd56c-32c2-4b15-994f-c94584d0d263",
+              "operator": {
+                "type": "number",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.statusCode }}",
+              "rightValue": 201
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "0c157ba4-1df6-4da9-90e7-073c6d328446",
+      "name": "Send Email Alert (Beehiiv API error)",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        200,
+        -20
+      ],
+      "webhookId": "b9d07bd0-fb14-43ae-ade4-f546ba6ec44b",
+      "parameters": {
+        "sendTo": "={{ $('Configure Workflow').item.json.email_alert_recipients }}",
+        "message": "=An error occurred while calling the Beehiiv API and the workflow has stopped.\n\nSubscriber affected: {{ $('Clean Data').item.json.email }}\nError status: {{ $json.body.statusText }} ({{ $json.body.status }})\nError message: {{ $json.body.errors[0].message }}",
+        "options": {},
+        "subject": "Systeme.io > Beehiiv Synchronization Error",
+        "emailType": "text"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "fabbd076-4a33-4675-bf32-3da4c746b4d5",
+      "name": "Configure Workflow",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -1140,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8d8477f3-229b-4273-ac12-b849befcc52b",
+              "name": "beehiiv_publication_id",
+              "type": "string",
+              "value": "pub_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+            },
+            {
+              "id": "f4f80520-c182-45c0-81b2-00cd628e6ccf",
+              "name": "beehiiv_firstname_field_name",
+              "type": "string",
+              "value": "firstname"
+            },
+            {
+              "id": "a01fb97c-9bb9-4430-8fee-eb196d7a58be",
+              "name": "beehiiv_lastname_field_name",
+              "type": "string",
+              "value": "lastname"
+            },
+            {
+              "id": "253d55e0-f557-46cf-a69c-0e7a685bdd8a",
+              "name": "email_alert_recipients",
+              "type": "string",
+              "value": "recipient@example.com"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "f92affac-9a1b-4f0e-bf14-877b5fc5719b",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2200,
+        -520
+      ],
+      "parameters": {
+        "width": 540,
+        "height": 1360,
+        "content": "## Создание новых подписчиков Beehiiv из новых подписок Systeme.io (уровень воронки)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "219788ed-5d46-494f-822a-20c7279a0f6a",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1560,
+        -200
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 260,
+        "height": 380,
+        "content": "### ℹ️ Описание"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "09e191c2-2dc6-4d60-aeb2-aacfa794655f",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1220,
+        -200
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 260,
+        "height": 380,
+        "content": "Этот рабочий процесс автоматически создает подписчика в указанной публикации Beehiiv, когда новая подписка зарегистрирована в данной воронке продаж Systeme.io."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6a600c9d-c6d4-417d-a33a-d9d49b714fb4",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -540,
+        -200
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 260,
+        "height": 380,
+        "content": "**Полезно знать:** интеграция с Systeme.io осуществляется на уровне воронки продаж, а не на уровне аккаунта. Если у вас несколько воронок продаж, вы можете использовать один и тот же рабочий процесс несколько раз."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0af8282c-9ff8-44fa-a010-b59f6e202dad",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        120,
+        -200
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 260,
+        "height": 380,
+        "content": "### ⚡️ Быстрая настройка"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5f56e65b-c56a-45e6-a7ef-434bb371f221",
+      "name": "On New Systeme.io Optin",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -1480,
+        0
+      ],
+      "webhookId": "22568356-6d38-46ee-a402-9f0e1f06643a",
+      "parameters": {
+        "path": "funnel-level",
+        "options": {
+          "ipWhitelist": "185.236.142.1, 185.236.142.2, 185.236.142.3"
+        },
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9e252eb4-eaf3-403b-9f57-3a56bd00e8e1",
+  "connections": {
+    "Clean Data": {
+      "main": [
+        [
+          {
+            "node": "Create New Beehiiv Subscriber",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configure Workflow": {
+      "main": [
+        [
+          {
+            "node": "Clean Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Subscriber Created?": {
+      "main": [
+        [
+          {
+            "node": "Send Email Alert (Beehiiv API error)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "On New Systeme.io Optin": {
+      "main": [
+        [
+          {
+            "node": "Configure Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create New Beehiiv Subscriber": {
+      "main": [
+        [
+          {
+            "node": "Subscriber Created?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

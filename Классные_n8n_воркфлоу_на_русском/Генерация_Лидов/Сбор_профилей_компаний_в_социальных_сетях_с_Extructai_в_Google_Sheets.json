@@ -1,0 +1,386 @@
+{
+  "id": "ZKVoifRi8EOLPfvj",
+  "meta": {
+    "instanceId": "afeb9bf6b44bcf071458717ba2725fb9cfe8e80d1545ad9879e786f1aaf7a15f",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "1) Откройте шаблон таблицы Extruct по этой ссылке: https://app.extruct.ai/tables/shared/VfGemEC1BujAIJx8",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "26c8ff70-f937-4066-85a3-4ed206316ef6",
+      "name": "On form submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        1100,
+        200
+      ],
+      "webhookId": "61233cba-6ff5-4736-a38f-3a53c7428723",
+      "parameters": {
+        "options": {},
+        "formTitle": "Company Social Presence",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name"
+            }
+          ]
+        },
+        "formDescription": "Enter the name or website of a company"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "3e5d526f-5e91-4e65-b059-6d52d83da2ba",
+      "name": "Enrich form input",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1500,
+        200
+      ],
+      "parameters": {
+        "url": "={{'https://api.extruct.ai/v1/tables/' + $json.EXTRUCT_TABLE_ID + '/rows'}}",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"rows\": [\n    {\n      \"data\": {\n        \"input\": \"{{ $('On form submission').item.json.Name }}\"\n      }\n    }\n  ],\n  \"run\": true\n} ",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth"
+      },
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "PnJ0FDuGkKYiN4MZ",
+          "name": "Bearer Auth account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "708d9659-14a6-41a5-97cb-39c70abaef6e",
+      "name": "Get status",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1860,
+        200
+      ],
+      "parameters": {
+        "url": "=https://api.extruct.ai/v1/tables/{{ $('Variables').item.json.EXTRUCT_TABLE_ID }}",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth"
+      },
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "PnJ0FDuGkKYiN4MZ",
+          "name": "Bearer Auth account"
+        }
+      },
+      "typeVersion": 4.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "19dd9662-b69c-46c3-a11f-4a8ebb0a6d05",
+      "name": "If running",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2040,
+        200
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "f8432dca-c337-4644-8163-fa83f12e5ded",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.status.run_status }}",
+              "rightValue": "=running"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "55559824-2794-4f55-8bb2-29518f25a5c7",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1680,
+        200
+      ],
+      "webhookId": "10face1b-ef18-4357-ad22-0c4f32e25f90",
+      "parameters": {
+        "amount": 10
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "8f7bc242-88b7-47a0-9cfe-a77682f4c7e9",
+      "name": "Get data",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2320,
+        200
+      ],
+      "parameters": {
+        "url": "=https://api.extruct.ai/v1/tables/{{ $('Variables').item.json.EXTRUCT_TABLE_ID }}/data",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth"
+      },
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "PnJ0FDuGkKYiN4MZ",
+          "name": "Bearer Auth account"
+        }
+      },
+      "typeVersion": 4.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "5151b469-d637-43ff-ba70-311375cc1304",
+      "name": "Import to Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2640,
+        200
+      ],
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AGhkvHtD8bZNcSya",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "45b98bd7-1ef2-4cfb-b132-51f5485f9580",
+      "name": "Variables",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1260,
+        200
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1bfeac42-8afa-409a-806c-8262553270ec",
+              "name": "=EXTRUCT_TABLE_ID",
+              "type": "string",
+              "value": "=YOUR_EXTRUCT_TABLE_ID"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "b5b93f8c-6f27-4ec2-a5a6-8991651998a9",
+      "name": "Format last input",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2480,
+        200
+      ],
+      "parameters": {
+        "jsCode": "// Get rows from the first object\nconst rows = items[0].json.rows || items[0].json[0]?.rows;\n\n// Take the last row\nconst lastRow = rows[rows.length - 1];\nconst data = lastRow.data;\nlet flatRow = {};\n\n// Transform the data object to a flat object for Sheets\nfor (const key in data) {\n  if (data[key] && data[key].value && data[key].value.answer !== undefined) {\n    flatRow[key] = data[key].value.answer;\n  } else if (data[key] && data[key].value !== undefined) {\n    flatRow[key] = data[key].value;\n  } else {\n    flatRow[key] = '';\n  }\n}\n\nreturn [{ json: flatRow }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1c41a106-b6c8-4913-bd24-f9b88ed8bc46",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -20,
+        40
+      ],
+      "parameters": {
+        "width": 1020,
+        "height": 1640,
+        "content": "## Руководство по быстрому старту для потока обогащения социальных данных"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1c402902-89ff-41fa-994d-ae97f4706b13",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1060,
+        40
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 340,
+        "height": 340,
+        "content": "## 1. Создайте учетную запись Extruct"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bb21fdaf-7195-4796-a921-a04757c9a41d",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1460,
+        40
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 740,
+        "height": 340,
+        "content": "- Ссылка для регистрации с 2500 бесплатными кредитами: www.extruct.ai/"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d416707d-e5c6-4c65-83eb-add98f1a2846",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2260,
+        40
+      ],
+      "parameters": {
+        "width": 580,
+        "height": 340,
+        "content": "## 2. Подготовьте ваши таблицы"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b244e3c3-8d9c-4755-b016-786c27785814",
+  "connections": {
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Get status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get data": {
+      "main": [
+        [
+          {
+            "node": "Format last input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Variables": {
+      "main": [
+        [
+          {
+            "node": "Enrich form input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get status": {
+      "main": [
+        [
+          {
+            "node": "If running",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If running": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enrich form input": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format last input": {
+      "main": [
+        [
+          {
+            "node": "Import to Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

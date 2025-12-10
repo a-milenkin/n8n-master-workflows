@@ -1,0 +1,754 @@
+{
+  "id": "",
+  "meta": {
+    "instanceId": "",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "### 2. Сбор и парсинг блоков событий",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "f55e2060-7582-43be-96c2-285a5c8b933a",
+      "name": "Initiate Static Data",
+      "type": "n8n-nodes-base.code",
+      "notes": "You only need to run the initialization step once per workflow, regardless of the number of Telegram chat IDs. The initialization creates the telegramStates object within the global static data of the workflow. Once that object exists, the workflow will use it to store the state for any chat ID.",
+      "position": [
+        -560,
+        -340
+      ],
+      "parameters": {
+        "jsCode": "let workflowStaticData = $getWorkflowStaticData('global');\nworkflowStaticData.page = -1;\nworkflowStaticData.results = [];\nreturn workflowStaticData;\n"
+      },
+      "notesInFlow": false,
+      "typeVersion": 2
+    },
+    {
+      "id": "6e6e6777-f491-48a9-9cbf-7ab02c94158d",
+      "name": "Store Tables",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        500,
+        -380
+      ],
+      "parameters": {
+        "jsCode": "const workflowStaticData = $getWorkflowStaticData('global');\n\nif (!Array.isArray(workflowStaticData.results)) {\n  workflowStaticData.results = [];\n}\n\nconst newEvents = $input.all().map(item => item.json);\n\nworkflowStaticData.results.push(...newEvents);\n\nreturn [\n  {\n    json: {\n      addedThisRound: newEvents.length,\n      totalStored: workflowStaticData.results.length\n    }\n  }\n];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1c82a460-6209-44a5-9e30-17de23062ed6",
+      "name": "page+1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -560,
+        -180
+      ],
+      "parameters": {
+        "jsCode": "let workflowStaticData = $getWorkflowStaticData('global');\n\nif (!workflowStaticData.page) {\n    workflowStaticData.page = 0; \n}\nworkflowStaticData.page += 1\n\nreturn {\n  'page': workflowStaticData.page\n}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "75cc2de2-5cce-4b77-8e0a-9e7387c8dbd6",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        500,
+        -180
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "315735a1-8c34-4c9f-a4ff-a6e9bd715d13",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $('page+1').item.json.page }}",
+              "rightValue": "={{ 3 }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "d6f69a3c-611c-403b-9e52-636694c7d579",
+      "name": "Extract Blocks",
+      "type": "n8n-nodes-base.html",
+      "position": [
+        -160,
+        -180
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "blocks",
+              "cssSelector": "article.ecl-content-item",
+              "returnArray": true,
+              "returnValue": "html"
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 1.2
+    },
+    {
+      "id": "90fb346b-d39c-4941-b6c5-b314f2401b79",
+      "name": "Query EU Website",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -340,
+        -180
+      ],
+      "parameters": {
+        "url": "=https://european-union.europa.eu/news-and-events/events_en?page={{ $json.page }}",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "9237332c-78f0-43ef-af2e-88e1dc3dc219",
+      "name": "Load Old Records",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -360,
+        340
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 4.6
+    },
+    {
+      "id": "6ef271ab-da5b-4bf0-a83d-64f323382a57",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        -140,
+        340
+      ],
+      "parameters": {
+        "options": {},
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "renameField": true,
+              "outputFieldName": "events",
+              "fieldToAggregate": "event_name"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "83114ae9-badf-48aa-82a1-0704c04cec6a",
+      "name": "Events Already Existing?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        440,
+        340
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "b69cc214-26d5-4a38-aee0-68d4f556c87a",
+              "operator": {
+                "type": "array",
+                "operation": "contains",
+                "rightType": "any"
+              },
+              "leftValue": "={{ $json.events }}",
+              "rightValue": "={{ $json.event_name }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "ce6a8ae0-d480-45ab-b25e-3a5de3f2642b",
+      "name": "15 sec",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        760,
+        -100
+      ],
+      "webhookId": "77ab0eb9-d29a-47ea-a076-35930247e9bb",
+      "parameters": {
+        "amount": 15
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "6e9050c2-f24d-4400-911e-1f402ef0074b",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -820,
+        -580
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 680,
+        "content": "### 1. Запуск рабочего процесса с помощью Cron Job"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "18485d04-a947-4828-a46a-9101730d3a90",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -800,
+        -240
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "ec41e0ba-b2fd-4f2c-833e-faba7b480062",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -400,
+        -580
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1340,
+        "height": 680,
+        "content": "Рабочий процесс запускается каждое утро в 08:30 (по местному времени). Он начинается с инициализации переменных, которые будут хранить **номер страницы** и **информацию о событиях**."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "acbb53da-6068-4452-9b9c-289eb7c5e4c0",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -400,
+        120
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 580,
+        "height": 500,
+        "content": "#### Как настроить?"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "05fe99bd-37c6-4d4c-b376-9328bae44ef8",
+      "name": "Collect Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        300,
+        -180
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c446f4e4-380d-488b-af58-49d10d86b9ef",
+              "name": "event_name",
+              "type": "string",
+              "value": "={{ $json.event_name }}"
+            },
+            {
+              "id": "d96c9c62-ce40-48bd-96eb-8365de6b2a0e",
+              "name": "event_link",
+              "type": "string",
+              "value": "={{ $json.event_link }}"
+            },
+            {
+              "id": "f7bfa3be-6cb4-4577-8047-ca6c8f299b3c",
+              "name": "day",
+              "type": "string",
+              "value": "={{ $json.day }}"
+            },
+            {
+              "id": "cc6e4317-d685-436b-bccf-90d577a35aa1",
+              "name": "month",
+              "type": "string",
+              "value": "={{ $json.month_1 || $json.month_2 }}"
+            },
+            {
+              "id": "88f3ab71-6a9a-4e14-9f85-070637bc8a67",
+              "name": "year",
+              "type": "string",
+              "value": "={{ $json.year }}"
+            },
+            {
+              "id": "7e9247e5-350c-4813-96cc-d6e849324f55",
+              "name": "event_type",
+              "type": "string",
+              "value": "={{ $json.event_type }}"
+            },
+            {
+              "id": "d2bb0c0d-4d3b-49c8-846f-857a29063701",
+              "name": "event_location",
+              "type": "string",
+              "value": "={{ $json.event_location }}"
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 3.4
+    },
+    {
+      "id": "24938049-bc25-4bec-8c99-9feb5c00a68e",
+      "name": "Parse Information",
+      "type": "n8n-nodes-base.html",
+      "position": [
+        60,
+        -180
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "blocks",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "event_name",
+              "cssSelector": "div.ecl-content-block__title a"
+            },
+            {
+              "key": "event_link",
+              "attribute": "href",
+              "cssSelector": "div.ecl-content-block__title a",
+              "returnValue": "attribute"
+            },
+            {
+              "key": "day",
+              "cssSelector": "span.ecl-date-block__day"
+            },
+            {
+              "key": "month_1",
+              "attribute": "title",
+              "cssSelector": "abbr.ecl-date-block__month",
+              "returnValue": "attribute"
+            },
+            {
+              "key": "year",
+              "cssSelector": "span.ecl-date-block__year"
+            },
+            {
+              "key": "event_type",
+              "cssSelector": "li.ecl-content-block__primary-meta-item"
+            },
+            {
+              "key": "event_location",
+              "cssSelector": ".ecl-content-block__description li"
+            },
+            {
+              "key": "month_2",
+              "cssSelector": "span.ecl-date-block__month"
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 1.2
+    },
+    {
+      "id": "b676bd86-281a-46a9-a4bc-9b76c70e0b9a",
+      "name": "Combine New + Old Records",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        240,
+        340
+      ],
+      "parameters": {
+        "mode": "combineBySql"
+      },
+      "notesInFlow": true,
+      "typeVersion": 3
+    },
+    {
+      "id": "bdc18887-1a2c-4750-b1a0-2a0397cd3fa5",
+      "name": "Store New Records",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        700,
+        360
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "day": "={{ $json.day }}",
+            "year": "={{ $json.year }}",
+            "month": "={{ $json.month }}",
+            "event_link": "={{ $json.event_link }}",
+            "event_name": "={{ $json.event_name }}",
+            "event_type": "={{ $json.event_type }}",
+            "event_location": "={{ $json.event_location }}"
+          },
+          "schema": [
+            {
+              "id": "event_name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "event_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "event_link",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "event_link",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "day",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "day",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "month",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "month",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "year",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "year",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "event_type",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "event_type",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "event_location",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "event_location",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 4.6
+    },
+    {
+      "id": "07f6e260-55d6-4838-9a7f-baea3fe4d7d4",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        200,
+        120
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 740,
+        "height": 400,
+        "content": "- Выберите время, когда вы хотите его настроить"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "55d5f303-232d-499a-86c5-1959136f66d2",
+      "name": "Return Lines Scrapped",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -260,
+        480
+      ],
+      "parameters": {
+        "jsCode": "const workflowStaticData = $getWorkflowStaticData('global');\n\nif (!Array.isArray(workflowStaticData.results)) {\n  return [];\n}\n\nreturn workflowStaticData.results.map(result => ({ json: result }));\n"
+      },
+      "typeVersion": 2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "364d5f7e-11de-49fa-929e-edbd723a92e0",
+  "connections": {
+    "If": {
+      "main": [
+        [],
+        [
+          {
+            "node": "15 sec",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "15 sec": {
+      "main": [
+        [
+          {
+            "node": "page+1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "page+1": {
+      "main": [
+        [
+          {
+            "node": "Query EU Website",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Combine New + Old Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Tables": {
+      "main": [
+        []
+      ]
+    },
+    "Collect Fields": {
+      "main": [
+        [
+          {
+            "node": "Store Tables",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Blocks": {
+      "main": [
+        [
+          {
+            "node": "Parse Information",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Old Records": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query EU Website": {
+      "main": [
+        [
+          {
+            "node": "Extract Blocks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "page+1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Initiate Static Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Load Old Records",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Return Lines Scrapped",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Information": {
+      "main": [
+        [
+          {
+            "node": "Collect Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Return Lines Scrapped": {
+      "main": [
+        [
+          {
+            "node": "Combine New + Old Records",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Events Already Existing?": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Store New Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine New + Old Records": {
+      "main": [
+        [
+          {
+            "node": "Events Already Existing?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

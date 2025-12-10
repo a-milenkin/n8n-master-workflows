@@ -1,0 +1,343 @@
+{
+  "id": "ieTfr3OU6NUM9CL4",
+  "meta": {
+    "instanceId": "8981479cb588889c05b145eaed421551d37a4fff11ab279d3f4744a6577c6002",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Это шаблон с примером того, как вы можете избежать превышения квоты Google Sheets. Более подробная информация в моем [блоге N8n Tips](https://n8n-tips.blogspot.com/2025/07/tip-5-fixing-google-sheets-quota.html)",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "8f508825-ec55-4d49-b7de-c7cddd2e8529",
+      "name": "When clicking ‘Execute workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        275
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "e4e6bcaa-df68-4057-8515-4fe30ccadd08",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "width": 620,
+        "height": 120,
+        "content": "## Совет #5: Исправление проблемы превышения квоты Google Sheets"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "916c78c0-38a6-4fc6-a3b2-aa74fd189f92",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        440,
+        180
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "63facfe2-c4b3-4a20-89b8-46c8515f8db1",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        660,
+        280
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4a875792-664d-4c97-af72-1252c86cc64a",
+              "name": "row_number",
+              "type": "number",
+              "value": "={{ $json.row_number }}"
+            },
+            {
+              "id": "cd47a508-aad7-4c7c-94cc-15752e8ede05",
+              "name": "Number",
+              "type": "number",
+              "value": "={{ $json.Color.length }}"
+            },
+            {
+              "id": "b67e8c39-f3f9-4614-9b5d-96876cb6a669",
+              "name": "Status",
+              "type": "string",
+              "value": "DONE"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "d0d135bc-84b9-4543-9fa0-981f9be5c40d",
+      "name": "Read Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueErrorOutput",
+      "position": [
+        220,
+        275
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "READY",
+              "lookupColumn": "Status"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hKwP2_G6EaVSJlqWH1zYMVjarb9cuBx78D_U3HBrdhQ/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1hKwP2_G6EaVSJlqWH1zYMVjarb9cuBx78D_U3HBrdhQ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hKwP2_G6EaVSJlqWH1zYMVjarb9cuBx78D_U3HBrdhQ/edit?usp=drivesdk",
+          "cachedResultName": "Tip #5: Fixing Google Sheets quota exceeding issue"
+        },
+        "authentication": "serviceAccount"
+      },
+      "credentials": {
+        "googleApi": {
+          "id": "FboA3kaXSneJmEGX",
+          "name": "Google Service Account account"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "3080f987-e5b4-4690-8750-4e469f55305f",
+      "name": "Update Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueErrorOutput",
+      "position": [
+        880,
+        280
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "Color",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Color",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Number",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [
+            "row_number"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hKwP2_G6EaVSJlqWH1zYMVjarb9cuBx78D_U3HBrdhQ/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1hKwP2_G6EaVSJlqWH1zYMVjarb9cuBx78D_U3HBrdhQ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hKwP2_G6EaVSJlqWH1zYMVjarb9cuBx78D_U3HBrdhQ/edit?usp=drivesdk",
+          "cachedResultName": "Tip #5: Fixing Google Sheets quota exceeding issue"
+        },
+        "authentication": "serviceAccount"
+      },
+      "credentials": {
+        "googleApi": {
+          "id": "FboA3kaXSneJmEGX",
+          "name": "Google Service Account account"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "044ad4ad-1f57-49c2-ac50-2271a640ac23",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        880,
+        520
+      ],
+      "webhookId": "4fb44836-a76d-4886-a7c3-993bdc49b7f5",
+      "parameters": {
+        "unit": "minutes",
+        "amount": "=1"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "099a89d0-7d05-4e8a-9fdb-a4ab2deda5a0",
+      "name": "Wait1",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        220,
+        520
+      ],
+      "webhookId": "4fb44836-a76d-4886-a7c3-993bdc49b7f5",
+      "parameters": {
+        "unit": "minutes",
+        "amount": "=1"
+      },
+      "typeVersion": 1.1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d48cf7a0-f752-4d80-b799-3d9b408e975e",
+  "connections": {
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Update Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Read Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Update Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Read Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

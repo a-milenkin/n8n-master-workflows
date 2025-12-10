@@ -1,0 +1,693 @@
+{
+  "id": "zyj0hJZNNR3mKvEx",
+  "name": "Этот узел использует **Большую Языковую Модель (LLM)** через **OpenRouter API** для суммирования и анализа извлеченного содержимого статьи. Цель состоит в том, чтобы превратить сырой текст в краткие, практические выводы.",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "b4739068-769f-4638-83cf-94a7c611caad",
+      "name": "Append or update row in sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2380,
+        620
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "ID": "={{ $('Merge').item.json.id }}",
+            "URL": "={{ $json.realUrl }}",
+            "Date": "={{ $('Merge').item.json.pubDate }}",
+            "Title": "={{ $('Merge').item.json.title }}"
+          },
+          "schema": [
+            {
+              "id": "ID",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Title",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Title",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "URL",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "URL",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Summary",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "SentToTelegram",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "SentToTelegram",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "ID"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "109kj97ABR37XviIpxARCFviZwq8opOoe--rayOeFDSo"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "4d5abad5-44ac-4698-a178-f6da494d83d7",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        860,
+        140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 460,
+        "height": 760,
+        "content": "### ⏰ Планировщик"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8f3aeb9c-380e-4d91-a8e0-f2c856d360b5",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 780,
+        "height": 1300,
+        "content": "**Функция:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f00e3efd-e11e-4340-adef-c87b01c4818c",
+      "name": "Read URL content",
+      "type": "n8n-nodes-base.jinaAi",
+      "position": [
+        2980,
+        500
+      ],
+      "parameters": {
+        "url": "={{ $('Get row(s) in sheet').item.json.URL }}",
+        "options": {},
+        "requestOptions": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f86e1a17-48b9-4a3b-a428-b4e6edc27d6f",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        3300,
+        500
+      ],
+      "parameters": {
+        "text": "=Create a summary of up to 200 words from {{ $json.content }} Add a description of the affected stocks (stock code). Add a sentiment description (uptrend, downtrend, sideways, positive, negative or others). The writing format is as follows: Title\\nCategory\\nSummary\\nSentiment\\nReccomendation. Write in plain text without punctuation, use emoji to more interactive.",
+        "options": {
+          "systemMessage": "You are a professional analyst who has studied a lot about stock movements. Use the following news articles to see the company's fundamentals, sentiment, and future projections."
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b94dff41-913d-4e8b-9ea8-3fe9d36041ab",
+      "name": "OpenRouter Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "position": [
+        3300,
+        700
+      ],
+      "parameters": {
+        "model": "google/gemini-2.0-flash-exp:free",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f4d18c3e-7ed8-44d8-b699-82c6923e642f",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1960,
+        620
+      ],
+      "parameters": {
+        "numberInputs": 3
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "552b48ff-8921-4878-8c65-4d1f9c63f6e0",
+      "name": "Get row(s) in sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2580,
+        620
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "109kj97ABR37XviIpxARCFviZwq8opOoe--rayOeFDSo"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "2dc342e9-9f0b-4f1e-8889-60b61bcb42f2",
+      "name": "Send a text message",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        3960,
+        500
+      ],
+      "parameters": {
+        "text": "={{ $json.Summary }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "f49aa596-c969-4c4f-b466-79f962c2a658",
+      "name": "Append or update row in sheet1",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3740,
+        500
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "URL": "={{ $('Read URL content').item.json.url }}",
+            "Summary": "={{ $json.output }}",
+            "SentToTelegram": "true"
+          },
+          "schema": [
+            {
+              "id": "ID",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Title",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Title",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "URL",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "URL",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Summary",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "SentToTelegram",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "SentToTelegram",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "URL"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "109kj97ABR37XviIpxARCFviZwq8opOoe--rayOeFDSo"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "966d4fb2-39e1-4e8f-a6bc-847f49e2f6f0",
+      "name": "Schedule Trigger1",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        1020,
+        620
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "b9d23403-da7b-4c43-a6b4-aeaa38ac6e2d",
+      "name": "No Operation, do nothing",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        2980,
+        720
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "002d50e3-f1d5-4bcc-b342-7c94f9d22bf8",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1420,
+        140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 460,
+        "height": 840,
+        "content": "Этот узел запускает весь рабочий процесс через заданные интервалы. Он обеспечивает регулярную проверку системы на наличие новостей о акциях без ручного вмешательства."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c17cce05-0f63-47ee-abdf-e5c016819766",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1940,
+        140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 560,
+        "height": 840,
+        "content": "**Настройка:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "134bf506-303f-45aa-a659-93c7a9c8252d",
+      "name": "Get Real URL",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2160,
+        620
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  realUrl: $json.link.includes(\"google.com/url\")\n    ? decodeURIComponent($json.link.match(/url=([^&]+)/)[1])\n    : $json.link\n};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6011ec34-cb71-4db6-b3a6-a8a190db78fc",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2760,
+        620
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "67a8680d-5aca-4e40-9ae7-f91925461807",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.Summary }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "4a05175a-00ef-42b7-a8f5-87d6d729313f",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2560,
+        140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 620,
+        "height": 840,
+        "content": "- **Режим:** Каждые X минут"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cdf4b5fd-8da9-49d4-a79b-cfb6bcf4dac3",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3200,
+        140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 840,
+        "content": "### 🧠 Суммировать и анализировать (LLM через OpenRouter)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f71646be-296c-47d0-9443-126c03405faa",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3700,
+        140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 840,
+        "content": "**Функция:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ce580e6b-e954-4cf0-a55b-f9e67be8a905",
+      "name": "Stock Acquisition",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "position": [
+        1580,
+        440
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "d64cf706-d073-4d1a-a793-4ab66a32da28",
+      "name": "Stock Buyback",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "position": [
+        1580,
+        620
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "1a3e5030-0b82-4649-910f-bfc8d0a28866",
+      "name": "NVDA Stock",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "position": [
+        1580,
+        800
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1.2
+    }
+  ],
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Read URL content",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Get Real URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NVDA Stock": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Get Real URL": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stock Buyback": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Read URL content": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger1": {
+      "main": [
+        [
+          {
+            "node": "NVDA Stock",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Stock Buyback",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Stock Acquisition",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stock Acquisition": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

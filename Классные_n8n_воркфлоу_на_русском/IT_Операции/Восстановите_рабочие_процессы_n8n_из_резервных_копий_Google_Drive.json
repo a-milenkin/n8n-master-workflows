@@ -1,0 +1,270 @@
+{
+  "id": "4Uwsl8NFCbGfns09",
+  "meta": {
+    "instanceId": "b3df22d2875c82e3ba1883c50049ed9cee0bcabf99d2b486961d2245a09e3964",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Восстановление нескольких рабочих процессов n8n вручную, особенно при **миграции вашей инстанции n8n на другой хост или сервер, может быть невероятно сложной и времязатратной задачей. Представьте, что вам нужно индивидуально экспортировать, а затем вручную импортировать сотни рабочих процессов; это рецепт для ошибок и значительного времени простоя.**",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "4499bb17-7055-47c6-a344-c30d27232c4e",
+      "name": "Google Drive Get All Workflows",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        300,
+        0
+      ],
+      "parameters": {
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "mode": "url",
+            "value": "https://drive.google.com/drive/folders/1bfV3QKrchiNp4Ti2Ji6jyoM0b-SlUJwC"
+          }
+        },
+        "options": {},
+        "resource": "fileFolder",
+        "returnAll": true
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "q8OibtSjVurZl2tb",
+          "name": "AI Auto Google Drive account"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "933b1caa-4551-4620-8b90-0453d221c67b",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        200,
+        -80
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 307,
+        "height": 271,
+        "content": "## Настройки"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2555a429-908c-4173-9cd2-13d0fb5ecc21",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        620,
+        -80
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 1127,
+        "height": 311,
+        "content": "## Импортировать все рабочие процессы в N8n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e4b2c217-01ae-498f-b85c-531b80c2b929",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        720,
+        0
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "f444655c-94b0-41eb-9710-962269ef5462",
+      "name": "Extract from File",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        1140,
+        20
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "fromJson"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3a3e83d8-a490-4fef-bd1c-6974b03af355",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1540,
+        20
+      ],
+      "webhookId": "1d4c12db-215a-42d4-80e0-062bad87b7f6",
+      "parameters": {
+        "amount": 3
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "9fd08d3c-a0bd-498a-b8b4-7f7f73c6d517",
+      "name": "Google Drive Download Workflow",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        940,
+        20
+      ],
+      "parameters": {
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{  $('Loop Over Items').item.json.id  }}"
+        },
+        "options": {},
+        "operation": "download"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "q8OibtSjVurZl2tb",
+          "name": "AI Auto Google Drive account"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "0c1e644a-736a-4fcb-9756-cde959264f72",
+      "name": "n8n Create Workflow",
+      "type": "n8n-nodes-base.n8n",
+      "position": [
+        1340,
+        20
+      ],
+      "parameters": {
+        "operation": "create",
+        "requestOptions": {},
+        "workflowObject": "={{ $json.data.toJsonString() }}"
+      },
+      "credentials": {
+        "n8nApi": {
+          "id": "S63rln42rAvGFfBB",
+          "name": "n8n account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d91b1c60-db35-40cd-9923-f4264fe6fca4",
+      "name": "Clicking Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "7588d560-33b6-41b1-a76c-eaae74091d6d",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -900,
+        -220
+      ],
+      "parameters": {
+        "width": 660,
+        "height": 2280,
+        "content": "## Восстановить все рабочие процессы n8n из резервных копий Google Drive"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "80dbfa3f-a041-4b59-ac04-ca17221be845",
+  "connections": {
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Google Drive Download Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clicking Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google Drive Get All Workflows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "n8n Create Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "n8n Create Workflow": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Download Workflow": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Get All Workflows": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

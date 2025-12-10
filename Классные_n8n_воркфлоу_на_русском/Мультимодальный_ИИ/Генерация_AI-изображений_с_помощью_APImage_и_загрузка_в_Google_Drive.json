@@ -1,0 +1,236 @@
+{
+  "meta": {
+    "instanceId": "cba9e349b601c19a1409b9fd06680aff0a77829be13c8aad9a858d4cea7ff290",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "e67847ce-f519-45a3-bba6-380af6cdd648",
+      "name": "Download Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        96,
+        64
+      ],
+      "parameters": {
+        "url": "={{ $json.images[0] }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "generated_image"
+            }
+          }
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e380ad74-2cc6-4d1e-ae30-d1fca03cb39e",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -416,
+        -208
+      ],
+      "parameters": {
+        "width": 976,
+        "height": 252,
+        "content": "## ✨ Как начать"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9ea17920-9c28-4d21-9f48-e64193fec34e",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        256
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 304,
+        "content": "Дважды щелкните по узлу **APImage API**, чтобы открыть его."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "82a45985-c85e-404e-b202-6344d34c933c",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -416,
+        256
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 304,
+        "content": "Замените `YOUR_API_KEY` на ваш фактический API-ключ (сохраняйте префикс `\"Bearer\"`)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b48797c6-7c96-4e9a-827b-d05c435dbe13",
+      "name": "APImage API",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -128,
+        64
+      ],
+      "parameters": {
+        "url": "https://apimage.org/api/ai-image-generate",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"prompt\": \"{{ $json['Describe the image you want'] }}\",\n  \"dimensions\": \"{{ $json['Dimensions'] }}\",\n  \"model\": \"{{ $json['AI Model'] }}\"\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_API_KEY"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "3d77e24e-cf80-4ace-9a58-faa4dd3a4f09",
+      "name": "Generate Image",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        -352,
+        64
+      ],
+      "webhookId": "b7487db2-4581-4fd6-b4e0-afac3d8466fb",
+      "parameters": {
+        "options": {},
+        "formTitle": "APImage AI Image Generator",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Describe the image you want",
+              "requiredField": true
+            },
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "Dimensions",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Square"
+                  },
+                  {
+                    "option": "Landscape"
+                  },
+                  {
+                    "option": "Portrait"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "AI Model",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Basic"
+                  },
+                  {
+                    "option": "Premium"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "formDescription": "Generate images in seconds"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "1a9c4e5a-b223-4c71-98b6-d88306cc974a",
+      "name": "Upload file",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        320,
+        64
+      ],
+      "parameters": {
+        "name": "generated_image",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "inputDataFieldName": "generated_image"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "358d7fe8-6e82-4e77-a7e4-788e94b79e40",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -416,
+        640
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 672,
+        "height": 352,
+        "content": "Используйте узел **Сгенерировать изображение**, чтобы отправить запрос."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "APImage API": {
+      "main": [
+        [
+          {
+            "node": "Download Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Image": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Image": {
+      "main": [
+        [
+          {
+            "node": "APImage API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

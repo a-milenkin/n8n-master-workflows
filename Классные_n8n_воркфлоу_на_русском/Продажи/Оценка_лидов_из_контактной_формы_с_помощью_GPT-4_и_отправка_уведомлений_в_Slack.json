@@ -1,0 +1,266 @@
+{
+  "meta": {
+    "instanceId": "5aaf4236c70e34e423fbdb2c7b754d19253a933bb1476d548f75848a01e473cf",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "df9b404e-90d7-4f66-bcd4-9d64595e7b88",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1320,
+        1360
+      ],
+      "parameters": {
+        "color": 7,
+        "content": "Генератор изображений\n\nОтправляет ваш запрос на конечную точку изображений OpenAI (или ваш выбранный API изображений)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e0eae618-d330-4b74-b5a4-528a28ec91c6",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1260,
+        220
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 480,
+        "height": 740,
+        "content": "=======================================\n            ПОМОЩЬ В РАБОЧЕМ ПРОЦЕССЕ\n=======================================\nПо любым вопросам или для получения поддержки, пожалуйста, свяжитесь с:\n    Yaron@nofluff.online\n\nИзучите больше советов и уроков здесь:\n   - YouTube: https://www.youtube.com/@YaronBeen/videos\n   - LinkedIn: https://www.linkedin.com/in/yaronbeen/\n======================================="
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fc6691ad-c031-40ce-bffc-ec3495db40cb",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -120,
+        280
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "content": "Форма-в-Slack AI Триажер\n\nЭтот рабочий процесс захватывает каждую новую отправку контактной формы, извлекает имя, электронную почту и сообщение вашего потенциального клиента, запрашивает у GPT-4 оценить их интерес как Горячий/Теплый/Холодный, а затем публикует аккуратное резюме в Slack, чтобы ваша команда могла мгновенно приступить к работе с лучшими лидами."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "05fd07c8-02c0-4f52-b8c3-fc2ea20cba9c",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -120,
+        900
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 140,
+        "content": "Получить отправку формы\n\n• Слушает входящие POST-запросы на /form-submission  \n• Срабатывает каждый раз, когда кто-то заполняет вашу контактную форму  \n• Передает необработанный полезный груз дальше"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3a7b8e7f-6269-4640-8d0a-068ba14077a5",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        320,
+        520
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "content": "Извлечение данных о лидере\n\n• Извлекает только то, что нам нужно:  \n  – имя  \n  – электронная почта  \n  – сообщение  \n• Удаляет все остальные поля для чистого полезного груза"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cc22b2aa-8841-4f92-9377-63ad8aaf7689",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        840,
+        1160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 360,
+        "height": 140,
+        "content": "Оценка интереса лида\n\n• Использует GPT-4.1 для чтения текста сообщения  \n• Отвечает ровно одним словом:  \n  “Горячий”, “Теплый” или “Холодный”  \n• Автоматически оценивает, насколько заинтересован лид"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "24c0a6aa-68fa-4d7f-90d4-067fe86318b8",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1440,
+        580
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 560,
+        "height": 200,
+        "content": "Отправить уведомление о лидах в Slack\n\n• Отправляет отформатированное уведомление в #social  \n• Включает:  \n  – 🔥 Уровень интереса (Горячий/Теплый/Холодный)  \n  – 🧑 Имя  \n  – 📧 Электронная почта  \n  – 💬 Оригинальное сообщение  \n• Позволяет вашей команде видеть новые лиды в реальном времени"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9fe6e672-9a36-49eb-8612-7285dee6336d",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1560,
+        1080
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 420,
+        "height": 140,
+        "content": "Обзор подключения\n\nWebhook → Установить → OpenAI → Slack  \n(Триггеры → Очистить данные → Классифицировать → Уведомить команду)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "510a7d97-6508-4f37-90a1-33b0b194b02c",
+      "name": "Receive Form Submission",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -80,
+        740
+      ],
+      "webhookId": "60e36522-4db5-4ebf-ae44-db9ff2aae367",
+      "parameters": {
+        "path": "/form-submission",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7f4f555f-9488-4e05-a78f-7a48533e857b",
+      "name": "Extract Lead Details",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        480,
+        740
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "18ff8ecc-6647-416a-89e0-468b186bbf20",
+              "name": "body.name",
+              "type": "string",
+              "value": "={{ $json[\"body\"][\"name\"] }}"
+            },
+            {
+              "id": "cae1ea20-c589-4f38-acf3-c61c062f129d",
+              "name": "body.email",
+              "type": "string",
+              "value": "={{ $json[\"body\"][\"email\"] }}"
+            },
+            {
+              "id": "da5da857-c6b2-45f3-ac13-53aed74c8e37",
+              "name": "body.message",
+              "type": "string",
+              "value": "={{ $json[\"body\"][\"message\"] }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "579e6686-7b86-45aa-a7b8-204fc7982fad",
+      "name": "Rate Lead Interest",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        900,
+        960
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-2025-04-14",
+          "cachedResultName": "GPT-4.1-2025-04-14"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "content": "\"{{ $json[\"message\"] }}\""
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "d2a23b3f-9a0c-4567-a179-60395e80119c",
+      "name": "Send Lead Alert to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1480,
+        400
+      ],
+      "webhookId": "8756fbd1-401f-4a8e-a061-b93558ffb917",
+      "parameters": {
+        "text": "={{\n  ($json[\"message\"][\"content\"] === \"Hot\" ? \"🔥\" : \n   $json[\"message\"][\"content\"] === \"Warm\" ? \"🌤\" : \"❄️\") +\n   \" New Lead: \" + $node[\"Extract Lead Details\"].json[\"body\"][\"name\"] + \n   \" (\" + $node[\"Extract Lead Details\"].json[\"body\"][\"email\"] + \")\\n\\n\" +\n   \"Message: \" + $node[\"Extract Lead Details\"].json[\"body\"][\"message\"] + \"\\n\\n\" +\n   \"Triage: \" + \n   ($json[\"message\"][\"content\"] === \"Hot\" ? \"🔥 Hot\" : \n    $json[\"message\"][\"content\"] === \"Warm\" ? \"🌤 Warm\" : \"❄️ Cold\")\n}}\n",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "social"
+        },
+        "otherOptions": {}
+      },
+      "typeVersion": 2.3
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Rate Lead Interest": {
+      "main": [
+        [
+          {
+            "node": "Send Lead Alert to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Lead Details": {
+      "main": [
+        [
+          {
+            "node": "Rate Lead Interest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receive Form Submission": {
+      "main": [
+        [
+          {
+            "node": "Extract Lead Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,254 @@
+{
+  "id": "tRckisVXLUy8rbLG",
+  "meta": {
+    "instanceId": "a5283507e1917a33cc3ae615b2e7d5ad2c1e50955e6f831272ddd5ab816f3fb6"
+  },
+  "name": "Узел: **Агент индикаторов Binance SM 1 день**",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "17fdc5ce-753b-4197-8f36-7f2b4df2fb39",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        3100,
+        2040
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "yUizd8t0sD5wMYVG",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "bfdcd736-dabb-40b3-82a4-55e8cef8cb18",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        3360,
+        2060
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "b7df590f-0c56-466d-a09c-b271f9f27c49",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        2940,
+        1700
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "message"
+            },
+            {
+              "name": "sessionId"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "0928613f-9c83-41d8-a761-03cd357ba78a",
+      "name": "Binance SM 1day Indicators Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        3340,
+        1700
+      ],
+      "parameters": {
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "You are the **Binance 1-Day Technical Indicator Agent**, responsible for calculating and returning **1-day interval signals** for any Binance Spot Market pair. You help detect major trend shifts, long-term support/resistance, and macro market behavior.\n\n---\n\n### 🔗 Connected Tools (via internal workflow)\n\nYou call the following indicators using `https://treasurium.app.n8n.cloud/webhook/1d-indicators`:\n\n* **RSI** (14-period)\n* **MACD** (12/26/9 config)\n* **Bollinger Bands** (20-period, 2×STD)\n* **SMA** (20-period)\n* **EMA** (20-period)\n* **ADX** (14-period with DI+ and DI−)\n\n---\n\n### 📥 Expected Input Format\n\n```json\n{\n  \"message\": \"SOLUSDT\",\n  \"sessionId\": \"telegram_chat_id\"\n}\n```\n\n* `message`: A valid Binance Spot Market symbol (e.g., SOLUSDT, MATICUSDT)\n* `sessionId`: For preserving user context and session-based replies\n\n---\n\n### 📊 Behavior\n\n* Sends POST request to:\n\n  ```\n  https://treasurium.app.n8n.cloud/webhook/1d-indicators\n  ```\n\n  with:\n\n  ```json\n  {\n    \"symbol\": \"SOLUSDT\"\n  }\n  ```\n\n* Retrieves **at least 40 daily candles** via Binance API\n\n* Calculates and merges results from all indicators listed above\n\n* Returns a single unified array for downstream agent interpretation\n\n---\n\n### 🧠 Use Case Scenarios\n\n* Identify **long-term market sentiment and trend shifts**\n* Support **macro trade setups** or high-confidence swing positions\n* Anchor **support/resistance levels** across multi-timeframe views\n* Feed **Financial Analyst Tool** and **Quant AI Agent** with base trend orientation\n\n---\n\n### ⚠️ Operational Notes\n\n* Validate that the symbol is correctly formatted (uppercase, no typos)\n* Ensure Binance returns sufficient 1d candles (fallback if not)\n* Timestamp consistency is required across indicators\n* Return all calculated metrics in structured JSON format with labels\n\n"
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "07b02663-cf9f-4532-a745-64f8400ca3b2",
+      "name": "HTTP Request 1d Indicators Tool",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        3600,
+        2020
+      ],
+      "parameters": {
+        "url": "https://treasurium.app.n8n.cloud/webhook/1d-indicators",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "symbol",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', ``, 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "79a6b169-30b1-41c3-854e-5ec05ba21e69",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2880,
+        1380
+      ],
+      "parameters": {
+        "color": 4,
+        "height": 500,
+        "content": "## Триггер рабочего процесса"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d7466bfd-8c66-4342-a184-76b4e6652623",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3220,
+        1500
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 500,
+        "height": 380,
+        "content": "Узел: Когда выполняется другим рабочим процессом"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "be007521-ac2c-484b-8053-7328cc3ee75c",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3020,
+        2000
+      ],
+      "parameters": {
+        "width": 220,
+        "height": 520,
+        "content": "Этот рабочий процесс не запускается сам по себе — он всегда инициируется:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a7968e7d-4f05-4f2d-8a42-ec62f810b96b",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3280,
+        2000
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 220,
+        "height": 520,
+        "content": "**Инструмент финансового аналитика Binance SM**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4097c8e4-d2c0-41a9-806e-26ccdd02d03e",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3540,
+        2000
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 220,
+        "height": 860,
+        "content": "**Агент Binance Quant AI**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2070c387-3359-43f5-a358-6aefd983aea2",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3960,
+        340
+      ],
+      "parameters": {
+        "width": 1400,
+        "height": 2820,
+        "content": "## Основной агент рассуждений"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ca337caf-2f77-47ec-97e3-efbcb74ef79d",
+  "connections": {
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Binance SM 1day Indicators Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Binance SM 1day Indicators Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request 1d Indicators Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Binance SM 1day Indicators Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Binance SM 1day Indicators Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,339 @@
+{
+  "meta": {
+    "instanceId": "60c025075753afcab9f803964b4caaca9402f435deb4efafbb8e3b93b54d8752"
+  },
+  "nodes": [
+    {
+      "id": "ffd9cc3e-8d6b-4b7c-a600-39f9511f4e19",
+      "name": "On form submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        80,
+        -60
+      ],
+      "webhookId": "664f5a3c-d13b-4831-96e7-5a80567a5dbe",
+      "parameters": {
+        "options": {},
+        "formTitle": "Image to Image Using GPT Sora",
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Prompt",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Image url",
+              "requiredField": true
+            }
+          ]
+        },
+        "formDescription": "Add Image and prompt to recreate your desired image"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "1b9fef9c-259e-4885-8596-c9319de01180",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        300,
+        -60
+      ],
+      "parameters": {
+        "url": "https://sora-gpt-image.p.rapidapi.com/ai-img/img-to-img.php",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "prompt",
+              "value": "={{ $json.Prompt }}"
+            },
+            {
+              "name": "img_url",
+              "value": "={{ $json['Image url'] }}"
+            },
+            {
+              "name": "width",
+              "value": "1024"
+            },
+            {
+              "name": "height",
+              "value": "1024"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-rapidapi-host",
+              "value": "sora-gpt-image.p.rapidapi.com"
+            },
+            {
+              "name": "x-rapidapi-key",
+              "value": "your key"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "1f2d4911-0151-4e7a-a3f5-f2f4ab2230ea",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1740,
+        -360
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Image": "={{ $binary.data.fileName }}",
+            "Prompt": "={{ $('On form submission').item.json.Prompt }}",
+            "Generated Date": "={{ $('On form submission').item.json.submittedAt }}"
+          },
+          "schema": [
+            {
+              "id": "Prompt",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Prompt",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Image",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Image",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Generated Date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Generated Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19RkfJHHLt15sIwaeN5Fgrd4BuVTacA0_mYP-gPcBVao/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        },
+        "authentication": "serviceAccount"
+      },
+      "credentials": {
+        "googleApi": {
+          "id": "qUtlCnYpk7bXXaYp",
+          "name": "Google Sheets account 3"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "214a0309-83a7-4d8b-99b3-5809a97533cd",
+      "name": "Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        1340,
+        -220
+      ],
+      "parameters": {
+        "name": "={{ $binary.data.fileName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        },
+        "authentication": "serviceAccount"
+      },
+      "credentials": {
+        "googleApi": {
+          "id": "qUtlCnYpk7bXXaYp",
+          "name": "Google Sheets account 3"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "bc885b5f-d31b-4f5e-9ada-a4a5e421eb82",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        880,
+        -60
+      ],
+      "parameters": {
+        "jsCode": "const base64String = $input.first().json.image_base64;\nconsole.log(base64String);\n// If it includes a prefix like 'data:image/jpeg;base64,', split it\nconst cleanedBase64 = base64String.includes(\",\")\n  ? base64String.split(\",\")[1]\n  : base64String;\n\nreturn [\n  {\n    binary: {\n      data: {\n        data: Buffer.from(cleanedBase64, 'base64'),\n        mimeType: 'image/jpeg', // or image/png depending on the format\n        fileName: 'output.jpg'\n      }\n    }\n  }\n];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "26c911dc-2f63-4d8e-b8a0-b54634d17b81",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -920,
+        -540
+      ],
+      "parameters": {
+        "width": 580,
+        "height": 3080,
+        "content": "# **Изображение в Изображение с использованием GPT Sora**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6513598b-6cb9-4ae9-b1c2-167fcb57c581",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -240,
+        -380
+      ],
+      "parameters": {
+        "width": 500,
+        "height": 440,
+        "content": "## **Как это работает**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "29045bc9-0dcd-453e-aa3c-722e94aef44d",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        280,
+        -560
+      ],
+      "parameters": {
+        "width": 440,
+        "height": 660,
+        "content": "**Отправка формы**:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "73ecda33-8fb7-4d90-b510-b2c70914af02",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        760,
+        -540
+      ],
+      "parameters": {
+        "width": 300,
+        "height": 640,
+        "content": "- Пользователи отправляют **запрос** и **URL изображения** через форму. Запрос — это описание для изображения, а URL указывает на изображение, которое будет использоваться вместе с запросом."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4c95d81d-907d-4c15-af58-e08f919234c6",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1180,
+        -660
+      ],
+      "parameters": {
+        "width": 380,
+        "height": 680,
+        "content": "**Генерация изображения с помощью GPT AI**:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9a8d33bc-572d-48ea-9585-20eeb24e24c4",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1600,
+        -880
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 720,
+        "content": "## 5. **Запись деталей в Google Sheets**"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

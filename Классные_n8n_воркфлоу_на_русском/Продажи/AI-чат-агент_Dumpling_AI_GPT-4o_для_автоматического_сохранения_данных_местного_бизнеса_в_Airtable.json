@@ -1,0 +1,371 @@
+{
+  "id": "MyJ84ASqWdHGYuy0",
+  "meta": {
+    "instanceId": "a1ae5c8dc6c65e674f9c3947d083abcc749ef2546dff9f4ff01de4d6a36ebfe6",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "AI Чат Агент: Думплинг ИИ + GPT-4o для Авто-Сохранения Данных Местного Бизнеса в Airtable",
+  "tags": [
+    {
+      "id": "TlcNkmb96fUfZ2eA",
+      "name": "Tutorials",
+      "createdAt": "2025-04-15T17:02:00.249Z",
+      "updatedAt": "2025-04-15T17:02:00.249Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "1617006d-20d8-44da-8410-1fbbd6bc317e",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        -480,
+        -40
+      ],
+      "webhookId": "13e55a07-d144-403b-b465-2a539501b207",
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "ccb3073d-4c39-44bf-bd7f-05a6ae0550cb",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1200,
+        -220
+      ],
+      "parameters": {
+        "width": 660,
+        "height": 900,
+        "content": "#### 🧠 Цель рабочего процесса\nИнтерактивный чат-ассистент, который слушает входящие сообщения, обрабатывает их с помощью ИИ и использует Dumpling AI для получения внешней информации или выполнения задач — с отслеживанием памяти.\n\n## 🔄 Шаги рабочего процесса\n\n### 1. Триггер чата\n- Слушает сообщения чата (например, из веб-приложения или мессенджера).\n\n### 2. Модель чата OpenAI\n- Обрабатывает ввод пользователя с использованием GPT-4o mini.\n\n### 3. Простая память\n- Сохраняет контекст последних 10 обменов для поддержания разговорного потока.\n\n### 4. DumplingAI - Агент новостей и агент поиска местного бизнеса\n- Выполняет внешний API-запрос к конечной точке агента Dumpling AI для поиска или генерации ответов на основе намерений пользователя.\n\n### 5. Узел AI-агента\n- Соединяет все компоненты: языковую модель, память и внешние инструменты.\n\n### 6. Инструмент Airtable – Динамическое хранилище данных о бизнесе\n\n- Этот узел Airtable автоматически заполняет и обновляет таблицу «Местный бизнес», используя данные, возвращенные от агента поиска местного бизнеса Dumpling AI. Он сопоставляет основные поля, такие как:\n\n## ⚙️ Заметки\n- Идентификатор агента Dumpling AI предварительно настроен.\n- JSON-ответ от Dumpling разбирается как используемые данные.\n- Вы можете добавить логику маршрутизации или резервного копирования на основе результатов Dumpling.\n\n##### 💡 Совет\nЧтобы настроить его для конкретной области (например, недвижимость, поиск ресторанов, помощник по курсам), отрегулируйте подсказку агента или подключите модуль инструмента, специфичный для области."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "266e0454-5133-4287-a449-2eb1d3d00485",
+      "name": "News Agent",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "position": [
+        -20,
+        180
+      ],
+      "parameters": {
+        "url": "https://app.dumplingai.com/api/v1/agents/generate-completion",
+        "method": "POST",
+        "jsonBody": "={\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\":\"{{ $json.chatInput}}\"\n    }\n  ],\n  \"agentId\": \"\",\n  \"parseJson\": \"True\"\n  }",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "optimizeResponse": true
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "xamyMqCpAech5BeT",
+          "name": "Header Auth account"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "b3d834d7-eeb5-4ce8-bb45-2d6b58f8c0a9",
+      "name": "Local Business Finder Agent",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "position": [
+        100,
+        180
+      ],
+      "parameters": {
+        "url": "https://app.dumplingai.com/api/v1/agents/generate-completion",
+        "method": "POST",
+        "jsonBody": "={\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\":\"{{ $json.chatInput}}\"\n    }\n  ],\n  \"agentId\": \"\",\n  \"parseJson\": \"false\"\n  }",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "optimizeResponse": true
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "xamyMqCpAech5BeT",
+          "name": "Header Auth account"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "bc75a2b5-8d99-487a-a9fc-12045b555207",
+      "name": "Track Last 10 Messages ",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        -160,
+        180
+      ],
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "0eb2b921-360e-4043-8a2f-301d10113dfc",
+      "name": "Route AI Tasks with Dumpling + GPT + Memory",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -108,
+        -40
+      ],
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a helpful assistant\nUse the Local Business Finder Agent HTTP request tool to find local business\n\nUse the News agent HTTP request tool to get get news\n\nUse the Create and update Airtable tool to send results from the Local Business Finder Agent HTTP request tool"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "948fafa9-6b4c-4656-b27f-ce5b1eb0d363",
+      "name": "Process Input with GPT-4o Mini",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -320,
+        180
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "gY2Jp4ypzmjcwwV6",
+          "name": "n8n free OpenAI API credits"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "4a07cedd-f40e-4123-a894-c53da751263f",
+      "name": "Save Business Results",
+      "type": "n8n-nodes-base.airtableTool",
+      "position": [
+        240,
+        180
+      ],
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "https://airtable.com/appPSvSKdA6075xJC",
+          "cachedResultName": "Testing n8n"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "https://airtable.com/appPSvSKdA6075xJC/tblgxhdRFc2fGLV9o",
+          "cachedResultName": "Local business"
+        },
+        "columns": {
+          "value": {
+            "id": "=",
+            "Rating": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Rating', ``, 'number') }}",
+            "Address": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Address', ``, 'string') }}",
+            "Website": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Website', ``, 'string') }}",
+            "Category": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Category', ``, 'string') }}",
+            "Phone Number": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Phone_Number', ``, 'string') }}",
+            "Total Reviews": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Total_Reviews', ``, 'number') }}",
+            "Name of Restaurant": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Name_of_Restaurant', ``, 'string') }}"
+          },
+          "schema": [
+            {
+              "id": "id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": true,
+              "required": false,
+              "displayName": "id",
+              "defaultMatch": true
+            },
+            {
+              "id": "Name of Restaurant",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Name of Restaurant",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Rating",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Rating",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Total Reviews",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Total Reviews",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Address",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Address",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone Number",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Phone Number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Website",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Website",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Category",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "id"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "upsert"
+      },
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "H8PVkBgUPCcUhhRC",
+          "name": "Airtable Personal Access Token account"
+        }
+      },
+      "typeVersion": 2.1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "57c6329e-df0b-4eb4-9837-643c7de85e5e",
+  "connections": {
+    "News Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Route AI Tasks with Dumpling + GPT + Memory",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Business Results": {
+      "ai_tool": [
+        [
+          {
+            "node": "Route AI Tasks with Dumpling + GPT + Memory",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Track Last 10 Messages ": {
+      "ai_memory": [
+        [
+          {
+            "node": "Route AI Tasks with Dumpling + GPT + Memory",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Route AI Tasks with Dumpling + GPT + Memory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Local Business Finder Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Route AI Tasks with Dumpling + GPT + Memory",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Input with GPT-4o Mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Route AI Tasks with Dumpling + GPT + Memory",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route AI Tasks with Dumpling + GPT + Memory": {
+      "main": [
+        []
+      ]
+    }
+  }
+}

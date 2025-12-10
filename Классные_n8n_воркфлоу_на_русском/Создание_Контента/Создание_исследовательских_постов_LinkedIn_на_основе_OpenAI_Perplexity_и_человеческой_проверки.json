@@ -1,0 +1,902 @@
+{
+  "id": "siRh53ZuPMkLBAVH",
+  "meta": {
+    "instanceId": "fc91c099b237fbeefae4b0c67581119a5c6671cfd5b6bd50f5bba800b2021e1e",
+    "templateId": "5162",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "- Подробных интерфейсов программного обеспечения или пиксельного искусства",
+  "tags": [
+    {
+      "id": "hK91R6qCdWj98Hkw",
+      "name": "LinkedIn",
+      "createdAt": "2025-07-11T16:14:19.949Z",
+      "updatedAt": "2025-07-11T16:14:19.949Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "3ef4644e-7c2e-4642-8bed-2ebbb30c9fb1",
+      "name": "🖼️ Image Prompt Generator",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        2680,
+        480
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "chatgpt-4o-latest",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "content": "=🎯 Ваша задача — создать **визуальный образ для** создания **концептуальной инфографики**, которая будет визуально поддерживать пост в LinkedIn."
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "JVvR6kwZYrQYJQi2",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "de8492e6-9fa5-4da6-90db-95a2c979ed2b",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3040,
+        480
+      ],
+      "parameters": {
+        "jsCode": "const imagePrompt = $input.first().json.message.content\n\n// Clean and escape the prompt for JSON\nconst cleanPrompt = imagePrompt\n  .replace(/\"/g, '\\\\\"')  // Escape quotes\n  .replace(/\\n/g, ' ')   // Remove line breaks\n  .replace(/\\r/g, ' ')   // Remove carriage returns\n  .trim();               // Remove extra whitespace\n\nreturn {\n  json: {\n    clean_prompt: cleanPrompt\n  }\n};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a1d79590-cd7a-4a8f-9027-534891c233e9",
+      "name": "Generate an image",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        3320,
+        480
+      ],
+      "parameters": {
+        "model": "gpt-image-1",
+        "prompt": "={{ $json.clean_prompt }}",
+        "options": {},
+        "resource": "image"
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "OkbDAlHq4ZhkcbPE",
+          "name": "OpenAi account 2"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "2f23ae1c-9bb0-4a2a-924d-ab65ccf42296",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        20,
+        280
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ]
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "5e26fa9f-c556-4469-80da-7b29633702d9",
+      "name": "Click to start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        20,
+        480
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "c0f1a648-55be-448a-a775-7b683a7db088",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        -80
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 280,
+        "height": 720,
+        "content": "Изображение должно четко и привлекательно иллюстрировать эмоцию, концепцию или основное сообщение поста — используя **абстрактный, но читаемый дизайн**, идеально подходящий для привлечения внимания во время прокрутки."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "afec1b86-eda6-42fd-b800-bd92663b5eb5",
+      "name": "🔍 Research the Trends",
+      "type": "n8n-nodes-base.perplexity",
+      "position": [
+        360,
+        480
+      ],
+      "parameters": {
+        "model": "sonar",
+        "options": {},
+        "messages": {
+          "message": [
+            {
+              "content": "=Research the topic: {{ $json.body.Topic }}\n\nAdditional context: {{ $json.body.Additional_Context }}\n\nI’m researching **AI Agents and Large Language Models (LLMs)** with the goal of creating high-quality, factual content focused on **practical applications in the workplace**.\n\nPlease return only **verifiable, recent information** (from 2024–2025) and structure the response around these points:\n\n1. Summarize **recent news, trends, or innovations** in the space — include **exact dates** and **direct source URLs**.\n2. Highlight **concrete business use cases** or deployments — focus on **measurable results** and clearly defined workplace benefits.\n3. Identify **high-signal discussions** on platforms like Reddit, X, or reputable forums — ideally with links to original threads.\n4. Include **expert opinions or statements** from industry professionals or research-backed reports — ensure sources are cited.\n\n---\n\n📌 **CRUCIAL RULES:**\n- Only include **verified facts** with **direct URLs** to sources.\n- **No vague claims**, unlinked stats, or general AI hype.\n- If data is unavailable or unverifiable, explicitly write: *\"No recent verifiable information found.\"*\n- If a source is outdated or lacks context, state the limitation.\n\n---\n\n🎯 **DELIVERABLE:**\nProvide a concise list of **exactly 3 key insights**, clearly labeled and sourced. Use bullet points. No filler.\n\n---\n\n🚫 **Do NOT include:**\n- Speculative content\n- Marketing fluff or overly technical research with no workplace application\n- Sections titled “Content Angles” or “Verified Insights” — just go straight to the findings.\n\n---\n\n🧱 **FORMAT Example:**\n1. **[Insight Title]**  \n   - Summary of the finding  \n   - Source: [URL]  \n   - Date: [Month YYYY]\n\n2. …\n\nIf nothing meaningful is found for a point, write: *\"No recent verifiable information found.\"*\n"
+            }
+          ]
+        },
+        "requestOptions": {}
+      },
+      "credentials": {
+        "perplexityApi": {
+          "id": "1Ql9BmzgooP76P5W",
+          "name": "Perplexity account"
+        }
+      },
+      "executeOnce": false,
+      "typeVersion": 1
+    },
+    {
+      "id": "603c1b98-afa1-41e8-b47f-2e434449ad63",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        240,
+        -80
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 340,
+        "height": 720,
+        "content": "---"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ab88ea12-c30d-4080-9eff-47340511d2e4",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        600,
+        -80
+      ],
+      "parameters": {
+        "width": 340,
+        "height": 720,
+        "content": "📄 СОДЕРЖАНИЕ ПОСТА:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d4705dde-36a4-475e-8440-f3060588500d",
+      "name": "Select the Best Topic",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        720,
+        480
+      ],
+      "webhookId": "2f8628d9-1bfc-4519-b00a-d2176185636a",
+      "parameters": {
+        "sendTo": "abcloudart@gmail.com",
+        "message": "=Hi there! Here are 3 topic ideas generated by Perplexity:\n\n1️⃣ {{ $json.search_results[0].title }}\n2️⃣ {{ $json.search_results[1].title }}\n3️⃣ {{ $json.search_results[2].title }}\n\n📩 Just reply to this email with the number of the idea you want to move forward with (1, 2, or 3).\n\nThe workflow will automatically continue from there! 🚀",
+        "options": {},
+        "subject": "Perplexity Research – Trends & Use Cases",
+        "operation": "sendAndWait",
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "Quale vuoi approfondire? ",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "=1 - {{ $json.search_results[0].title }}"
+                  },
+                  {
+                    "option": "=2 - {{ $json.search_results[1].title }}"
+                  },
+                  {
+                    "option": "=3 - {{ $json.search_results[2].title }}"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "responseType": "customForm"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "uQlupDp7iCyYj2MI",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "1d8651a7-45a2-4ade-9f34-732d982488ea",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        660
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 640,
+        "height": 220,
+        "content": "{{ $('Content Aggregator').item.json.message.content }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cc84f9f0-057a-4136-8aef-45852fecc040",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        960,
+        -80
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 600,
+        "height": 720,
+        "content": "---"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "121a6e68-f406-41f1-aaeb-dc04c8532c2c",
+      "name": "✍️ Content Creator",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        1140,
+        480
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "chatgpt-4o-latest",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "content": "✅ ЖЕЛАЕМЫЙ ВИЗУАЛЬНЫЙ СТИЛЬ:"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "JVvR6kwZYrQYJQi2",
+          "name": "OpenAi account"
+        }
+      },
+      "executeOnce": false,
+      "typeVersion": 1.8
+    },
+    {
+      "id": "b33c7433-6ca5-447a-aff2-98989b9ec3ba",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        600,
+        660
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 420,
+        "height": 520,
+        "content": "- Абстрактная или концептуальная инфографика"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "51314562-a031-4cfb-9f16-25e74fcebe50",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1040,
+        660
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 520,
+        "height": 520,
+        "content": "- Векторная графика, геометрические формы, минималистские макеты"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "810d39b7-8c7a-4671-a6c5-d80f8307ac52",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1580,
+        -80
+      ],
+      "parameters": {
+        "width": 300,
+        "height": 720,
+        "content": "- Высокий контраст, чистые линии, профессиональная цветовая палитра"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "64298786-6b84-49cb-aef8-7994b09a6b4a",
+      "name": "Content Aggregator",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1680,
+        480
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b5a1c3c6-2029-4913-8667-97d083425db2",
+              "name": "message.content",
+              "type": "string",
+              "value": "={{ $json.message.content }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "0657ddd6-1923-479a-85cd-1b028e569569",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1900,
+        -80
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 720,
+        "content": "- Читаемый и привлекательный, созданный для выделения в ленте LinkedIn"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b472a93d-49a4-4822-96ad-8cf7efdf4ad3",
+      "name": "Content Review & Approval",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2060,
+        480
+      ],
+      "webhookId": "3fff41b2-f253-4114-9d7e-10f509160581",
+      "parameters": {
+        "sendTo": "abcloudart@gmail.com",
+        "message": "=Hi! 👋  \nYour LinkedIn post on the topic you selected is ready!  \nHere’s the draft — let me know what you think:\n\n{{ $json.message.content }}\n\n👍 If you like it, just reply with \"Yes\" and the workflow will continue.\n\n✏️ If you'd like to make changes, you can suggest edits in the next step.",
+        "options": {},
+        "subject": "Review LinkedIn Post ",
+        "operation": "sendAndWait",
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "Do you like the content?",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Yes"
+                  },
+                  {
+                    "option": "To review"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Proposal"
+            },
+            {
+              "fieldType": "={{ $json.message.content }}",
+              "fieldLabel": "Testo ",
+              "fieldOptions": {
+                "values": [
+                  {}
+                ]
+              }
+            }
+          ]
+        },
+        "responseType": "customForm"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "uQlupDp7iCyYj2MI",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "2fbc7b1d-12d3-44ce-981d-de1857b19537",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2340,
+        -80
+      ],
+      "parameters": {
+        "width": 300,
+        "height": 720,
+        "content": "✅ ВЫ МОЖЕТЕ ВКЛЮЧИТЬ:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1cab82ee-7946-414d-867d-e7a859478465",
+      "name": "IF – Content Approval Routing",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2440,
+        480
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "9fdac4ae-1eec-4042-947e-3256038f628e",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.data['Ti piace?'] }}",
+              "rightValue": "Yes"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "16289995-beac-4d68-9a6f-c8dfc9cdc00d",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1580,
+        660
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1060,
+        "height": 520,
+        "content": "- Названия инструментов (например, n8n, OpenAI, ChatGPT) только в **стилизованной/визуальной форме**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1dc611c7-d02e-4666-90e8-4f0b20e2da7d",
+      "name": "✍️ Content Reviewer",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        2320,
+        840
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "chatgpt-4o-latest",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "content": "- Иконки, символические представления или упрощенные элементы"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "JVvR6kwZYrQYJQi2",
+          "name": "OpenAi account"
+        }
+      },
+      "executeOnce": false,
+      "typeVersion": 1.8
+    },
+    {
+      "id": "790ac9e4-571e-4fea-9e94-5c8d927390ed",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2660,
+        -80
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 300,
+        "height": 720,
+        "content": "- Визуализации на основе потоков, стрелки, концепции автоматизации, метафоры продуктивности"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5926b3ea-a517-4c36-a2e1-2ca23d3718a3",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2980,
+        -80
+      ],
+      "parameters": {
+        "width": 220,
+        "height": 720,
+        "content": "🚫 ИЗБЕГАЙТЕ:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "827b880a-9328-4f95-9cd1-a232b8345c65",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3220,
+        -80
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 300,
+        "height": 720,
+        "content": "- Гиперреалистичной фотографии"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4f962698-3e27-4898-8663-515fad69a138",
+      "name": "Sticky Note14",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3540,
+        -80
+      ],
+      "parameters": {
+        "width": 340,
+        "height": 720,
+        "content": "- Дизайнов, которые слишком абстрактны для понимания"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e7a228d5-e079-42c1-8024-9b41da4e36d5",
+      "name": "Final Content Delivery",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        3660,
+        480
+      ],
+      "webhookId": "e6083388-a6c3-43fb-bf60-a18e4f5ac2ec",
+      "parameters": {
+        "sendTo": "abcloudart@gmail.com",
+        "message": "=Hi! 👋\n\nHere’s your finalized LinkedIn post, based on your selected topic and enhanced with research and AI support:\n\n{{ $('Content Aggregator').item.json.message.content }}\n\n",
+        "options": {},
+        "subject": "Ecco il tuo post completo per LinkedIN"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "uQlupDp7iCyYj2MI",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    }
+  ],
+  "active": false,
+  "pinData": {
+    "Code": [
+      {
+        "json": {
+          "clean_prompt": "Vector-style conceptual infographic showing “The Year of the AI Agent (2025)” as a central hub powering autonomous workflows. In the center, a stylized AI icon (cortex or chip) emits clean flowing lines to modular nodes representing: – Excel sheets (symbolized by simple tables) – Dashboards (charts and graphs) – Chat interfaces (speech bubbles) – RPA processes (gear icons) – CRM systems (user silhouette + database) Each node includes small abstract iconography (e.g., n8n, OpenAI, LangChain, Microsoft Fabric) as puzzle pieces or plug icons connecting to the central AI.  Use a minimal, flat-design vector style with geometric shapes and high contrast. Background light (white or off-white), accent palette in professional tech tones (deep blue, teal, orange). Include arrows or smooth curved lines suggesting flow, efficiency, autonomy. Label only nodes with single keywords: “data,” “agent,” “flow,” “insights.” No realistic UI, photography, or long text.  Composition should clearly convey automation, orchestration, and intelligent decision-making, in a sleek and modern LinkedIn-ready format."
+        }
+      }
+    ],
+    "Generate an image": [
+      {
+        "json": {
+          "id": "filesystem-v2:workflows/siRh53ZuPMkLBAVH/executions/25/binary_data/27584e74-e02e-40e4-acd6-f3c5ea0d92de",
+          "fileName": "data",
+          "fileSize": "1.2 MB",
+          "fileType": "image",
+          "mimeType": "image/png",
+          "fileExtension": "png"
+        }
+      }
+    ],
+    "Content Aggregator": [
+      {
+        "json": {
+          "message": {
+            "content": "**Is 2025 the Year of the Agent?** 🕵️‍♂️  \n(…e no, non sto cambiando carriera per entrare nei servizi segreti)\n\nDa mesi sentiamo parlare di “AI Agents” come se fossero l’ultima rivoluzione. E forse, per la prima volta, non è solo hype.\n\nNegli ultimi anni mi sono occupato di accompagnare team e organizzazioni nel comprendere — e applicare — l’Intelligenza Artificiale nel lavoro quotidiano. Ho visto modelli linguistici diventare assistenti, poi strumenti, e ora… veri collaboratori autonomi.\n\n⚙️ Oggi lavoro con sistemi capaci non solo di rispondere a una richiesta, ma di:\n- riconoscere quando una risposta non basta,\n- decidere quali strumenti usare,\n- verificarne i risultati,\n- e portare avanti un flusso di lavoro complesso, senza che nessuno debba tenere il volante.\n\nLi chiamiamo “AI agents” o “LLM agents”.\nE i risultati? Parlano chiaro.\n\n⬇️ Un esempio concreto:\nIn un progetto recente, abbiamo implementato un agente capace di accedere ai dati aziendali, analizzarli, generare report e suggerire azioni correttive. Il team? Più focalizzato, più veloce, e con meno tempo speso tra fogli Excel e dashboard.\n\nE non sono l’unico a notarlo.  \nLe ricerche dicono che il 2025 è il “Year of the Agent” (Google Trends conferma: mai stato così alto l’interesse).  \nAlcune aziende stanno collegando questi agenti a sistemi RPA, CRM e sistemi BI per automatizzare processi end-to-end. Da chatbot più precisi (grazie al RAG) fino ad agenti che risolvono ticket clienti… davvero.\n\nCome sottolinea anche Karpathy, questo potrebbe essere solo l’inizio del “decennio degli agenti”.\n\n🧠 Il bello?  \nNon devi essere un team di 20 data scientist per iniziare.  \nCon i giusti framework (LangChain, Microsoft Fabric, DSPy), collegare dati e logiche operative agli agenti è oggi più accessibile che mai.\n\n🚀 Io continuo a esplorarli ogni giorno. A volte per un progetto, altre semplicemente per capire cosa succede dietro il prossimo “submit”.\n\nSe anche tu ti stai chiedendo \"ma questi AI agent fanno davvero qualcosa di utile?\"  \nLa risposta è: se connessi ai dati giusti e ben progettati… assolutamente sì.\n\n👉 E tu? Hai già incrociato un AI agent nella tua quotidianità lavorativa?  \nO stai ancora aspettando che uno ti compili la timesheet?\n\n#AI #AgenticAI #Produttività #DigitalTransformation #DatiEAutomazione #LLMAgents #GPT #ProgramManagement #AIAgents #AIProductivity #LangChain #MicrosoftFabric #BordoniInsights"
+          }
+        }
+      }
+    ],
+    "Select the Best Topic": [
+      {
+        "json": {
+          "data": {
+            "Quale vuoi approfondire? ": "3 - AI Agents Explained: Everything You Need to Know in 2025 - Apideck"
+          }
+        }
+      }
+    ],
+    "🔍 Research the Trends": [
+      {
+        "json": {
+          "id": "9fd93d9a-cf8c-429e-98a7-f45c0238a090",
+          "model": "sonar",
+          "usage": {
+            "total_tokens": 1336,
+            "prompt_tokens": 249,
+            "completion_tokens": 1087,
+            "search_context_size": "low"
+          },
+          "object": "chat.completion",
+          "choices": [
+            {
+              "delta": {
+                "role": "assistant",
+                "content": ""
+              },
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "**VERIFIED INSIGHTS**\n\n- **AI Agents and LLMs Defined for 2025**  \n  - **Definition**: LLM agents (Language Model Agents) are advanced AI systems that combine planning, memory, and tool use to solve complex language tasks with context-aware reasoning. In 2025, agentic AI goes beyond single-request LLM responses, enabling multi-step workflows and autonomous decision-making[4][2].\n  - **Trends**: 2025 is widely cited as the \"Year of the Agent,\" with a surge in demand and deployment for AI agents in enterprises. Google Trends data shows record-high interest in \"AI Agents\" in June 2025[3].\n\n- **Latest Innovations and Tools**  \n  - **Infrastructure**: Companies are building on frameworks like Microsoft Fabric, LangChain, and DSPy to create highly tailored agentic AI solutions. These frameworks help integrate AI with existing workflows, improve data security, and unlock measurable business value[2].\n  - **Tool Use**: LLM agents can now use specialized tools (e.g., code runners, web searches, data analysis pipelines) to verify and refine outputs, leading to higher reliability and self-improvement[4].\n\n- **Real-World Use Cases and Business Impact**  \n  - **Data Analysis Agents**: LLM agents are increasingly deployed in data-heavy environments. They connect to spreadsheets, dashboards, and BI systems to analyze data, flag anomalies, generate summaries, and create visualizations—empowering non-technical stakeholders and boosting productivity for data teams[1].\n  - **RPA Modernization**: In sectors like insurance, healthcare, and finance, LLM agents automate complex processes (e.g., claims approval, documentation gathering) by reasoning through semi-structured data and dynamically adapting to edge cases[1].\n  - **RAG Chatbots and Grounded QA**: LLM agents enhance retrieval-augmented generation (RAG) chatbots, improving factual accuracy and allowing more control over response generation in regulated or customer-facing contexts[1].\n  - **Autonomous Customer Interaction**: AI agents in the workplace can converse with customers and autonomously execute follow-up actions (e.g., processing payments, checking inventory), streamlining operations and improving customer experience[5].\n\n- **Measurable Results**  \n  - **Improved Productivity**: Enterprises report significant productivity gains as LLM agents automate multi-step workflows, reduce manual data analysis, and handle customer queries autonomously[1][5].\n  - **Reduced Integration Friction**: By unifying data sources and leveraging agentic AI, companies report smoother integration into business workflows and clearer ROI than traditional LLM approaches[2].\n\n- **Expert Opinions and Industry Perspectives**  \n  - **Andrej Karpathy**: Former head of AI at Tesla and founding member of OpenAI, Karpathy states that 2025 marks the start of the \"decade of AI agents,\" predicting widespread adoption of agentic AI in the workplace[3].\n  - **McKinsey Report**: Highlights that agentic AI is now acting autonomously in the workplace, enabling end-to-end customer service and operational automation with measurable impact[5].\n\n**CONTENT ANGLES**\n\n- **LinkedIn Post Hook: \"Is 2025 the Year of the Agent? How AI Agents Are Reshaping Productivity in Every Industry\"**\n- **Perspective: \"From Data Analysis to Autonomous Customer Service: LLM Agents Are No Longer Just a Promise—They’re Delivering Real Business Value\"**\n- **Insight: \"Why Agentic AI Is Outpacing LLMs for Enterprise Automation—And What It Means for Your Team\"**\n- **Advice: \"How Leading Companies Are Integrating AI Agents with Existing Tools for Maximum Impact\"**\n\n**LIMITATIONS**\n\n- **Community Discussions**: No direct links to current Reddit, Hacker News, or Twitter threads with verifiable, recent discussions on AI agents/LLMs in workplace contexts were found in the provided sources. (Note: As of July 2025, these platforms are likely abuzz with discussions, but specific, cited threads are not included in the available data.)\n- **Hard Statistics on ROI**: While enterprises report productivity gains and easier integration, specific quantified ROI figures (e.g., \"x% reduction in processing time\" or \"y% increase in customer satisfaction\") are not detailed in the cited sources. Most results reference clear business impact but do not provide granular metrics.\n- **Detailed Case Studies**: The sources mention real-world applications (insurance, healthcare, finance, customer service), but do not include named company case studies or in-depth process breakdowns.\n\n**Summary Table: Key Use Cases and Innovations**\n\n| Use Case                | Description                                                                 | Business Impact                |\n|-------------------------|-----------------------------------------------------------------------------|-------------------------------|\n| Data Analysis Agents    | Analyze, summarize, visualize data via natural language                     | Productivity boost, accessibility for non-technical users |\n| RPA Modernization       | Automate claims, documentation, ticket routing in regulated sectors         | Flexibility, reduced manual work, better edge case handling |\n| RAG Chatbots            | Grounded QA, controlled retrieval, accurate responses in customer service   | Improved accuracy, compliance, customer experience         |\n| Autonomous Customer Interaction | End-to-end customer service and action execution                      | Streamlined operations, faster responses                   |"
+              },
+              "finish_reason": "stop"
+            }
+          ],
+          "created": 1752165514,
+          "citations": [
+            "https://orq.ai/blog/llm-agents",
+            "https://proactivemgmt.com/blog/2025/01/22/2025-the-year-of-the-agent-building-on-the-foundation-of-llms/",
+            "https://www.apideck.com/blog/ai-agents-explained-everything-you-need-to-know-in-2025",
+            "https://www.superannotate.com/blog/llm-agents",
+            "https://www.mckinsey.com/capabilities/mckinsey-digital/our-insights/superagency-in-the-workplace-empowering-people-to-unlock-ais-full-potential-at-work"
+          ],
+          "search_results": [
+            {
+              "url": "https://orq.ai/blog/llm-agents",
+              "date": "2025-06-17",
+              "title": "LLM Agents in 2025: Definition, Use Cases, & Tools - Orq.ai",
+              "last_updated": "2025-06-18"
+            },
+            {
+              "url": "https://proactivemgmt.com/blog/2025/01/22/2025-the-year-of-the-agent-building-on-the-foundation-of-llms/",
+              "date": "2025-01-22",
+              "title": "2025: The Year of the Agent – Building on the Foundation of LLMs",
+              "last_updated": "2025-06-16"
+            },
+            {
+              "url": "https://www.apideck.com/blog/ai-agents-explained-everything-you-need-to-know-in-2025",
+              "date": "2025-06-25",
+              "title": "AI Agents Explained: Everything You Need to Know in 2025 - Apideck",
+              "last_updated": "2025-07-04"
+            },
+            {
+              "url": "https://www.superannotate.com/blog/llm-agents",
+              "date": "2025-03-11",
+              "title": "LLM agents: The ultimate guide 2025 | SuperAnnotate",
+              "last_updated": "2025-06-16"
+            },
+            {
+              "url": "https://www.mckinsey.com/capabilities/mckinsey-digital/our-insights/superagency-in-the-workplace-empowering-people-to-unlock-ais-full-potential-at-work",
+              "date": "2025-01-28",
+              "title": "AI in the workplace: A report for 2025 - McKinsey",
+              "last_updated": "2025-06-16"
+            }
+          ]
+        }
+      }
+    ],
+    "Content Review & Approval": [
+      {
+        "json": {
+          "data": {
+            "Testo ": "",
+            "Ti piace?": "Sì",
+            "Proposta di miglioramento": ""
+          }
+        }
+      }
+    ],
+    "🖼️ Image Prompt Generator": [
+      {
+        "json": {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Vector-style conceptual infographic showing “The Year of the AI Agent (2025)” as a central hub powering autonomous workflows. In the center, a stylized AI icon (cortex or chip) emits clean flowing lines to modular nodes representing:\n– Excel sheets (symbolized by simple tables)\n– Dashboards (charts and graphs)\n– Chat interfaces (speech bubbles)\n– RPA processes (gear icons)\n– CRM systems (user silhouette + database)\nEach node includes small abstract iconography (e.g., n8n, OpenAI, LangChain, Microsoft Fabric) as puzzle pieces or plug icons connecting to the central AI.\n\nUse a minimal, flat-design vector style with geometric shapes and high contrast. Background light (white or off-white), accent palette in professional tech tones (deep blue, teal, orange). Include arrows or smooth curved lines suggesting flow, efficiency, autonomy. Label only nodes with single keywords: “data,” “agent,” “flow,” “insights.” No realistic UI, photography, or long text.\n\nComposition should clearly convey automation, orchestration, and intelligent decision-making, in a sleek and modern LinkedIn-ready format.",
+            "refusal": null,
+            "annotations": []
+          },
+          "logprobs": null,
+          "finish_reason": "stop"
+        }
+      }
+    ]
+  },
+  "settings": {},
+  "versionId": "a61255b1-0849-4ea7-903f-47fe44964658",
+  "connections": {
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Generate an image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Click to start": {
+      "main": [
+        [
+          {
+            "node": "🔍 Research the Trends",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate an image": {
+      "main": [
+        [
+          {
+            "node": "Final Content Delivery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content Aggregator": {
+      "main": [
+        [
+          {
+            "node": "Content Review & Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select the Best Topic": {
+      "main": [
+        [
+          {
+            "node": "✍️ Content Creator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Final Content Delivery": {
+      "main": [
+        []
+      ]
+    },
+    "✍️ Content Creator": {
+      "main": [
+        [
+          {
+            "node": "Content Aggregator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "✍️ Content Reviewer": {
+      "main": [
+        [
+          {
+            "node": "Content Aggregator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔍 Research the Trends": {
+      "main": [
+        [
+          {
+            "node": "Select the Best Topic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content Review & Approval": {
+      "main": [
+        [
+          {
+            "node": "IF – Content Approval Routing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🖼️ Image Prompt Generator": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF – Content Approval Routing": {
+      "main": [
+        [
+          {
+            "node": "🖼️ Image Prompt Generator",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "✍️ Content Reviewer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

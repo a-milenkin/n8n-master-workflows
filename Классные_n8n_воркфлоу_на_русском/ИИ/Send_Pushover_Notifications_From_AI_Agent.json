@@ -1,0 +1,84 @@
+{
+  "meta": {
+    "instanceId": "cd59eaaeb7b34d06e24511380db94cdb7fbce6037cc4de22e539c5158ab9cdfc"
+  },
+  "nodes": [
+    {
+      "id": "2132cfee-b627-4099-94c3-37140f24424a",
+      "name": "Workflow Overview 0",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1460,
+        -100
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 760,
+        "content": "## 🛠️ Инструмент Pushover MCP Сервер"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c32f471c-5a07-4c94-b57b-1ce9cde64a1a",
+      "name": "Pushover Tool MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        -860,
+        -100
+      ],
+      "webhookId": "5648b31b-6d2a-4c4a-8dd0-6d4624772ccf",
+      "parameters": {
+        "path": "pushover-tool-mcp"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dd171628-2472-48f5-80e8-1527f16e5ebb",
+      "name": "Push a message",
+      "type": "n8n-nodes-base.pushoverTool",
+      "position": [
+        -800,
+        140
+      ],
+      "parameters": {
+        "retry": "={{ $fromAI('Retry', ``, 'number') }}",
+        "expire": "={{ $fromAI('Expire', ``, 'number') }}",
+        "message": "={{ $fromAI('Message', ``, 'string') }}",
+        "userKey": "={{ $fromAI('User_Key', ``, 'string') }}",
+        "priority": "={{ $fromAI('Priority', ``, 'string') }}",
+        "additionalFields": {}
+      },
+      "credentials": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "4318c06b-5bb6-42bb-acc4-6db4726f2afc",
+      "name": "Sticky Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1000,
+        120
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 400,
+        "content": "### 📋 Доступные операции (всего 1)"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Push a message": {
+      "ai_tool": [
+        [
+          {
+            "node": "Pushover Tool MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

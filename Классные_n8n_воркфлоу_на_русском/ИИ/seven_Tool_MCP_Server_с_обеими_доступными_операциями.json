@@ -1,0 +1,125 @@
+{
+  "meta": {
+    "instanceId": "cd59eaaeb7b34d06e24511380db94cdb7fbce6037cc4de22e539c5158ab9cdfc"
+  },
+  "nodes": [
+    {
+      "id": "e6943aea-345d-4744-9c10-b4f80b5d7dc3",
+      "name": "Workflow Overview 0",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1460,
+        -100
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 800,
+        "content": "## 🛠️ сервер MCP Tool seven"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cb69f32d-7c1f-4a4d-86d7-eb480d01786c",
+      "name": "seven Tool MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        -860,
+        -100
+      ],
+      "webhookId": "4635a9af-809e-42b7-8be4-ab01b86cab77",
+      "parameters": {
+        "path": "seven-tool-mcp"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "54dfc4d3-9af2-4e53-9e4c-d9b661e9451c",
+      "name": "Send an SMS",
+      "type": "n8n-nodes-base.sms77Tool",
+      "position": [
+        -800,
+        140
+      ],
+      "parameters": {
+        "to": "={{ $fromAI('To', ``, 'string') }}",
+        "from": "={{ $fromAI('From', ``, 'string') }}",
+        "message": "={{ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "credentials": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "10d1d199-4e57-4c68-9137-c871aa0d9979",
+      "name": "Sticky Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1000,
+        120
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 400,
+        "content": "### 📋 Доступные операции (всего 2)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6f6b251d-8abe-44a7-bc5c-43f703ec1d73",
+      "name": "Convert text to voice",
+      "type": "n8n-nodes-base.sms77Tool",
+      "position": [
+        -800,
+        380
+      ],
+      "parameters": {
+        "to": "={{ $fromAI('To', ``, 'string') }}",
+        "message": "={{ $fromAI('Message', ``, 'string') }}",
+        "options": {},
+        "resource": "voice"
+      },
+      "credentials": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "d4ee01ac-82fe-40d3-8122-fc3e89bda85a",
+      "name": "Sticky Note 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1000,
+        360
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 400,
+        "content": "**Sms**: отправить"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Send an SMS": {
+      "ai_tool": [
+        [
+          {
+            "node": "seven Tool MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert text to voice": {
+      "ai_tool": [
+        [
+          {
+            "node": "seven Tool MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

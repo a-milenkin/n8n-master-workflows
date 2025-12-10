@@ -1,0 +1,171 @@
+{
+  "meta": {
+    "instanceId": "d6e2f2f655b1125bbcac14a4cac6d2e46c7a150e927f85fc96fdca1a6dc39e0e",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "c6250c78-41e1-4977-8f3b-d34a76a24f82",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        140,
+        -340
+      ],
+      "parameters": {
+        "height": 1480,
+        "content": "## Этот рабочий процесс обрабатывает электронные письма, полученные в Gmail, и добавляет **имя** и **адрес электронной почты** отправителя в базу данных MySQL."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3688fcda-44ad-47c1-bc76-3f3fa04ca436",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        960,
+        -80
+      ],
+      "parameters": {
+        "width": 300,
+        "height": 680,
+        "content": "## Сценарии использования:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1cbe3946-6b48-483e-9983-2f0c3f243c40",
+      "name": "Insert New Client in MySQL",
+      "type": "n8n-nodes-base.mySql",
+      "onError": "continueRegularOutput",
+      "position": [
+        1040,
+        200
+      ],
+      "parameters": {
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "contacts",
+          "cachedResultName": "contacts"
+        },
+        "options": {},
+        "dataMode": "defineBelow",
+        "operation": "upsert",
+        "valuesToSend": {
+          "values": [
+            {
+              "value": "={{ $json.name }}",
+              "column": "name"
+            }
+          ]
+        },
+        "valueToMatchOn": "={{ $json.email }}",
+        "columnToMatchOn": "email"
+      },
+      "credentials": {
+        "mySql": {
+          "id": "MYdqb2i2fz5O21ui",
+          "name": "BT Operations Database"
+        }
+      },
+      "typeVersion": 2.4,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "ff005111-3172-4022-92b1-9280458d6741",
+      "name": "Receive Email",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        500,
+        200
+      ],
+      "parameters": {
+        "filters": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YVZiLPppXZw84rIU",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "5a266f76-1c4d-48ed-a50b-65998cfe135c",
+      "name": "Extract Client Name and Email",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        760,
+        200
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "let email = $json.From.trim();\nlet name = null;\n\nif (email.includes('<')) {\n  name = email.split('<')[0].trim();\n  email = email.split('<')[1].replace('>', '').trim();\n}\n\nreturn {\n  \"name\": name,\n  \"email\": email\n}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0b4cf2a9-e890-4561-a6c5-e0c85838a777",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        440,
+        -80
+      ],
+      "parameters": {
+        "color": 5,
+        "height": 460,
+        "content": "- Агентство по продажам или маркетингу может использовать это для автоматического сохранения контактной информации клиентов в базе данных для формирования списка потенциальных клиентов"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "58e5e9bd-3bf7-4c3a-80be-c4ac2ff0f370",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1280,
+        -20
+      ],
+      "parameters": {
+        "color": 5,
+        "height": 420,
+        "content": "- Компании могут использовать это для автоматического сохранения контактов в базе данных в случае потери данных Gmail / потери доступа к своей учетной записи Gmail"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Receive Email": {
+      "main": [
+        [
+          {
+            "node": "Extract Client Name and Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Client Name and Email": {
+      "main": [
+        [
+          {
+            "node": "Insert New Client in MySQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

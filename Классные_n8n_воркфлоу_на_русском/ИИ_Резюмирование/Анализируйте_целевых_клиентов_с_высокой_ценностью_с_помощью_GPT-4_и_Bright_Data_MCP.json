@@ -1,0 +1,557 @@
+{
+  "id": "wIBHF1QNYzvZZHta",
+  "meta": {
+    "instanceId": "60046904b104f0f72b2629a9d88fe9f676be4035769f1f08dad1dd38a76b9480",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Это ваша отправная точка. Вам не нужно вручную запускать рабочий процесс каждый раз — просто запланируйте его, и он будет запускаться автоматически с помощью триггера.",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "a73dd3f9-4d76-46ba-b4bc-9c7035109825",
+      "name": "Run Offer Campaign Monthly",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "months",
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "8b11a03a-71da-4d82-8891-084adcddfd77",
+      "name": "Set customer history url",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        200,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b366b00a-ad35-46ab-9722-6478ded6ec91",
+              "name": "customer data url",
+              "type": "string",
+              "value": "example.com"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "b1f84ba5-90f9-4483-968e-67df657a1936",
+      "name": "Scrape Customer Profiles & Orders (Agent)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "text": "=scrape the customer history url below and extract the key information:\n{{ $json['customer data url'] }}",
+        "options": {},
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5aced094-ac88-4033-8a9b-dfc7b1457a6d",
+      "name": "Bright Data MCP Scraper",
+      "type": "n8n-nodes-mcp.mcpClientTool",
+      "position": [
+        640,
+        280
+      ],
+      "parameters": {
+        "toolName": "scrape_as_markdown",
+        "operation": "executeTool",
+        "toolParameters": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Tool_Parameters', ``, 'json') }}"
+      },
+      "credentials": {
+        "mcpClientApi": {
+          "id": "eqq94k789oJCd6jU",
+          "name": "MCP Client (STDIO) account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ef9b75c8-1ec6-43ca-9969-909146214422",
+      "name": "AI Assistant",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        440,
+        280
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8sEyPDkC5p4w4Jha",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "2d7909b4-333c-46cc-9909-5df7fe9bdeb6",
+      "name": "Format Customer Info",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        900,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Get the array inside the 'output' key\nconst customers = items[0].json.output;\n\n// Map each customer to a separate item\nreturn customers.map(customer => {\n  return { json: customer };\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "8d562c3e-2e0c-4ba8-8dbe-a89a23ba913b",
+      "name": "Get Customer Order History",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1100,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Loop through all incoming customers\nconst output = [];\n\nfor (const item of items) {\n  const customerName = item.json.customer_name;\n  const customerEmail = item.json.customer_email;  // Added email extraction\n  const orders = item.json.orders;\n\n  for (const order of orders) {\n    output.push({\n      json: {\n        customer_name: customerName,\n        customer_email: customerEmail,  // Added email in output\n        amount: order.amount,\n        date: order.date\n      }\n    });\n  }\n}\n\nreturn output;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "02a09456-b359-4989-99b5-c830e9d6ca2a",
+      "name": "Is Customer High-Value?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1360,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "6725053f-eae9-422c-942d-c82279482697",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              },
+              "leftValue": "={{ $json.amount }}",
+              "rightValue": 200
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "9a0b0647-1341-4159-b639-5b3581548d74",
+      "name": "Send Special Offer Email",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1580,
+        -100
+      ],
+      "webhookId": "f2c94a4c-06f0-43a0-81db-8c728ef0de2f",
+      "parameters": {
+        "sendTo": "={{ $json.customer_email }}",
+        "message": "write any offer",
+        "options": {},
+        "subject": "Offer for being out ideal customer"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "AQDSl75AdzK3vmqJ",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "3d73fb01-ab20-4be2-97c7-c21d5c95b45f",
+      "name": "Ignore Low-Value Customers",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1580,
+        100
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "7f81c4d2-d406-4d58-956e-78bca5a8f861",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        -1020
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 400,
+        "height": 1200,
+        "content": "## 🔁 **Раздел 1: Настройка расписания и ввода**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "de0d7ee1-b627-4f17-b03e-4076b09166a9",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        440,
+        -900
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 340,
+        "height": 1080,
+        "content": "### 🧱 Узлы:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9f5db009-9461-4937-8c88-d55bf47bfe2c",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        860,
+        -760
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 360,
+        "height": 940,
+        "content": "* **🕒 `Запуск кампании предложений ежедневно`**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a46e5710-fb85-46d6-addd-211994597386",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1320,
+        -740
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 380,
+        "height": 1000,
+        "content": "* **✏️ `Установить URL админской панели`**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e32fb60f-390a-4f16-9b81-6b82fda08328",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1820,
+        -740
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 380,
+        "height": 240,
+        "content": "### 📖 Что здесь происходит:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a31f7eec-c104-4631-86f3-523e68aab57b",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1780,
+        -1040
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 320,
+        "content": "Этот раздел **инициирует рабочий процесс по регулярному расписанию** (ежедневно, еженедельно и т.д.). Он также **устанавливает URL** админской панели, где хранятся данные ваших клиентов."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0f4db4d3-102f-4c2c-a456-42bd14e95a76",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1780,
+        -700
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1289,
+        "height": 2758,
+        "content": "💡 **Совет для начинающих:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e7eec1fb-1a84-44be-8b8c-ab6fa4acbc1c",
+      "name": "Auto-fixing Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "position": [
+        780,
+        280
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3e4a7bfa-5ba6-4abb-8dac-72eeee8263a4",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        760,
+        500
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8sEyPDkC5p4w4Jha",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "6ba75ee7-46ea-4388-b5c2-b5ab2d4aecc1",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        920,
+        500
+      ],
+      "parameters": {
+        "jsonSchemaExample": "[\n  {\n    \"customer_name\": \"John Doe\",\n    \"orders\": [\n      {\n        \"amount\": 120,\n        \"date\": \"2024-05-10\"\n      },\n      {\n        \"amount\": 80,\n        \"date\": \"2024-06-15\"\n      }\n    ]\n  },\n  {\n    \"customer_name\": \"Jane Smith\",\n    \"orders\": [\n      {\n        \"amount\": 200,\n        \"date\": \"2024-04-05\"\n      },\n      {\n        \"amount\": 150,\n        \"date\": \"2024-05-01\"\n      },\n      {\n        \"amount\": 180,\n        \"date\": \"2024-06-10\"\n      }\n    ]\n  },\n  {\n    \"customer_name\": \"Michael Johnson\",\n    \"orders\": [\n      {\n        \"amount\": 600,\n        \"date\": \"2024-07-01\"\n      }\n    ]\n  }\n]\n"
+      },
+      "typeVersion": 1.2
+    }
+  ],
+  "active": false,
+  "pinData": {
+    "Scrape Customer Profiles & Orders (Agent)": [
+      {
+        "json": {
+          "output": [
+            {
+              "orders": [
+                {
+                  "date": "2024-05-10",
+                  "amount": 120
+                },
+                {
+                  "date": "2024-06-15",
+                  "amount": 80
+                }
+              ],
+              "customer_name": "John Doe",
+              "customer_email": "johndoe@gmail.com"
+            },
+            {
+              "orders": [
+                {
+                  "date": "2024-04-05",
+                  "amount": 200
+                },
+                {
+                  "date": "2024-05-01",
+                  "amount": 150
+                },
+                {
+                  "date": "2024-06-10",
+                  "amount": 180
+                }
+              ],
+              "customer_name": "Jane Smith",
+              "customer_email": "johnsmith@gmail.com"
+            },
+            {
+              "orders": [
+                {
+                  "date": "2024-07-01",
+                  "amount": 600
+                }
+              ],
+              "customer_name": "Michael Johnson",
+              "customer_email": "michael@gmail.com"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f2ffb3ba-6efc-493d-93c6-6a2e99e8c2d8",
+  "connections": {
+    "AI Assistant": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Scrape Customer Profiles & Orders (Agent)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Customer Info": {
+      "main": [
+        [
+          {
+            "node": "Get Customer Order History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bright Data MCP Scraper": {
+      "ai_tool": [
+        [
+          {
+            "node": "Scrape Customer Profiles & Orders (Agent)",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Customer High-Value?": {
+      "main": [
+        [
+          {
+            "node": "Send Special Offer Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ignore Low-Value Customers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set customer history url": {
+      "main": [
+        [
+          {
+            "node": "Scrape Customer Profiles & Orders (Agent)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-fixing Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Scrape Customer Profiles & Orders (Agent)",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Customer Order History": {
+      "main": [
+        [
+          {
+            "node": "Is Customer High-Value?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Offer Campaign Monthly": {
+      "main": [
+        [
+          {
+            "node": "Set customer history url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape Customer Profiles & Orders (Agent)": {
+      "main": [
+        [
+          {
+            "node": "Format Customer Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

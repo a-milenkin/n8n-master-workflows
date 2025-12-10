@@ -1,0 +1,354 @@
+{
+  "id": "53Zi0qKV30N2PZq9",
+  "meta": {
+    "instanceId": "e854ccd1d846d48f876ea4ce7613a148e39ed800c748cb59061b490defde7afd",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "[Узнать больше о узле Merge](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.merge/)",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "2488c731-3008-4f49-b7a6-e7ef45007927",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -496,
+        -272
+      ],
+      "parameters": {
+        "width": 448,
+        "height": 672,
+        "content": "## 📩 Автоматизация еженедельного отчета по продажам в Slack"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9cd0f108-3e28-4039-a8a3-b9bf37a28e53",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -16,
+        -608
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 624,
+        "height": 304,
+        "content": "Отправляет еженедельное резюме по сделкам в Slack с реальными показателями продаж, такими как открытые сделки, лучшая сделка, коэффициент побед, взвешенная воронка и общий закрытый доход."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3d418639-c107-4ee7-b461-6a492f835c92",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        144,
+        112
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "6a5fed72-ce8f-41bf-9f26-be81c5011394",
+      "name": "Search Open Deals",
+      "type": "n8n-nodes-base.airtable",
+      "position": [
+        656,
+        -80
+      ],
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "mode": "list",
+          "value": "appGid2SnQKDjgdhy",
+          "cachedResultUrl": "https://airtable.com/appGid2SnQKDjgdhy",
+          "cachedResultName": "Airtable to Slack Weekly Report"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "tblQq0yUYA7dIZxUr",
+          "cachedResultUrl": "https://airtable.com/appGid2SnQKDjgdhy/tblQq0yUYA7dIZxUr",
+          "cachedResultName": "Deals"
+        },
+        "options": {},
+        "operation": "search",
+        "filterByFormula": "=OR(\n  {Status} = \"Qualified\",\n  {Status} = \"Proposal Sent\",\n  {Status} = \"Negotiation\"\n)"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "a52e60df-e378-40c0-be0a-c3512661b452",
+      "name": "Search Won Deals",
+      "type": "n8n-nodes-base.airtable",
+      "position": [
+        656,
+        432
+      ],
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "mode": "list",
+          "value": "appGid2SnQKDjgdhy",
+          "cachedResultUrl": "https://airtable.com/appGid2SnQKDjgdhy",
+          "cachedResultName": "Airtable to Slack Weekly Report"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "tblQq0yUYA7dIZxUr",
+          "cachedResultUrl": "https://airtable.com/appGid2SnQKDjgdhy/tblQq0yUYA7dIZxUr",
+          "cachedResultName": "Deals"
+        },
+        "options": {},
+        "operation": "search",
+        "filterByFormula": "={Status} = \"Won\""
+      },
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "TYjnodYUe5IcQGV2",
+          "name": "Airtable Personal Access Token account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "49091bc3-1815-407f-bb1e-79a3c0413171",
+      "name": "Merge Deals",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1088,
+        112
+      ],
+      "parameters": {},
+      "typeVersion": 3.2
+    },
+    {
+      "id": "179a3e43-8f0e-4f93-ad58-8f5a8f8b07db",
+      "name": "Slack Message Summary",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1296,
+        112
+      ],
+      "parameters": {
+        "jsCode": "// Split input: open deals and closed deals\nconst openDeals = items.filter(item => item.json['Status'] !== 'Won' && item.json['Status'] !== 'Lost');\nconst closedDeals = items.filter(item => item.json['Status'] === 'Won');\n\n// Metrics\nconst pipelineValue = openDeals.reduce((sum, d) => sum + Number(d.json['Value'] || 0), 0);\nconst topDeal = openDeals.sort((a, b) => b.json['Value'] - a.json['Value'])[0];\nconst winRate = closedDeals.length + openDeals.length > 0\n  ? (closedDeals.length / (closedDeals.length + openDeals.length)) * 100\n  : 0;\n\n// Format\nreturn [\n  {\n    json: {\n      openDeals,\n      closedDeals,\n      summary: `📊 *Weekly Pipeline Report*`,\n      value: `• Open Deals: *${openDeals.length}*  \n• Pipeline Value: *£${pipelineValue.toLocaleString()}*  \n• Top Deal: *${topDeal?.json['Deal Name']}* – £${topDeal?.json['Value']}  \n• Win Rate: *${winRate.toFixed(1)}%*`\n    }\n  }\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7b1c11c7-43ea-4825-94f0-286c8e89a453",
+      "name": "Advanced Metrics",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1504,
+        112
+      ],
+      "parameters": {
+        "jsCode": "const openDeals = items[0].json.openDeals;\nconst closedDeals = items[0].json.closedDeals;\n\n// Extract field helper\nconst getField = (record, field) => record.json?.[field] ?? null;\n\nconst totalPipeline = openDeals.reduce((sum, record) => {\n  return sum + (parseFloat(getField(record, 'Value')) || 0);\n}, 0);\n\nconst weightedPipeline = openDeals.reduce((sum, record) => {\n  const stage = getField(record, 'Stage');\n  const value = parseFloat(getField(record, 'Value')) || 0;\n\n  const stageWeights = {\n    'Qualified': 0.2,\n    'Proposal Sent': 0.4,\n    'Negotiation': 0.6,\n    'Won': 1,\n    'Lost': 0\n  };\n\n  const weight = stageWeights[stage] || 0.2;\n  return sum + (value * weight);\n}, 0);\n\nconst totalClosed = closedDeals.reduce((sum, record) => {\n  return sum + (parseFloat(getField(record, 'Value')) || 0);\n}, 0);\n\nconst winRate = openDeals.length + closedDeals.length > 0\n  ? ((closedDeals.length / (openDeals.length + closedDeals.length)) * 100).toFixed(1)\n  : 'N/A';\n\nreturn [\n  {\n    json: {\n      totalPipeline: `£${totalPipeline.toLocaleString()}`,\n      weightedPipeline: `£${weightedPipeline.toLocaleString()}`,\n      totalClosed: `£${totalClosed.toLocaleString()}`,\n      winRate: `${winRate}%`,\n      openDealsCount: openDeals.length,\n      closedDealsCount: closedDeals.length\n    }\n  }\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a3740fd8-0e24-4581-a156-006ffe33b40b",
+      "name": "Slack Message",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1904,
+        112
+      ],
+      "webhookId": "8c2a1c87-c10d-4c14-b4c9-c31474da3b95",
+      "parameters": {
+        "text": "=📊 *Weekly Sales Report*  • 🧮 *Total Pipeline:* {{ $json.totalPipeline }} • ⚖️ *Weighted Pipeline:* {{ $json.weightedPipeline }} • 🏆 *Total Closed (All Time):* {{ $json.totalClosed }} • 📈 *Win Rate:* {{ $json.winRate }}  • 🔄 *Open Deals:* {{ $json.openDealsCount }} • ✅ *Closed Deals:* {{ $json.closedDealsCount }}  _This report was generated automatically using n8n._",
+        "user": {
+          "__rl": true,
+          "mode": "list",
+          "value": "U096VCG525P",
+          "cachedResultName": "james"
+        },
+        "select": "user",
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "edcCpymx9IvKgibG",
+          "name": "Slack account"
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "8349a72d-1430-42d3-adde-06a577cb9f3c",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        496,
+        224
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 416,
+        "content": "👤 Для кого это"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9df9bf18-cc92-4711-b0a8-1b6c7bf94574",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        496,
+        -272
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 416,
+        "content": "Менеджеры по продажам, основатели и команды по доходам, которые хотят автоматически видеть динамику сделок без проверки CRM."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "593619f0-bd06-436c-9203-096a6eef52b5",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1760,
+        -80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 416,
+        "content": "⚙️ Как настроить"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0c21cce2-a383-424c-9018-9c04b37b3fd7",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        992,
+        -80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 688,
+        "height": 416,
+        "content": "## Процесс и метрики формата"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aebcfa3e-9587-403e-b4f7-0e9c7088fbc5",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 416,
+        "content": "[Узнать больше о узле Code](https://www.google.com/search?client=safari&rls=en&q=code+node+n8n&ie=UTF-8&oe=UTF-8)"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "268480a9-a2d7-414d-8efc-d0c716dbbfdb",
+  "connections": {
+    "Merge Deals": {
+      "main": [
+        [
+          {
+            "node": "Slack Message Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Advanced Metrics": {
+      "main": [
+        [
+          {
+            "node": "Slack Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Search Open Deals",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Search Won Deals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Won Deals": {
+      "main": [
+        [
+          {
+            "node": "Merge Deals",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Search Open Deals": {
+      "main": [
+        [
+          {
+            "node": "Merge Deals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Message Summary": {
+      "main": [
+        [
+          {
+            "node": "Advanced Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

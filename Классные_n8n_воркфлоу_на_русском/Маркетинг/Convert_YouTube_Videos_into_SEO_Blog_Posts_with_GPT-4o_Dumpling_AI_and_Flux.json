@@ -1,0 +1,406 @@
+{
+  "id": "A0xnegTHL43LL3eP",
+  "meta": {
+    "instanceId": "a1ae5c8dc6c65e674f9c3947d083abcc749ef2546dff9f4ff01de4d6a36ebfe6",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "- Определите основные темы и концепции транскрипции.",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "c79371d9-c1be-48d4-a2c7-d97a12f4e23c",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "7812d81b-3fe8-42a0-8ac8-53161c345e60",
+      "name": "Get YouTube Transcript",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "url": "https://app.dumplingai.com/api/v1/get-youtube-transcript",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "videoUrl",
+              "value": "={{ $json['YouTube Video Url'] }}"
+            },
+            {
+              "name": "includeTimestamps",
+              "value": "={{false}}"
+            }
+          ]
+        },
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "0pq31j7wKqOIHFaR",
+          "name": "Dumpling AI Bearer Auth account"
+        },
+        "httpHeaderAuth": {
+          "id": "ASc5gIQaW1c63ZhO",
+          "name": "Dumpling AI Auth"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "bd25a5d9-c2a2-49fa-a73a-dc1d65875629",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        140,
+        -260
+      ],
+      "parameters": {
+        "width": 260,
+        "height": 240,
+        "content": "## Установить переменные"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "52e1de35-84ee-4019-aa5f-3502e6b728e1",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        360,
+        180
+      ],
+      "parameters": {
+        "width": 280,
+        "height": 200,
+        "content": "Установите ваши переменные здесь, такие как:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ec94d583-7e25-4ac4-8fb9-beb369832355",
+      "name": "Set Variables",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a777e7e9-4334-4a6a-8a4c-f3b6bf5fc94b",
+              "name": "YouTube Video Url",
+              "type": "string",
+              "value": "https://www.youtube.com/watch?v=Dpie2Cd4iB4"
+            },
+            {
+              "id": "257054fa-5348-475e-965e-5ecd03d901bd",
+              "name": "Recipient Email Address",
+              "type": "string",
+              "value": "example@example.com"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "fa1b0e6f-3892-4bc8-8fd8-c96d3a596991",
+      "name": "Generate Blog Post",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o",
+          "cachedResultName": "GPT-4O"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "- URL видео на YouTube: Видео на YouTube, которое вы хотите преобразовать в SEO-блог"
+            },
+            {
+              "content": "={{ $json.transcript }}"
+            }
+          ]
+        },
+        "jsonOutput": true
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "fdhWALG84tBLgSZT",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "50bfb015-554d-48f3-aa81-130677620fdd",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        660,
+        -340
+      ],
+      "parameters": {
+        "width": 260,
+        "height": 320,
+        "content": "- Адрес электронной почты получателя: Это адрес электронной почты, на который мы отправляем весь сгенерированный контент в конце рабочего процесса."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ecc499c0-776e-4cb1-8361-6f05e0cda021",
+      "name": "Generate AI Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1036,
+        0
+      ],
+      "parameters": {
+        "url": "https://app.dumplingai.com/api/v1/generate-ai-image",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"model\": \"FLUX.1-dev\",\n  \"input\": {\n    \"prompt\": \"{{ $json.message.content.blogImagePrompt }}\"\n  }\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "0pq31j7wKqOIHFaR",
+          "name": "Dumpling AI Bearer Auth account"
+        },
+        "httpHeaderAuth": {
+          "id": "ASc5gIQaW1c63ZhO",
+          "name": "Dumpling AI Auth"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c0e5dfef-5314-4d30-836a-e9e4d13e4679",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        980,
+        180
+      ],
+      "parameters": {
+        "height": 260,
+        "content": "## Получить транскрипцию YouTube"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7d7c0463-7d19-46a3-be5a-d5bd47b82032",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1696,
+        0
+      ],
+      "webhookId": "93615493-65f6-41ab-9ea7-2f6ffb8cbc40",
+      "parameters": {
+        "sendTo": "={{ $('Set Variables').item.json['Recipient Email Address'] }}",
+        "message": "=Description: {{ $('Generate Blog Post').item.json.message.content.description }}\n\nContent:\n{{ $('Markdown').item.json.htmlContent }}",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {}
+            ]
+          }
+        },
+        "subject": "={{ $('Generate Blog Post').item.json.message.content.title }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "g5pJ3U0ehy2NiEiI",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "5af18f00-3d7d-4db4-ab2b-595ef7e8adc3",
+      "name": "Markdown",
+      "type": "n8n-nodes-base.markdown",
+      "position": [
+        1256,
+        0
+      ],
+      "parameters": {
+        "mode": "markdownToHtml",
+        "options": {},
+        "markdown": "={{ $('Generate Blog Post').item.json.message.content.content }}",
+        "destinationKey": "htmlContent"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ca2b7c3e-44e9-4043-916a-b44c3ef662f2",
+      "name": "Download Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1476,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $('Generate AI Image').item.json.images[0].url }}",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a7414823-fc14-4981-97bb-d14f4622172e",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1180,
+        -200
+      ],
+      "parameters": {
+        "width": 260,
+        "height": 180,
+        "content": "Этот шаг получает транскрипцию видео на YouTube с помощью Dumpling AI. Целевое видео должно иметь включенные субтитры или титры. Вы можете изменить это, чтобы указать язык."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a0213875-25cb-48b1-b845-e14b2e83efac",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1400,
+        180
+      ],
+      "parameters": {
+        "width": 260,
+        "height": 180,
+        "content": "Напишите подробный SEO-оптимизированный блог, используя предоставленную транскрипцию видео на YouTube."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "35307e5f-662b-41ab-89fb-3519d790fa52",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1620,
+        -200
+      ],
+      "parameters": {
+        "width": 260,
+        "height": 180,
+        "content": "Используйте содержание транскрипции как основу для блога, извлекая ключевые идеи, темы и концепции для подчеркивания. Убедитесь, что блог структурирован с четкими заголовками, подзаголовками и абзацами, естественно встраивая SEO-ключевые слова. Тон должен быть увлекательным и информативным, ориентированным на читателей, интересующихся темой видео."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f91b5401-28b5-435c-a147-64bc124b1993",
+  "connections": {
+    "Markdown": {
+      "main": [
+        [
+          {
+            "node": "Download Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Variables": {
+      "main": [
+        [
+          {
+            "node": "Get YouTube Transcript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Image": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate AI Image": {
+      "main": [
+        [
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Blog Post": {
+      "main": [
+        [
+          {
+            "node": "Generate AI Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get YouTube Transcript": {
+      "main": [
+        [
+          {
+            "node": "Generate Blog Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Set Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

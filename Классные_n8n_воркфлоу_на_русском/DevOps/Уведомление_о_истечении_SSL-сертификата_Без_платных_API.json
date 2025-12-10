@@ -1,0 +1,400 @@
+{
+  "id": "NTSkPEG2pcvG3qoH",
+  "meta": {
+    "instanceId": "60c025075753afcab9f803964b4caaca9402f435deb4efafbb8e3b93b54d8752",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Уведомление о истечении срока действия SSL",
+  "tags": [
+    {
+      "id": "b2GfRjIENZV9WKpD",
+      "name": "IT Ops",
+      "createdAt": "2025-05-29T08:33:47.664Z",
+      "updatedAt": "2025-05-29T08:33:47.664Z"
+    },
+    {
+      "id": "sfoRiNMRAXjQ31IO",
+      "name": "DevOps",
+      "createdAt": "2025-05-29T08:33:47.654Z",
+      "updatedAt": "2025-05-29T08:33:47.654Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "b8c160c6-29a3-4b7d-ab78-e126206627b1",
+      "name": "URLs to Monitor",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        60,
+        140
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "URL": "={{ $json.result.host }}",
+            "Days Left": "={{ $json.result.days_left }}",
+            "Valid From": "={{ $json.result.valid_from }}",
+            "Valid Till": "={{ $json.result.valid_till }}"
+          },
+          "schema": [
+            {
+              "id": "URL",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "URL",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Valid From",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Valid From",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Valid Till",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Valid Till",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Days Left",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Days Left",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "URL"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://docs.google.com/spreadsheets/d/1TakDfkHpgB8qQcvy98mgUfEsEZGnIVNlkwqnsWhGDwI/edit?gid=0#gid=0",
+          "__regex": "https:\\/\\/docs\\.google\\.com\\/spreadsheets\\/d\\/[0-9a-zA-Z\\-_]+.*\\#gid=([0-9]+)"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://docs.google.com/spreadsheets/d/1TakDfkHpgB8qQcvy98mgUfEsEZGnIVNlkwqnsWhGDwI/edit?gid=0#gid=0"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "kXiWCpzbScflZGmW",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "21c4d282-5bb4-4d34-8cad-28e4e91843be",
+      "name": "Fetch URLs",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -640,
+        400
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://docs.google.com/spreadsheets/d/1TakDfkHpgB8qQcvy98mgUfEsEZGnIVNlkwqnsWhGDwI/edit?gid=0#gid=0"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://docs.google.com/spreadsheets/d/1TakDfkHpgB8qQcvy98mgUfEsEZGnIVNlkwqnsWhGDwI/edit?gid=0#gid=0"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "kXiWCpzbScflZGmW",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "3d6ebf5c-a89d-4890-ab64-01c6db1d8486",
+      "name": "Check SSL",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -380,
+        400
+      ],
+      "parameters": {
+        "url": "=https://ssl-checker.io/api/v1/check/{{ $json[\"URL\"].replace(/^https?:\\/\\//, \"\").replace(/\\/$/, \"\") }}",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "1b7427f1-41aa-4aea-8a98-dccb44e958e0",
+      "name": "Expiry Alert",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        60,
+        620
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "ee6e2ce8-569a-4f1f-91b5-2c55f605a16b",
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              },
+              "leftValue": "={{ $json.result.days_left }}",
+              "rightValue": 7
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "8efd16a5-ff9e-4138-aa70-ebd087fb27ef",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [
+        360,
+        400
+      ],
+      "webhookId": "64bfb82b-e70f-4831-87b9-599d9187ec4a",
+      "parameters": {
+        "html": "=<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <style>\n        body {\n            font-family: Arial, sans-serif;\n            background-color: #f4f4f9;\n            color: #333;\n            margin: 0;\n            padding: 0;\n        }\n        .container {\n            width: 100%;\n            max-width: 600px;\n            margin: 20px auto;\n            padding: 20px;\n            background-color: #ffffff;\n            border-radius: 8px;\n            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);\n        }\n        .header {\n            text-align: center;\n            color: #4CAF50;\n        }\n        .header h1 {\n            font-size: 24px;\n            margin: 0;\n        }\n        .message {\n            font-size: 16px;\n            margin: 20px 0;\n            padding: 10px;\n            background-color: #e3f2fd;\n            border-left: 5px solid #2196F3;\n        }\n        .highlight {\n            color: #d32f2f;\n            font-weight: bold;\n        }\n        .footer {\n            text-align: center;\n            font-size: 14px;\n            color: #888;\n            margin-top: 30px;\n        }\n        .footer a {\n            color: #2196F3;\n            text-decoration: none;\n        }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"header\">\n            <h1>SSL Certificate Expiry Notice</h1>\n        </div>\n        <div class=\"message\">\n            <p>Dear Team,</p>\n            <p>The SSL certificate for the website <strong>{{ $json.result.host }}</strong> is set to expire in <span class=\"highlight\">{{ $json.result.days_left }}</span> days.</p>\n            <p>Please take the necessary actions to renew the certificate and ensure uninterrupted service.</p>\n        </div>\n        <div class=\"footer\">\n            <p>Best regards,<br>The IT Operations Team</p>\n        </div>\n    </div>\n</body>\n</html>\n",
+        "options": {},
+        "subject": "=SSL Expiry - {{ $json.result.days_left }} Days Left - {{ $json.result.host }}",
+        "toEmail": "=team1@gmail.com,team2@gmail.com",
+        "fromEmail": "admin@gmail.com"
+      },
+      "credentials": {
+        "smtp": {
+          "id": "H0f4Gja9ECFRA34L",
+          "name": "SMTP account 2"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "7ce561b1-1102-4fc1-972b-7dca1793e023",
+      "name": "Daily Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -900,
+        400
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "12d2c49f-9d56-4ace-bc06-82ea850df133",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1620,
+        -380
+      ],
+      "parameters": {
+        "width": 500,
+        "height": 1240,
+        "content": "## 🔐 Уведомитель о сроке действия SSL (без платных API)\n\n### 👤 Для кого это?\nЭтот рабочий процесс предназначен для ИТ-администраторов, инженеров DevOps и веб-профессионалов, которым необходимо **мониторить истечение срока действия SSL-сертификатов** на нескольких доменах — **без зависимости от платных API**.\n\n---\n\n### 🧩 Что он делает\n1. **Ежедневный триггер** запускает рабочий процесс каждое утро.\n2. **Интеграция с Google Sheets** получает список URL-адресов веб-сайтов для мониторинга.\n3. **Бесплатная проверка SSL API** (`ssl-checker.io`) используется для получения данных о действительности сертификата.\n4. **Детали сертификата** (действителен с, действителен до, осталось дней) обновляются обратно в тот же Google Sheet.\n5. **Условие IF** проверяет, истекает ли SSL-сертификат через ≤7 дней.\n6. **Уведомление по электронной почте** автоматически отправляется для сертификатов, срок действия которых истекает.\n\n---\n\n### ⚙️ Инструкции по настройке\n1. **Google Sheets**:  \n   - Клонируйте образец таблицы или используйте свою.  \n   - Обновите URL таблицы в узлах `Fetch URLs` и `Update Sheet`.  \n   - Убедитесь, что в ней есть столбец `URL`.\n\n2. **Учетные данные**:  \n   - Подключите свою **учетную запись Google** (для Sheets) и **SMTP-учетные данные** (для уведомлений по электронной почте).\n\n3. **Настройка**:  \n   - Измените порог уведомления в узле **IF** (в настоящее время установлен на 7 дней).  \n   - Измените список получателей и стиль сообщения в узле **Send Email**.\n\n---\n\n### 🧠 Заметки\n- Использует **ssl-checker.io**, **бесплатный публичный API** — платные услуги не нужны.  \n- Гибкое и самостоятельно размещаемое решение для мониторинга.  \n- Идеально подходит для небольших команд, управляющих несколькими доменами."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "68db9999-8a66-479f-8708-c2b9b6556a76",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1000,
+        220
+      ],
+      "parameters": {
+        "height": 320,
+        "content": "### 🕒 Ежедневный триггер  \nЗапускает рабочий процесс каждый день в 8:00 утра.  \nОтрегулируйте время или частоту по мере необходимости, используя настройки cron или интервала."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b39cd547-196f-48ea-b7b5-8b09561032ce",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -700,
+        220
+      ],
+      "parameters": {
+        "height": 320,
+        "content": "### 📄 Получение URL-адресов\nЧитает URL-адреса веб-сайтов из Google Таблицы.  \nУбедитесь, что в таблице есть столбец с названием `URL`, содержащий домены, которые вы хотите отслеживать."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "455e64c4-38da-4965-bfd6-b11a699243b1",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -420,
+        220
+      ],
+      "parameters": {
+        "height": 320,
+        "content": "### 🔍 Проверка SSL\nЗапрашивает `ssl-checker.io` (бесплатный API) данные сертификата SSL для каждого домена.  \nВозвращает valid_from, valid_till, days_left и информацию о хосте."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "51b3423d-ea6e-4878-9d2e-177e04222100",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        460
+      ],
+      "parameters": {
+        "height": 300,
+        "content": "### ⚠️ Уведомление об истечении срока\nПроверяет, если `days_left` меньше или равно 7.  \nТолько домены, которые соответствуют этому условию, вызовут уведомление по электронной почте."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "17cfd4d8-cbfe-46f0-bdf1-3a89f557200b",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        300,
+        220
+      ],
+      "parameters": {
+        "height": 320,
+        "content": "### 📧 Отправить электронное письмо\nОтправляет электронное письмо указанным получателям, если сертификат скоро истекает.  \nСообщение включает количество оставшихся дней и имя домена в HTML-шаблоне."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "64c0883c-223f-4276-886b-d9996aa099dd",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -60
+      ],
+      "parameters": {
+        "height": 400,
+        "content": "### 🔄 Обновить таблицу\nОбновляет оригинальную таблицу Google с новыми данными сертификата:\n- Действительно с\n- Действительно до\n- Осталось дней  \nСопоставляет по URL, чтобы гарантировать обновление правильной строки."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f02670ca-1476-4eb6-acac-205630fa2b1c",
+  "connections": {
+    "Check SSL": {
+      "main": [
+        [
+          {
+            "node": "URLs to Monitor",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Expiry Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch URLs": {
+      "main": [
+        [
+          {
+            "node": "Check SSL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "main": [
+        []
+      ]
+    },
+    "Expiry Alert": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

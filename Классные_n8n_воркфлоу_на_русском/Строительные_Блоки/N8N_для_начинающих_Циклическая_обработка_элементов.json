@@ -1,0 +1,475 @@
+{
+  "id": "CDVBZRDH5gNUzIml",
+  "meta": {
+    "instanceId": "ab60b809a7fa5daa22fa7edffc14e989a6e59d4063ec838ad62f2655caafd963",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "- **Явные циклы:** Узел **Цикл по элементам** позволяет контролируемую итерацию, позволяя **пользовательскую пакетную обработку** и многоступенчатые рабочие процессы.",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "500304a1-5164-4907-b0a7-e514e455e3dc",
+      "name": "Result1",
+      "type": "n8n-nodes-base.noOp",
+      "notes": "Look Here to see resulting output",
+      "position": [
+        880,
+        -280
+      ],
+      "parameters": {},
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "32808ad1-1a35-497f-b1d3-c935a924c541",
+      "name": "Result2",
+      "type": "n8n-nodes-base.noOp",
+      "notes": "Look here to see resulting output",
+      "position": [
+        880,
+        40
+      ],
+      "parameters": {},
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "f3c9fa5d-a4c7-4cf0-beb5-774d8483974f",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        800,
+        -340
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 320,
+        "height": 240,
+        "content": "### Результат1 показывает, что массив строк рассматривается как один элемент в Loop1"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0bb96765-60ce-4618-9b39-7cd203a3cb48",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        800,
+        -60
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 320,
+        "height": 260,
+        "content": "### Результат2 показывает, что Loop2 видит 5 элементов после того, как массив строк был разделен на отдельные объекты"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b71fcc86-b0cd-4241-b0d6-21abe4c6b68d",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1680,
+        -1100
+      ],
+      "parameters": {
+        "width": 1200,
+        "height": 2480,
+        "content": "# N8N для начинающих: Циклы по элементам"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "53e7d23a-2a4f-4ada-aeb5-de128acf8625",
+      "name": "Split Array of Strings into Array of Objects",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        -20,
+        380
+      ],
+      "parameters": {
+        "options": {
+          "destinationFieldName": "url"
+        },
+        "fieldToSplitOut": "urls"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4910fec6-d600-43be-97b2-5050039db416",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        800,
+        700
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 320,
+        "height": 260,
+        "content": "## Описание"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f0e68b30-5341-4672-8d8e-7a24d894eb03",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        800,
+        420
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 320,
+        "height": 240,
+        "content": "Этот рабочий процесс предназначен для **начинающих n8n**, чтобы понять, как n8n обрабатывает **циклы (итерацию)** по нескольким элементам. Он подчеркивает два ключевых поведения:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "70a987b9-6a4a-49c3-a87c-0dd9cc1879ed",
+      "name": "Result3",
+      "type": "n8n-nodes-base.noOp",
+      "notes": "Look here to see resulting output",
+      "position": [
+        900,
+        500
+      ],
+      "parameters": {},
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "9de5fac9-e987-4fb1-8f7f-b59af2985e5c",
+      "name": "Result4",
+      "type": "n8n-nodes-base.noOp",
+      "notes": "Look here to see resulting output",
+      "position": [
+        900,
+        780
+      ],
+      "parameters": {},
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "d5fee847-7758-44ac-a270-6334dd81bb97",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        800,
+        -640
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 320,
+        "height": 260,
+        "content": "- **Встроенные циклы:** По умолчанию большинство узлов n8n итерируют по каждому элементу в входном массиве."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9a134620-4067-4c7a-8b0f-30e19c93a66c",
+      "name": "Result5",
+      "type": "n8n-nodes-base.noOp",
+      "notes": "Look here to see resulting output",
+      "position": [
+        880,
+        -540
+      ],
+      "parameters": {},
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "c273cd55-708d-4f86-81f2-3bbe991f59f8",
+      "name": "Paste JSON into this node",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -400,
+        -540
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "8f64b987-05c5-43a9-89c0-201499df0aa6",
+      "name": "Add param1 to output5",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        320,
+        -540
+      ],
+      "parameters": {
+        "jsCode": "\n  $json.param1 =  'add_me_to_all_items_and_name_me_param1';\n\n\nreturn $json"
+      },
+      "typeVersion": 2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "4920b4e4-b511-4059-b38a-623d14b6df25",
+      "name": "Add param1 to output1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        500,
+        -180
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\n  $json.param1 = \"add_me_to_all_items_and_name_me_param1\"\n\nreturn $json"
+      },
+      "typeVersion": 2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "28ce5239-6437-4b7a-9395-3beb162fded6",
+      "name": "Loop over Items 2",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        320,
+        60
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "628edc5e-1b7f-4f50-9c29-8990bd4a5cc0",
+      "name": "Loop over Items 1",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        320,
+        -260
+      ],
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "ffccda97-066d-4c13-b4eb-a13ff849b90a",
+      "name": "Add param1 to output2",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        680,
+        220
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\n  $json.param1 =   \"add_me_to_all_items_and_name_me_param1\"\n\n\nreturn $json"
+      },
+      "typeVersion": 2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "6fb44840-6365-46db-9c50-eecd420f274f",
+      "name": "Add param1 to output3",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        320,
+        500
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\n  $json.param1 =   \"add_me_to_all_items_and_name_me_param1\"\n\n\nreturn $json"
+      },
+      "typeVersion": 2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "51b8d766-25ed-407f-a956-693b93bda95f",
+      "name": "Add param1 to output4",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        320,
+        780
+      ],
+      "parameters": {
+        "jsCode": "\n  $json.param1 =   \"add_me_to_all_items_and_name_me_param1\"\n\n\nreturn $json"
+      },
+      "typeVersion": 2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "f8edde34-cf47-42e2-bbd3-552df2509451",
+      "name": "Wait one second(just for show)",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        480,
+        180
+      ],
+      "webhookId": "61aef80b-4e9d-43ae-a083-cd87b4fdec11",
+      "parameters": {
+        "amount": 1
+      },
+      "typeVersion": 1.1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e1eff37a-1ffd-4691-9560-eada5baab88d",
+  "connections": {
+    "Result1": {
+      "main": [
+        []
+      ]
+    },
+    "Result2": {
+      "main": [
+        []
+      ]
+    },
+    "Loop over Items 1": {
+      "main": [
+        [
+          {
+            "node": "Result1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add param1 to output1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop over Items 2": {
+      "main": [
+        [
+          {
+            "node": "Result2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait one second(just for show)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add param1 to output1": {
+      "main": [
+        [
+          {
+            "node": "Loop over Items 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add param1 to output2": {
+      "main": [
+        [
+          {
+            "node": "Loop over Items 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add param1 to output3": {
+      "main": [
+        [
+          {
+            "node": "Result3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add param1 to output4": {
+      "main": [
+        [
+          {
+            "node": "Result4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add param1 to output5": {
+      "main": [
+        [
+          {
+            "node": "Result5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Paste JSON into this node": {
+      "main": [
+        [
+          {
+            "node": "Split Array of Strings into Array of Objects",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Add param1 to output5",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Loop over Items 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait one second(just for show)": {
+      "main": [
+        [
+          {
+            "node": "Add param1 to output2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Array of Strings into Array of Objects": {
+      "main": [
+        [
+          {
+            "node": "Loop over Items 2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Add param1 to output4",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Add param1 to output3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

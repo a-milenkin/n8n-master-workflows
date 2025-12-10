@@ -1,0 +1,122 @@
+{
+  "meta": {
+    "instanceId": "cd59eaaeb7b34d06e24511380db94cdb7fbce6037cc4de22e539c5158ab9cdfc"
+  },
+  "nodes": [
+    {
+      "id": "7ffb7544-4efa-4df1-ac37-fc074f298920",
+      "name": "Workflow Overview 0",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1460,
+        -100
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 800,
+        "content": "## 🛠️ Инструмент ProfitWell MCP Server"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8171f197-932d-4476-b668-511b50ebd773",
+      "name": "ProfitWell Tool MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        -860,
+        -100
+      ],
+      "webhookId": "366335f0-5f56-4656-8d14-74db7849fdfc",
+      "parameters": {
+        "path": "profitwell-tool-mcp"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c5951b5d-205a-4bfe-92bb-b08a5a4bc293",
+      "name": "Get settings for your company",
+      "type": "n8n-nodes-base.profitWellTool",
+      "position": [
+        -800,
+        140
+      ],
+      "parameters": {
+        "resource": "company"
+      },
+      "credentials": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "710d1b06-9374-45e4-8247-fa850b4277db",
+      "name": "Sticky Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1000,
+        120
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 400,
+        "content": "### 📋 Доступные операции (всего 2)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "44d2b217-a4e9-4fdf-8b57-2163480ef771",
+      "name": "Get a metric",
+      "type": "n8n-nodes-base.profitWellTool",
+      "position": [
+        -800,
+        380
+      ],
+      "parameters": {
+        "type": "={{ $fromAI('Type', ``, 'string') }}",
+        "month": "={{ $fromAI('Month', ``, 'string') }}",
+        "simple": "={{ $fromAI('Simple', ``, 'boolean') }}",
+        "options": {}
+      },
+      "credentials": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "1228aed3-d3a7-4cb3-8ac0-1c0e9f52642c",
+      "name": "Sticky Note 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1000,
+        360
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 400,
+        "content": "**Компания**: получить настройки"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get a metric": {
+      "ai_tool": [
+        [
+          {
+            "node": "ProfitWell Tool MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get settings for your company": {
+      "ai_tool": [
+        [
+          {
+            "node": "ProfitWell Tool MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,394 @@
+{
+  "id": "sezfOd4PU3efRizo",
+  "meta": {
+    "instanceId": "70da30c32dfca2c8fe2d688fa1f6bf834f1145a963b1dca87ba81a3c249f0060"
+  },
+  "name": "Zoho Inventory to Supabase",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "a3eaaf09-eb05-4181-a196-ab80b2b1cc64",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1000,
+        -60
+      ],
+      "parameters": {
+        "width": 620,
+        "height": 460,
+        "content": "## Автоматизированный рабочий процесс миграции данных из Zoho Inventory в Supabase"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "111cf5b9-cf9e-4a1a-9120-f2938207fac5",
+      "name": "Scheduled Trigger1",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -100,
+        80
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "24a43bf2-fd13-4c2a-9c8b-45687aa136ed",
+      "name": "POST to Zoho API for Access Token1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        120,
+        80
+      ],
+      "parameters": {
+        "url": "https://accounts.zoho.in/oauth/v2/token",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "refresh_token",
+              "value": "your refresh token here"
+            },
+            {
+              "name": "client_id",
+              "value": "your client id here"
+            },
+            {
+              "name": "client_secret",
+              "value": "your client secret here"
+            },
+            {
+              "name": "grant_type",
+              "value": "refresh_token"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "6f450435-efb3-4ee7-bfe2-3950018c05f0",
+      "name": "GET to Zoho Inventory for Listed Items1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        340,
+        80
+      ],
+      "parameters": {
+        "url": "https://www.zohoapis.in/inventory/v1/items",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "organization_id",
+              "value": "your organization id here"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Zoho-oauthtoken {{ $json.access_token }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "433dba2c-a9a9-4c8b-af95-c884cdff3f62",
+      "name": "Split for better organisation1",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        560,
+        80
+      ],
+      "parameters": {
+        "include": "allOtherFields",
+        "options": {},
+        "fieldToSplitOut": "items"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b96e2231-06f7-4b7a-8d6e-5c734ecafb79",
+      "name": "Migrating to Supabase Table1",
+      "type": "n8n-nodes-base.supabase",
+      "notes": "https://docs.google.com/spreadsheets/d/1lm2cYalIe3mt8w7XZf7ZGeAxjksRst_EddW4uJ2SOV8/edit?usp=sharing",
+      "position": [
+        780,
+        80
+      ],
+      "parameters": {
+        "tableId": "Fairy Frills",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "Product ID",
+              "fieldValue": "={{ $json.items.group_id }}"
+            },
+            {
+              "fieldId": "Product Name",
+              "fieldValue": "={{ $json.items.group_name }}"
+            },
+            {
+              "fieldId": "Brand",
+              "fieldValue": "={{ $json.items.brand }}"
+            },
+            {
+              "fieldId": "Variant ID",
+              "fieldValue": "={{ $json.items.item_id }}"
+            },
+            {
+              "fieldId": "Is Returnable Item",
+              "fieldValue": "={{ $json.items.is_returnable }}"
+            },
+            {
+              "fieldId": "AttributeName1",
+              "fieldValue": "={{ $json.items.attribute_name1 }}"
+            },
+            {
+              "fieldId": "AttributeType1",
+              "fieldValue": "={{ $json.items.attribute_type1 }}"
+            },
+            {
+              "fieldId": "AttributeName2",
+              "fieldValue": "={{ $json.items.attribute_name2 }}"
+            },
+            {
+              "fieldId": "AttributeType2",
+              "fieldValue": "={{ $json.items.attribute_type2 }}"
+            },
+            {
+              "fieldId": "AttributeName3",
+              "fieldValue": "={{ $json.items.attribute_name3 }}"
+            },
+            {
+              "fieldId": "AttributeType3",
+              "fieldValue": "={{ $json.items.attribute_type3 }}"
+            },
+            {
+              "fieldId": "Tags",
+              "fieldValue": "={{ $json.items.tags }}"
+            },
+            {
+              "fieldId": "Unit",
+              "fieldValue": "={{ $json.items.unit }}"
+            },
+            {
+              "fieldId": "Item Type",
+              "fieldValue": "={{ $json.items.item_type }}"
+            },
+            {
+              "fieldId": "Variant Name",
+              "fieldValue": "={{ $json.items.item_name }}"
+            },
+            {
+              "fieldId": "SKU",
+              "fieldValue": "={{ $json.items.sku }}"
+            },
+            {
+              "fieldId": "AttributeOptionData2",
+              "fieldValue": "={{ $json.items.attribute_option_data2 }}"
+            },
+            {
+              "fieldId": "AttributeOptionData3",
+              "fieldValue": "={{ $json.items.attribute_option_data3 }}"
+            },
+            {
+              "fieldId": "Stock On Hand",
+              "fieldValue": "={{ $json.items.stock_on_hand }}"
+            },
+            {
+              "fieldId": "UPC",
+              "fieldValue": "={{ $json.items.upc }}"
+            },
+            {
+              "fieldId": "EAN",
+              "fieldValue": "={{ $json.items.ean }}"
+            },
+            {
+              "fieldId": "ISBN",
+              "fieldValue": "={{ $json.items.isbn }}"
+            },
+            {
+              "fieldId": "Status",
+              "fieldValue": "={{ $json.items.status }}"
+            },
+            {
+              "fieldId": "Part Number",
+              "fieldValue": "={{ $json.items.part_number }}"
+            },
+            {
+              "fieldId": "Reorder Level",
+              "fieldValue": "={{ $json.items.reorder_level }}"
+            },
+            {
+              "fieldId": "Dimension Unit",
+              "fieldValue": "={{ $json.items.dimension_unit }}"
+            },
+            {
+              "fieldId": "Weight Unit",
+              "fieldValue": "={{ $json.items.weight_unit }}"
+            },
+            {
+              "fieldId": "Created Time",
+              "fieldValue": "={{ $json.items.created_time }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "A2vjLZKMUskp6mtp",
+          "name": "Supabase account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "83553668-5a8e-465f-9893-bd20d4391d00",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -20,
+        300
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 360,
+        "height": 200,
+        "content": "Этот рабочий процесс n8n автоматизирует процесс миграции данных о продуктах из Zoho Inventory в таблицу Supabase, обеспечивая бесшовные, запланированные обновления и организованное управление данными. Ключевые особенности включают:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f4cbe976-520f-4dd7-ab78-080754bd3750",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        -160
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 360,
+        "height": 200,
+        "content": "•\tАвтоматизированное планирование: Работает по установленному расписанию, чтобы поддерживать синхронизацию таблиц Supabase с Zoho Inventory."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3f452ab6-7e20-49d1-93fb-c72b0acfc26b",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        420,
+        300
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 360,
+        "height": 200,
+        "content": "•\tБезопасная интеграция API: Использует OAuth2.0 от Zoho для безопасной генерации токенов доступа и запросов API."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "758314fa-3684-41e1-b1ce-adaf960afd9c",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        640,
+        -160
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 360,
+        "height": 200,
+        "content": "•\tКомплексное извлечение данных: Извлекает все перечисленные товары из Zoho Inventory, включая подробные атрибуты продуктов и информацию о запасах."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "10d1ee56-7fd0-4493-849c-a3b4e8d88f33",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -220,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 360,
+        "height": 200,
+        "content": "## Scheduled Trigger 1\n- Use this trigger for scheduling the workflow at regular intervals \n"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d5c8959d-9406-456f-9271-59f0f63b83b1",
+  "connections": {
+    "Scheduled Trigger1": {
+      "main": [
+        [
+          {
+            "node": "POST to Zoho API for Access Token1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split for better organisation1": {
+      "main": [
+        [
+          {
+            "node": "Migrating to Supabase Table1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST to Zoho API for Access Token1": {
+      "main": [
+        [
+          {
+            "node": "GET to Zoho Inventory for Listed Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET to Zoho Inventory for Listed Items1": {
+      "main": [
+        [
+          {
+            "node": "Split for better organisation1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

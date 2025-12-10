@@ -1,0 +1,687 @@
+{
+  "id": "S3nh3dFgB4HfiZyf",
+  "meta": {
+    "instanceId": "0a70652f43c1b29dd16c35b61a38fd31c8004f58bc7e723bf43262a797407c77",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Учитывая исследование, этот агент пишет письмо",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "c6ba3396-cfa4-4d6f-b7ec-c8faf93c3c87",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -1160,
+        280
+      ],
+      "webhookId": "09d12e26-7fb0-492f-913f-119f627de19b",
+      "parameters": {
+        "path": "https://lievi.app.n8n.cloud/webhook-test/product-launch",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "919131a9-12ce-409a-92fd-3061ed4efc89",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        940,
+        400
+      ],
+      "parameters": {
+        "options": {
+          "reset": false
+        },
+        "batchSize": "={{ 1 }}"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "f56037b0-45b6-43c4-9981-5c766925cabe",
+      "name": "Company Researcher",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -900,
+        280
+      ],
+      "parameters": {
+        "text": "={{ $json.body.data }}",
+        "options": {
+          "maxIterations": 12,
+          "systemMessage": "=You are a research analyst helping a sales agent write a highly personalized outbound email. Your job is to generate a detailed research brief that explains:\n\n1. **What the company does**\n2. **What the recent business event is**, and why it's significant\n3. **How the event might reflect on the company’s priorities, pain points, or growth goals**\n4. Any additional company context that might be useful for crafting a relevant sales message\n\n## Guidelines:\n- Your response should be **detailed, structured, and accurate**\n- You are writing **for another AI**, so don't hold back on context — more is better\n- You can assume the user already passed in the full event details (like a trigger type, a short summary, etc.)\n- Focus more on **interpreting** the event and **linking it to the company**\n- Write in **natural language**, using clear, concise, informative sentences — not marketing fluff or speculation\n- Keep your tone objective and analytical\n- Avoid repeating generic phrases like “the company is innovative” unless supported by facts\n\n## Inputs:\n- Business ID: {{ $json.body.business_id }}\n- Event: {{ $json.body.data }}\n\n## Output Structure:\nReturn your findings in 2-3 clear paragraphs. The first paragraph should describe the **event in detail** and explain why it may be relevant. The second should summarize what the **company does** and any other useful GTM signals (size, growth stage, recent changes, priorities, etc.).\n\nNow generate the research summary.\n"
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "60a295bb-8eb1-4f98-b597-67ec512648e6",
+      "name": "Anthropic Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "position": [
+        200,
+        180
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-3-7-sonnet-20250219",
+          "cachedResultName": "Claude 3.7 Sonnet"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "FQdE6twB8nCJNoxV",
+          "name": "Anthropic account"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "80c95593-53eb-4748-8373-064ca1e70c2c",
+      "name": "Email Writer ( YES prospect data)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1160,
+        360
+      ],
+      "parameters": {
+        "text": "=prospect_data: contact info:{{ $json.email }}, expereince:{{ $json.experience }},skills:{{ $json.skills }}.\ncompany data:{{ $('Company Researcher').first().json.output }}\nevent data: {{ $('Webhook').first().json.body }}\n\n",
+        "options": {
+          "systemMessage": "=You are a B2B outbound sales email generator.\n\nYour task is to write a short and effective cold outbound email (under 150 words) to a specific prospect at a company. The goal is to be relevant, concise, and persuasive, while introducing Explorium in a way that aligns with the prospect’s role and current company context.\n\n## Prospect Data\n{prospect_data}\n\n## Company \n{company_data}\n\n## Event Data\n{event_data}\n\n## About Explorium (Use this to inform the email — do not paste directly):\nExplorium is a data-powered intelligence platform on a mission to unlock the full potential of external data for the agent era. We serve as the infrastructure backbone for intelligent systems — helping go-to-market teams enrich company and prospect data, tap into real-time signals, and dynamically prioritize their best-fit accounts. Our platform fuels the agents and AI products that are redefining the future of sales and marketing.\n\n## MCP Playground (Link to include):\nInvite the prospect to explore Explorium’s capabilities hands-on via our [MCP Playground](https://www.explorium.ai/mcp-playground/), a public environment to experience the power of enriched external data.\n\n## Output Instructions:\n- Personalize the email using the provided prospect, company, and event information\n- Tailor the message to the prospect’s title, department, or function\n- Weave in how Explorium could support their work or goals based on what the company is focused on\n- The email should feel like it’s written by a real SDR — confident, relevant, and human\n- End the email with a soft CTA inviting them to check out the MCP Playground link but dont forget to also ask to set up a meeting / call\n- At the top of the email, output the selected email address to use. Choose the prospect’s **professional email** if available, or fallback to the next best alternative (personal, current, etc.)\n\nNow write the email.\n"
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "157a0500-2be0-4b13-9f2b-df843acc855d",
+      "name": "Email Writer (NO prospect data)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "text": "=company data:{{ $('Company Researcher').first().json.output }}\nevent data: {{ $('Webhook').first().json.body }}\n",
+        "options": {
+          "systemMessage": "=You are a B2B outbound email assistant.\n\nYour task is to write a short, personalized outbound email (under 120 words) that connects Explorium to a recent business event or trigger at a target company. This email will be sent to a general marketing, growth, or data contact — no specific prospect information is available.\n\n## Context Provided:\n- Company Information: {company_data}\n- Event Information: {event_data}\n\n## About Explorium (Use as context — DO NOT paste directly):\nExplorium is on a mission to unlock the full potential of data for the agent era. From day one, we’ve been driven to be the data and infrastructure backbone that powers intelligent systems and delivers real business growth.\n\nWe partner with smart, driven teams to turn raw external data into actionable insight—fueling agents, AI products, and GTM strategies for the future of sales and marketing.\n\nIf relevant, you may mention that they can explore Explorium’s capabilities themselves via our [MCP Playground](https://www.explorium.ai/mcp-playground/), a public demo environment showcasing the power of enriched data. \n\ndont forget to always end with a call to action in setting up some sort of call or meeting to talk further\n\n## Instructions:\n- Reference the event to establish relevance and timing\n- Briefly describe what the company does (from the input)\n- Weave in Explorium’s value if it's applicable to their business priorities\n- If appropriate, suggest checking out the MCP Playground link\n- End with a warm, soft CTA\n\nNow write the email.\n"
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "657c781c-ed05-495c-8179-f867e89cdf8c",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -840,
+        100
+      ],
+      "parameters": {
+        "content": "## Исследование"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6c4b72d5-5939-41a3-af29-fc3c26548dcf",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -260,
+        140
+      ],
+      "parameters": {
+        "content": "Этот агент использует Explorium MCP для исследования компании, которая только что провела мероприятие"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4a8b53bc-afb3-47ac-b9ff-6038ce688460",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        260,
+        -160
+      ],
+      "parameters": {
+        "content": "## Перекресток"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0c1b9ef7-3714-44d8-a768-6ecb4c3634b2",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        520
+      ],
+      "parameters": {
+        "content": "если мы не можем найти данные о сотрудниках компании, мы отклоняемся, чтобы написать общее письмо"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "90b176e5-087b-44b5-9959-2fe9807a84c0",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1140,
+        160
+      ],
+      "parameters": {
+        "content": "## писатель писем #1"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7bd91ef0-9695-4780-a7b9-739cea103fb1",
+      "name": "Explorium MCP",
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "position": [
+        -680,
+        500
+      ],
+      "parameters": {
+        "sseEndpoint": "mcp.explorium.ai/sse",
+        "authentication": "bearerAuth"
+      },
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "aPjJXei6qDSctHNW",
+          "name": "Bearer Auth account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "043c920e-5972-4bf5-ab13-467c53935467",
+      "name": "Anthropic llm",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "position": [
+        -940,
+        460
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-3-7-sonnet-20250219",
+          "cachedResultName": "Claude 3.7 Sonnet"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "FQdE6twB8nCJNoxV",
+          "name": "Anthropic account"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "1aa3859e-82c5-498d-8c03-7cb2b2ca9068",
+      "name": "Prospect Fetcher",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -500,
+        300
+      ],
+      "parameters": {
+        "url": "https://api.explorium.ai/v1/prospects",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"mode\": \"full\",\n  \"page\": 1,\n  \"size\": 5,\n  \"page_size\": 5,\n  \"filters\": {\n    \"has_email\": { \"value\": true },\n    \"job_level\": {\n      \"values\": [\"owner\", \"cxo\", \"vp\", \"director\", \"manager\", \"senior\"]\n    },\n    \"job_department\": {\n      \"values\": [\"Marketing\"]\n    },\n    \"business_id\": {\n      \"values\": [\"{{ $('Webhook').item.json.body.business_id }}\"]\n    }\n  }\n}\n",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "aPjJXei6qDSctHNW",
+          "name": "Bearer Auth account"
+        },
+        "httpHeaderAuth": {
+          "id": "LZOE1nqmRk3X6r1J",
+          "name": "Header Auth account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "cdf314bd-218d-4cba-be8c-f537eef4222e",
+      "name": "Has Prospect data/ Does not",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -200,
+        320
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "8627133a-68d0-4907-b8ca-d8deba93089d",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.data.length }}\n",
+              "rightValue": "=0"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "8e53e6aa-1a00-4ebb-adbd-d00c7731f783",
+      "name": "Formulate Prospect Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        60,
+        700
+      ],
+      "parameters": {
+        "jsCode": "const candidates = $input.first().json.data;\n\nif (!Array.isArray(candidates) || candidates.length === 0) {\n  throw new Error(\"No candidates found in data.\");\n}\n\nconst result = candidates.map(candidate => {\n  return {\n    json: {\n      prospect_id: candidate.prospect_id,  \n      full_name: candidate.full_name,\n      first_name: candidate.first_name,\n      last_name: candidate.last_name,\n      title: candidate.job_title,\n      department: candidate.job_department,\n      seniority: candidate.job_seniority_level?.join(', ') || '',\n      company: candidate.company_name,\n      location: `${candidate.city}, ${candidate.region_name}, ${candidate.country_name}`,\n      linkedin: candidate.linkedin,\n      email: candidate.professional_email_hashed || '',\n      experience: candidate.experience?.join(' | ') || '',\n      skills: candidate.skills?.join(', ') || '',\n      interests: candidate.interests?.join(', ') || '',\n      business_id: candidate.business_id\n    }\n  };\n});\n\nreturn result;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "be5975d5-5d3e-4dfa-960f-b7e529164ee9",
+      "name": "Prospect Mapping",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        60,
+        1040
+      ],
+      "parameters": {
+        "jsCode": "const prospectIds = $input.all()\n  .map(item => String(item.json.prospect_id).trim()) // Force string and trim whitespace\n  .filter(Boolean); // remove empty/null\n\nreturn [{\n  json: {\n    prospect_ids: prospectIds\n  }\n}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "72aa5fc5-32b4-471c-b469-3f19789dde8d",
+      "name": "Prospect Enrichment",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        340,
+        1020
+      ],
+      "parameters": {
+        "url": "https://api.explorium.ai/v1/prospects/contacts_information/bulk_enrich",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify({ prospect_ids: $json.prospect_ids }) }}\n\n",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "LZOE1nqmRk3X6r1J",
+          "name": "Header Auth account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c0ece7b7-8a05-4b81-81cb-0c2a76b8f006",
+      "name": "Full Prospect Formulation",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        440,
+        740
+      ],
+      "parameters": {
+        "jsCode": "// Get full profile data from the HTTP Request node\nconst profiles = $('Prospect Fetcher').first().json.data;\n\n// Get contact enrichment data from the current input\nconst contactEnrichments = $input.first().json.data;\n\n// Step 1: Create a lookup table for enriched contact info\nconst contactMap = {};\nfor (const contact of contactEnrichments) {\n  contactMap[contact.prospect_id] = contact.data;\n}\n\n// Step 2: Merge profile with email info\nconst result = profiles.map(profile => {\n  const contact = contactMap[profile.prospect_id];\n\n  // Determine the best email\n  let email = profile.email || \"\";\n  if (contact) {\n    email = contact.professions_email ||\n            (contact.emails?.find(e => e.type === \"professional\")?.address) ||\n            (contact.emails?.[0]?.address) ||\n            \"\";\n  }\n\n  return {\n    json: {\n      ...profile,\n      email // now includes enriched email if found\n    }\n  };\n});\n\nreturn result;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d05b90bc-0e15-4570-a3f6-3411c786c629",
+      "name": "Anthropic llm1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "position": [
+        1180,
+        540
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-3-7-sonnet-20250219",
+          "cachedResultName": "Claude 3.7 Sonnet"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "FQdE6twB8nCJNoxV",
+          "name": "Anthropic account"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "9c009e0a-f620-4e89-a498-1c13d6d97551",
+      "name": "Slack Output",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1460,
+        620
+      ],
+      "webhookId": "5d5bb3f1-0bc6-494b-8705-f108ee11b313",
+      "parameters": {
+        "text": "={{ $json.output }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "C08U1DDTQ7Q",
+          "cachedResultName": "evergreen-outbound-campaign"
+        },
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "eOfca8yNWglvt3Ib",
+          "name": "Slack account"
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "3fcefab7-d56a-498e-8599-0b2d4cb9a899",
+      "name": "Slack Output1",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        680,
+        20
+      ],
+      "webhookId": "3bd7b28e-1c59-49a8-bdd0-cb2e314daee6",
+      "parameters": {
+        "text": "={{ $json.output }}",
+        "user": {
+          "__rl": true,
+          "mode": "list",
+          "value": "U08KUURMK2S",
+          "cachedResultName": "itamar.levi"
+        },
+        "select": "user",
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "eOfca8yNWglvt3Ib",
+          "name": "Slack account"
+        }
+      },
+      "typeVersion": 2.3
+    }
+  ],
+  "active": true,
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "body": {
+            "data": {
+              "link": "https://www.demandgenreport.com/industry-news/news-brief/gong-partners-with-microsoft-to-bring-data-insights-directly-into-copilot/49419/",
+              "event_name": "new_partnership",
+              "partner_company": "Microsoft",
+              "partnership_date": "2025-05-20T00:00:00+00:00",
+              "purpose_of_partnership": "To integrate Gong’s revenue AI platform with Microsoft’s productivity applications and Microsoft 365 Copilot."
+            },
+            "event_id": "72504b9c8efdadfd5f128120354c4ac9",
+            "tenant_id": "con_TESTTENANTID",
+            "event_name": "new_partnership",
+            "event_time": "2025-05-21T00:00:00+00:00",
+            "partner_id": "itamarlevi_org",
+            "business_id": "e18bac6600c243054a65ce033181bd6b",
+            "enrollment_id": "test",
+            "enrollment_key": "test"
+          },
+          "query": {},
+          "params": {},
+          "headers": {
+            "host": "explorium-ai.app.n8n.cloud",
+            "accept": "*/*",
+            "cf-ray": "9498b0f334bc3b14-IAD",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-ew-via": "15",
+            "cf-worker": "n8n.cloud",
+            "x-real-ip": "54.86.50.139",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "user-agent": "PostmanRuntime/7.44.0",
+            "cf-ipcountry": "US",
+            "content-type": "application/json",
+            "x-is-trusted": "yes",
+            "authorization": "5c4cbb4ba7134a918cdf4ec0a9ff68cf",
+            "cache-control": "no-cache",
+            "postman-token": "579c83d6-a1fd-45a6-862b-473587967dce",
+            "content-length": "752",
+            "accept-encoding": "gzip, br",
+            "x-forwarded-for": "54.86.50.139, 172.70.43.84",
+            "cf-connecting-ip": "54.86.50.139",
+            "x-forwarded-host": "explorium-ai.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-65-cbb4dd965-6sdrq"
+          },
+          "webhookUrl": "https://explorium-ai.app.n8n.cloud/webhook/https://lievi.app.n8n.cloud/webhook-test/product-launch",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "57cc2023-7709-4264-8f7a-b3ef0a669b3f",
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Company Researcher",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Output": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic llm": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Company Researcher",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Explorium MCP": {
+      "ai_tool": [
+        [
+          {
+            "node": "Company Researcher",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic llm1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Email Writer ( YES prospect data)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Email Writer ( YES prospect data)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prospect Fetcher": {
+      "main": [
+        [
+          {
+            "node": "Has Prospect data/ Does not",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prospect Mapping": {
+      "main": [
+        [
+          {
+            "node": "Prospect Enrichment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Company Researcher": {
+      "main": [
+        [
+          {
+            "node": "Prospect Fetcher",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prospect Enrichment": {
+      "main": [
+        [
+          {
+            "node": "Full Prospect Formulation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Email Writer (NO prospect data)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formulate Prospect Data": {
+      "main": [
+        [
+          {
+            "node": "Prospect Mapping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Full Prospect Formulation": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Prospect data/ Does not": {
+      "main": [
+        [
+          {
+            "node": "Email Writer (NO prospect data)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formulate Prospect Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Writer (NO prospect data)": {
+      "main": [
+        [
+          {
+            "node": "Slack Output1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Writer ( YES prospect data)": {
+      "main": [
+        [
+          {
+            "node": "Slack Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

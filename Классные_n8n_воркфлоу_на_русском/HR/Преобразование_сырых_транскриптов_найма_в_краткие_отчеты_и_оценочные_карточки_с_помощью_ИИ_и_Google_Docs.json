@@ -1,0 +1,304 @@
+{
+  "id": "t4GwTrKGGPLWVwVQ",
+  "meta": {
+    "instanceId": "355814e783b7f23fbee7df866cf98dc4217f576f481e3c01da1be1f8a6912be5",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "культурные ритуалы, успехи и неудачи в найме, а также острые истины.",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "680c3b20-8bfb-403f-893f-0bcb2fa82bcd",
+      "name": "Sending raw hiring brief transcript",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        -40,
+        -80
+      ],
+      "webhookId": "d548fe58-b28d-4011-802e-bd6e9654d591",
+      "parameters": {
+        "options": {},
+        "formTitle": "Upload your raw Hiring Brief (PDF)",
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "file",
+              "fieldLabel": "Interview transcript",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Name your document",
+              "placeholder": "Document name",
+              "requiredField": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "5c131ad3-5c02-41c8-844e-6733fd75a94c",
+      "name": "Extracting text",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        120,
+        -80
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "pdf",
+        "binaryPropertyName": "Interview_transcript"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a3e449a4-dfb3-4521-827e-4c998c1821d5",
+      "name": "Summarizing raw transcript",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        280,
+        -80
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "o3-mini",
+          "cachedResultName": "O3-MINI"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Вы старший технический рекрутер, который превращает неаккуратные транскрипты стартовых звонков в"
+            },
+            {
+              "content": "отшлифованные, соответствующие стандартам рекрутеров, краткие описания найма."
+            }
+          ]
+        }
+      },
+      "credentials": {},
+      "typeVersion": 1.8
+    },
+    {
+      "id": "57c1aad9-7c87-4742-8a7a-7be2f6a6e0c3",
+      "name": "Generating scorecards",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        680,
+        -140
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "o3-mini",
+          "cachedResultName": "O3-MINI"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "НЕОБХОДИМО"
+            },
+            {
+              "content": "---------------"
+            }
+          ]
+        }
+      },
+      "credentials": {},
+      "typeVersion": 1.8
+    },
+    {
+      "id": "1ab4bc8f-fb00-4e19-9228-5ca0683632f1",
+      "name": "Creating hiring brief file",
+      "type": "n8n-nodes-base.googleDocs",
+      "position": [
+        680,
+        80
+      ],
+      "parameters": {
+        "title": "={{ $('Sending raw hiring brief transcript').item.json['Name your document'] }}",
+        "folderId": "1TzPXCntKOEym3GM_s8HVyG9VNIGWe70h"
+      },
+      "credentials": {},
+      "typeVersion": 2
+    },
+    {
+      "id": "249d8f89-7e97-42d6-87d8-8e1acb02de9d",
+      "name": "Adding brief to file",
+      "type": "n8n-nodes-base.googleDocs",
+      "position": [
+        880,
+        80
+      ],
+      "parameters": {
+        "actionsUi": {
+          "actionFields": [
+            {
+              "text": "={{ $('Summarizing raw transcript').item.json.message.content }}",
+              "action": "insert"
+            }
+          ]
+        },
+        "operation": "update",
+        "documentURL": "={{ $json.id }}"
+      },
+      "credentials": {},
+      "typeVersion": 2
+    },
+    {
+      "id": "7738eab0-0be8-43a8-828d-cbcdc0fce3ef",
+      "name": "Creating Scorecards file",
+      "type": "n8n-nodes-base.googleDocs",
+      "position": [
+        1040,
+        -140
+      ],
+      "parameters": {
+        "title": "=Scorecard -  {{ $('Sending raw hiring brief transcript').item.json['Name your document'] }}",
+        "folderId": "1TzPXCntKOEym3GM_s8HVyG9VNIGWe70h"
+      },
+      "credentials": {},
+      "typeVersion": 2
+    },
+    {
+      "id": "3781bf90-331a-4dff-af85-47f74ffebdfe",
+      "name": "Adding scorecards to File",
+      "type": "n8n-nodes-base.googleDocs",
+      "position": [
+        1260,
+        -140
+      ],
+      "parameters": {
+        "actionsUi": {
+          "actionFields": [
+            {
+              "text": "={{ $('Generating scorecards').item.json.message.content }}",
+              "action": "insert"
+            }
+          ]
+        },
+        "operation": "update",
+        "documentURL": "={{ $json.id }}"
+      },
+      "credentials": {},
+      "typeVersion": 2
+    },
+    {
+      "id": "a9950174-c55f-4c47-b22a-b1bb0f17af2f",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -140,
+        -460
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 747,
+        "height": 332,
+        "content": "• **Ничего полезного не должно быть выброшено.** Если есть сомнения, включите это."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5088789a-80bc-490a-b5b5-8bf7f7371257",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        700,
+        -260
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 202,
+        "height": 96,
+        "content": "• Сохраняйте яркие анекдоты, прямые цитаты, истории основателей,"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8b8b1490-6c84-4950-bec1-9831182f8aac",
+  "connections": {
+    "Extracting text": {
+      "main": [
+        [
+          {
+            "node": "Summarizing raw transcript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generating scorecards": {
+      "main": [
+        [
+          {
+            "node": "Creating Scorecards file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Creating Scorecards file": {
+      "main": [
+        [
+          {
+            "node": "Adding scorecards to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Creating hiring brief file": {
+      "main": [
+        [
+          {
+            "node": "Adding brief to file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarizing raw transcript": {
+      "main": [
+        [
+          {
+            "node": "Creating hiring brief file",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Generating scorecards",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sending raw hiring brief transcript": {
+      "main": [
+        [
+          {
+            "node": "Extracting text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

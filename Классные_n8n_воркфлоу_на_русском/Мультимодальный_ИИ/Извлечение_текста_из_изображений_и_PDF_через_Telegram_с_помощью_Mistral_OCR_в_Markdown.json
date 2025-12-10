@@ -1,0 +1,1429 @@
+{
+  "nodes": [
+    {
+      "id": "56e6453f-0f54-4765-b116-c3f918dd6e6c",
+      "name": "Image / PDF",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3300,
+        -80
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "166f3bd9-c0e1-4c0c-9f62-9076d1a82b05",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.file_class }}",
+              "rightValue": "false"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "0582f318-9bad-430d-a175-56653542df5f",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1020,
+        -380
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 3600,
+        "height": 660,
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "92ed2483-049b-4167-bec0-4dea6c6c40a3",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1040,
+        -360
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1020,
+        "height": 320,
+        "content": "## Начальная обработка"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b982ffad-af98-4e27-a16e-1af8f3329658",
+      "name": "Mistral OCR",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        3760,
+        -120
+      ],
+      "parameters": {
+        "url": "https://api.mistral.ai/v1/ocr",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"model\": \"mistral-ocr-latest\",\n  \"document\": {\n    \"type\": \"{{ $('File classifier').item.json.file_class }}\",\n    \"{{ $('File classifier').item.json.file_class }}\": \"{{ $('Settings').item.json.File_Downloader_Prod_URL.trim() }}?tg_file={{ $('Generating temporary file link').item.json.result.file_id }}\"\n  }\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mistralCloudApi"
+      },
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "RmMVdEnkTM3VU1zt",
+          "name": ""
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "236d399e-541e-4f2a-bebd-298b39c7c83f",
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1300,
+        -240
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "659b4c9d-488e-4faa-8c28-04aed2fcdfec",
+              "name": "Bot_Whitelist_Active",
+              "type": "boolean",
+              "value": false
+            },
+            {
+              "id": "6c5b5cec-a69b-45d5-8903-4db166c8b2a2",
+              "name": "Allowed_Chat_IDs",
+              "type": "string",
+              "value": "1234, 5678"
+            },
+            {
+              "id": "d66abb69-57bb-4069-97fc-97e31922be7d",
+              "name": "File_Downloader_Prod_URL",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "ffddd258-8aec-4e96-a1d1-eb0c5640b70f",
+              "name": "Chat_ID",
+              "type": "string",
+              "value": "={{ $json.body?.message?.chat?.id || $json.body?.callback_query?.from?.id }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "92fe4ac3-c051-4e00-a6f0-9ae041c79b3f",
+      "name": "Telegram Event Handler",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        1720,
+        -240
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "Message",
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "30ef2843-5b42-4ec2-820c-6976852be3eb",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{$('Incoming request').item.json.body.hasOwnProperty('message')}}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Callback",
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "88ed9f14-1c63-4a11-8f7b-74a1c57f7068",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{$('Incoming request').item.json.body.hasOwnProperty('callback_query')}}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "49d86dbd-cc98-4d4a-b83d-9be5344ca30f",
+      "name": "Status “Typing…”",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        2600,
+        -260
+      ],
+      "webhookId": "fc9ddb2a-3389-4a85-97ea-be29112e3919",
+      "parameters": {
+        "chatId": "={{ $('Settings').item.json.Chat_ID }}",
+        "operation": "sendChatAction"
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "04L82D9hF0ABc2Ac",
+          "name": ""
+        }
+      },
+      "typeVersion": 1.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "c8dbb458-dc53-402a-8d9a-69118a4ee7f2",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2080,
+        -360
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 600,
+        "content": "## Белый список"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f18ff881-be68-4c5f-ae4e-89415dfe20b9",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        180,
+        -1080
+      ],
+      "parameters": {
+        "width": 820,
+        "height": 940,
+        "content": "Этот блок активируется, если параметр Bot_Whitelist_Active в узле Настройки установлен в true и указаны Allowed_Chat_IDs (через запятую, например, \"1234, 4567\")."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9a90d668-85d8-40e3-be1e-d51599d00f29",
+      "name": "Notification about correct commands",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        2880,
+        80
+      ],
+      "webhookId": "e26d630a-4912-449f-9885-38f53cdd8964",
+      "parameters": {
+        "text": "=🤖 *Sorry, I don't respond to messages*\n\nI can recognize data in PDF and image files.\nJust send me the information *as a file up to 20 megabytes*.",
+        "chatId": "={{ $('Settings').item.json.Chat_ID }}",
+        "additionalFields": {
+          "parse_mode": "Markdown",
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "04L82D9hF0ABc2Ac",
+          "name": ""
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "e2737704-743f-4ac0-a1ac-d4ce9bb73e05",
+      "name": "Maximum file size exceeded",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        3100,
+        80
+      ],
+      "webhookId": "1a047580-161b-471f-a7f0-675db611adf0",
+      "parameters": {
+        "text": "=🤖 *Oops! File size is too large*\n\nI only accept files *up to 20 megabytes*. This is a Telegram-imposed limit. Please split your file into parts, or try optimizing the existing one.",
+        "chatId": "={{ $('Settings').item.json.Chat_ID }}",
+        "additionalFields": {
+          "parse_mode": "Markdown",
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "04L82D9hF0ABc2Ac",
+          "name": ""
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "4e9189f2-2db9-4fd0-ab57-53d6edcf50ec",
+      "name": "Checking file size",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2880,
+        -80
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "166f3bd9-c0e1-4c0c-9f62-9076d1a82b05",
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              },
+              "leftValue": "={{ $('Incoming request').item.json.body.message.document.file_size }}",
+              "rightValue": 20971520
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "a23c952a-33bc-4a6f-9b2b-cdfe7d1c11cb",
+      "name": "File classifier",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3100,
+        -80
+      ],
+      "parameters": {
+        "jsCode": "const mimeType = $('Incoming request').item.json.body.message.document.mime_type;\n\nlet file_class = 'false';\n\nif (mimeType === 'image/jpeg' || mimeType === 'image/png') {\n  file_class = 'image_url';\n} else if (mimeType === 'application/pdf') {\n  file_class = 'document_url';\n}\n\nreturn [{\n  json: {\n    file_class\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "61d8d030-78be-4724-8077-cd3f9fa5a2b9",
+      "name": "Generating temporary file link",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        3540,
+        -120
+      ],
+      "webhookId": "50012785-2d8a-410d-bbb1-843e65329799",
+      "parameters": {
+        "fileId": "={{ $('Incoming request').item.json.body.message.document.file_id }}",
+        "download": false,
+        "resource": "file"
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "04L82D9hF0ABc2Ac",
+          "name": ""
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "458a7b66-bdcc-42fa-976b-3306344176e4",
+      "name": "Invalid file",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        3540,
+        60
+      ],
+      "webhookId": "ea75e4ee-0866-4733-9f50-bc2b46458798",
+      "parameters": {
+        "text": "=⚠️ *I can only work with PDF, JPG, PNG files*\n\nPlease upload a valid file",
+        "chatId": "={{ $('Settings').item.json.Chat_ID }}",
+        "additionalFields": {
+          "parse_mode": "Markdown",
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "popogo",
+          "name": ""
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "50079f09-6dc3-48d0-a943-10016ea43e68",
+      "name": "Markdown converter",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3960,
+        -180
+      ],
+      "parameters": {
+        "jsCode": "// Get data from the previous block\nconst inputData = items[0].json;\n\n// Validate input data\nif (!inputData.pages || !Array.isArray(inputData.pages)) {\n  throw new Error('Invalid input: pages is missing or not an array');\n}\n\n// Format page-by-page markdown text\nconst markdownPages = inputData.pages.map((page, index) => {\n  if (typeof page.markdown !== 'string') {\n    throw new Error(`Invalid input: markdown is missing or not a string on page ${index + 1}`);\n  }\n  return `# Page ${index + 1}\\n\\n${page.markdown}`;\n});\n\n// Combine pages with a convenient separator\nconst finalText = markdownPages.join('\\n\\n---\\n\\n');\n\n// Return data for the next block\nreturn [{\n  json: {\n    fileName: 'output_markdown.txt',\n    fileContent: finalText\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0a6069d9-963e-4230-86bc-7d10f7ef4abc",
+      "name": "Converting Markdown to File",
+      "type": "n8n-nodes-base.convertToFile",
+      "position": [
+        4180,
+        -180
+      ],
+      "parameters": {
+        "options": {
+          "encoding": "utf8"
+        },
+        "operation": "toText",
+        "sourceProperty": "fileContent"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "c1176323-7355-466c-bc58-cb961a02d7a4",
+      "name": "Manual Webhook Setup Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        1100,
+        -620
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "0598e6f7-bf85-48af-a2cd-445f89687a84",
+      "name": "Telegram Webhook Configuration",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1300,
+        -620
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cac2c789-04c1-4c53-8532-b59ddc673fc0",
+              "name": "Production_Mode",
+              "type": "boolean",
+              "value": true
+            },
+            {
+              "id": "27d019f9-639f-42e0-82a6-39cb728708f4",
+              "name": "Bot_API_Key",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "52e21aa0-8bfa-41fb-bfee-da534427e1dc",
+              "name": "Webhook_Prod_URL",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "2ba85a6c-6471-46eb-a470-267715729de2",
+              "name": "Webhook_Dev_URL",
+              "type": "string",
+              "value": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "af30b965-608f-4dfd-92bf-15eb12ff2cf8",
+      "name": "Check Production Mode",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1500,
+        -620
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "61f8c143-7e13-4b33-85f8-a7d3668f43bb",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Telegram Webhook Configuration').item.json.Production_Mode }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "1cc1e4a6-3d8c-4bec-8702-f17eb259e2fb",
+      "name": "Set Production Webhook",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1720,
+        -700
+      ],
+      "parameters": {
+        "url": "=https://api.telegram.org/bot{{ $('Telegram Webhook Configuration').item.json.Bot_API_Key.trim() }}/setWebhook",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $('Telegram Webhook Configuration').item.json.Webhook_Prod_URL.trim() }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "db5d7250-bdc6-473d-9cfd-f53d2181dffb",
+      "name": "Set Development Webhook",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1720,
+        -560
+      ],
+      "parameters": {
+        "url": "=https://api.telegram.org/bot{{ $('Telegram Webhook Configuration').item.json.Bot_API_Key.trim() }}/setWebhook",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $('Telegram Webhook Configuration').item.json.Webhook_Dev_URL.trim() }}"
+            },
+            {
+              "name": "drop_pending_updates",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d60f4fd4-65c6-49bf-b8ed-58605c971d4c",
+      "name": "Return Webhook Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1920,
+        -620
+      ],
+      "parameters": {
+        "url": "=https://api.telegram.org/bot{{ $('Telegram Webhook Configuration').item.json.Bot_API_Key }}/getWebhookInfo",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "4d7f4700-cff1-431d-9135-0f74c55d67e6",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1020,
+        -1080
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 1060,
+        "height": 680,
+        "content": "Этот шаблон n8n предоставляет полное решение для **Оптического распознавания символов (OCR)** изображений и PDF-файлов непосредственно в Telegram"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4425724a-a266-4cb8-b2a6-13bb2300ed02",
+      "name": "Check Whitelist Status",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2340,
+        -160
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "0e9d0585-a189-4552-bfa1-843809f74144",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Whitelist Logic').item.json.isWhitelisted }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "32bd81fe-b37c-4d14-9b33-094397a6746b",
+      "name": "Whitelist Logic",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2140,
+        -160
+      ],
+      "parameters": {
+        "jsCode": "// Get Chat_ID from the incoming Telegram message\nconst chatId = String($('Settings').item.json.Chat_ID);\n\n// Get allowed Chat IDs string from 'Settings' node\nconst allowedChatIdsString = $('Settings').item.json.Allowed_Chat_IDs;\n\n// Initialize allowedChatIds as an empty array\nlet allowedChatIds = [];\n\n// Process allowedChatIdsString only if it's a non-empty string\nif (typeof allowedChatIdsString === 'string' && allowedChatIdsString.trim() !== '') {\n  // Split string by comma, map to string, and trim whitespace from each ID\n  allowedChatIds = allowedChatIdsString.split(',').map(id => String(id).trim());\n\n  // Filter out any empty strings that might result from multiple commas (e.g., \"1, ,2\")\n  allowedChatIds = allowedChatIds.filter(id => id !== '');\n}\n\n// If allowedChatIds is empty after processing, it means no specific IDs are whitelisted.\n// The regex will correctly handle an empty array (it will become '^(?:)$' matching nothing).\n\n// Escape special regex characters in IDs to prevent errors and ensure literal matching\nconst escapedChatIds = allowedChatIds.map(id => id.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&'));\n\n// Construct regex for full string match.\n// If escapedChatIds is empty, the regex will be '^(?:)$', which correctly matches nothing.\nconst regex = new RegExp(`^(?:${escapedChatIds.join('|')})$`);\n\n// Check if chatId is in the whitelist\nconst isWhitelisted = regex.test(chatId);\n\n// Return the result\nreturn [{ json: { isWhitelisted: isWhitelisted } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "62f7cf5c-ea3f-47a5-b555-d3a5ae59d268",
+      "name": "Access Denied",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        2340,
+        60
+      ],
+      "webhookId": "53171d40-bb6c-47a9-aeac-8744c4bb8ff3",
+      "parameters": {
+        "text": "=⚠️ *Oops! You don't have access to this bot.*",
+        "chatId": "={{ $('Settings').item.json.Chat_ID }}",
+        "additionalFields": {
+          "parse_mode": "Markdown",
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "04L82D9hF0ABc2Ac",
+          "name": ""
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "e3fdd1f0-f5fe-406e-9441-52bc433994dd",
+      "name": "Determine Message Type",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        2600,
+        40
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "Bot Command",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "44f27b19-4dd1-4e1d-ac4e-dc666a5dfcaf",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Incoming request').item.json.body.message.entities[0].type }}",
+                    "rightValue": "bot_command"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "File",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "7d13a9c3-dc53-4bd6-9657-325ff887be8a",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $('Incoming request').item.json.body.message.document }}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Callback",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "e3817a32-199e-4959-a4f0-03ee3b37613a",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $('Incoming request').item.json.body.callback_query.data }}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "d3c505c4-5943-4463-aafe-808403e83240",
+      "name": "Inform Bot Capabilities",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        3100,
+        -240
+      ],
+      "webhookId": "4597eb26-fc92-4bd6-b197-bf2208ba6b34",
+      "parameters": {
+        "text": "=👋 *Hi there!*\n\nI can recognize data in PDF and image files.\nJust send me the information as a file *up to 20 megabytes*.",
+        "chatId": "={{ $('Settings').item.json.Chat_ID }}",
+        "additionalFields": {
+          "parse_mode": "Markdown",
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "04L82D9hF0ABc2Ac",
+          "name": ""
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "1cf53d92-e6b7-4cc2-a3f6-9c026e7a37e6",
+      "name": "Command Router",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        2880,
+        -260
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "Start",
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "f64462ba-530b-4a67-9d67-2ddfb09b542b",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "leftValue": "={{ $('Incoming request').item.json.body.message.text }}",
+                    "rightValue": "/start"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none"
+        }
+      },
+      "executeOnce": false,
+      "notesInFlow": false,
+      "typeVersion": 3.1,
+      "alwaysOutputData": false
+    },
+    {
+      "id": "03c53b82-8701-4efe-9de8-293a98419945",
+      "name": "Send Markdown File to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        4400,
+        -180
+      ],
+      "webhookId": "d3c77e18-0dd7-47c2-99ff-13efa7adeb56",
+      "parameters": {
+        "chatId": "={{ $('Settings').item.json.Chat_ID }}",
+        "operation": "sendDocument",
+        "binaryData": true,
+        "additionalFields": {
+          "fileName": "={{ $('Incoming request').item.json.body.message.document.file_name }}-ocr.md"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "04L82D9hF0ABc2Ac",
+          "name": ""
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "cf06fe33-b466-43ff-bb20-2e8e580ca4ff",
+      "name": "Respond with attachment",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1920,
+        80
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "binary"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5844d8a9-c5e7-41cd-82b8-c9af0dbdb8ee",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1680,
+        -20
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 380,
+        "height": 260,
+        "content": "---"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8403d395-4a8d-49d5-9ad9-311f8ecc4092",
+      "name": "Determine Incoming Request Source Type",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        1500,
+        -240
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "POST",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "f8bdaef7-663e-426a-9ec7-a736ad40d941",
+                    "operator": {
+                      "type": "number",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $('Incoming request').item.json.body.message.message_id || \"\" }}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "File Proxy",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "327d0192-6488-4136-a1c8-5a2643a32d19",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $('Incoming request').item.json.query.tg_file || \"\" }}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "dbbcae45-8047-4aca-a88c-04aba607ada1",
+      "name": "Is Whitelist Disabled?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1920,
+        -240
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "3144f141-4f9f-4e8a-b5d6-839da21ca114",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Settings').item.json.Bot_Whitelist_Active }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "a15729d3-3c3d-4165-903e-26864321696b",
+      "name": "Get a file",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1720,
+        80
+      ],
+      "webhookId": "5fd5761d-380a-4d44-8d59-d622ad1ccbe9",
+      "parameters": {
+        "fileId": "={{ $('Incoming request').item.json.query.tg_file }}",
+        "resource": "file"
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "04L82D9hF0ABc2Ac",
+          "name": ""
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "1b2f96b6-bbf3-4b74-a32c-40398fe003e5",
+      "name": "Incoming request",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        1100,
+        -240
+      ],
+      "webhookId": "0be4fd3e-05dd-4d57-8563-0275f74d727e",
+      "parameters": {
+        "path": "0be4fd3e-05dd-4d57-8563-0275f74d727e",
+        "options": {
+          "binaryPropertyName": "data"
+        },
+        "httpMethod": [
+          "POST",
+          "GET"
+        ],
+        "responseMode": "responseNode",
+        "multipleMethods": true
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c92aa484-e8ed-41c4-b8c9-74bc7f237df7",
+      "name": "Problem with file recognition",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        3960,
+        -40
+      ],
+      "webhookId": "ea75e4ee-0866-4733-9f50-bc2b46458798",
+      "parameters": {
+        "text": "=⚠️ *Oops! There was a problem with file recognition (OCR)*\n\nPlease try sending the file again later or check your bot's configuration.",
+        "chatId": "={{ $('Settings').item.json.Chat_ID }}",
+        "additionalFields": {
+          "parse_mode": "Markdown",
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "04L82D9hF0ABc2Ac",
+          "name": ""
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "9e2e3f9f-783e-4262-be74-698e67d83e15",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3480,
+        -360
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 600,
+        "content": "Пользователи могут просто отправлять **PNG, JPEG или PDF** документы вашему Telegram-боту, и рабочий процесс обработает их, извлечет текст с помощью **Mistral OCR** и вернет содержимое в виде загружаемого файла Markdown (`.md`)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "318f2ae1-5b71-4517-9138-ae17fde0b147",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        180,
+        -120
+      ],
+      "parameters": {
+        "width": 820,
+        "height": 400,
+        "content": "## Ключевые особенности и как это работает:"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Determine Incoming Request Source Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file": {
+      "main": [
+        [
+          {
+            "node": "Respond with attachment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image / PDF": {
+      "main": [
+        [
+          {
+            "node": "Generating temporary file link",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Invalid file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral OCR": {
+      "main": [
+        [
+          {
+            "node": "Markdown converter",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Problem with file recognition",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Command Router": {
+      "main": [
+        [
+          {
+            "node": "Inform Bot Capabilities",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "File classifier": {
+      "main": [
+        [
+          {
+            "node": "Image / PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Whitelist Logic": {
+      "main": [
+        [
+          {
+            "node": "Check Whitelist Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Incoming request": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checking file size": {
+      "main": [
+        [
+          {
+            "node": "File classifier",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Maximum file size exceeded",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown converter": {
+      "main": [
+        [
+          {
+            "node": "Converting Markdown to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Production Mode": {
+      "main": [
+        [
+          {
+            "node": "Set Production Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Development Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Whitelist Status": {
+      "main": [
+        [
+          {
+            "node": "Status “Typing…”",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Access Denied",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Determine Message Type": {
+      "main": [
+        [
+          {
+            "node": "Command Router",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Checking file size",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notification about correct commands",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notification about correct commands",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Whitelist Disabled?": {
+      "main": [
+        [
+          {
+            "node": "Status “Typing…”",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Whitelist Logic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Production Webhook": {
+      "main": [
+        [
+          {
+            "node": "Return Webhook Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Status “Typing…”": {
+      "main": [
+        [
+          {
+            "node": "Determine Message Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Event Handler": {
+      "main": [
+        [
+          {
+            "node": "Is Whitelist Disabled?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is Whitelist Disabled?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Development Webhook": {
+      "main": [
+        [
+          {
+            "node": "Return Webhook Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Converting Markdown to File": {
+      "main": [
+        [
+          {
+            "node": "Send Markdown File to Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Webhook Setup Trigger": {
+      "main": [
+        [
+          {
+            "node": "Telegram Webhook Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generating temporary file link": {
+      "main": [
+        [
+          {
+            "node": "Mistral OCR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Webhook Configuration": {
+      "main": [
+        [
+          {
+            "node": "Check Production Mode",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Determine Incoming Request Source Type": {
+      "main": [
+        [
+          {
+            "node": "Telegram Event Handler",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

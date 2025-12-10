@@ -1,0 +1,695 @@
+{
+  "meta": {
+    "instanceId": "7a58a3f07a0fc2e793cb37fe49f8ad79d79b1752ef823a6ac87ff5a79f5b1fc9",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "**Выход**: Профессиональный документ предложения с персонализированным контентом и социальными доказательствами",
+  "tags": [
+    {
+      "id": "ayzol4JLAXjiRLWi",
+      "name": "N8N Course",
+      "createdAt": "2025-07-19T07:19:09.524Z",
+      "updatedAt": "2025-07-19T07:19:09.524Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "e0f69efd-213f-4abe-8b26-539e0e9d8c84",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1408,
+        -1280
+      ],
+      "parameters": {
+        "width": 400,
+        "height": 220,
+        "content": "## 🎯 ШАГ 1: Генерация текста заявки"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e3608166-2d07-4c00-b81c-d13fa29c0adf",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1392,
+        -928
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 220,
+        "content": "Генерирует персонализированный текст заявки на Upwork:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5f7fda54-b0d8-47f4-aa9f-1759ea72c71e",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1392,
+        -624
+      ],
+      "parameters": {
+        "width": 400,
+        "height": 220,
+        "content": "**Выполнить триггер рабочего процесса**: Получает описание работы от AI-агента"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "25a64031-cbc9-4834-9178-632adcf00068",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1408,
+        -288
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 240,
+        "content": "**Установить переменную**: Содержит личные социальные доказательства и достижения"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e4785c2b-3495-4b71-9686-d2aff69dee87",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -688,
+        -1264
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "bb96534c-0a94-49a7-ad54-55c4da1ccec1",
+      "name": "OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        -240,
+        -1264
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "options": {
+          "temperature": 0.7
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "**OpenAI**: Создает индивидуальную заявку, используя проверенные шаблоны"
+            },
+            {
+              "content": "**Редактировать поля**: Форматирует ответ для восприятия агентом"
+            },
+            {
+              "content": "**Структура шаблона**: \"Привет, я занимаюсь [делом] всё время. Так уверен, что создал демо: $$$\""
+            }
+          ]
+        },
+        "jsonOutput": true
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "461851c0-1d89-4b28-9ce1-c1600b6fbde0",
+      "name": "Set Variable",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -464,
+        -1264
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e980c92c-07d9-400e-b40c-a8fbdbe8bbcb",
+              "name": "aboutMe",
+              "type": "string",
+              "value": "I'm an AI and automation freelancer that builds outreach systems, CRM systems, project management systems, no-code systems, and integrations.|Some notable things I've done:- End to end project management for a $1M/yr copywriting agency- Outbound acquisition system that grew a content company from $10K/mo to $92K/mo in 12 mo- Monday.com CRM and PM for a recruiting company doing >$1M/yr- Automated content generation system for an SEO agency doing >$10M/yr- ClickUp CRM build for a marketing company doing $1M/yr- I run a Make.com community that does $100,000/mo- I run a YouTube channel about automation with over 50,000 subscribers- Email outreach system for a $MM San Diego real estate brokerage that closed $150K revenue in the first three days- Email outreach systems for a $200K/mo ecommerce dog treat company"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "c20b2871-175e-44da-a136-8e8ea0dce583",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        112,
+        -1264
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "468a03c7-1537-435a-9f98-ce7c58a51c8b",
+              "name": "response",
+              "type": "string",
+              "value": "={{ $json.message.content.proposal }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "e0e8f7ea-b778-4b29-9e8e-fcbf0b9c8b99",
+      "name": "Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        -96,
+        -880
+      ],
+      "parameters": {
+        "name": "={{ $json.message.content.titleOfSystem }}",
+        "fileId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1rUO3VaO2yDGO5wf0Zz72gaG7e__wjXY26PJkX8h-Y00",
+          "cachedResultUrl": "https://docs.google.com/document/d/1rUO3VaO2yDGO5wf0Zz72gaG7e__wjXY26PJkX8h-Y00/edit?usp=drivesdk",
+          "cachedResultName": "Google Docs Upwork Proposal Template"
+        },
+        "options": {},
+        "operation": "copy"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "30ce122f-7d72-4778-baf9-0a523322a914",
+      "name": "Google Drive1",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        128,
+        -880
+      ],
+      "parameters": {
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "options": {},
+        "operation": "share",
+        "permissionsUi": {
+          "permissionsValues": {
+            "role": "reader",
+            "type": "anyone"
+          }
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "d427a4a0-1171-4110-8973-470962397917",
+      "name": "Google Docs",
+      "type": "n8n-nodes-base.googleDocs",
+      "position": [
+        352,
+        -880
+      ],
+      "parameters": {
+        "actionsUi": {
+          "actionFields": [
+            {
+              "text": "{{titleOfSystem}}",
+              "action": "replaceAll",
+              "replaceText": "={{ $('OpenAI1').item.json.message.content.titleOfSystem }}"
+            },
+            {
+              "text": "{{briefExplanationOfSystem}}",
+              "action": "replaceAll",
+              "replaceText": "={{ $('OpenAI1').item.json.message.content.briefExplanationOfSystem }}"
+            },
+            {
+              "text": "{{specificPartOfTheirRequest}}",
+              "action": "replaceAll",
+              "replaceText": "={{ $('OpenAI1').item.json.message.content.specificPartOfTheirRequest }}"
+            },
+            {
+              "text": "{{stepByStepBulletPoints}}",
+              "action": "replaceAll",
+              "replaceText": "={{ $('OpenAI1').item.json.message.content.stepByStepBulletPoints }}"
+            },
+            {
+              "text": "{{leftToRightFlowWithArrows}}",
+              "action": "replaceAll",
+              "replaceText": "={{ $('OpenAI1').item.json.message.content.leftToRightFlowWithArrows }}"
+            },
+            {
+              "text": "{{aboutMeBulletPoints}}",
+              "action": "replaceAll",
+              "replaceText": "={{ $('OpenAI1').item.json.message.content.aboutMeBulletPoints }}"
+            }
+          ]
+        },
+        "operation": "update",
+        "documentURL": "={{ $('Google Drive').item.json.id }}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5b7eda57-c96d-4b8d-b2ee-9c21a8092db5",
+      "name": "OpenAI1",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        -480,
+        -880
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "options": {
+          "temperature": 0.7
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "**Ключ**: Использует шаблонный подход с AI, заполняющим конкретные переменные, а не генерирующим всю заявку"
+            },
+            {
+              "content": "## 📄 ШАГ 2: Создание предложения в Google Документах"
+            },
+            {
+              "content": "Генерирует профессиональные документы предложений:"
+            }
+          ]
+        },
+        "jsonOutput": true
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "9e9475c8-54f6-4481-8b43-ec39f92a55ea",
+      "name": "Set Variable1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -672,
+        -880
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e980c92c-07d9-400e-b40c-a8fbdbe8bbcb",
+              "name": "aboutMe",
+              "type": "string",
+              "value": "I'm an AI and automation freelancer that builds outreach systems, CRM systems, project management systems, no-code systems, and integrations.|Some notable things I've done:- End to end project management for a $1M/yr copywriting agency- Outbound acquisition system that grew a content company from $10K/mo to $92K/mo in 12 mo- Monday.com CRM and PM for a recruiting company doing >$1M/yr- Automated content generation system for an SEO agency doing >$10M/yr- ClickUp CRM build for a marketing company doing $1M/yr- I run a Make.com community that does $100,000/mo- I run a YouTube channel about automation with over 50,000 subscribers- Email outreach system for a $MM San Diego real estate brokerage that closed $150K revenue in the first three days- Email outreach systems for a $200K/mo ecommerce dog treat company"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "051b9854-8f2d-412e-8dbf-3987f2ce2f6d",
+      "name": "Edit Fields1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        560,
+        -880
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "74b2ef09-da1d-4fe0-b6ea-242f25edf5e8",
+              "name": "urlOfProposal",
+              "type": "string",
+              "value": "=https://docs.google.com/document/d/{{ $json.documentId }}/edit"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "930efce4-7e42-4b5b-b583-3ffc46f90e11",
+      "name": "OpenAI2",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        -688,
+        -608
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "options": {
+          "temperature": 0.7
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "**OpenAI1**: Создает структурированное содержание предложения (название, объяснение, объем, сроки)"
+            },
+            {
+              "content": "**Google Drive**: Копирует шаблон и создает уникальный документ"
+            },
+            {
+              "content": "={{ $json.query }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "0ee67283-602a-48d7-98cc-609156ba3384",
+      "name": "Edit Fields2",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -336,
+        -608
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d47590b5-3683-4afe-bc27-a25fb94a32d5",
+              "name": "mermaidCode",
+              "type": "string",
+              "value": "={{ $json.message.content }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "b4b6f907-c24f-49de-aefa-8d608d1e027b",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        -560,
+        -288
+      ],
+      "webhookId": "89921f10-c333-4854-977f-57d621cb6350",
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "68a46c9e-4ee3-454d-9c27-1c5e281724a7",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -336,
+        -288
+      ],
+      "parameters": {
+        "options": {
+          "systemMessage": "You're a helpful, intelligent Upwork assistant. Your task is to receive an Upwork job description and then use it to generate assets, like Mermaid diagrams, Google Docs, and Upwork application bodies. \n\nWhen you receive an Upwork job description, you *must* generate a Mermaid diagram, a Google Doc proposal, and an Upwork application. You must then replace the $$$ with the Google Doc proposal link.\n\nOutput the Google Doc proposal link in plaintext, like link: https://www..."
+        }
+      },
+      "typeVersion": 1.7
+    },
+    {
+      "id": "f6dff3af-6183-4144-b145-051e12c21868",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -656,
+        16
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "48f145b4-6357-454a-bae6-1ca1e0666baf",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        -496,
+        16
+      ],
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "9504c8d4-63c5-4260-9d20-7fd08030e561",
+      "name": "Generate Application Copy",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        48,
+        16
+      ],
+      "parameters": {
+        "name": "generate_upwork_application_copy",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "HOncCvVmxtQKVDy5",
+          "cachedResultName": "Live Build Upwork Agent: Generate Application Copy"
+        },
+        "description": "**Google Drive1**: Делится документом публично для доступа клиента"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "7ac89d7e-0f0a-4872-ba9e-457d27f01353",
+      "name": "Generate Google Doc Proposal",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        -128,
+        16
+      ],
+      "parameters": {
+        "name": "generate_google_doc_proposal",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "95AZvQ50eHm2pFVA",
+          "cachedResultName": "Live Build Upwork Agent: Generate Google Doc Proposal"
+        },
+        "description": "**Google Docs**: Заменяет переменные шаблона на контент, сгенерированный AI",
+        "responsePropertyName": "urlOfProposal"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "cb0dac4a-6495-44b5-ba3e-1d6bebcb5ecf",
+      "name": "Generate Mermaid.js",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        -320,
+        16
+      ],
+      "parameters": {
+        "name": "generate_mermaid_diagram",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "bqM8byTJULziq4qT",
+          "cachedResultName": "Live Build Upwork Agent: Generate Mermaid Code"
+        },
+        "description": "**Редактировать поля1**: Возвращает URL для совместного использования AI-агенту",
+        "responsePropertyName": "mermaidCode"
+      },
+      "typeVersion": 1.2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "",
+  "connections": {
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI1": {
+      "main": [
+        [
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Docs": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Google Drive1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Variable": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive1": {
+      "main": [
+        [
+          {
+            "node": "Google Docs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Variable1": {
+      "main": [
+        [
+          {
+            "node": "OpenAI1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Mermaid.js": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Variable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Application Copy": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Google Doc Proposal": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

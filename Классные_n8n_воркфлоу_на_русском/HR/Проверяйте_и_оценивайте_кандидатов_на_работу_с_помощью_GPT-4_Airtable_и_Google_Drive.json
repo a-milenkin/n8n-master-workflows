@@ -1,0 +1,800 @@
+{
+  "meta": {
+    "instanceId": "d1786ab0d745a7498abf13a9c2cdabb1374c006e889b79eef64ce0386b8f8a41"
+  },
+  "nodes": [
+    {
+      "id": "4dcbc7a2-8df4-4da0-ade0-0cec3a3e434f",
+      "name": "Search Job Posting",
+      "type": "n8n-nodes-base.airtable",
+      "position": [
+        240,
+        -100
+      ],
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "mode": "list",
+          "value": "appgVjZcaRP8BsKf0",
+          "cachedResultUrl": "https://airtable.com/appgVjZcaRP8BsKf0",
+          "cachedResultName": "HR Database"
+        },
+        "limit": 1,
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "tblla4rBCW3BhPtRO",
+          "cachedResultUrl": "https://airtable.com/appgVjZcaRP8BsKf0/tblla4rBCW3BhPtRO",
+          "cachedResultName": "Job Posting"
+        },
+        "options": {},
+        "operation": "search",
+        "returnAll": false,
+        "filterByFormula": "=FIND(LOWER(\"{{ $('Candidate Application Form').item.json['Position Applied For'] }}\"), LOWER({Job Title})) > 0"
+      },
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "r2IibdsQurA56LDa",
+          "name": "Airtable Personal Access Token account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "20da52d2-e172-4861-9569-b3cdd5f489cc",
+      "name": "Create Candidate",
+      "type": "n8n-nodes-base.airtable",
+      "position": [
+        1200,
+        120
+      ],
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "mode": "list",
+          "value": "appgVjZcaRP8BsKf0",
+          "cachedResultUrl": "https://airtable.com/appgVjZcaRP8BsKf0",
+          "cachedResultName": "HR Database"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "tblQy83erGR5lQj5c",
+          "cachedResultUrl": "https://airtable.com/appgVjZcaRP8BsKf0/tblQy83erGR5lQj5c",
+          "cachedResultName": "Candidates"
+        },
+        "columns": {
+          "value": {
+            "Resume": "={{ $json.file_array }}",
+            "Full Name": "={{ $('Candidate Application Form').item.json['Full Name '] }}",
+            "Cover Letter": "={{ $('Candidate Application Form').item.json['Cover Letter'] }}",
+            "Date Applied": "={{ $now }}",
+            "Email Address": "={{ $('Candidate Application Form').item.json['Email Address'] }}",
+            "Relevant Skills": "={{ $('Candidate Application Form').item.json['Relevant Skills'] }}",
+            "Screening Notes": "={{ $json.output.screening_notes }}",
+            "Match Percentage": "={{ $json.output.match_percentage }}",
+            "Position Applied": "={{ $('Candidate Application Form').item.json['Position Applied For'] }}",
+            "Screening Status": "={{ $json.output.screening_status }}"
+          },
+          "schema": [
+            {
+              "id": "Candidate ID",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "readOnly": true,
+              "required": false,
+              "displayName": "Candidate ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Full Name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Full Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email Address",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Email Address",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Position Applied",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Position Applied",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Relevant Skills",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Relevant Skills",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Cover Letter",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Cover Letter",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Resume",
+              "type": "array",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Resume",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Screening Status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Screening Status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Match Percentage",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Match Percentage",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Screening Notes",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Screening Notes",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date Applied",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Date Applied",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "test",
+              "type": "options",
+              "display": true,
+              "options": [
+                {
+                  "name": "1",
+                  "value": "1"
+                },
+                {
+                  "name": "2",
+                  "value": "2"
+                },
+                {
+                  "name": "3",
+                  "value": "3"
+                }
+              ],
+              "removed": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "test",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "create"
+      },
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "r2IibdsQurA56LDa",
+          "name": "Airtable Personal Access Token account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "c9f24379-d359-4dcf-b84a-d60b1d6a7dc3",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        520,
+        120
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "MGwGMKEkdcjzlYCw",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "909abe51-f13a-418b-b473-9049b07953fe",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        700,
+        120
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"screening_status\": \"Suitable\",\n  \"match_percentage\": 88,\n  \"screening_notes\": \"Detailed explanation of the assessment, including relevant skill matches, experience analysis, and justification for the screening status.\"\n}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "036f79d9-7d08-4b61-a5bd-b9dea26f929d",
+      "name": "Candidate Screener AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        520,
+        -100
+      ],
+      "parameters": {
+        "text": "=Candidate Screening Information:\n\n///\nUser Side:\n\nPosition Applied:  \n{{ $('Search Job Posting').item.json['Job Title'] }}\n\nRelevant Skills the Candidate Possesses:\n{{ $('Candidate Application Form').item.json['Relevant Skills'] }}\n\n\nCover Letter:  \n{{ $('Candidate Application Form').item.json['Cover Letter'] }}\n\nResume Content:  \n{{ $('Extract Resume PDF').item.json.text }}\n\n///\n\nEmployer Side:\n\nPosition Description:  \n{{ $('Search Job Posting').item.json['Job Description'] }}\n\nSkills Required:  \n{{ $('Search Job Posting').item.json['Required Skills'] }}\n\n///",
+        "options": {
+          "systemMessage": "=You are a Candidate Screening AI Agent responsible for assessing candidate suitability for specific job positions based on the provided information. \n\nObjective:\nEvaluate the candidate’s fit for the applied position by analyzing their relevant skills, cover letter, and resume content. Compare this information with the job description and required skills provided by the employer to determine suitability, a match percentage, and screening notes.\n\nInput Fields:\n\nUser Side:\n- Position applied: The job position the candidate applied for.\n- Relevant skills: A list of key skills the candidate possesses.\n- Cover letter: Candidate’s introduction, work experience, and key achievements.\n- Resume: Parsed text content extracted from the resume in plain text format.\n\nEmployer Side:\n- Position description: Detailed job description including responsibilities and expectations.\n- Skills required: A list of required skills for the position.\n\nOutput Fields:\n- Screening Status: One of the following options: \"Suitable\", \"Not Suitable\", \"Under Review\".\n- Match Percentage: A numerical score indicating the percentage of relevant skills matching the job requirements.\n- Screening Notes: A summary of the assessment, including strengths, areas for improvement, and justification for the screening status.\n\nInstructions:\n1. Extract and analyze relevant skills mentioned in the cover letter and resume content.\n2. Compare the extracted skills with the job requirements and skills required by the employer.\n3. Assign a Match Percentage based on the alignment of skills and experience.\n4. Determine the Screening Status based on the skill match and relevance of the candidate’s experience to the position.\n5. Provide comprehensive Screening Notes to justify the assigned status and percentage, highlighting strengths and areas for improvement."
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "feb35aa1-cd20-470c-90b3-7267f3c3c7b4",
+      "name": "Set File Array for airtable",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        560,
+        560
+      ],
+      "parameters": {
+        "mode": "raw",
+        "options": {},
+        "jsonOutput": "={\"file_array\":[\n  {\n    \"url\": \"{{ $('Upload File').item.json.webContentLink }}\",\n    \"filename\": \"{{ $('Upload File').item.json.name }}\"\n  }\n]\n}"
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "57c4180d-05e6-4a4b-af86-cc5c2e67b098",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        960,
+        120
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combineBy": "combineAll"
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "83de9df9-4ff6-4832-bc99-0ebc9c749c3e",
+      "name": "Upload File",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        80,
+        560
+      ],
+      "parameters": {
+        "name": "={{ $json.Resume.filename }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "13BuRkJofybsBlF77oqoS87A2qq4zD2aP",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/13BuRkJofybsBlF77oqoS87A2qq4zD2aP",
+          "cachedResultName": "pdf dev"
+        },
+        "inputDataFieldName": "Resume"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "SEUhrgz30NMJS3cH",
+          "name": "Google Drive account"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "19c8ac22-6cd4-4ffb-9193-d9a2e1ce5ffc",
+      "name": "Set File Permission",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        320,
+        560
+      ],
+      "parameters": {
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "options": {},
+        "operation": "share",
+        "permissionsUi": {
+          "permissionsValues": {
+            "role": "reader",
+            "type": "anyone"
+          }
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "SEUhrgz30NMJS3cH",
+          "name": "Google Drive account"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "fe28d107-0b25-4218-af94-f4937aa91035",
+      "name": "Check if candidate is suitable",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1400,
+        120
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "ab5102cf-0952-465e-9340-59ced9f39ce1",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $('Merge').item.json.output.screening_status }}",
+              "rightValue": "Suitable"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "379b61c4-89f8-447f-b9ac-b0d3aa56dc38",
+      "name": "Send email to HR",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1680,
+        120
+      ],
+      "webhookId": "48fa841c-0312-4829-a80c-85cd37deec25",
+      "parameters": {
+        "sendTo": "hr_team_n8n@yopmail.com",
+        "message": "=We have successfully completed the candidate screening process, and {{ $('Candidate Application Form').item.json['Full Name '] }} has been identified as a suitable candidate for the {{ $('Search Job Posting').item.json['Job Title'] }} position.  \n\nCandidate Details:  \n- Position Applied: {{ $('Search Job Posting').item.json['Job Title'] }}  \n- Match Percentage: {{ $('Candidate Screener AI Agent').item.json.output.match_percentage }}%  \n- Screening Notes: {{ $('Candidate Screener AI Agent').item.json.output.screening_notes }}\n\nPlease proceed with the next steps in the interview scheduling process. If you need any further information or clarification, feel free to reach out.  \n\nThank you,  \nSuper Awesome HR AI Agent",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "=Candidate {{ $('Candidate Application Form').item.json['Full Name '] }} - Suitable for {{ $('Search Job Posting').item.json['Job Title'] }}\n",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "sWl7FFMkEUYBj0zM",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "a7bb9cf2-5df0-4937-b17a-271c60157da0",
+      "name": "Candidate Application Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        -400,
+        -100
+      ],
+      "webhookId": "2d4004d0-4c93-49d5-9c3a-4e05264fc772",
+      "parameters": {
+        "options": {},
+        "formTitle": "Smart Candidate Screening Form",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Full Name ",
+              "requiredField": true
+            },
+            {
+              "fieldType": "email",
+              "fieldLabel": "Email Address",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Position Applied For",
+              "requiredField": true
+            },
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Relevant Skills",
+              "requiredField": true
+            },
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Cover Letter",
+              "requiredField": true
+            },
+            {
+              "fieldType": "file",
+              "fieldLabel": "Resume",
+              "multipleFiles": false,
+              "acceptFileTypes": ".pdf"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "7531bc26-0c23-4a3e-8739-e90379879c08",
+      "name": "Extract Resume PDF",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        -80,
+        -100
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "pdf",
+        "binaryPropertyName": "Resume"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a014c89d-db01-435f-957d-830fb4ae94b4",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        -380
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 360,
+        "height": 680,
+        "content": "🧠 Агент по отбору кандидатов на основе ИИ"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1505d7cf-0a7e-4794-980e-a08be353810f",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        120,
+        -240
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 340,
+        "height": 300,
+        "content": "Использует OpenAI для анализа:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e76d4408-42b4-4757-a26e-59b5844e123b",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        360
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 760,
+        "height": 340,
+        "content": "- Содержимое резюме против требований к работе"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6ff2294a-95dd-46ba-a19e-7855ef78c669",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        920,
+        -40
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 420,
+        "height": 380,
+        "content": "- Соответствие навыков"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "13bcc44a-55e6-46ce-8eeb-1e1241e8569f",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1380,
+        -80
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 420,
+        "height": 420,
+        "content": "- Качество сопроводительного письма"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1fe8867b-b2a9-4ff0-813a-9e147c16cb2b",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -480,
+        -400
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 560,
+        "height": 580,
+        "content": "📊 РЕЗУЛЬТАТЫ:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9147da55-77dc-4780-83cd-2c6969574fb3",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -800,
+        -400
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 280,
+        "height": 280,
+        "content": "- Статус отбора (Подходит/Не подходит/На рассмотрении)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b0c1aba2-4b2a-4ba6-b625-9bb6d2af4356",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1120,
+        320
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 460,
+        "height": 460,
+        "content": "- Процент соответствия (0-100%)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "53fbb743-892a-45dc-9dc7-9596fda47686",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -640,
+        320
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 500,
+        "height": 460,
+        "content": "- Подробные заметки по отбору"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Create Candidate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload File": {
+      "main": [
+        [
+          {
+            "node": "Set File Permission",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Candidate": {
+      "main": [
+        [
+          {
+            "node": "Check if candidate is suitable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Candidate Screener AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Resume PDF": {
+      "main": [
+        [
+          {
+            "node": "Search Job Posting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Job Posting": {
+      "main": [
+        [
+          {
+            "node": "Candidate Screener AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set File Permission": {
+      "main": [
+        [
+          {
+            "node": "Set File Array for airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Candidate Screener AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Candidate Application Form": {
+      "main": [
+        [
+          {
+            "node": "Extract Resume PDF",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Upload File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Candidate Screener AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set File Array for airtable": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Check if candidate is suitable": {
+      "main": [
+        [
+          {
+            "node": "Send email to HR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

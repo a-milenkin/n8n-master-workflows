@@ -1,0 +1,303 @@
+{
+  "meta": {
+    "instanceId": "b123b0ced16c403c4b53c4c2871fe8ad53e10fa860639a439ee9c523097eb0ca",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "1c1f5f21-2517-4644-bb67-4d9887f3b2c6",
+      "name": "Get Images from Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        -460,
+        -2520
+      ],
+      "parameters": {
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "YOUR_GOOGLE_DRIVE_FOLDER_ID",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/YOUR_FOLDER_ID",
+            "cachedResultName": "Product Images"
+          }
+        },
+        "options": {},
+        "resource": "fileFolder",
+        "returnAll": true,
+        "queryString": ".png"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "b20d6ab3-e90d-4a06-8c77-447c7b327413",
+      "name": "AI Prompt Generator (Optional)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        160,
+        -2400
+      ],
+      "parameters": {
+        "text": "Analyze this product image and create a professional background prompt for commercial photography. Focus on style, lighting, and environment that would complement this product.",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "aef4b599-cd45-48c9-8a31-8a6f31fc7680",
+      "name": "Save Enhanced Image",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        1300,
+        -2520
+      ],
+      "parameters": {
+        "name": "enhanced-{{ $('Get Images from Google Drive').item.json.name }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive",
+          "cachedResultName": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_OUTPUT_FOLDER_ID",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/YOUR_OUTPUT_FOLDER_ID",
+          "cachedResultName": "Enhanced Products"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "123430d3-e08f-42f3-8e65-cc20a07c28ad",
+      "name": "AI Agent Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        140,
+        -2200
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 380,
+        "height": 540,
+        "content": "## 🤖 Заметки AI-агента (по желанию)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5601862a-ff17-4dce-b0fe-d61f5f1926ab",
+      "name": "Pixelcut Background Generator",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        760,
+        -2520
+      ],
+      "parameters": {
+        "url": "https://api.developer.pixelcut.ai/v1/generate-background",
+        "method": "POST",
+        "options": {
+          "timeout": 60000
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "image",
+              "parameterType": "formBinaryData",
+              "inputDataFieldName": "imageData"
+            },
+            {
+              "name": "prompt",
+              "value": "Professional studio background with soft lighting, clean surfaces, and elegant atmosphere"
+            },
+            {
+              "name": "format",
+              "value": "png"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "YOUR_PIXELCUT_API_KEY"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d6986636-7d05-44d2-87cc-1df4bf7a640c",
+      "name": "Pixelcut Configuration Guide",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        640,
+        -2860
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 400,
+        "height": 320,
+        "content": "**Цель**: Автоматически генерирует фоновый запрос"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3b9c5250-8498-4096-96ab-e3cbf8175b84",
+      "name": "File Format Configuration",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        -3020
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 380,
+        "height": 520,
+        "content": "**Как использовать**:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "14182b3a-a7b5-4c58-99b7-a6b125446f2d",
+      "name": "Background Requirements",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -460,
+        -3000
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 400,
+        "height": 460,
+        "content": "Этот узел является ОПЦИОНАЛЬНЫМ - вы можете полностью его пропустить"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e20669ed-e1ba-43c7-92f3-15420fb03d6e",
+      "name": "Setup Checklist",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -900,
+        -2800
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 350,
+        "height": 560,
+        "content": "Если используете, подключите AI-модель с возможностью обработки изображений"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "81ca6ccb-855e-4b04-934c-8167feea9fea",
+      "name": "Download Binary Image Files2",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        -180,
+        -2520
+      ],
+      "parameters": {
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "options": {
+          "binaryPropertyName": "imageData"
+        },
+        "operation": "download"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "1c668c86-2ec4-4ddd-a5b5-0c37dac39c93",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -40,
+        -2120
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "typeVersion": 1.2
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Prompt Generator (Optional)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Binary Image Files2": {
+      "main": [
+        [
+          {
+            "node": "Pixelcut Background Generator",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AI Prompt Generator (Optional)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Images from Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Download Binary Image Files2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pixelcut Background Generator": {
+      "main": [
+        [
+          {
+            "node": "Save Enhanced Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Prompt Generator (Optional)": {
+      "main": [
+        [
+          {
+            "node": "Pixelcut Background Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

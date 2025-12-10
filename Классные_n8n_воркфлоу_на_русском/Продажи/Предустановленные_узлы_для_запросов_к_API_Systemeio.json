@@ -1,0 +1,321 @@
+{
+  "meta": {
+    "instanceId": "f9c40bccfbfb973b8ba2bfd7b70b906c2376bb9900216d1ce424582c3097fb66"
+  },
+  "nodes": [
+    {
+      "id": "89a2f8d1-a2fd-452b-8187-aec9e72efba5",
+      "name": "Systeme | Get all contacts",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        480,
+        80
+      ],
+      "parameters": {
+        "url": "https://api.systeme.io/api/contacts",
+        "options": {
+          "pagination": {
+            "pagination": {
+              "parameters": {
+                "parameters": [
+                  {
+                    "name": "startingAfter",
+                    "value": "={{ $response.body.items.last().id }}"
+                  }
+                ]
+              },
+              "requestInterval": 1000,
+              "completeExpression": "={{ $response.body.hasMore == false }}",
+              "paginationCompleteWhen": "other"
+            }
+          }
+        },
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "100"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "56ad906f-0309-469a-8509-96ea6d56c0ba",
+      "name": "Split Out2",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        680,
+        80
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "items"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b2ffb152-c3f2-4d74-a25e-9ec3162b8dbe",
+      "name": "Systeme | Get All tags",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        480,
+        340
+      ],
+      "parameters": {
+        "url": "https://api.systeme.io/api/tags",
+        "options": {
+          "pagination": {
+            "pagination": {
+              "parameters": {
+                "parameters": [
+                  {
+                    "name": "startingAfter",
+                    "value": "={{ $response.body.items.last().id }}"
+                  }
+                ]
+              },
+              "requestInterval": 1000,
+              "completeExpression": "={{ $response.body.hasMore == false }}",
+              "paginationCompleteWhen": "other"
+            }
+          }
+        },
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "100"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0e284595-ae1c-4f48-a276-d5059319226b",
+      "name": "Split Out",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        680,
+        340
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "items"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b7b231c7-11e6-4dbd-aa0a-720ce1ba418b",
+      "name": "Split Out3",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        680,
+        580
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "items"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bed54e99-ceaa-4a3a-a3b1-403a1573ba4d",
+      "name": "Systeme | Get contacts with tag",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        480,
+        580
+      ],
+      "parameters": {
+        "url": "https://api.systeme.io/api/contacts",
+        "options": {
+          "pagination": {
+            "pagination": {
+              "parameters": {
+                "parameters": [
+                  {
+                    "name": "startingAfter",
+                    "value": "={{ $response.body.items.last().id }}"
+                  }
+                ]
+              },
+              "requestInterval": 1000,
+              "completeExpression": "={{ $response.body.hasMore == false }}",
+              "paginationCompleteWhen": "other"
+            }
+          }
+        },
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "100"
+            },
+            {
+              "name": "tags",
+              "value": "1012751"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "725bd82d-22fd-4276-906b-273c8e3ce0e6",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 233.58287051218554,
+        "height": 80,
+        "content": "### Используйте это, чтобы получить все ваши контакты 👉"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "830d9509-1fc2-4ea5-9061-bdc9f41aacd6",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -240,
+        340
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 254.8031770750764,
+        "height": 214.14625940040065,
+        "content": "Все эти узлы учитывают ограничения по количеству запросов к API и постраничный вывод.\n\nЭто позволяет вам:\n- всегда получать все данные из вашего аккаунта\n- выполнять множество запросов, не достигая предела запросов"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a8dcd1dc-9c70-4cb1-a01d-b537063bb67d",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        340
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 233.58287051218554,
+        "height": 80,
+        "content": "### Используйте это, чтобы получить все ваши теги 👉"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "358bd219-2fd3-4d3b-8901-0ce1a8bd6328",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        580
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 203.622937338547,
+        "height": 255.07789053421138,
+        "content": "### Используйте это, чтобы получить только контакты с определенным тегом 👉\n\nЧтобы отфильтровать по более чем одному тегу, просто добавьте больше идентификаторов тегов в параметр tags, как это:\n\n1012751,1012529"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3b1f6f68-baf0-4357-9f05-74cda41037e3",
+      "name": "Systeme | Add contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        480,
+        1000
+      ],
+      "parameters": {
+        "url": "https://api.systeme.io/api/contacts",
+        "method": "POST",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 9
+            }
+          }
+        },
+        "jsonBody": "={\n  \"email\": \"{{ $json.emails }}\",\n  \"fields\": [\n    {\n      \"slug\": \"utm_source\",\n      \"value\": \"API\"\n    }\n  ]\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d4ae7c37-9044-4623-8051-2b0ef557ce57",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        1000
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 203.622937338547,
+        "height": 396.06618898998505,
+        "content": "### Используйте это, чтобы добавить много контактов сразу 👉\n\nДобавление тысяч контактов может быть сложным, особенно если у вас много полей для добавления.\n\nЭтот узел является альтернативой встроенной функции импорта от Systeme.io.\n\nЕсли вам нужно добавить какие-то пользовательские данные к вашим лидам, возможно, использование API будет лучше, чем использование инструмента импорта, который они предоставляют в Systeme."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Systeme | Get All tags": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Systeme | Get all contacts": {
+      "main": [
+        [
+          {
+            "node": "Split Out2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Systeme | Get contacts with tag": {
+      "main": [
+        [
+          {
+            "node": "Split Out3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

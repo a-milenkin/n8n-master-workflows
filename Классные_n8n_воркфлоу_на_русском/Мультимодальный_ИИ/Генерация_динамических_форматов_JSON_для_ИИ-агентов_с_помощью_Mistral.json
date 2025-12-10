@@ -1,0 +1,987 @@
+{
+  "id": "ITJwpEvX9Zijl4Xe",
+  "meta": {
+    "instanceId": "c8661626eeda758e004fa6cdc30e89de83810c1ff0923b0bb91a200abd0100f3",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "JSON Архитектор - Динамически генерируйте форматы вывода JSON для любого AI-агента",
+  "tags": [
+    {
+      "id": "JK3I68rY6cIlUP5Z",
+      "name": "V1.0",
+      "createdAt": "2025-06-20T18:01:10.400Z",
+      "updatedAt": "2025-06-20T18:01:10.400Z"
+    },
+    {
+      "id": "in8l539iu2Ha3BD8",
+      "name": "JSON Architect",
+      "createdAt": "2025-07-07T01:55:29.343Z",
+      "updatedAt": "2025-07-08T22:56:33.698Z"
+    },
+    {
+      "id": "nEQ2nHALSQN4jgJ0",
+      "name": "Free",
+      "createdAt": "2025-06-25T21:55:38.353Z",
+      "updatedAt": "2025-06-25T21:55:38.353Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "d8b4728f-23bb-42cf-aff4-128e61d141ad",
+      "name": "Mistral Cloud Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatMistralCloud",
+      "position": [
+        1020,
+        80
+      ],
+      "parameters": {
+        "model": "mistral-small-latest",
+        "options": {
+          "safeMode": true,
+          "maxRetries": 2
+        }
+      },
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "i9fED0hhcQnPZBi6",
+          "name": "Blank Account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "66103c5a-f12d-4505-a1b5-2e294bb3f827",
+      "name": "JSON Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        1020,
+        -140
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"data\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"json_format_name\": {\n          \"type\": \"string\",\n          \"description\": \"A proper identification for this JSON format structure. Use snake_case.\"\n        },\n        \"json_format_usage\": {\n          \"type\": \"string\",\n          \"description\": \"How are subsequent AI Agents supposed to use the information in the JSON and its parameters.\"\n        },\n        \"json_format_structure\": {\n          \"type\": \"object\",\n          \"description\": \"The expected JSON object format for the necessary use-case.\"\n        }\n      },\n      \"required\": [\"json_format_name\", \"json_format_usage\", \"json_format_structure\"],\n      \"additionalProperties\": false\n  }\n  },\n  \"required\": [\"data\"],\n  \"additionalProperties\": false\n}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "608baf6f-daa5-4f8c-8edb-643decee6197",
+      "name": "JSON Generator",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "maxTries": 2,
+      "position": [
+        740,
+        -280
+      ],
+      "parameters": {
+        "text": "={{ $json.input }}\n\n-----\n\nLast JSON Format Attempt (If it Already Exists): \n\"\"\"\n{{ $json.last_json_format_attempt }}\n\"\"\"\n\nCorrection Needed (In The Last JSON Format Attempt):\n\"\"\"\n{{ $json.correction_required }}\n\"\"\"",
+        "options": {
+          "systemMessage": "=You are a senior data engineer, tasked with creating the best possible JSON structure for the use-case informed in the prompt. Do not let any relevant information out of the JSON Structure. Here is an example of what is expected:\n\n\"\"\"\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"data\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"property_name_1\": {\n          \"type\": \"string\",\n          \"description\": \"...\"\n        },\n        \"property_name_2\": {\n          \"type\": \"object\",\n          \"description\": \"...\"\n        },\n        ...,\n        \"property_name_N\": {\n          \"type\": \"array\",\n          \"description\": \"...\"\n        }\n      },\n      \"required\": [\"property_name_1\", \"property_name_2\", ..., \"property_name_N\"],\n      \"additionalProperties\": false\n  }\n  },\n  \"required\": [\"data\"],\n  \"additionalProperties\": false\n}\n\"\"\"\n\nRemember to consider the possibility of a property nesting other structures inside it:  in that case the pattern provided above will repeat itself.\nRemember to be succint with your proposed JSON structure. Avoid pointless redundancy, unnecessary repetitions as much as possible."
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.6,
+      "waitBetweenTries": 3000
+    },
+    {
+      "id": "53456018-4071-4442-a132-83eb1fad40f7",
+      "name": "JSON Validator",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "maxTries": 2,
+      "position": [
+        1240,
+        -280
+      ],
+      "parameters": {
+        "text": "=JSON Format Name:\n{{ $json.output.data.json_format_name }}\n\nContext:\n{{ $json.output.data.json_format_usage }}\n\nInput used to generate the JSON:\n{{ $('Loop Until it Works').item.json.input }}\n\nJSON Format Structure:\n\"\"\"\n{{ $json.output.data.json_format_structure.toJsonString() }}\n\"\"\"\n",
+        "options": {
+          "systemMessage": "=You are an expert Data Analyst. Your ability to understand and validate data structures is unmatched.\nYou are tasked with reading a JSON format generated for an specific purpose.\nYou will assure the JSON is following the best practices.\nIf it isn't, then you must mark it as an invalid JSON.\n\nFor a JSON format to be considered valid, just having a proper structure isn't enough. The context must align with the JSON format itself."
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.6,
+      "waitBetweenTries": 3000
+    },
+    {
+      "id": "5eaac98d-84b9-4e03-8ea0-980a375f4cae",
+      "name": "JSON Output Parser 2",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        1400,
+        -20
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"data\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"json_format_valid\": {\n          \"type\": \"boolean\",\n          \"description\": \"The AI Agent's final veridict over the received JSON's format. It will be 'true' if it is a valid format, otherwise it will be 'false'.\"\n        },\n        \"json_format_valid_reason\": {\n          \"type\": \"string\",\n          \"description\": \"The AI Agent's reason for its veridict.\"\n        }\n      },\n      \"required\": [\"json_format_valid\", \"json_format_valid_reason\"],\n      \"additionalProperties\": false\n  }\n  },\n  \"required\": [\"data\"],\n  \"additionalProperties\": false\n}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "8f1dbe6a-d35e-43bd-b5d1-6553f223bf89",
+      "name": "When clicking ‘Execute workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -500,
+        -140
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "426b7257-a0b3-4ce3-a8f9-c02222d5582f",
+      "name": "Prepare Input",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -240,
+        -140
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0bebc801-88ee-48b6-9fdf-26124a3d2712",
+              "name": "input",
+              "type": "string",
+              "value": "=A scenario where two characters are speaking with each other. It is during the night. They are talking about their respective magical powers: the ability to see the future and the ability to use alchemy."
+            },
+            {
+              "id": "a7b62d3e-7171-4fb6-a6d0-7cffb33b21b9",
+              "name": "correction_required",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "39435221-2a3c-4b50-be83-a6035cca75b4",
+              "name": "last_json_format_attempt",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "cfff3d04-a827-4a50-8d61-04778b75dc7d",
+              "name": "max_rounds",
+              "type": "number",
+              "value": 10
+            },
+            {
+              "id": "d2e8c5ce-7242-4596-92cc-5dc76befe6ab",
+              "name": "rounds",
+              "type": "number",
+              "value": 0
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "f9de1d71-8da8-4a5a-a8d3-9aad4f0b6821",
+      "name": "Loop Until it Works",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        420,
+        -80
+      ],
+      "parameters": {
+        "options": {
+          "reset": true
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "733867ee-9d1a-4cca-a82f-51d87ee53b35",
+      "name": "Update Input",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1820,
+        280
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0bebc801-88ee-48b6-9fdf-26124a3d2712",
+              "name": "input",
+              "type": "string",
+              "value": "={{ $('Loop Until it Works').item.json.input }}"
+            },
+            {
+              "id": "a7b62d3e-7171-4fb6-a6d0-7cffb33b21b9",
+              "name": "correction_required",
+              "type": "string",
+              "value": "={{ $json.output.data.json_format_valid_reason }}"
+            },
+            {
+              "id": "39435221-2a3c-4b50-be83-a6035cca75b4",
+              "name": "last_json_format_attempt",
+              "type": "string",
+              "value": "={{ $('JSON Generator').item.json.output.data.json_format_structure.toJsonString() }}"
+            },
+            {
+              "id": "9f360b45-e90f-46e7-99aa-f7997bdab87e",
+              "name": "rounds",
+              "type": "number",
+              "value": "={{ $('Guarantee Input').item.json.rounds + 1}}"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "397a0c82-fab4-43c4-bbc6-7716cc087738",
+      "name": "If Valid JSON",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1580,
+        -100
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "4f15c457-d790-468f-9468-177378348593",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.output.data.json_format_valid }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "60d59670-4f1e-43a4-ab88-80db611fd810",
+      "name": "JSON Reviewer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "onError": "continueErrorOutput",
+      "maxTries": 3,
+      "position": [
+        1900,
+        -240
+      ],
+      "parameters": {
+        "text": "=Input to fit in the JSON:\n{{ $('Guarantee Input').item.json.input }}",
+        "agent": "conversationalAgent",
+        "options": {
+          "systemMessage": "You are an expert Data Scientist. Your ability to work with data structures is unmatched.\nYou are tasked with testing the performance a JSON format generated for an specific purpose.\nYou will assure the JSON is working for its purpose by trying to fit in the input as best as you can in the JSON.\nIf you cannot do it, then it is an invalid JSON and the informed JSON structure should be ignored.\n\nFor a JSON format to be used in a valid manner, just having a proper structure isn't enough. The context must functionally work with the JSON format itself.\nIf the JSON is valid, then you must structure the input using the JSON.\n\n"
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.6,
+      "waitBetweenTries": 3000
+    },
+    {
+      "id": "051fa8d6-aef4-49c9-8e3b-55f2781bba53",
+      "name": "Guarantee Input",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        20,
+        -100
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0ac8a4d1-15e0-4e32-84a4-66776d35eff9",
+              "name": "input",
+              "type": "string",
+              "value": "={{ $json.input }}"
+            },
+            {
+              "id": "fabe83a4-0ad5-477a-a91d-dc88987e510b",
+              "name": "correction_required",
+              "type": "string",
+              "value": "={{ $json.correction_required }}"
+            },
+            {
+              "id": "4aef78c1-b422-40cc-8e38-505cd55eac2e",
+              "name": "last_json_format_attempt",
+              "type": "string",
+              "value": "={{ $json.last_json_format_attempt }}"
+            },
+            {
+              "id": "a015a41b-7ed2-4259-bcdc-28120b7111e4",
+              "name": "rounds",
+              "type": "number",
+              "value": "={{ $json.rounds }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "b202d5ce-5386-42ce-8825-5562a56fff55",
+      "name": "Mistral Cloud Chat Model 2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatMistralCloud",
+      "position": [
+        1900,
+        -20
+      ],
+      "parameters": {
+        "model": "mistral-small-latest",
+        "options": {
+          "safeMode": true,
+          "maxRetries": 2
+        }
+      },
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "i9fED0hhcQnPZBi6",
+          "name": "Blank Account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d013093a-da21-433c-8a27-57cca6a4439e",
+      "name": "Advanced JSON Output Parser",
+      "type": "n8n-nodes-advanced-output-parser.advancedOutputParser",
+      "position": [
+        2060,
+        -20
+      ],
+      "parameters": {
+        "jsonSchema": "={{ $('JSON Generator').item.json.output.data.json_format_structure.toJsonString() }}",
+        "schemaMode": "dynamic"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cce477a7-a9d6-4427-abbd-39812c18dbfa",
+      "name": "Update Input 2",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2280,
+        340
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0bebc801-88ee-48b6-9fdf-26124a3d2712",
+              "name": "input",
+              "type": "string",
+              "value": "={{ $('Loop Until it Works').item.json.input }}"
+            },
+            {
+              "id": "a7b62d3e-7171-4fb6-a6d0-7cffb33b21b9",
+              "name": "correction_required",
+              "type": "string",
+              "value": "={{ $json.error }}"
+            },
+            {
+              "id": "39435221-2a3c-4b50-be83-a6035cca75b4",
+              "name": "last_json_format_attempt",
+              "type": "string",
+              "value": "={{ $('JSON Generator').item.json.output.data.json_format_structure.toJsonString() }}"
+            },
+            {
+              "id": "42881de4-54be-4647-8500-7b6d0ef11006",
+              "name": "rounds",
+              "type": "number",
+              "value": "={{ $('Guarantee Input').item.json.rounds + 1}}"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "c744a93e-2f1c-4695-85e5-e33bf7bd133c",
+      "name": "JSON Format Works!",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        2600,
+        -260
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "d252e5ee-a4f0-488c-9af7-fd72941425fa",
+      "name": "Prepare Output",
+      "type": "n8n-nodes-base.set",
+      "notes": "Adding a time string in the json_format_name for the sake of uniqueness.",
+      "position": [
+        2820,
+        -260
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9eb037d0-83be-417c-8dcf-346860d9fdff",
+              "name": "input",
+              "type": "string",
+              "value": "={{ $('Guarantee Input').item.json.input }}"
+            },
+            {
+              "id": "0db22777-79cf-4cc8-acf4-0c548c7b9070",
+              "name": "json_format_name",
+              "type": "string",
+              "value": "={{ $('JSON Generator').item.json.output.data.json_format_name }}_{{ $now.format('yyyy-MM-dd_HH_mm_ss') }}"
+            },
+            {
+              "id": "853f31e7-fede-474f-a077-e30cd6ab1629",
+              "name": "json_format_usage",
+              "type": "string",
+              "value": "={{ $('JSON Generator').item.json.output.data.json_format_usage }}"
+            },
+            {
+              "id": "1177b5ee-b661-49dd-8d53-acc21c349715",
+              "name": "json_format_valid_reason",
+              "type": "string",
+              "value": "={{ $('If Valid JSON').item.json.output.data.json_format_valid_reason }}"
+            },
+            {
+              "id": "a870a989-2485-48c9-a248-f2da1ba16643",
+              "name": "json_format_structure",
+              "type": "object",
+              "value": "={{ $('JSON Generator').item.json.output.data.json_format_structure }}"
+            },
+            {
+              "id": "552aea6f-da3e-4a0a-b97a-14323751a6df",
+              "name": "json_format_input",
+              "type": "object",
+              "value": "={{ $('JSON Reviewer').item.json.output.conversation }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "2be9cb84-bc58-4d3d-8768-7bd2cf4d6e10",
+      "name": "If No More Rounds",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        200,
+        -100
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "e5534ac9-e0b4-473f-9525-bd9ede7b6128",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.rounds }}",
+              "rightValue": "={{ $('Prepare Input').item.json.max_rounds }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "2f70e3b8-18b3-47cb-9edd-de4bb3c327ac",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1440,
+        -600
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 840,
+        "height": 820,
+        "content": "## JSON Архитектор - Динамическое создание форматов JSON для любого AI-агента"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b4a5da69-fb3e-4db6-b41a-cae237c1523c",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -780,
+        -520
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 150,
+        "content": "**Версия** : 1.0"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "06e1b233-f22c-4219-8367-24c18921404b",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        -680
+      ],
+      "parameters": {
+        "width": 2560,
+        "height": 1240,
+        "content": "**Создатель** : Hybroht"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4a528b75-cf8e-4534-8bc4-7f875047bd03",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        660,
+        -500
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1080,
+        "height": 720,
+        "content": "**Вебсайт** : hybroht.com"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "110676e0-1bcd-431b-bb3b-b62709e675a9",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1800,
+        -400
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 660,
+        "height": 560,
+        "content": "**Описание**: Этот рабочий процесс будет инструктировать AI-агентов о том, какой JSON нужен в данном контексте, и создавать соответствующую структуру JSON. JSON Архитектор будет:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "80045779-5409-4662-8b89-1a142e750f7a",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        660,
+        240
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 1800,
+        "height": 300,
+        "content": "## Проверка или тест не прошел"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8815f509-8644-4a1b-991e-6213efa58d26",
+      "name": "Round Limit Reached",
+      "type": "n8n-nodes-base.stopAndError",
+      "position": [
+        420,
+        -280
+      ],
+      "parameters": {
+        "errorMessage": "Round Limit Reached!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ade7be68-4ad1-4884-b38a-2abdf52c80fe",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        -400
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 680,
+        "height": 560,
+        "content": "- Если **JSON Validator** отклоняет сгенерированный JSON или если он не проходит тест, проведенный JSON Reviewer, он будет отправлен обратно в начало."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "240025e4-8d07-406f-bb96-c1ec875d8c23",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2540,
+        -440
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 580,
+        "height": 820,
+        "content": "- Цикл начнется заново с обновленной информацией о том, что пошло не так в последнем раунде, вместе с последней итерацией формата JSON, который требует исправления."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b3659bca-2065-4b12-b065-4e02a63bc626",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -560,
+        -400
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 480,
+        "height": 720,
+        "content": "## Начало раунда"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "992d3320-5cfd-4a61-8924-75461afb6778",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -560,
+        -680
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 480,
+        "height": 260,
+        "content": "**Гарантия ввода** обеспечит, что ввод, поступающий в цикл, соответствует ожиданиям."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0fa743a0-19f7-4999-b023-85bee0edc506",
+      "name": "Sticky Note15",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -520,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 380,
+        "height": 220,
+        "content": "**Ожидаемый ввод**:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4abd3949-dec0-4292-a6fd-5b4d815f9896",
+      "name": "Sticky Note16",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2580,
+        -60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 480,
+        "height": 360,
+        "content": "- **input** : Ввод, который требует правильной структуры JSON."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "33a162fa-5031-4443-814b-12e120ea3787",
+      "name": "Sticky Note17",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        100,
+        200
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 380,
+        "height": 220,
+        "content": "- **max_rounds** : Максимальное количество раундов перед остановкой цикла, если он не сможет создать и протестировать действительную структуру JSON для ввода."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "47f5a6d6-7405-49e2-89a2-91d62518b56b",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1420,
+        340
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1340,
+        "height": 1980,
+        "content": "- **rounds** : Начальное количество раундов. По умолчанию: 0."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fa3c77db-ff57-435b-94fc-8ac91011a249",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        700
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1000,
+        "height": 1620,
+        "content": "**Ожидаемый вывод**:"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e6abb899-a1db-43cc-8548-45c5848bc4f4",
+  "connections": {
+    "Update Input": {
+      "main": [
+        [
+          {
+            "node": "Guarantee Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Valid JSON": {
+      "main": [
+        [
+          {
+            "node": "JSON Reviewer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON Reviewer": {
+      "main": [
+        [
+          {
+            "node": "JSON Format Works!",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update Input 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Input": {
+      "main": [
+        [
+          {
+            "node": "Guarantee Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON Generator": {
+      "main": [
+        [
+          {
+            "node": "JSON Validator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON Validator": {
+      "main": [
+        [
+          {
+            "node": "If Valid JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Input 2": {
+      "main": [
+        [
+          {
+            "node": "Guarantee Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guarantee Input": {
+      "main": [
+        [
+          {
+            "node": "If No More Rounds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If No More Rounds": {
+      "main": [
+        [
+          {
+            "node": "Round Limit Reached",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Until it Works",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON Format Works!": {
+      "main": [
+        [
+          {
+            "node": "Prepare Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "JSON Generator",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Until it Works": {
+      "main": [
+        [],
+        [
+          {
+            "node": "JSON Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON Output Parser 2": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "JSON Validator",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral Cloud Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "JSON Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "JSON Validator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral Cloud Chat Model 2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "JSON Reviewer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Advanced JSON Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "JSON Reviewer",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Prepare Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

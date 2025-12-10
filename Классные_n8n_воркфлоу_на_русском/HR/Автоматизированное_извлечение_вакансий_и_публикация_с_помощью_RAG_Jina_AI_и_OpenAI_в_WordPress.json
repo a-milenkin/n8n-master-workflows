@@ -1,0 +1,2233 @@
+{
+  "id": "zQfZUfneTz0sLoN1",
+  "meta": {
+    "instanceId": "7ff0356880634eb3406dab6a2859c5af49a81da2e79ca3d746c5dacfbb1f8873",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "содержимое: {{ $('Extract').item.json.content }}",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "a208fdb8-2e05-4da7-ba56-1ff523229ab6",
+      "name": "Search File",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        2416,
+        32
+      ],
+      "parameters": {
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "1qarDrwjNIrrx2wk8RMzLpyIq_6r0DHLX",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1qarDrwjNIrrx2wk8RMzLpyIq_6r0DHLX",
+            "cachedResultName": "GPT"
+          }
+        },
+        "options": {},
+        "resource": "fileFolder",
+        "returnAll": true
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "xw8pUsxmo4bQv4HF",
+          "name": "OAuth - Khaisa Studio"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "a4dfb8b2-5732-42af-baf4-86f1606df581",
+      "name": "Get Data",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        2640,
+        32
+      ],
+      "parameters": {
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "options": {},
+        "operation": "download"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "xw8pUsxmo4bQv4HF",
+          "name": "OAuth - Khaisa Studio"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "79cdc892-5fc1-4c5f-a5f1-a8d79634bc26",
+      "name": "Supabase Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "position": [
+        3104,
+        32
+      ],
+      "parameters": {
+        "mode": "insert",
+        "options": {},
+        "tableName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "documents",
+          "cachedResultName": "documents"
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "URig1lcHSai00ex4",
+          "name": "Supabase Khmuhtadin"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "4686a9c5-ba78-4876-aabf-ce9ad184379a",
+      "name": "Embeddings OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "position": [
+        3088,
+        256
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "OyW1NJafxSo3fljc",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "ded5a80a-e888-4910-ab72-242aa17ab0af",
+      "name": "Default Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "position": [
+        3216,
+        256
+      ],
+      "parameters": {
+        "options": {},
+        "dataType": "binary"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "474a9a6a-35a6-460b-bae6-0e30c5140bae",
+      "name": "Recursive Character Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "position": [
+        3312,
+        464
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7c4a7a53-bd2e-4679-baff-672154184510",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        2864,
+        32
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "1b5a91cc-2f72-493c-af97-1bea742b16d0",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "disabled": true,
+      "position": [
+        -464,
+        224
+      ],
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "options": {
+          "systemMessage": "=Eres un regenerador de artículos especializado que trabaja exclusivamente con información y reglas almacenadas en la base de conocimientos \"notodoanimacion\".\nFunción Principal\nRegenerar artículos siguiendo estrictamente las reglas de formato, estilo y estructura definidas en el dataset RAG. No inventes reglas ni formatos propios.\nProtocolo de Trabajo\n1. Consulta Obligatoria\n\nSIEMPRE usa la herramienta \"notodoanimacion\" para buscar:\n\nReglas de formato y estructura de artículos\nGuías de estilo de escritura\nEjemplos de formato correcto\nInformación relevante sobre el tema solicitado\n\n2. Cumplimiento Estricto\nSigue EXACTAMENTE las reglas de formato encontradas en el dataset\nRespeta las guías de estilo definidas en la base de conocimientos\nAplica la estructura de artículos especificada en el RAG\nMantén el tono y estilo establecido en las directrices\n\n3. Proceso de Regeneración\nBusca las reglas de formato en la base de conocimientos\nBusca información sobre el tema solicitado\nAplica las reglas encontradas al contenido\nRegenera el artículo siguiendo exactamente esas especificaciones\n\n\nImportante\nNO crees reglas propias de formato\nNO improvises estructura de artículos\nTODO debe basarse en lo que encuentres en \"notodoanimacion\"\nSi no encuentras reglas específicas, pregunta al usuario por más detalles\n\nIdioma\nTrabaja principalmente en español, adaptándote al tono y registro encontrado en el dataset.\nResponde siempre consultando primero la base de conocimientos para obtener las reglas correctas."
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "05932e2f-3351-497e-b7a9-0369e292e5d8",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "disabled": true,
+      "position": [
+        -432,
+        448
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "OyW1NJafxSo3fljc",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "92521215-724c-4dc8-b39c-2b25fc69febc",
+      "name": "Supabase Vector Store1",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "position": [
+        1792,
+        936
+      ],
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "options": {
+          "queryName": "match_documents"
+        },
+        "toolName": "document",
+        "tableName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "documents",
+          "cachedResultName": "documents"
+        },
+        "toolDescription": "use thisto get information about notodoanimacion"
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "URig1lcHSai00ex4",
+          "name": "Supabase Khmuhtadin"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "14f9f406-cd18-492d-9133-fabef16f16a0",
+      "name": "Embeddings OpenAI1",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "position": [
+        1888,
+        1144
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "OyW1NJafxSo3fljc",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "04f81336-d1db-43ba-82b0-d10b9119ac61",
+      "name": "Google Drive Trigger",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "disabled": true,
+      "position": [
+        2192,
+        32
+      ],
+      "parameters": {
+        "event": "fileUpdated",
+        "options": {
+          "fileType": "all"
+        },
+        "pollTimes": {
+          "item": [
+            {
+              "hour": 0
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1qarDrwjNIrrx2wk8RMzLpyIq_6r0DHLX",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1qarDrwjNIrrx2wk8RMzLpyIq_6r0DHLX",
+          "cachedResultName": "GPT"
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "xw8pUsxmo4bQv4HF",
+          "name": "OAuth - Khaisa Studio"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "017345a5-2108-405a-b095-9502f8dd0b39",
+      "name": "📥 New Job Link via Telegram",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "position": [
+        -448,
+        984
+      ],
+      "webhookId": "925f5476-09a3-46b9-9b53-0f43a2c84995",
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "oEBplQsvCu6Hviel",
+          "name": "Jon - Notodo RAG"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "be51de9b-f915-4925-97be-008217a5eb53",
+      "name": "🔧 Prepare URL for Extraction",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -224,
+        984
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8d5bf5e7-0f91-4012-b180-4bef3f9c93cd",
+              "name": "text",
+              "type": "string",
+              "value": "={{ $json.text ||  $json.message.text }}"
+            },
+            {
+              "id": "1a3739bb-d9c2-449b-929b-a1fb58196458",
+              "name": "cleanUrl",
+              "type": "string",
+              "value": "={{ ($json.message.text && $json.message.text.includes('://')\n    ? $json.message.text.split('/').slice(0,3).join('/')\n    : 'Invalid URL'\n  ).replace(/\\r?\\n$/, '') }}"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "c7478a71-075f-404e-a470-16665b318554",
+      "name": "🧮 Map Job Type & Category IDs",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2192,
+        664
+      ],
+      "parameters": {
+        "jsCode": "// 1. Ambil array kategori dari input\nconst inputCategories = $('🧠 Extract Job Data with GPT').first().json.choices[0].message.content.categories;\n\n// 1b. Ambil job_type sebagai satu string\nconst inputType = $('🧠 Extract Job Data with GPT').first().json.choices[0].message.content.job_type;\n\n// 2. Array mapping antara `category` dan `id`\nconst categoryMap = [\n  { id: 299, category: \"2d\" },\n  { id: 298, category: \"3d\" },\n  { id: 315, category: \"3DFX\" },\n  { id: 284, category: \"Animación 2d\" },\n  { id: 286, category: \"Animación 3d\" },\n  { id: 617, category: \"Artista de color\" },\n  { id: 312, category: \"Audio SFX\" },\n  { id: 540, category: \"character artist\" },\n  { id: 445, category: \"Character FX (CFX)\" },\n  { id: 596, category: \"Cinematic Artist\" },\n  { id: 462, category: \"Comic\" },\n  { id: 294, category: \"Compositor 3d\" },\n  { id: 487, category: \"Compositor Digital\" },\n  { id: 463, category: \"Concept Art\" },\n  { id: 300, category: \"Creativo\" },\n  { id: 537, category: \"Crowd Artist\" },\n  { id: 301, category: \"Desarrollo de Software\" },\n  { id: 316, category: \"Desarrollo Visual\" },\n  { id: 302, category: \"Dibujante\" },\n  { id: 612, category: \"Dirección\" },\n  { id: 292, category: \"Director de Arte\" },\n  { id: 317, category: \"Diseño de personajes\" },\n  { id: 291, category: \"Diseño Gráfico\" },\n  { id: 310, category: \"Edición de video\" },\n  { id: 533, category: \"Environment Artist\" },\n  { id: 620, category: \"Escultura Digital\" },\n  { id: 622, category: \"Filmmaker\" },\n  { id: 304, category: \"Fotografía\" },\n  { id: 314, category: \"Game Artist\" },\n  { id: 486, category: \"Game Designer\" },\n  { id: 506, category: \"Game developer\" },\n  { id: 482, category: \"Game Producer\" },\n  { id: 576, category: \"Gameplay Animator\" },\n  { id: 290, category: \"Generalista 3d\" },\n  { id: 452, category: \"Grooming Hair/Fur\" },\n  { id: 303, category: \"Guionista\" },\n  { id: 305, category: \"Iluminación\" },\n  { id: 288, category: \"Ilustración\" },\n  { id: 616, category: \"Inteligencia Artificial\" },\n  { id: 311, category: \"Layout Artist\" },\n  { id: 619, category: \"Look Development\" },\n  { id: 464, category: \"Matte Painting\" },\n  { id: 287, category: \"Modelador 3d\" },\n  { id: 524, category: \"Motion Designer\" },\n  { id: 289, category: \"Motion Graphics\" },\n  { id: 588, category: \"Pixel Art\" },\n  { id: 307, category: \"Postproducción\" },\n  { id: 594, category: \"Previs\" },\n  { id: 297, category: \"Producción\" },\n  { id: 483, category: \"Programador\" },\n  { id: 592, category: \"Realidad Virtual (VR)\" },\n  { id: 448, category: \"Render Wrangler\" },\n  { id: 313, category: \"Rigger\" },\n  { id: 459, category: \"Shading & Texturing\" },\n  { id: 295, category: \"Storyboard\" },\n  { id: 296, category: \"Storytelling\" },\n  { id: 595, category: \"Technical Artist\" },\n  { id: 485, category: \"Technical Director (TD)\" },\n  { id: 308, category: \"UI / UX\" },\n  { id: 309, category: \"VFX\" },\n  { id: 589, category: \"Videojuegos\" },\n  { id: 593, category: \"Virtual Production\" },\n  { id: 293, category: \"Visualización Arquitectónica\" },\n  { id: 590, category: \"VR & AR\" }\n];\n\n// 2b. Array mapping antara `type` dan `id`\nconst typeMap = [\n  { \"id\": 282, \"type\": \"Freelance / Remoto / Teletrabajo\" },\n  { \"id\": 318, \"type\": \"Indiferente\" },\n  { \"id\": 283, \"type\": \"Prácticas\" },\n  { \"id\": 281, \"type\": \"Proyecto\" },\n  { \"id\": 279, \"type\": \"Tiempo completo\" },\n  { \"id\": 280, \"type\": \"Tiempo parcial\" }\n];\n\n// 3. Map kategori input → array ID\nconst fixCategory = Array.isArray(inputCategories)\n  ? inputCategories\n      .map(name => {\n        const match = categoryMap.find(obj => obj.category === name);\n        return match ? match.id : null;\n      })\n      .filter(id => id !== null)\n  : [];\n\n// 4. Cari ID tipe berdasarkan inputType (string), balikan sebagai array\nconst foundType = typeMap.find(obj => obj.type === inputType);\nconst fixType = foundType ? [foundType.id] : [];\n\n// 5. Kembalikan kedua array dalam satu objek JSON\nreturn [\n  {\n    json: {\n      fixCategory,\n      fixType\n    }\n  }\n];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "8570e5e6-fb1c-4569-a698-a5cfcb07d72b",
+      "name": "📥 Download Company Logo",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        2864,
+        664
+      ],
+      "parameters": {
+        "url": "={{ $json.processedIconUrl }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "841489b8-d59c-46dd-a9c0-81bacea2e6de",
+      "name": "☁️ Upload Logo to WordPress",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        3088,
+        664
+      ],
+      "parameters": {
+        "url": "https://yourwebsite.es/wp-json/wp/v2/media",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "binaryData",
+        "sendHeaders": true,
+        "authentication": "predefinedCredentialType",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Disposition",
+              "value": "=attachment; filename=\"logo-{{ $('🧠 Extract Job Data with GPT').item.json.choices[0].message.content.company }}.jpeg\""
+            },
+            {
+              "name": "Content-Type",
+              "value": "image/jpeg"
+            }
+          ]
+        },
+        "inputDataFieldName": "data",
+        "nodeCredentialType": "wordpressApi"
+      },
+      "credentials": {
+        "wordpressApi": {
+          "id": "IMwbWCL0HxvZreh2",
+          "name": "Wordpress account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "54969f5d-ef4e-42c0-ba31-0606dd029e3a",
+      "name": "📦 Format Final Job Post Data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        3312,
+        664
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "title",
+              "name": "title",
+              "type": "string",
+              "value": "={{ $('🧠 Extract Job Data with GPT').item.json.choices[0].message.content.title }}"
+            },
+            {
+              "id": "content",
+              "name": "content",
+              "type": "string",
+              "value": "={{ $('🧠 Extract Job Data with GPT').item.json.choices[0].message.content.html }}\n"
+            },
+            {
+              "id": "job_listing_type",
+              "name": "job_listing_type",
+              "type": "array",
+              "value": "=[{{ $('🧮 Map Job Type & Category IDs').item.json.fixType[0] }}]"
+            },
+            {
+              "id": "job_listing_category",
+              "name": "job_listing_category",
+              "type": "array",
+              "value": "={{ $('🧮 Map Job Type & Category IDs').item.json.fixCategory }}"
+            },
+            {
+              "id": "_job_location",
+              "name": "_job_location",
+              "type": "string",
+              "value": "={{ $('🧠 Extract Job Data with GPT').item.json.choices[0].message.content.location }}"
+            },
+            {
+              "id": "_company_name",
+              "name": "_company_name",
+              "type": "string",
+              "value": "={{ $('🧠 Extract Job Data with GPT').item.json.choices[0].message.content.company }}"
+            },
+            {
+              "id": "_company_logo",
+              "name": "_company_logo",
+              "type": "string",
+              "value": "={{ $('🧠 Extract Job Data with GPT').item.json.choices[0].message.content.logo || \"http://www.notodoanimacion.es/wp-content/uploads/2025/06/logo-Sony-Pictures-Animation-1.png\" }}"
+            },
+            {
+              "id": "_application",
+              "name": "_application",
+              "type": "string",
+              "value": "={{ $('🧠 Extract Job Data with GPT').item.json.choices[0].message.content.original_link || $('🔧 Prepare URL for Extraction').item.json.text }}"
+            },
+            {
+              "id": "7df4886d-0180-4279-9bff-f8f3ebc2961c",
+              "name": "companyLogo",
+              "type": "string",
+              "value": "={{ $json.guid.raw }}"
+            },
+            {
+              "id": "b9a766da-8bd6-4950-a243-8005c61c3ca9",
+              "name": "status",
+              "type": "string",
+              "value": "publish"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "f748d354-f0d6-40d4-b2f6-3aceb4931961",
+      "name": "✅ All Fields Available?",
+      "type": "n8n-nodes-base.if",
+      "onError": "continueErrorOutput",
+      "position": [
+        3536,
+        648
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "8f4efbe7-3fc1-4be3-b4c6-f2b7b1f8f00a",
+              "operator": {
+                "type": "boolean",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.title }}",
+              "rightValue": ""
+            },
+            {
+              "id": "8194f924-3ef7-4056-a909-3499d8c116b3",
+              "operator": {
+                "type": "boolean",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.job_listing_category }}",
+              "rightValue": ""
+            },
+            {
+              "id": "373f2081-f7ac-4313-a472-6d10770dd17a",
+              "operator": {
+                "type": "boolean",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.job_listing_type }}",
+              "rightValue": ""
+            },
+            {
+              "id": "74166a2f-57e8-4fed-8bcf-cd240779543a",
+              "operator": {
+                "type": "boolean",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json._job_location }}",
+              "rightValue": ""
+            },
+            {
+              "id": "bdee50a8-cdff-4570-b88a-8cf560468fa2",
+              "operator": {
+                "type": "boolean",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json._application }}",
+              "rightValue": ""
+            },
+            {
+              "id": "48ab4287-4b6c-4241-a50f-1ddb40456fb2",
+              "operator": {
+                "type": "boolean",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.companyLogo }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "137e0f4e-ebce-4750-b77d-da23973aa738",
+      "name": "if not valid",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        3760,
+        352
+      ],
+      "webhookId": "033439cf-08eb-4df7-be1a-3a617027ce35",
+      "parameters": {
+        "text": "=Failed - Missing required fields. Please check extraction process.\n\nTrying another approach...",
+        "chatId": "={{ $('📥 New Job Link via Telegram').first().json.message.chat.id }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "oEBplQsvCu6Hviel",
+          "name": "Jon - Notodo RAG"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "8ed0eb9b-30f3-4aea-b8fd-2531faf10fd1",
+      "name": "notify: processing job",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        448,
+        888
+      ],
+      "webhookId": "936a1870-5650-456a-b6bb-be70967ae64a",
+      "parameters": {
+        "text": "=hi, {{ $('📥 New Job Link via Telegram').item.json.message.chat.first_name }}\n\nprocessing job...",
+        "chatId": "={{ $('📥 New Job Link via Telegram').item.json.message.chat.id }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "oEBplQsvCu6Hviel",
+          "name": "Jon - Notodo RAG"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "a822fcdb-7108-4e61-a598-9865a48d5c5d",
+      "name": "notify: extracting",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        896,
+        888
+      ],
+      "webhookId": "1c4064cc-c0fb-4100-ad77-3ff236a1e15c",
+      "parameters": {
+        "text": "<i>Extracting web data... </i>",
+        "chatId": "={{ $('📥 New Job Link via Telegram').item.json.message.chat.id }}",
+        "messageId": "={{ $json.result.message_id }}",
+        "operation": "editMessageText",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "oEBplQsvCu6Hviel",
+          "name": "Jon - Notodo RAG"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "9253f8fd-f3d1-46b2-a5f1-6e26e7c19b2f",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1344,
+        808
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "31d50777-6c34-4a2a-b570-8bcd32073824",
+              "operator": {
+                "type": "boolean",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.title }}",
+              "rightValue": ""
+            },
+            {
+              "id": "9ae85f70-c7c3-4a1a-a2c8-64c3ad388c0b",
+              "operator": {
+                "type": "boolean",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.description }}",
+              "rightValue": ""
+            },
+            {
+              "id": "01c42779-16f4-452b-b328-b91f0f5b9a5b",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.url }}",
+              "rightValue": ""
+            },
+            {
+              "id": "7c6414cd-9d44-45bb-b999-30a0e1cd1993",
+              "operator": {
+                "type": "boolean",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.content }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "a999f748-7c08-4a02-90dc-9e3dc90f875f",
+      "name": "notify: success extract",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1568,
+        712
+      ],
+      "webhookId": "51bfc648-4499-4f61-9aa4-61e6b7b617dc",
+      "parameters": {
+        "text": "Jobs Extracted! Processing input with openAI...",
+        "chatId": "={{ $('notify: extracting').item.json.result.chat.id }}",
+        "messageId": "={{ $('notify: extracting').item.json.result.message_id }}",
+        "operation": "editMessageText",
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "oEBplQsvCu6Hviel",
+          "name": "Jon - Notodo RAG"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "1f879972-2671-4e87-ad2f-e5628492ab2a",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2144,
+        -16
+      ],
+      "parameters": {
+        "width": 1400,
+        "height": 620,
+        "content": "## ДАННЫЕ RAG"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7162669b-df55-4a22-9052-b2d7eb61edee",
+      "name": "📚 Load Valid Job Types & Categories",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        0,
+        984
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5b365fce-7a88-431b-aee7-4bf5a0171a1f",
+              "name": "category",
+              "type": "array",
+              "value": "[\n  { \"id\": 299, \"category\": \"2d\" },\n  { \"id\": 298, \"category\": \"3d\" },\n  { \"id\": 315, \"category\": \"3DFX\" },\n  { \"id\": 284, \"category\": \"Animación 2d\" },\n  { \"id\": 286, \"category\": \"Animación 3d\" },\n  { \"id\": 617, \"category\": \"Artista de color\" },\n  { \"id\": 312, \"category\": \"Audio SFX\" },\n  { \"id\": 540, \"category\": \"character artist\" },\n  { \"id\": 445, \"category\": \"Character FX (CFX)\" },\n  { \"id\": 596, \"category\": \"Cinematic Artist\" },\n  { \"id\": 462, \"category\": \"Comic\" },\n  { \"id\": 294, \"category\": \"Compositor 3d\" },\n  { \"id\": 487, \"category\": \"Compositor Digital\" },\n  { \"id\": 463, \"category\": \"Concept Art\" },\n  { \"id\": 300, \"category\": \"Creativo\" },\n  { \"id\": 537, \"category\": \"Crowd Artist\" },\n  { \"id\": 301, \"category\": \"Desarrollo de Software\" },\n  { \"id\": 316, \"category\": \"Desarrollo Visual\" },\n  { \"id\": 302, \"category\": \"Dibujante\" },\n  { \"id\": 612, \"category\": \"Dirección\" },\n  { \"id\": 292, \"category\": \"Director de Arte\" },\n  { \"id\": 317, \"category\": \"Diseño de personajes\" },\n  { \"id\": 291, \"category\": \"Diseño Gráfico\" },\n  { \"id\": 310, \"category\": \"Edición de video\" },\n  { \"id\": 533, \"category\": \"Environment Artist\" },\n  { \"id\": 620, \"category\": \"Escultura Digital\" },\n  { \"id\": 622, \"category\": \"Filmmaker\" },\n  { \"id\": 304, \"category\": \"Fotografía\" },\n  { \"id\": 314, \"category\": \"Game Artist\" },\n  { \"id\": 486, \"category\": \"Game Designer\" },\n  { \"id\": 506, \"category\": \"Game developer\" },\n  { \"id\": 482, \"category\": \"Game Producer\" },\n  { \"id\": 576, \"category\": \"Gameplay Animator\" },\n  { \"id\": 290, \"category\": \"Generalista 3d\" },\n  { \"id\": 452, \"category\": \"Grooming Hair/Fur\" },\n  { \"id\": 303, \"category\": \"Guionista\" },\n  { \"id\": 305, \"category\": \"Iluminación\" },\n  { \"id\": 288, \"category\": \"Ilustración\" },\n  { \"id\": 616, \"category\": \"Inteligencia Artificial\" },\n  { \"id\": 311, \"category\": \"Layout Artist\" },\n  { \"id\": 619, \"category\": \"Look Development\" },\n  { \"id\": 464, \"category\": \"Matte Painting\" },\n  { \"id\": 287, \"category\": \"Modelador 3d\" },\n  { \"id\": 524, \"category\": \"Motion Designer\" },\n  { \"id\": 289, \"category\": \"Motion Graphics\" },\n  { \"id\": 588, \"category\": \"Pixel Art\" },\n  { \"id\": 307, \"category\": \"Postproducción\" },\n  { \"id\": 594, \"category\": \"Previs\" },\n  { \"id\": 297, \"category\": \"Producción\" },\n  { \"id\": 483, \"category\": \"Programador\" },\n  { \"id\": 592, \"category\": \"Realidad Virtual (VR)\" },\n  { \"id\": 448, \"category\": \"Render Wrangler\" },\n  { \"id\": 313, \"category\": \"Rigger\" },\n  { \"id\": 459, \"category\": \"Shading & Texturing\" },\n  { \"id\": 295, \"category\": \"Storyboard\" },\n  { \"id\": 296, \"category\": \"Storytelling\" },\n  { \"id\": 595, \"category\": \"Technical Artist\" },\n  { \"id\": 485, \"category\": \"Technical Director (TD)\" },\n  { \"id\": 308, \"category\": \"UI / UX\" },\n  { \"id\": 309, \"category\": \"VFX\" },\n  { \"id\": 589, \"category\": \"Videojuegos\" },\n  { \"id\": 593, \"category\": \"Virtual Production\" },\n  { \"id\": 293, \"category\": \"Visualización Arquitectónica\" },\n  { \"id\": 590, \"category\": \"VR & AR\" }\n]\n"
+            },
+            {
+              "id": "9c795618-08e9-4ae1-a1b2-f6e45d6d5bf0",
+              "name": "types",
+              "type": "array",
+              "value": "=[\n  { \"id\": 282, \"type\": \"Freelance / Remoto / Teletrabajo\" },\n  { \"id\": 318, \"type\": \"Indiferente\" },\n  { \"id\": 283, \"type\": \"Prácticas\" },\n  { \"id\": 281, \"type\": \"Proyecto\" },\n  { \"id\": 279, \"type\": \"Tiempo completo\" },\n  { \"id\": 280, \"type\": \"Tiempo parcial\" }\n]\n\n"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "d20a6ffd-dc53-4ff5-8a67-566c24bbb253",
+      "name": "notify: error",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        2192,
+        1016
+      ],
+      "webhookId": "936a1870-5650-456a-b6bb-be70967ae64a",
+      "parameters": {
+        "text": "=Something went wrong \n\n<b>error:</b> <code>{{ $json.error.message }}</code>",
+        "chatId": "={{ $('📥 New Job Link via Telegram').item.json.message.chat.id }}",
+        "messageId": "={{ $('notify: processing job').item.json.result.message_id }}",
+        "operation": "editMessageText",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "oEBplQsvCu6Hviel",
+          "name": "Jon - Notodo RAG"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "d4a14316-82c6-4d7e-a26f-e4f87ad2e49f",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        672,
+        888
+      ],
+      "webhookId": "56532de1-7341-4ea7-b315-e1716a1c7815",
+      "parameters": {
+        "amount": 1.25
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "1cddf8d0-d594-4fa5-ac12-9578622a49c6",
+      "name": "valid url?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        224,
+        984
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "35deee67-0d08-46f8-a0e2-2f75cda4c08e",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $('🔧 Prepare URL for Extraction').item.json.cleanUrl }}",
+              "rightValue": "Invalid URL"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "bd804bd5-8b13-4435-bcf3-961969c8729c",
+      "name": "notify: wrong url",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        448,
+        1080
+      ],
+      "webhookId": "936a1870-5650-456a-b6bb-be70967ae64a",
+      "parameters": {
+        "text": "=<i> thats not a valid url, please re-check your input...</i>",
+        "chatId": "={{ $('📥 New Job Link via Telegram').item.json.message.chat.id }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "oEBplQsvCu6Hviel",
+          "name": "Jon - Notodo RAG"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "7d78d355-c736-406c-99e5-249c2563b159",
+      "name": "🧠 Extract Job Data with GPT",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "onError": "continueErrorOutput",
+      "position": [
+        1792,
+        712
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini-2025-04-14",
+          "cachedResultName": "GPT-4.1-MINI-2025-04-14"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "content": "**Дважды щелкните**, чтобы редактировать меня. [Руководство](https://docs.n8n.io/workflows/sticky-notes/)"
+            },
+            {
+              "role": "=system",
+              "content": "=Название: {{ $('Extract').item.json.title }}"
+            }
+          ]
+        },
+        "simplify": false,
+        "jsonOutput": true
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "OyW1NJafxSo3fljc",
+          "name": "OpenAi account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.8
+    },
+    {
+      "id": "0a771fef-52c0-440d-8ab3-b767daf2555f",
+      "name": "Postgres Chat Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "disabled": true,
+      "position": [
+        -304,
+        448
+      ],
+      "parameters": {
+        "sessionKey": "={{ $('📥 New Job Link via Telegram').item.json.message.chat.id }}",
+        "sessionIdType": "customKey"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "reSHMiS64pJYqHCN",
+          "name": "Postgree Supabase Khairul"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "42775803-d440-4971-a797-44fc29f5f7e9",
+      "name": "Extract",
+      "type": "n8n-nodes-base.jinaAi",
+      "onError": "continueErrorOutput",
+      "position": [
+        1120,
+        888
+      ],
+      "parameters": {
+        "url": "={{ $('🔧 Prepare URL for Extraction').item.json.message.text }}",
+        "options": {},
+        "requestOptions": {}
+      },
+      "credentials": {
+        "jinaAiApi": {
+          "id": "F8QTb6UJKwRFNq3l",
+          "name": "Trial aiformotu"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9b57ddf6-a227-4948-abc7-77fb0a7009f7",
+      "name": "Create Url",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2640,
+        664
+      ],
+      "parameters": {
+        "jsCode": "const extractData = $('Extract').first().json;\n\n// Ekstrak icon URL dengan error handling\nlet iconUrl = null;\n\ntry {\n  // Periksa apakah external dan icon ada\n  if (extractData?.external?.icon) {\n    const iconObject = extractData.external.icon;\n    \n    // Ambil key pertama (URL) dari object icon\n    const iconKeys = Object.keys(iconObject);\n    \n    if (iconKeys.length > 0) {\n      iconUrl = iconKeys[0];\n    }\n  }\n} catch (error) {\n  console.error('Error extracting icon URL:', error);\n}\n\n// Return hasil\nreturn [\n  {\n    json: {\n      iconUrl: iconUrl || '', // Return empty string jika tidak ada icon\n      // Atau bisa juga return original data + iconUrl\n      ...extractData,\n      processedIconUrl: iconUrl\n    }\n  }\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f4b0ffe5-312e-43e3-9d88-56c805cc44e5",
+      "name": "notify: openai success",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        2416,
+        664
+      ],
+      "webhookId": "51bfc648-4499-4f61-9aa4-61e6b7b617dc",
+      "parameters": {
+        "text": "<i>OpenAI Process Success... one sec...</i>",
+        "chatId": "={{ $('notify: extracting').item.json.result.chat.id }}",
+        "messageId": "={{ $('notify: extracting').item.json.result.message_id }}",
+        "operation": "editMessageText",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "oEBplQsvCu6Hviel",
+          "name": "Jon - Notodo RAG"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "d99ee123-1452-483f-ae41-1a94e03ecb2c",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        3760,
+        1056
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5a72ac2f-e722-4121-91ff-d758520f7fdb",
+              "name": "combine trim & false url",
+              "type": "string",
+              "value": "={{ $('🔧 Prepare URL for Extraction').item.json.cleanUrl }}{{ $json._company_logo }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "e93ea970-9070-4490-9570-404b1691f031",
+      "name": "📥 Download Company Logo - Alt",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        3984,
+        1056
+      ],
+      "parameters": {
+        "url": "={{ $json['combine trim & false url'] }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "07f36fa1-e24c-4c6e-95ff-c7da35e7f97e",
+      "name": "☁️ Upload Logo to WordPress - Alt",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        4208,
+        1056
+      ],
+      "parameters": {
+        "url": "https://yourweb.es/wp-json/wp/v2/media",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "binaryData",
+        "sendHeaders": true,
+        "authentication": "predefinedCredentialType",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Disposition",
+              "value": "=attachment; filename=\"logo-{{ $('🧠 Extract Job Data with GPT').item.json.choices[0].message.content.company }}.jpeg\""
+            },
+            {
+              "name": "Content-Type",
+              "value": "image/jpeg"
+            }
+          ]
+        },
+        "inputDataFieldName": "data",
+        "nodeCredentialType": "wordpressApi"
+      },
+      "credentials": {
+        "wordpressApi": {
+          "id": "IMwbWCL0HxvZreh2",
+          "name": "Wordpress account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "5d5c514f-08cc-4b47-a905-4db893a7e8a2",
+      "name": "📦 Format Final Job Post Data - Alt",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        4432,
+        1056
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "title",
+              "name": "title",
+              "type": "string",
+              "value": "={{ $('🧠 Extract Job Data with GPT').item.json.choices[0].message.content.title }}"
+            },
+            {
+              "id": "content",
+              "name": "content",
+              "type": "string",
+              "value": "={{ $('🧠 Extract Job Data with GPT').item.json.choices[0].message.content.html }}\n"
+            },
+            {
+              "id": "job_listing_type",
+              "name": "job_listing_type",
+              "type": "array",
+              "value": "=[{{ $('🧮 Map Job Type & Category IDs').item.json.fixType[0] }}]"
+            },
+            {
+              "id": "job_listing_category",
+              "name": "job_listing_category",
+              "type": "array",
+              "value": "={{ $('🧮 Map Job Type & Category IDs').item.json.fixCategory }}"
+            },
+            {
+              "id": "_job_location",
+              "name": "_job_location",
+              "type": "string",
+              "value": "={{ $('🧠 Extract Job Data with GPT').item.json.choices[0].message.content.location }}"
+            },
+            {
+              "id": "_company_name",
+              "name": "_company_name",
+              "type": "string",
+              "value": "={{ $('🧠 Extract Job Data with GPT').item.json.choices[0].message.content.company }}"
+            },
+            {
+              "id": "_company_logo",
+              "name": "_company_logo",
+              "type": "string",
+              "value": "={{ $('🧠 Extract Job Data with GPT').item.json.choices[0].message.content.logo || \"http://www.notodoanimacion.es/wp-content/uploads/2025/06/logo-Sony-Pictures-Animation-1.png\" }}"
+            },
+            {
+              "id": "_application",
+              "name": "_application",
+              "type": "string",
+              "value": "={{ $('🧠 Extract Job Data with GPT').item.json.choices[0].message.content.original_link || $('🔧 Prepare URL for Extraction').item.json.text }}"
+            },
+            {
+              "id": "7df4886d-0180-4279-9bff-f8f3ebc2961c",
+              "name": "companyLogo",
+              "type": "string",
+              "value": "={{ $json.guid.raw }}"
+            },
+            {
+              "id": "b9a766da-8bd6-4950-a243-8005c61c3ca9",
+              "name": "status",
+              "type": "string",
+              "value": "publish"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "6da29c84-d020-44d8-a9ae-6b482e661e58",
+      "name": "✅ All Fields Available? - Alt",
+      "type": "n8n-nodes-base.if",
+      "onError": "continueErrorOutput",
+      "position": [
+        4656,
+        1040
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "8f4efbe7-3fc1-4be3-b4c6-f2b7b1f8f00a",
+              "operator": {
+                "type": "boolean",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.title }}",
+              "rightValue": ""
+            },
+            {
+              "id": "8194f924-3ef7-4056-a909-3499d8c116b3",
+              "operator": {
+                "type": "boolean",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.job_listing_category }}",
+              "rightValue": ""
+            },
+            {
+              "id": "373f2081-f7ac-4313-a472-6d10770dd17a",
+              "operator": {
+                "type": "boolean",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.job_listing_type }}",
+              "rightValue": ""
+            },
+            {
+              "id": "74166a2f-57e8-4fed-8bcf-cd240779543a",
+              "operator": {
+                "type": "boolean",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json._job_location }}",
+              "rightValue": ""
+            },
+            {
+              "id": "bdee50a8-cdff-4570-b88a-8cf560468fa2",
+              "operator": {
+                "type": "boolean",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json._application }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "a52cab08-5537-4c70-a970-442531a70426",
+      "name": "📊 Did Publish Succeed?1",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        5104,
+        1056
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "0e5d1113-a6fe-49bf-bf56-848c852875f6",
+              "operator": {
+                "type": "boolean",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.id }}",
+              "rightValue": ""
+            },
+            {
+              "id": "d00af776-6323-4c62-84f1-30de39d256d0",
+              "operator": {
+                "type": "boolean",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.link }}",
+              "rightValue": ""
+            },
+            {
+              "id": "0cd4f4d5-8c1c-4c98-8d7b-1995a56fcf3f",
+              "operator": {
+                "type": "boolean",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('🧠 Extract Job Data with GPT').item.json.choices[0].message.content.categories }}",
+              "rightValue": ""
+            },
+            {
+              "id": "2e8ab092-9500-44e9-a32f-99a00dbb7a28",
+              "operator": {
+                "type": "boolean",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.date }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "48d2f718-94cb-41a8-9fd0-9a4515484ade",
+      "name": "📨 Notify Success - Alt",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        5328,
+        1056
+      ],
+      "webhookId": "4550abb4-5baa-427b-9495-9e6ea219652e",
+      "parameters": {
+        "text": "=Hello, {{ $('📥 New Job Link via Telegram').item.json.message.from.first_name }}\nJob successfully extracted and Posted! \nmissing value has fill with default image\n\nOriginal Url: {{ $('🔧 Prepare URL for Extraction').item.json.message.text.replace(/_/g, '\\\\_') }}\n\nTitle: {{ $('🚀 Publish to Yourweb - Alt').item.json.title.raw.replace(/_/g, '\\\\_') }}\nCategory: {{ $('🚀 Publish to Yourweb - Alt').item.json.job_listing_category }}\nJob Type: {{ $('🚀 Publish to Yourweb - Alt').item.json.job_listing_types }}\nLogo: {{ $('🚀 Publish to Yourweb - Alt').item.json.meta._company_logo.replace(/_/g, '\\\\_') }}\n\nPublished Post: {{ $json.guid.rendered.replace(/_/g, '\\\\_') }}",
+        "chatId": "={{ $('📥 New Job Link via Telegram').first().json.message.chat.id }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "oEBplQsvCu6Hviel",
+          "name": "Jon - Notodo RAG"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "649e3db4-b1e2-42b3-90dc-e515c4c7ccd5",
+      "name": "📨 Notify Failed - Alt",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        5328,
+        1248
+      ],
+      "webhookId": "4550abb4-5baa-427b-9495-9e6ea219652e",
+      "parameters": {
+        "text": "=Hello, {{ $('📥 New Job Link via Telegram').first().json.message.from.first_name }}\nJob Failed!\n\nPlease Check your workflow or contact khairul https://wa.me/6285155431253",
+        "chatId": "={{ $('📥 New Job Link via Telegram').first().json.message.chat.id }}",
+        "additionalFields": {
+          "appendAttribution": true
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "oEBplQsvCu6Hviel",
+          "name": "Jon - Notodo RAG"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "efda8d45-4f8c-4f69-951a-dc86e18ebbd6",
+      "name": "📊 Did Publish Succeed?2",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3984,
+        592
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "0e5d1113-a6fe-49bf-bf56-848c852875f6",
+              "operator": {
+                "type": "boolean",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.id }}",
+              "rightValue": ""
+            },
+            {
+              "id": "d00af776-6323-4c62-84f1-30de39d256d0",
+              "operator": {
+                "type": "boolean",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.link }}",
+              "rightValue": ""
+            },
+            {
+              "id": "0cd4f4d5-8c1c-4c98-8d7b-1995a56fcf3f",
+              "operator": {
+                "type": "boolean",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('🧠 Extract Job Data with GPT').item.json.choices[0].message.content.categories }}",
+              "rightValue": ""
+            },
+            {
+              "id": "2e8ab092-9500-44e9-a32f-99a00dbb7a28",
+              "operator": {
+                "type": "boolean",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.date }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "23592260-a8db-4125-8ca0-6fac66fbb8fa",
+      "name": "notify: failed extract",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1568,
+        912
+      ],
+      "webhookId": "51bfc648-4499-4f61-9aa4-61e6b7b617dc",
+      "parameters": {
+        "text": "=Failed in extract using Jina... please inform khairul",
+        "chatId": "={{ $('notify: extracting').item.json.result.chat.id }}",
+        "messageId": "={{ $('notify: extracting').item.json.result.message_id }}",
+        "operation": "editMessageText",
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "oEBplQsvCu6Hviel",
+          "name": "Jon - Notodo RAG"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "a88ad3d5-06be-4a1c-8aeb-5a923912b1ab",
+      "name": "Error",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        4208,
+        760
+      ],
+      "webhookId": "4550abb4-5baa-427b-9495-9e6ea219652e",
+      "parameters": {
+        "text": "=Hello, {{ $('📥 New Job Link via Telegram').first().json.message.from.first_name }}\nJob Failed!\n\nPlease Check your workflow or contact khairul https://wa.me/6285155431253",
+        "chatId": "={{ $('📥 New Job Link via Telegram').first().json.message.chat.id }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "oEBplQsvCu6Hviel",
+          "name": "Jon - Notodo RAG"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "cb91ffed-34ea-49f5-a274-a19a261e8b16",
+      "name": "changing method",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        4208,
+        352
+      ],
+      "webhookId": "033439cf-08eb-4df7-be1a-3a617027ce35",
+      "parameters": {
+        "text": "=Trying Second Attempt!\n<i>Filling empty field with default value...</i>",
+        "chatId": "={{ $('📥 New Job Link via Telegram').first().json.message.chat.id }}",
+        "messageId": "={{ $json.result.message_id }}",
+        "operation": "editMessageText",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "oEBplQsvCu6Hviel",
+          "name": "Jon - Notodo RAG"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "30c485eb-b897-405f-ac93-899b1716a74c",
+      "name": "Wait1",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        4432,
+        352
+      ],
+      "webhookId": "20506072-3a7d-4db6-a558-736d917ca82c",
+      "parameters": {
+        "amount": 2
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "6af0ea69-ea9a-4526-a261-27d8062e46e6",
+      "name": "Wait2",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        3984,
+        352
+      ],
+      "webhookId": "54770112-e93a-4b47-b63a-7e98fc2db80f",
+      "parameters": {
+        "amount": 2
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "081bfad2-0e6d-4088-a197-b02b9b73f411",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -464,
+        656
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 660,
+        "height": 260,
+        "content": "url: {{ $('Extract').item.json.url }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3e77dc43-ea51-4ccb-8990-5cb9e2457a34",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "position": [
+        -400,
+        752
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "4d52387d-a6af-488a-adfc-00e0e6ef2bb1",
+      "name": "Kirim ke Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        48,
+        752
+      ],
+      "webhookId": "13c616bf-a3ad-4035-998a-1dfe6021b89f",
+      "parameters": {
+        "text": "={{ $json.message }}",
+        "chatId": "your-chat-id",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "u00QYyldzRUGsoHy",
+          "name": "Monitoring Bot"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3e189287-dcfe-428c-af7c-d6a5ca9fd06b",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -176,
+        752
+      ],
+      "parameters": {
+        "jsCode": "// Perfect error access untuk N8N v1.99.1\nconst errorData = $input.first().json;\nconst execution = errorData.execution;\nconst workflow = errorData.workflow;\nconst error = execution.error;\n\nconst message = `🚨 <b>WORKFLOW ERROR</b>\\n\\n` +\n  `📋 Workflow: <b>${workflow.name}</b>\\n` +\n  `⚙️ Node: <code>${error.node.name}</code>\\n` +\n  `❌ Error: <code>${error.message}</code>\\n` +\n  `📝 Description: <i>${error.description}</i>\\n` +\n  `🕐 Waktu: ${new Date(error.timestamp).toLocaleString('id-ID')}\\n` +\n  `🔍 Execution: <a href=\"${execution.url}\">${execution.id}</a>\\n` +\n  `⚠️ Level: ${error.level.toUpperCase()}`;\n\nreturn {\n  message: message,\n  parse_mode: 'HTML',\n  chat_id: '621412350'\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ae0a454f-a42e-4b07-841b-61f12fc11305",
+      "name": "Publiched!",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        4208,
+        544
+      ],
+      "webhookId": "4550abb4-5baa-427b-9495-9e6ea219652e",
+      "parameters": {
+        "text": "=Hello, {{ $('📥 New Job Link via Telegram').item.json.message.from.first_name }}\nJob successfully extracted and Posted! \n\nOriginal Url: {{ $('🔧 Prepare URL for Extraction').item.json.message.text.replace(/_/g, '\\\\_') }}\n\nTitle: {{ $('🚀 Publish to Your web').item.json.title.rendered }}\nCategory: {{ $('🧠 Extract Job Data with GPT').item.json.choices[0].message.content.categories }}\nJob Type: {{ $('🧠 Extract Job Data with GPT').item.json.choices[0].message.content.job_type }}\nLogo: {{ $('🚀 Publish to Your web').item.json.meta._company_logo }}\n\nPublished Post: {{ $json.guid.rendered.replace(/_/g, '\\\\_') }}",
+        "chatId": "={{ $('📥 New Job Link via Telegram').first().json.message.chat.id }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "oEBplQsvCu6Hviel",
+          "name": "Jon - Notodo RAG"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "52a9de35-97a9-4cd7-9bef-3a2423c205bc",
+      "name": "🚀 Publish to Your web",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        3760,
+        592
+      ],
+      "parameters": {
+        "url": "https://www.yourweb.es/wp-json/wp/v2/job-listings",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"title\": {{ JSON.stringify($('📦 Format Final Job Post Data').item.json.title) }},\n  \"content\": {{ JSON.stringify($('📦 Format Final Job Post Data').item.json.content) }},\n  \"status\": {{ JSON.stringify($('📦 Format Final Job Post Data').item.json.status) }},\n  \"job_listing_types\": {{ JSON.stringify($('📦 Format Final Job Post Data').item.json.job_listing_type) }},\n  \"job_listing_category\": {{ JSON.stringify($('📦 Format Final Job Post Data').item.json.job_listing_category) }},\n  \"meta\": {\n    \"_job_location\": {{ JSON.stringify($('📦 Format Final Job Post Data').item.json._job_location) }},\n    \"_company_name\": {{ JSON.stringify($('📦 Format Final Job Post Data').item.json._company_name) }},\n    \"_company_logo\": {{ JSON.stringify($json.companyLogo) }},\n    \"_application\": {{ JSON.stringify($('📦 Format Final Job Post Data').item.json._application) }}\n  }\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wordpressApi"
+      },
+      "credentials": {
+        "wordpressApi": {
+          "id": "IMwbWCL0HxvZreh2",
+          "name": "Wordpress account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "533b7f45-5895-4d24-aad8-b7aefc322788",
+      "name": "🚀 Publish to Yourweb - Alt",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        4880,
+        1056
+      ],
+      "parameters": {
+        "url": "https://www.yourweb.es/wp-json/wp/v2/job-listings",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"title\": {{ JSON.stringify($('📦 Format Final Job Post Data').item.json.title) }},\n  \"content\": {{ JSON.stringify($('📦 Format Final Job Post Data').item.json.content) }},\n  \"status\": {{ JSON.stringify($('📦 Format Final Job Post Data').item.json.status) }},\n  \"job_listing_types\": {{ JSON.stringify($('📦 Format Final Job Post Data').item.json.job_listing_type) }},\n  \"job_listing_category\": {{ JSON.stringify($('📦 Format Final Job Post Data').item.json.job_listing_category) }},\n  \"meta\": {\n    \"_job_location\": {{ JSON.stringify($('📦 Format Final Job Post Data').item.json._job_location) }},\n    \"_company_name\": {{ JSON.stringify($('📦 Format Final Job Post Data').item.json._company_name) }},\n    \"_company_logo\": {{ JSON.stringify($json._company_logo) }},\n    \"_application\": {{ JSON.stringify($('📦 Format Final Job Post Data').item.json._application) }}\n  }\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wordpressApi"
+      },
+      "credentials": {
+        "wordpressApi": {
+          "id": "IMwbWCL0HxvZreh2",
+          "name": "Wordpress account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c9db7d58-c7ef-48d3-b89b-0c4750e91441",
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "notify: success extract",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "notify: failed extract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Kirim ke Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "notify: extracting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "changing method",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "notify: error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Get Data": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Url": {
+      "main": [
+        [
+          {
+            "node": "📥 Download Company Logo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "valid url?": {
+      "main": [
+        [
+          {
+            "node": "notify: processing job",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "notify: wrong url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "📥 Download Company Logo - Alt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search File": {
+      "main": [
+        [
+          {
+            "node": "Get Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "if not valid": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "changing method": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "notify: extracting": {
+      "main": [
+        [
+          {
+            "node": "Extract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Search File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "🧠 Extract Job Data with GPT",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "notify: openai success": {
+      "main": [
+        [
+          {
+            "node": "Create Url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "notify: processing job": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "notify: success extract": {
+      "main": [
+        [
+          {
+            "node": "🧠 Extract Job Data with GPT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🚀 Publish to Your web": {
+      "main": [
+        [
+          {
+            "node": "📊 Did Publish Succeed?2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "✅ All Fields Available?": {
+      "main": [
+        [
+          {
+            "node": "🚀 Publish to Your web",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "if not valid",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📊 Did Publish Succeed?1": {
+      "main": [
+        [
+          {
+            "node": "📨 Notify Success - Alt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "📨 Notify Failed - Alt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📊 Did Publish Succeed?2": {
+      "main": [
+        [
+          {
+            "node": "Publiched!",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📥 Download Company Logo": {
+      "main": [
+        [
+          {
+            "node": "☁️ Upload Logo to WordPress",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🚀 Publish to Yourweb - Alt": {
+      "main": [
+        [
+          {
+            "node": "📊 Did Publish Succeed?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📥 New Job Link via Telegram": {
+      "main": [
+        [
+          {
+            "node": "🔧 Prepare URL for Extraction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 Extract Job Data with GPT": {
+      "main": [
+        [
+          {
+            "node": "🧮 Map Job Type & Category IDs",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "notify: error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "☁️ Upload Logo to WordPress": {
+      "main": [
+        [
+          {
+            "node": "📦 Format Final Job Post Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "✅ All Fields Available? - Alt": {
+      "main": [
+        [
+          {
+            "node": "🚀 Publish to Yourweb - Alt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "📨 Notify Failed - Alt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "📨 Notify Failed - Alt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📦 Format Final Job Post Data": {
+      "main": [
+        [
+          {
+            "node": "✅ All Fields Available?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔧 Prepare URL for Extraction": {
+      "main": [
+        [
+          {
+            "node": "📚 Load Valid Job Types & Categories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📥 Download Company Logo - Alt": {
+      "main": [
+        [
+          {
+            "node": "☁️ Upload Logo to WordPress - Alt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧮 Map Job Type & Category IDs": {
+      "main": [
+        [
+          {
+            "node": "notify: openai success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "☁️ Upload Logo to WordPress - Alt": {
+      "main": [
+        [
+          {
+            "node": "📦 Format Final Job Post Data - Alt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📦 Format Final Job Post Data - Alt": {
+      "main": [
+        [
+          {
+            "node": "✅ All Fields Available? - Alt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📚 Load Valid Job Types & Categories": {
+      "main": [
+        [
+          {
+            "node": "valid url?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

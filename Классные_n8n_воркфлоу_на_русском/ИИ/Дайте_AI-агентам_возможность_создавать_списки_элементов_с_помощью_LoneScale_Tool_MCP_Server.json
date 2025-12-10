@@ -1,0 +1,127 @@
+{
+  "meta": {
+    "instanceId": "cd59eaaeb7b34d06e24511380db94cdb7fbce6037cc4de22e539c5158ab9cdfc"
+  },
+  "nodes": [
+    {
+      "id": "06d09e42-7d28-46b2-b3dc-4ef15c2f8d03",
+      "name": "Workflow Overview 0",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1480,
+        -180
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 800,
+        "content": "## 🛠️ LoneScale Tool MCP Server"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d1ab9aaa-c7c0-45fe-927f-49c89ae14004",
+      "name": "LoneScale Tool MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        -700,
+        -120
+      ],
+      "webhookId": "86c851da-ee84-4341-9b0d-931c6623edc4",
+      "parameters": {
+        "path": "lonescale-tool-mcp"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "483990ff-5beb-4cf3-a8d3-392c6880fc38",
+      "name": "Create a list",
+      "type": "n8n-nodes-base.loneScaleTool",
+      "position": [
+        -800,
+        140
+      ],
+      "parameters": {
+        "name": "={{ $fromAI('Name', ``, 'string') }}",
+        "type": "={{ $fromAI('Type', ``, 'string') }}"
+      },
+      "credentials": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "4a0abf2d-3b51-4a1a-ae4f-09144b810880",
+      "name": "Sticky Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1000,
+        120
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 400,
+        "content": "### 📋 Доступные операции (всего 2)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1375464b-b3b2-4b06-abdd-df563678456f",
+      "name": "Create a item",
+      "type": "n8n-nodes-base.loneScaleTool",
+      "position": [
+        -800,
+        380
+      ],
+      "parameters": {
+        "list": "={{ $fromAI('List', ``, 'string') }}",
+        "type": "={{ $fromAI('Type', ``, 'string') }}",
+        "resource": "item",
+        "last_name": "={{ $fromAI('Last_Name', ``, 'string') }}",
+        "first_name": "={{ $fromAI('First_Name', ``, 'string') }}",
+        "company_name": "={{ $fromAI('Company_Name', ``, 'string') }}",
+        "peopleAdditionalFields": {},
+        "companyAdditionalFields": {}
+      },
+      "credentials": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "a2dc6b73-fc67-480a-9edf-620d061ab29a",
+      "name": "Sticky Note 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1000,
+        360
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 400,
+        "content": "**Список**: создать"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Create a item": {
+      "ai_tool": [
+        [
+          {
+            "node": "LoneScale Tool MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a list": {
+      "ai_tool": [
+        [
+          {
+            "node": "LoneScale Tool MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

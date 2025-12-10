@@ -1,0 +1,533 @@
+{
+  "id": "zA3j2ZTGRt82vwa6",
+  "meta": {
+    "instanceId": "84ad02d6104594179f43f1ce9cfe3a81637b2faedb57dafcb9e649b7542988db",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "🧠 Раздел 2: AI Анализ – Движок рассуждений CFO",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "7fec5e7c-abea-4caf-b8e2-718e7abc44ef",
+      "name": "Watch New Expense Requests",
+      "type": "n8n-nodes-base.airtableTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "baseId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://airtable.com/appjaqV0O7FkXT2qj/shrst7GnlbzMDz4te"
+        },
+        "tableId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://airtable.com/appjaqV0O7FkXT2qj/tblTAvRqVFOo5AVDF/viwEp0ssaidZOo4nl?blocks=hide"
+        },
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyHour"
+            }
+          ]
+        },
+        "triggerField": "Amount",
+        "authentication": "airtableTokenApi",
+        "additionalFields": {}
+      },
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "OQJxQX3N8GKNxEOl",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8e0fa6f3-df8c-42b6-af2a-f2cfb25f1e6d",
+      "name": "CFO Expense Review Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "text": "=An employee submitted an expense:\nAmount: ${{ $json.fields.Amount }}\nSubmitted by: {{ $json.fields['Submitted By'] }}\nCategory: {{ $json.fields.Category }}\nDescription: {{ $json.fields.Description }}\nDate Submitted: {{ $json.fields['Date Submitted'] }}\nStatus: {{ $json.fields.Status }}",
+        "options": {
+          "systemMessage": "You are a CFO expense analysis agent. Flag suspicious expenses with the reason. When you answer try to give answer with all the given details"
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "e53c34b4-fe86-4c70-ad90-e61ec4f8c72b",
+      "name": "OpenAI GPT-4 Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        360,
+        260
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "wYwTjEv45IzlAOAu",
+          "name": "OpenAi account 2"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "a561418a-2ef0-44bb-9683-ba239d58a3af",
+      "name": "Parse CFO Agent Response",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        620,
+        220
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"amount\": 4500,\n  \"submitted_by\": \"Alice\",\n  \"category\": \"Travel\",\n  \"description\": \"Business class flight to Tokyo\",\n  \"date_submitted\": \"2025-05-29\",\n  \"status\": \"Pending\",\n  \"decision\": \"Flagged\",\n  \"reason\": \"The amount of $4500 for a business class flight appears unusually high and requires verification against standard travel policies and previous similar expenses. Additionally, the submission date is in the future (2025), which raises concerns about the legitimacy of the expense. It is advisable to confirm the travel plans and the necessity of the business class flight for this trip.\"\n}\n"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "1cba2b01-faeb-44ce-97e3-b3ada02ce748",
+      "name": "Store Decision in Pinecone",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "position": [
+        1040,
+        0
+      ],
+      "parameters": {
+        "mode": "insert",
+        "options": {
+          "pineconeNamespace": "={{ $json.output.decision }}"
+        },
+        "pineconeIndex": {
+          "__rl": true,
+          "mode": "list",
+          "value": "new",
+          "cachedResultName": "new"
+        }
+      },
+      "credentials": {
+        "pineconeApi": {
+          "id": "PSI5CiZnLRSkEgJg",
+          "name": "PineconeApi account"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "5a80d379-907e-43c0-946e-fc82be36c288",
+      "name": "Generate Embeddings",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "position": [
+        980,
+        240
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "wYwTjEv45IzlAOAu",
+          "name": "OpenAi account 2"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "50c1a961-cc58-4b6a-bf46-da0925b617e2",
+      "name": "Prepare Data for Pinecone",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "position": [
+        1180,
+        220
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2484db3c-bef8-4b0e-a324-116dc70644a9",
+      "name": "Split Reasoning Text",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "position": [
+        1120,
+        440
+      ],
+      "parameters": {
+        "options": {},
+        "chunkSize": 100,
+        "chunkOverlap": 20
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cd1a7b50-edd7-400a-8fc8-ff237492749b",
+      "name": "Update Airtable Record",
+      "type": "n8n-nodes-base.airtable",
+      "position": [
+        1680,
+        0
+      ],
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "mode": "list",
+          "value": "appjaqV0O7FkXT2qj",
+          "cachedResultUrl": "https://airtable.com/appjaqV0O7FkXT2qj",
+          "cachedResultName": "Table no.1"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "tblTAvRqVFOo5AVDF",
+          "cachedResultUrl": "https://airtable.com/appjaqV0O7FkXT2qj/tblTAvRqVFOo5AVDF",
+          "cachedResultName": "Table 1"
+        },
+        "columns": {
+          "value": {
+            "id": "={{ $('Watch New Expense Requests').item.json.id }}",
+            "Amount": "={{ $('CFO Expense Review Agent').item.json.output.amount }}",
+            "Reason": "={{ $('CFO Expense Review Agent').item.json.output.reason }}",
+            "Status": "=completed",
+            "Category": "={{ $('CFO Expense Review Agent').item.json.output.category }}",
+            "decision": "={{ $('CFO Expense Review Agent').item.json.output.decision }}",
+            "Description": "={{ $('CFO Expense Review Agent').item.json.output.description }}",
+            "Submitted By": "={{ $('CFO Expense Review Agent').item.json.output.submitted_by }}"
+          },
+          "schema": [
+            {
+              "id": "id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": true,
+              "required": false,
+              "displayName": "id",
+              "defaultMatch": true
+            },
+            {
+              "id": "Amount",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Amount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "type": "options",
+              "display": true,
+              "options": [
+                {
+                  "name": "Self-cleaning, keeps drinks cold for 24 hrs, BPA-free",
+                  "value": "Self-cleaning, keeps drinks cold for 24 hrs, BPA-free"
+                },
+                {
+                  "name": "Travel",
+                  "value": "Travel"
+                }
+              ],
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Category",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Description",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Description",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Submitted By",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Submitted By",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date Submitted",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "readOnly": true,
+              "required": false,
+              "displayName": "Date Submitted",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "decision",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "decision",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reason",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Reason",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "id"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "update"
+      },
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "OQJxQX3N8GKNxEOl",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "a45e7430-d205-4930-9b15-b52e51139d58",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -100,
+        -480
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 340,
+        "height": 680,
+        "content": "## 🔁 **Раздел 1: Прием – Мониторинг запросов на расходы**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6d6229ee-a86b-442f-ab8e-25d44b9bbe24",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        320,
+        -600
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 500,
+        "height": 1020,
+        "content": "### 1. **Следить за новыми запросами на расходы**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "66201323-99aa-4d5e-ab1d-afcc3951e271",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        920,
+        -740
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 580,
+        "height": 1320,
+        "content": "**(Триггер Airtable)**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "117ba355-f8cd-465d-bbe6-1b37261f4640",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1600,
+        -340
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 300,
+        "height": 540,
+        "content": "* **Цель:** Непрерывно мониторит таблицу `Расходы` в Airtable на наличие новых или обновленных записей со статусом `Ожидает`."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e379569e-98b3-47d6-b60d-9faa1babdf1d",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1880,
+        -500
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 320,
+        "content": "* **Что это делает:** Запускает весь рабочий процесс, когда новый запрос на расходы подается или существующий обновляется для рассмотрения."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ec9af853-11be-4651-9978-c9f2f9a120ae",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1880,
+        -160
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1289,
+        "height": 2258,
+        "content": "> 💡 Обеспечивает обнаружение входящих запросов, требующих анализа, в реальном времени."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "40c83424-4fdd-4bd8-84fc-4418bdbaf450",
+  "connections": {
+    "OpenAI GPT-4 Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "CFO Expense Review Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Embeddings": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Store Decision in Pinecone",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Reasoning Text": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Prepare Data for Pinecone",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CFO Expense Review Agent": {
+      "main": [
+        [
+          {
+            "node": "Store Decision in Pinecone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse CFO Agent Response": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "CFO Expense Review Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Data for Pinecone": {
+      "ai_document": [
+        [
+          {
+            "node": "Store Decision in Pinecone",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Decision in Pinecone": {
+      "main": [
+        [
+          {
+            "node": "Update Airtable Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Watch New Expense Requests": {
+      "main": [
+        [
+          {
+            "node": "CFO Expense Review Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

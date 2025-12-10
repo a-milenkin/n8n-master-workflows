@@ -1,0 +1,266 @@
+{
+  "id": "",
+  "meta": {
+    "instanceId": "",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "## ⚠️ Отказ от ответственности",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "b2838678-c796-4c99-a3da-a2cd1b42ea97",
+      "name": "Pipedrive Trigger - An Organization is created",
+      "type": "n8n-nodes-base.pipedriveTrigger",
+      "position": [
+        820,
+        380
+      ],
+      "webhookId": "f5de09a8-6601-4ad5-8bc8-9b3f4b83e997",
+      "parameters": {
+        "action": "added",
+        "object": "organization"
+      },
+      "credentials": {
+        "pipedriveApi": {
+          "id": "",
+          "name": "Pipedrive Connection"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5aa05d79-b2fa-4040-b4ca-cad83adf2798",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -20,
+        120
+      ],
+      "parameters": {
+        "width": 656.3637637842876,
+        "height": 1455.9537026322007,
+        "content": "# Обогащение данных организации Pipedrive с помощью GPT-4o при создании организации в Pipedrive"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "47ee8bfb-2f9d-4790-a929-1533215d6746",
+      "name": "Pipedrive - Create a Note with OpenAI output",
+      "type": "n8n-nodes-base.pipedrive",
+      "position": [
+        1640,
+        380
+      ],
+      "parameters": {
+        "content": "={{ $json.message.content }}",
+        "resource": "note",
+        "additionalFields": {
+          "org_id": "={{ $('Pipedrive Trigger - An Organization is created').item.json.meta.id }}"
+        }
+      },
+      "credentials": {
+        "pipedriveApi": {
+          "id": "",
+          "name": "Pipedrive Connection"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7783b531-0469-4bee-868e-4b26a1bb41ba",
+      "name": "Code - Markdown to Slack Markdown",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2080,
+        380
+      ],
+      "parameters": {
+        "jsCode": "const inputMarkdown = items[0].json.data;\n\nfunction convertMarkdownToSlackFormat(markdown) {\n    let slackFormatted = markdown;\n    \n    // Convert headers\n    slackFormatted = slackFormatted.replace(/^# (.*$)/gim, '*$1*');\n    slackFormatted = slackFormatted.replace(/^## (.*$)/gim, '*$1*');\n    \n    // Convert unordered lists\n    slackFormatted = slackFormatted.replace(/^\\* (.*$)/gim, '➡️ $1');\n    \n    // Convert tables\n    const tableRegex = /\\n\\|.*\\|\\n\\|.*\\|\\n((\\|.*\\|\\n)+)/;\n    const tableMatch = slackFormatted.match(tableRegex);\n    if (tableMatch) {\n        const table = tableMatch[0];\n        const rows = table.split('\\n').slice(3, -1);\n        const formattedRows = rows.map(row => {\n            const columns = row.split('|').slice(1, -1).map(col => col.trim());\n            return `*${columns[0]}*: ${columns[1]}`;\n        }).join('\\n');\n        slackFormatted = slackFormatted.replace(table, formattedRows);\n    }\n    \n    return slackFormatted;\n}\n\nconst slackMarkdown = convertMarkdownToSlackFormat(inputMarkdown);\nconsole.log(slackMarkdown);\n\n// Return data\nreturn [{ slackFormattedMarkdown: slackMarkdown }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "cf2b02df-07e8-4ebb-ba3d-bfd294dcfab0",
+      "name": "Scrapingbee - Get Organization's URL content",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1040,
+        380
+      ],
+      "parameters": {
+        "url": "https://app.scrapingbee.com/api/v1",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "api_key",
+              "value": "<YOUR_SCRAPINGBEE_API_KEY>"
+            },
+            {
+              "name": "url",
+              "value": "={{ $json.current.<random_api_id_custom_website_field> }}"
+            },
+            {
+              "name": "render_js",
+              "value": "false"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "906d44f0-7582-4742-9fd8-4c8dfba918e0",
+      "name": "HTML To Markdown",
+      "type": "n8n-nodes-base.markdown",
+      "position": [
+        1860,
+        380
+      ],
+      "parameters": {
+        "html": "={{ $json.content }}",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8c1a5d64-4f38-4f9e-8878-443f750206b7",
+      "name": "Slack - Notify ",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2300,
+        380
+      ],
+      "parameters": {
+        "text": "=*New Organizaton {{ $('Pipedrive Trigger - An Organization is created').item.json.current.name }} created on Pipedrive* :\n\n\n {{ $json.slackFormattedMarkdown }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "pipedrive-notification"
+        },
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "",
+          "name": "Slack Connection"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "2414a5d3-1d4b-447b-b401-4b6f823a0cf9",
+      "name": "OpenAI - Message GPT-4o with Scraped Data",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        1260,
+        380
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o",
+          "cachedResultName": "GPT-4O"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $json.data }}"
+            },
+            {
+              "role": "system",
+              "content": "Этот рабочий процесс **обогащает данные организации Pipedrive, добавляя заметку к объекту организации в Pipedrive**. Предполагается, что в вашей настройке Pipedrive есть пользовательское поле \"веб-сайт\", так как данные будут извлечены с этого веб-сайта для генерации заметки с использованием OpenAI."
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "OpenAi Connection"
+        }
+      },
+      "typeVersion": 1.3
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "",
+  "connections": {
+    "HTML To Markdown": {
+      "main": [
+        [
+          {
+            "node": "Code - Markdown to Slack Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Markdown to Slack Markdown": {
+      "main": [
+        [
+          {
+            "node": "Slack - Notify ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI - Message GPT-4o with Scraped Data": {
+      "main": [
+        [
+          {
+            "node": "Pipedrive - Create a Note with OpenAI output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pipedrive - Create a Note with OpenAI output": {
+      "main": [
+        [
+          {
+            "node": "HTML To Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrapingbee - Get Organization's URL content": {
+      "main": [
+        [
+          {
+            "node": "OpenAI - Message GPT-4o with Scraped Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pipedrive Trigger - An Organization is created": {
+      "main": [
+        [
+          {
+            "node": "Scrapingbee - Get Organization's URL content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

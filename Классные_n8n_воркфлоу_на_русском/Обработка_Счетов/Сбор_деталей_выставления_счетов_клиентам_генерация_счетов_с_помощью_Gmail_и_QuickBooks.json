@@ -1,0 +1,455 @@
+{
+  "meta": {
+    "instanceId": "d6e2f2f655b1125bbcac14a4cac6d2e46c7a150e927f85fc96fdca1a6dc39e0e",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "2133d58e-bd7c-4c7a-806a-71f2f10bd400",
+      "name": "Add Client to QBO",
+      "type": "n8n-nodes-base.quickbooks",
+      "onError": "continueRegularOutput",
+      "position": [
+        1280,
+        300
+      ],
+      "parameters": {
+        "operation": "create",
+        "displayName": "={{ $json.data['Company Name'] ? $json.data['Company Name'] : $json.data['First Name'] + \" \" + $json.data['Last Name'] }}",
+        "additionalFields": {
+          "BillAddr": {
+            "details": {
+              "City": "={{ $json.data.City }}",
+              "Line1": "={{ $json.data['Street Address'] }}",
+              "PostalCode": "={{ $json.data['Zip / Postal Code'] }}",
+              "CountrySubDivisionCode": "={{ $json.data['State / Province'] }}"
+            }
+          },
+          "GivenName": "={{ $json.data['First Name'] }}",
+          "FamilyName": "={{ $json.data['Last Name'] }}",
+          "CompanyName": "={{ $json.data['Company Name'] }}",
+          "PrimaryPhone": "={{ $json.data['Phone Number'] }}",
+          "PrimaryEmailAddr": "={{ $('Enter Client Details').item.json['What is the client\\'s email?'] }}"
+        }
+      },
+      "credentials": {
+        "quickBooksOAuth2Api": {
+          "id": "6ufAa1KkttZDj17m",
+          "name": "QuickBooks Online account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "20b9b6cd-1edf-47ac-89e5-bc9234f81863",
+      "name": "Find Existing Customer",
+      "type": "n8n-nodes-base.quickbooks",
+      "position": [
+        1540,
+        300
+      ],
+      "parameters": {
+        "limit": 1,
+        "filters": {
+          "query": "=WHERE DisplayName = '{{ $('Ask Client for Billing Info').item.json.data['Company Name'] ? $('Ask Client for Billing Info').item.json.data['Company Name'] : $('Ask Client for Billing Info').item.json.data['First Name'] + \" \" + $('Ask Client for Billing Info').item.json.data['Last Name'] }}'"
+        },
+        "operation": "getAll"
+      },
+      "credentials": {
+        "quickBooksOAuth2Api": {
+          "id": "6ufAa1KkttZDj17m",
+          "name": "QuickBooks Online account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "59da9e15-0c9f-4515-8913-75a6a227ee19",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "width": 660,
+        "height": 1520,
+        "content": "## Запросите у клиента данные для выставления счета и автоматически создайте счет в QuickBooks"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5100a4f0-9357-46ce-925c-e778537d8596",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        700,
+        120
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 360,
+        "content": "## Что это делает"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d1781318-a495-4002-9a01-635826825d22",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        960,
+        120
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 360,
+        "content": "Этот рабочий процесс позволяет быстро генерировать и отправлять счета, собирая недостающие данные для выставления счета от клиентов через автоматизированную форму и последовательность электронных писем. Он интегрирует Gmail и QuickBooks Online для обработки полного процесса выставления счетов: от запроса до счета, сокращая ручной ввод данных и время, потраченное на переключение между приложениями."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "50502c72-0921-468c-a483-e861d6f40b64",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1220,
+        120
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 360,
+        "content": "Идеально подходит для фрилансеров, поставщиков услуг или команд, которые хотят оптимизировать процесс выставления счетов, не ведя переписку с клиентами."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d45d96d0-848f-4d9a-8c53-ce7ba5256eee",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1480,
+        120
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 360,
+        "content": "## Предварительные условия"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6e5fba54-007f-4010-bda6-77db06f243db",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        960,
+        500
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 380,
+        "content": "- Учетные данные Gmail OAuth2"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "771d0b92-7ddd-42de-88e5-7d55518126e4",
+      "name": "Enter Client Details",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        760,
+        300
+      ],
+      "webhookId": "a1afa6c2-4cb4-479b-ae20-7c1039d108a9",
+      "parameters": {
+        "options": {
+          "appendAttribution": true
+        },
+        "formTitle": "Enter Client Details",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "What is the client's first name?",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "What is the client's email?",
+              "requiredField": true
+            },
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "Product",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Item A"
+                  },
+                  {
+                    "option": "Misc"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Description of what is being sold",
+              "requiredField": true
+            },
+            {
+              "fieldType": "number",
+              "fieldLabel": "Amount (before taxes)",
+              "requiredField": true
+            },
+            {
+              "fieldType": "date",
+              "fieldLabel": "Invoice Due Date",
+              "requiredField": true
+            }
+          ]
+        },
+        "formDescription": "Please enter the client's details so we can contact them for their billing info."
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "059a40f3-d1e7-49dc-bdc5-7ca694abfda9",
+      "name": "Ask Client for Billing Info",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1020,
+        300
+      ],
+      "webhookId": "1cb550a2-0c63-45a3-baa5-c04cd8d03f68",
+      "parameters": {
+        "sendTo": "={{ $json['What is the client\\'s email?'] }}",
+        "message": "=Hello {{ $json['First Name'] || 'Customer' }},\n\nCompany A is requesting your billing information in order to create an invoice and finalize your order.\n\n**Description:** {{ $json['Description of what is being sold'] }}  \n**Amount (before tax):** ${{ $json['Amount (before taxes)'] }}\n\nPlease fill in the form below so we can complete your invoice.\n\nThanks,  \nCompany A",
+        "options": {},
+        "subject": "Billing Details Required",
+        "operation": "sendAndWait",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "First Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Last Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Company Name"
+            },
+            {
+              "fieldLabel": "Street Address",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "City",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "State / Province",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Zip / Postal Code",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Phone Number"
+            }
+          ]
+        },
+        "responseType": "customForm"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "x5LsvRUYpInxYmcG",
+          "name": "Rosh's Personal Email"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "cb1cf1c9-451f-4569-ac4e-8b79e2553007",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1220,
+        500
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 380,
+        "content": "- Учетные данные QuickBooks Online OAuth2"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f3bdf106-ca87-45ce-8b39-5ba6fbd7e5e1",
+      "name": "Get The Selected Product",
+      "type": "n8n-nodes-base.quickbooks",
+      "position": [
+        740,
+        700
+      ],
+      "parameters": {
+        "limit": 1,
+        "filters": {
+          "query": "=WHERE name = '{{ $('Enter Client Details').item.json.Product }}'"
+        },
+        "resource": "item",
+        "operation": "getAll"
+      },
+      "credentials": {
+        "quickBooksOAuth2Api": {
+          "id": "6ufAa1KkttZDj17m",
+          "name": "QuickBooks Online account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "554069d5-19b2-4d58-9dc1-f815e9db1214",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        700,
+        500
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 380,
+        "content": "## Как это работает"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1e9df5ae-6742-41ea-adad-6484d35e6186",
+      "name": "Create A New Invoice",
+      "type": "n8n-nodes-base.quickbooks",
+      "position": [
+        1020,
+        700
+      ],
+      "parameters": {
+        "Line": [
+          {
+            "Amount": "={{ $('Enter Client Details').item.json['Amount (before taxes)'] }}",
+            "itemId": "={{ $json.Id }}",
+            "DetailType": "SalesItemLineDetail",
+            "TaxCodeRef": "5",
+            "Description": "={{ $('Enter Client Details').item.json['Description of what is being sold'] }}"
+          }
+        ],
+        "resource": "invoice",
+        "operation": "create",
+        "CustomerRef": "={{ $('Find Existing Customer').item.json.Id ? $('Find Existing Customer').item.json.Id : $('Add Client to QBO').item.json.Id }}",
+        "additionalFields": {
+          "DueDate": "={{ $('Enter Client Details').item.json['Invoice Due Date'] }}",
+          "BillEmail": "={{ $('Enter Client Details').item.json['What is the client\\'s email?'] }}"
+        }
+      },
+      "credentials": {
+        "quickBooksOAuth2Api": {
+          "id": "6ufAa1KkttZDj17m",
+          "name": "QuickBooks Online account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "168a75d0-9fd3-486d-9676-a8a64cce394c",
+      "name": "Send the Invoice",
+      "type": "n8n-nodes-base.quickbooks",
+      "position": [
+        1280,
+        700
+      ],
+      "parameters": {
+        "email": "={{ $('Enter Client Details').item.json['What is the client\\'s email?'] }}",
+        "resource": "invoice",
+        "invoiceId": "={{ $json.Id }}",
+        "operation": "send"
+      },
+      "credentials": {
+        "quickBooksOAuth2Api": {
+          "id": "6ufAa1KkttZDj17m",
+          "name": "QuickBooks Online account"
+        }
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Add Client to QBO": {
+      "main": [
+        [
+          {
+            "node": "Find Existing Customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create A New Invoice": {
+      "main": [
+        [
+          {
+            "node": "Send the Invoice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enter Client Details": {
+      "main": [
+        [
+          {
+            "node": "Ask Client for Billing Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Existing Customer": {
+      "main": [
+        [
+          {
+            "node": "Get The Selected Product",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get The Selected Product": {
+      "main": [
+        [
+          {
+            "node": "Create A New Invoice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask Client for Billing Info": {
+      "main": [
+        [
+          {
+            "node": "Add Client to QBO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

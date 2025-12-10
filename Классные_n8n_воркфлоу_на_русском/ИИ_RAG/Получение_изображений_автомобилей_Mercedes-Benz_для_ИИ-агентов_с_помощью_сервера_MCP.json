@@ -1,0 +1,314 @@
+{
+  "id": "S8vqHZzl27tzBlFw",
+  "meta": null,
+  "name": "Сервер изображений автомобилей Mercedes-Benz MCP",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "45d3c714-2e20-48d1-ac38-3d7606186700",
+      "name": "Setup Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1380,
+        -240
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a2ec2554-23ba-4278-861e-ff87649ab6b3",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1120,
+        -240
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "06cd0cd8-606f-4bb4-9d7a-1a887d218c7c",
+      "name": "Vehicle Image MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        -620,
+        -240
+      ],
+      "webhookId": "e8eae99f-de75-479a-b2e2-1fdfcf6521ca",
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "c546cbf4-590f-4000-aa14-6981acb14462",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        -100
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e8e0a252-b6f9-4273-8fc6-65a8502616dd",
+      "name": "Get Vehicle Component Images",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        -60
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "32f243b8-095e-42ab-b25a-e1507633012c",
+      "name": "Get Vehicle Engine Image",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        -60
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "6d74649f-8eaf-499d-9091-0055071951e0",
+      "name": "Get Vehicle Equipment Images",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        -60
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "ccff4685-a2c5-40b7-a041-6771ced2fd16",
+      "name": "Get Vehicle Paint Images",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        80,
+        -60
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "7b435d8d-b2c7-405f-9991-f66d5e028756",
+      "name": "Get Vehicle Rim Image",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        280,
+        -60
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "5081dace-acf9-4ca3-b374-ddb3a8a53784",
+      "name": "Get Vehicle Trim Image",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        480,
+        -60
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f472549f-d301-4105-8f27-a12a65d84dee",
+      "name": "Get Vehicle Upholstery Images",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        680,
+        -60
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "92938a63-7c10-462c-a544-600c7ece81ba",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        140
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8464904b-9a43-48c2-b669-60bdf1cfbdf5",
+      "name": "Get Vehicle PNG Images",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        180
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    }
+  ],
+  "active": false,
+  "shared": [
+    {
+      "role": "workflow:owner",
+      "project": {
+        "id": "G5fce9xGuBAsWBXe",
+        "icon": null,
+        "name": "David Ashby <david.ashby.lds@gmail.com>",
+        "type": "personal",
+        "createdAt": "2025-06-04T02:55:02.013Z",
+        "updatedAt": "2025-06-04T02:56:01.361Z",
+        "projectRelations": [
+          {
+            "role": "project:personalOwner",
+            "user": {
+              "id": "715c1c00-cb48-4712-9a32-f1f4b6db2b30",
+              "role": "global:owner",
+              "email": "david.ashby.lds@gmail.com",
+              "disabled": false,
+              "lastName": "Ashby",
+              "settings": {
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1749357655581
+                },
+                "userActivated": true,
+                "userActivatedAt": 1749075994495,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "3N3vVikZb3MckFYm"
+              },
+              "createdAt": "2025-06-04T02:55:01.745Z",
+              "firstName": "David",
+              "isPending": false,
+              "updatedAt": "2025-06-08T04:40:58.399Z",
+              "mfaEnabled": false,
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_n8n_version": "1.95.3",
+                "personalization_survey_submitted_at": "2025-06-04T02:56:07.075Z"
+              }
+            },
+            "userId": "715c1c00-cb48-4712-9a32-f1f4b6db2b30",
+            "createdAt": "2025-06-04T02:55:02.013Z",
+            "projectId": "G5fce9xGuBAsWBXe",
+            "updatedAt": "2025-06-04T02:55:02.013Z"
+          }
+        ]
+      },
+      "createdAt": "2025-07-03T16:44:51.733Z",
+      "projectId": "G5fce9xGuBAsWBXe",
+      "updatedAt": "2025-07-03T16:44:51.733Z",
+      "workflowId": "S8vqHZzl27tzBlFw"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "timezone": "America/New_York"
+  },
+  "createdAt": "2025-07-03T16:44:51.730Z",
+  "updatedAt": "2025-07-03T18:06:51.000Z",
+  "versionId": "1689e2a2-c972-4bb7-bc29-2302643456d5",
+  "isArchived": false,
+  "staticData": null,
+  "connections": {
+    "Get Vehicle Rim Image": {
+      "ai_tool": [
+        [
+          {
+            "node": "Vehicle Image MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Vehicle PNG Images": {
+      "ai_tool": [
+        [
+          {
+            "node": "Vehicle Image MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Vehicle Trim Image": {
+      "ai_tool": [
+        [
+          {
+            "node": "Vehicle Image MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Vehicle Engine Image": {
+      "ai_tool": [
+        [
+          {
+            "node": "Vehicle Image MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Vehicle Paint Images": {
+      "ai_tool": [
+        [
+          {
+            "node": "Vehicle Image MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Vehicle Component Images": {
+      "ai_tool": [
+        [
+          {
+            "node": "Vehicle Image MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Vehicle Equipment Images": {
+      "ai_tool": [
+        [
+          {
+            "node": "Vehicle Image MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Vehicle Upholstery Images": {
+      "ai_tool": [
+        [
+          {
+            "node": "Vehicle Image MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "triggerCount": 0
+}

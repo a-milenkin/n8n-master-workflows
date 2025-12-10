@@ -1,0 +1,559 @@
+{
+  "id": "uTDqvTnmDaTgRRu8",
+  "meta": {
+    "instanceId": "b3df22d2875c82e3ba1883c50049ed9cee0bcabf99d2b486961d2245a09e3964",
+    "templateId": "2469",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Этот рабочий процесс предоставляет надежное решение для автоматического резервного копирования всех ваших рабочих процессов n8n на Google Drive по расписанию (по умолчанию каждый час). Он создает уникально названную папку для каждого экземпляра резервного копирования, включая дату и час, а затем систематически загружает каждый рабочий процесс в виде отдельного JSON-файла. Для управления дисковым пространством рабочий процесс также включает механизм очистки, который удаляет папки резервного копирования старше установленного пользователем периода хранения (по умолчанию 7 дней).",
+  "tags": [
+    {
+      "id": "MqQ2zS7ixA8b0cmJ",
+      "name": "Tool",
+      "createdAt": "2024-11-15T19:27:51.756Z",
+      "updatedAt": "2024-12-30T09:58:18.482Z"
+    },
+    {
+      "id": "RHp83eTHbIpxlDCF",
+      "name": "Template",
+      "createdAt": "2025-01-03T16:24:28.562Z",
+      "updatedAt": "2025-01-03T16:24:28.562Z"
+    },
+    {
+      "id": "3rkMsCyNbu0QrC94",
+      "name": "Backup",
+      "createdAt": "2025-04-17T05:01:34.098Z",
+      "updatedAt": "2025-04-17T05:01:34.098Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "a2dd2041-2bea-4659-aab6-0b0dd0640f55",
+      "name": "Date Time",
+      "type": "n8n-nodes-base.dateTime",
+      "position": [
+        1400,
+        2200
+      ],
+      "parameters": {
+        "options": {},
+        "outputFieldName": "now"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "54e48154-26bd-49c0-a0b6-5c67ce3eab54",
+      "name": "Date & Time Format",
+      "type": "n8n-nodes-base.dateTime",
+      "position": [
+        1620,
+        2200
+      ],
+      "parameters": {
+        "date": "={{ $('Date Time').first().json.now }}",
+        "format": "yyyy-MM-dd",
+        "options": {},
+        "operation": "formatDate"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5d3bad24-ef42-42f7-8a41-ca8fbad75b61",
+      "name": "Date & Time Hour",
+      "type": "n8n-nodes-base.dateTime",
+      "position": [
+        1840,
+        2200
+      ],
+      "parameters": {
+        "date": "={{ $('Date Time').first().json.now }}",
+        "part": "hour",
+        "options": {},
+        "operation": "extractDate",
+        "outputFieldName": "hour"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a8e058b1-f438-470c-8a84-49cd168c8307",
+      "name": "Google Drive Backup Folder Every Hour",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        2060,
+        2200
+      ],
+      "parameters": {
+        "name": "=n8n_backup_{{ $('Date & Time Format').first().json.formattedDate }}_{{ $('Date & Time Hour').first().json.hour }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "0AKPPy6FuV32kUk9PVA",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/0AKPPy6FuV32kUk9PVA",
+          "cachedResultName": "AI Automation Pro"
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1bfYhgr3GiwFxvfPQiPB_I814Lsuv9tM3",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1bfYhgr3GiwFxvfPQiPB_I814Lsuv9tM3",
+          "cachedResultName": "Template - N8n Backup"
+        },
+        "resource": "folder"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "q8OibtSjVurZl2tb",
+          "name": "AI Auto Google Drive account"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "521f49b0-d349-4781-9a7e-3b0b33f77a5c",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1280,
+        2120
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 2103,
+        "height": 296,
+        "content": "## Создание резервных копий рабочих процессов N8n каждый час"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "69baef8f-9074-4858-8d5e-751c7d980f34",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1940,
+        2540
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 1003,
+        "height": 296,
+        "content": "## Удаление резервных копий рабочих процессов N8n за последние X дней"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "665cc313-a152-4eea-98bc-a11cec81e97d",
+      "name": "n8n",
+      "type": "n8n-nodes-base.n8n",
+      "position": [
+        2280,
+        2200
+      ],
+      "parameters": {
+        "filters": {},
+        "requestOptions": {}
+      },
+      "credentials": {
+        "n8nApi": {
+          "id": "S63rln42rAvGFfBB",
+          "name": "n8n account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bb33fd37-6077-429e-b88d-44dce50df544",
+      "name": "Move Binary Data",
+      "type": "n8n-nodes-base.moveBinaryData",
+      "position": [
+        2500,
+        2200
+      ],
+      "parameters": {
+        "mode": "jsonToBinary",
+        "options": {
+          "fileName": "={{ $json.name }}",
+          "useRawData": true
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4926fe6f-ed1e-466c-b83c-fdea9a7ff08c",
+      "name": "Split In Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        2720,
+        2200
+      ],
+      "parameters": {
+        "options": {
+          "reset": false
+        },
+        "batchSize": 1
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a511a9e2-6892-42c1-975e-50d30e11d37c",
+      "name": "Google Drive Upload Workflows",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        2940,
+        2180
+      ],
+      "parameters": {
+        "name": "={{ $('Split In Batches').item.binary.data.fileName }}.json\n\n",
+        "options": {},
+        "parents": [
+          "={{ $('Google Drive Backup Folder Every Hour').first().json.id }}"
+        ],
+        "binaryData": true,
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "q8OibtSjVurZl2tb",
+          "name": "AI Auto Google Drive account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "22a954ab-0b20-48a2-8bc6-fb5c7aa6c11a",
+      "name": "Date & Time Format 2",
+      "type": "n8n-nodes-base.dateTime",
+      "position": [
+        2280,
+        2640
+      ],
+      "parameters": {
+        "date": "={{ $('Date & Time Subtract Coverage Period').first().json.newDate }}",
+        "format": "yyyy-MM-dd",
+        "options": {},
+        "operation": "formatDate"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3ae1beba-024f-4b57-b298-9b5c2347cb3d",
+      "name": "Google Drive Search",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        2500,
+        2640
+      ],
+      "parameters": {
+        "limit": 1,
+        "filter": {},
+        "options": {},
+        "resource": "fileFolder",
+        "queryString": "=n8n_backup_{{ $('Date & Time Format 2').first().json.formattedDate }}_{{ $('Date & Time Hour').first().json.hour }}"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "q8OibtSjVurZl2tb",
+          "name": "AI Auto Google Drive account"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "79591e71-6ee8-4a04-b798-318befcc37c3",
+      "name": "Google Drive Delete",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        2720,
+        2640
+      ],
+      "parameters": {
+        "options": {},
+        "resource": "folder",
+        "operation": "deleteFolder",
+        "folderNoRootId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Google Drive Search').first().json.id }}"
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "q8OibtSjVurZl2tb",
+          "name": "AI Auto Google Drive account"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "d01f220a-df90-4de9-b4a0-b588cc787e62",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        3160,
+        2180
+      ],
+      "webhookId": "bb6e6e2b-d95b-4a46-8992-601833c02b9a",
+      "parameters": {
+        "amount": 3
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "7cc95066-a8a4-4cfe-9271-38b7da181eb6",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        840,
+        2120
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 303,
+        "height": 296,
+        "content": "## Период покрытия резервного копирования"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f420f5e8-36e0-4db2-a033-2fab8361338f",
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        940,
+        2200
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "84e8bbad-e48d-4a58-af4f-ca08938acc26",
+              "name": "Coverage Period",
+              "type": "number",
+              "value": 7
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "34a3af65-82ca-4c6d-a373-54ddea04229f",
+      "name": "Date & Time Subtract Coverage Period",
+      "type": "n8n-nodes-base.dateTime",
+      "position": [
+        2060,
+        2640
+      ],
+      "parameters": {
+        "options": {},
+        "duration": "={{ $('Settings').first().json['Coverage Period'] }}",
+        "magnitude": "={{ $('Date Time').first().json.now }}",
+        "operation": "subtractFromDate"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "34b988b7-0dcd-49cd-840c-13830a055e2d",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        620,
+        2200
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "8286b8b8-5c27-4722-9626-b388cc9ccc0a",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -300,
+        2080
+      ],
+      "parameters": {
+        "width": 720,
+        "height": 2220,
+        "content": "## Резервное копирование рабочих процессов n8n на Google Drive каждый час"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "errorWorkflow": "KhpM42Ckgy6qgzCz",
+    "executionOrder": "v0"
+  },
+  "versionId": "5dc4b523-d904-4977-b901-fa786fc024f6",
+  "connections": {
+    "n8n": {
+      "main": [
+        [
+          {
+            "node": "Move Binary Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Date Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date Time": {
+      "main": [
+        [
+          {
+            "node": "Date & Time Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time Hour": {
+      "main": [
+        [
+          {
+            "node": "Google Drive Backup Folder Every Hour",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Date & Time Subtract Coverage Period",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move Binary Data": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split In Batches": {
+      "main": [
+        [
+          {
+            "node": "Google Drive Upload Workflows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time Format": {
+      "main": [
+        [
+          {
+            "node": "Date & Time Hour",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Search": {
+      "main": [
+        [
+          {
+            "node": "Google Drive Delete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time Format 2": {
+      "main": [
+        [
+          {
+            "node": "Google Drive Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Upload Workflows": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time Subtract Coverage Period": {
+      "main": [
+        [
+          {
+            "node": "Date & Time Format 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Backup Folder Every Hour": {
+      "main": [
+        [
+          {
+            "node": "n8n",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

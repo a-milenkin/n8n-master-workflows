@@ -1,0 +1,224 @@
+{
+  "id": "XQ22A0P7IWWUsraU",
+  "meta": null,
+  "name": "Службы поиска MCP сервер",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "c7ba4dab-dc05-4935-b567-29cd58fcd4af",
+      "name": "Setup Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1380,
+        -240
+      ],
+      "parameters": {
+        "color": 4,
+        "height": 1060,
+        "content": "### ⚙️ Инструкции по настройке\n\n1. **Импорт рабочего процесса**: \nЗагрузите этот рабочий процесс в вашу инстанцию n8n\n\n2. **Аутентификация**: \nАутентификация не требуется\n\n3. **Активировать рабочий процесс**:\nВключите рабочий процесс, чтобы запустить сервер MCP\n\n4. **Получить URL MCP**: \nСкопируйте URL вебхука из триггера MCP\n\n5. **Подключить AI-агента**:\nИспользуйте URL MCP в конфигурации вашего AI-агента\n\n\n### 💡 Примечания по использованию\n• Параметры автоматически заполняются ИИ с помощью выражений $fromAI()\n• Доступно 3 конечных точки API в качестве инструментов\n• Ответы сохраняют оригинальную структуру API\n\n\n### 🛠️ Настройка\n• Добавьте узлы преобразования данных, если необходимо\n• Реализуйте пользовательскую обработку ошибок\n• Добавьте узлы для ведения журнала или мониторинга\n\n• Измените значения по умолчанию параметров в любом узле HTTP-запроса по мере необходимости\n\n### 💬 Нужна помощь?\nНапишите мне в [discord](https://discord.me/cfomodz) для получения рекомендаций по интеграции и пользовательским автоматизациям. Ознакомьтесь с [документацией n8n](https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.toolmcp/) для получения дополнительной информации."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fb86a9eb-dc5d-487b-9b6e-c9a34506242d",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1120,
+        -240
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 920,
+        "content": "## 🛠️ Поиск Услуг MCP Сервер ✅ 3 операции\n\n### Описание\nAPI для связанных с поиском услуг Internet Archive\n\n### 🔧 Как это работает\n\nЭтот рабочий процесс преобразует API Услуг Поиска в совместимый с MCP интерфейс для ИИ-агентов.\n\n• **MCP Триггер**: Служит вашей конечной точкой сервера для запросов ИИ-агентов  \n• **HTTP Запросы**: Обрабатывают API вызовы к https://api.archive.org  \n• **AI Выражения**: Автоматически заполняют параметры через `$fromAI()` заполнители  \n• **Нативная Интеграция**: Возвращает ответы напрямую ИИ-агенту  \n\n\n### 📋 Доступные Операции (3 конечные точки)\n\n**Поиск (3 операции)**  \nполя, возврат, скрейпинг"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e5abc9aa-fd1b-4268-b2ac-8de2bc79222f",
+      "name": "Search Services MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        -620,
+        -240
+      ],
+      "webhookId": "23ac5811-cc08-47e8-aab0-80e935ef7d29",
+      "parameters": {
+        "path": "search-services-mcp"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dd443c9c-b968-418d-99be-c516929bc7ba",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        -100
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 700,
+        "height": 200,
+        "content": "## Поиск"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c222c90e-1a9c-452d-b39e-28b515c702d4",
+      "name": "Fields that can be requested",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        -60
+      ],
+      "parameters": {
+        "url": "=https://api.archive.org/search/v1/fields",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Fields that can be requested"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "Bq6FmBmPJOfTe6MM",
+          "name": "Test Header Auth Cred"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a103db23-9047-4df6-adfa-f9d7edeb897d",
+      "name": "Return relevance-based results from search queries",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        -60
+      ],
+      "parameters": {
+        "url": "=https://api.archive.org/search/v1/organic",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Return relevance-based results from search queries"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "041959d1-3b3e-491a-8cfb-38e8aeb96a98",
+      "name": "Scrape search results from Internet Archive, allowing a scro",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        -60
+      ],
+      "parameters": {
+        "url": "=https://api.archive.org/search/v1/scrape",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Scrape search results from Internet Archive, allowing a scrolling cursor"
+      },
+      "typeVersion": 4.2
+    }
+  ],
+  "active": false,
+  "shared": [
+    {
+      "role": "workflow:owner",
+      "project": {
+        "id": "G5fce9xGuBAsWBXe",
+        "icon": null,
+        "name": "David Ashby <david.ashby.lds@gmail.com>",
+        "type": "personal",
+        "createdAt": "2025-06-04T02:55:02.013Z",
+        "updatedAt": "2025-06-04T02:56:01.361Z",
+        "projectRelations": [
+          {
+            "role": "project:personalOwner",
+            "user": {
+              "id": "715c1c00-cb48-4712-9a32-f1f4b6db2b30",
+              "role": "global:owner",
+              "email": "david.ashby.lds@gmail.com",
+              "disabled": false,
+              "lastName": "Ashby",
+              "settings": {
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1749357655581
+                },
+                "userActivated": true,
+                "userActivatedAt": 1749075994495,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "3N3vVikZb3MckFYm"
+              },
+              "createdAt": "2025-06-04T02:55:01.745Z",
+              "firstName": "David",
+              "isPending": false,
+              "updatedAt": "2025-06-08T04:40:58.399Z",
+              "mfaEnabled": false,
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_n8n_version": "1.95.3",
+                "personalization_survey_submitted_at": "2025-06-04T02:56:07.075Z"
+              }
+            },
+            "userId": "715c1c00-cb48-4712-9a32-f1f4b6db2b30",
+            "createdAt": "2025-06-04T02:55:02.013Z",
+            "projectId": "G5fce9xGuBAsWBXe",
+            "updatedAt": "2025-06-04T02:55:02.013Z"
+          }
+        ]
+      },
+      "createdAt": "2025-07-01T21:14:57.409Z",
+      "projectId": "G5fce9xGuBAsWBXe",
+      "updatedAt": "2025-07-01T21:14:57.409Z",
+      "workflowId": "XQ22A0P7IWWUsraU"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "timezone": "America/New_York"
+  },
+  "createdAt": "2025-07-01T21:14:57.407Z",
+  "updatedAt": "2025-07-01T21:16:28.000Z",
+  "versionId": "b7130016-0fad-4daf-8174-967d453a6345",
+  "isArchived": false,
+  "staticData": null,
+  "connections": {
+    "Fields that can be requested": {
+      "ai_tool": [
+        [
+          {
+            "node": "Search Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Return relevance-based results from search queries": {
+      "ai_tool": [
+        [
+          {
+            "node": "Search Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape search results from Internet Archive, allowing a scro": {
+      "ai_tool": [
+        [
+          {
+            "node": "Search Services MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "triggerCount": 0
+}

@@ -1,0 +1,149 @@
+{
+  "id": "IwOOVikQC7cn9VTv",
+  "meta": {
+    "instanceId": "a897062ac3223eacd9c7736276b653c446bc776a63cde2a42a2949ad984f7092"
+  },
+  "name": "Подтверждение электронной почты с Icypeas (одиночное)",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "83105cfd-9107-4dae-8282-07c6594ebbd2",
+      "name": "When clicking \"Execute Workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        1460,
+        460
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "7146ee71-e4fc-4c1f-bdbd-af1466525fef",
+      "name": "Run email verification (single)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2180,
+        460
+      ],
+      "parameters": {
+        "url": "={{ $json.api.url }}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "email",
+              "value": "=uyqsdqkudhfiqudhfiqduhfiqdhfqif@gmail.com"
+            }
+          ]
+        },
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-ROCK-TIMESTAMP",
+              "value": "={{ $json.api.timestamp }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "KGXtUrqC6lNLwW2w",
+          "name": "Header Auth account"
+        }
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "1e004997-dfc6-45ad-9351-9a096cb4c991",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1280,
+        200
+      ],
+      "parameters": {
+        "height": 250.2614840989399,
+        "content": "## Проверка электронной почты с Icypeas (одиночная)\n\nЭтот рабочий процесс демонстрирует, как выполнить проверку электронной почты с помощью Icypeas. Посетите https://icypeas.com, чтобы создать свою учетную запись."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c56e06c9-971b-47ea-9c23-af639933479b",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1607,
+        276
+      ],
+      "parameters": {
+        "width": 506,
+        "height": 1030,
+        "content": "## Аутентификация в вашем аккаунте Icypeas\n\nЭтот кодовый узел использует ваш API ключ, API секрет и ID пользователя для установления соединения с вашим аккаунтом Icypeas.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nОткройте этот узел и вставьте ваш API ключ, API секрет и ID пользователя в кавычках. Вы можете найти эти учетные данные в вашем профиле Icypeas по адресу https://app.icypeas.com/bo/profile. Вот фрагмент того, что вам нужно изменить:\n\nconst API_KEY = \"**PUT_API_KEY_HERE**\";\nconst API_SECRET = \"**PUT_API_SECRET_HERE**\";\nconst USER_ID = \"**PUT_USER_ID_HERE**\";\n\nНе изменяйте никакие другие строки кода.\n\nЕсли вы являетесь пользователем с собственным хостингом, выполните следующие шаги для активации модуля криптовалюты:\n\n1. Доступ к вашему экземпляру n8n:\nВойдите в ваш экземпляр n8n с помощью веб-браузера, перейдя по URL вашего экземпляра, например: http://your-n8n-instance.com.\n\n2. Перейдите в Настройки:\nВ правом верхнем углу нажмите на ваше имя пользователя, затем выберите \"Настройки\".\n\n3. Выберите Общие настройки:\nВ левом меню нажмите на \"Общие\".\n\n4. Включите модуль криптовалюты:\nПрокрутите вниз до раздела \"Дополнительные пакеты узлов\". Вы увидите опцию под названием \"crypto\" с флажком рядом с ней. Установите этот флажок, чтобы включить модуль криптовалюты.\n\n5. Сохраните изменения:\nВнизу страницы нажмите \"Сохранить\", чтобы применить изменения.\n\nПосле того как вы выполните эти шаги, модуль криптовалюты должен быть активирован для вашего экземпляра n8n с собственным хостингом. Убедитесь, что вы сохранили изменения и, при необходимости, перезапустите ваш экземпляр n8n, чтобы изменения вступили в силу."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0b0425b7-52e7-4d4c-8c7f-6fb4821b9ce1",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2113,
+        280
+      ],
+      "parameters": {
+        "width": 492,
+        "height": 748,
+        "content": "## Выполняет проверку электронной почты на вашем аккаунте Icypeas\n\n\nЭтот узел выполняет HTTP-запрос (POST) для проверки электронной почты, которую вы указали в разделе тела, используя Icypeas.\n\n\n\n\n\n\n\n\n\n\n\n\n\n### Вам нужно создать учетные данные в узле HTTP-запроса:\n\n➔ В разделе Учетные данные для заголовочной аутентификации нажмите - Создать новые учетные данные -.\n➔ В разделе Имя напишите “Authorization”\n➔ В разделе Значение выберите выражение (расположенное прямо над полем справа, когда вы наведете на него курсор) и напишите {{ $json.api.key + ':' + $json.api.signature }}.\n➔ Затем нажмите “Сохранить”, чтобы сохранить изменения.\n\n### Чтобы проверить электронную почту:\n\n➔ перейдите в раздел Параметры тела,\n➔ создайте новый параметр,\n➔ введите \"email\" в поле Имя.\n➔ введите электронную почту, которую вы хотите проверить, в поле Значение.\n\nВы найдете результат здесь: https://app.icypeas.com/bo/singlesearch?task=email-verification."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7784528c-863c-4940-9fe2-f257884a6a73",
+      "name": "Authenticates to your Icypeas account",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1800,
+        460
+      ],
+      "parameters": {
+        "jsCode": "const BASE_URL = \"https://app.icypeas.com\";\nconst PATH = \"/api/email-verification\";\nconst METHOD = \"POST\";\n\n// Change here\nconst API_KEY = \"PUT_API_KEY_HERE\";\nconst API_SECRET = \"PUT_API_SECRET_HERE\";\nconst USER_ID = \"PUT_USER_ID_HERE\";\n////////////////\n\nconst genSignature = (\n    path,\n    method,\n    secret,\n    timestamp = new Date().toISOString()\n) => {\n    const Crypto = require('crypto');\n    const payload = `${method}${path}${timestamp}`.toLowerCase();\n    const sign = Crypto.createHmac(\"sha1\", secret).update(payload).digest(\"hex\");\n\n    return sign;\n};\n\nconst fullPath = `${BASE_URL}${PATH}`;\n$input.first().json.api = {\n  timestamp: new Date().toISOString(),\n  secret: API_SECRET,\n  key: API_KEY,\n  userId: USER_ID,\n  url: fullPath,\n};\n$input.first().json.api.signature = genSignature(PATH, METHOD, API_SECRET, $input.first().json.api.timestamp);\nreturn $input.first();"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "39bdb71c-d7c4-4b1a-8e4f-938d30411190",
+  "connections": {
+    "When clicking \"Execute Workflow\"": {
+      "main": [
+        [
+          {
+            "node": "Authenticates to your Icypeas account",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Authenticates to your Icypeas account": {
+      "main": [
+        [
+          {
+            "node": "Run email verification (single)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

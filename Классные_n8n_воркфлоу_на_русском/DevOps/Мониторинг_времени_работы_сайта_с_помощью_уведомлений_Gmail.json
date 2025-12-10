@@ -1,0 +1,654 @@
+{
+  "meta": {
+    "instanceId": "c8c9ba5d3eb26ae47a06d24ff164a01c0d73ed4753a74903c2bb609d434a0f6b",
+    "templateId": "2327",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "472ecaf7-5a7b-4183-962d-25c983983948",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        760,
+        500
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "7239b102-b4dd-4276-a25c-99b761ad74e9",
+      "name": "Calculate Status",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2040,
+        500
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b0cbcff5-bfcf-46a5-a386-65c4dd56c42f",
+              "name": "date",
+              "type": "string",
+              "value": "={{ $json.headers.date }}"
+            },
+            {
+              "id": "8c4155e4-bcc6-41dd-9582-346a57a7b997",
+              "name": "website",
+              "type": "string",
+              "value": "={{ $('Split Out').item.json.Websites }}"
+            },
+            {
+              "id": "9af72278-5b29-406a-b4c5-f47f3d805063",
+              "name": "IS_UP",
+              "type": "boolean",
+              "value": "={{ $json.statusCode <= 400  }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.3
+    },
+    {
+      "id": "3eed99d5-13dd-4767-b139-d3140c0bec90",
+      "name": "Send Email Alert",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1540,
+        1060
+      ],
+      "webhookId": "0b8b6c5a-1097-4d68-a241-6ca1a1f32929",
+      "parameters": {
+        "sendTo": "={{ $('Config').item.json.alert_email }}",
+        "message": "=From: n8n uptime\nDate: {{ $('Calculate Status').item.json[\"date\"] }}\n\n{{ $('Calculate Status').item.json.website }} is DOWN.",
+        "options": {
+          "senderName": "n8n uptime",
+          "appendAttribution": false
+        },
+        "subject": "=n8n uptime: {{ $('Calculate Status').item.json.website }} is DOWN.",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "E3alb5H7xlfxfBur",
+          "name": "Jim Halpert"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "7ba3adb6-7348-4a60-a8f3-b3177f757294",
+      "name": "Perform Site Test",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        1540,
+        500
+      ],
+      "parameters": {
+        "url": "={{ $json.Websites }}",
+        "options": {
+          "batching": {
+            "batch": {}
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          }
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {}
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "1a638f2b-da10-41a4-bc13-4280f108c091",
+      "name": "Status Router",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        2280,
+        500
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "UP",
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "7191e7cb-f2e1-4288-aa68-21f6efefafc5",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.IS_UP }}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "DOWN",
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "e07edddc-70be-46ed-9f5c-7fba0ed52bc3",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "false",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.IS_UP }}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "9930468f-d6b5-4555-abc2-58a2079d1734",
+      "name": "Split Out",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        1360,
+        500
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "Websites"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a61137b7-eb31-492f-83ee-bb5a5f640025",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        960,
+        500
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "72b729c6-e0af-46f0-955f-c649e9d397bc",
+              "name": "Websites",
+              "type": "string",
+              "value": "=https://smoothwork.ai\nhttps://bad.url\nhttps://smoothwork.ai/notfound\n"
+            },
+            {
+              "id": "25457f32-6440-404d-8e99-eb772e552982",
+              "name": "wait_secs",
+              "type": "number",
+              "value": 5
+            },
+            {
+              "id": "3977a803-b90d-4cea-b995-730a76b2a567",
+              "name": "alert_email",
+              "type": "string",
+              "value": "your_email@gmail.com"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "c6f609de-0665-4edd-8f5c-9f29755df675",
+      "name": "Calculate Status1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2040,
+        760
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b0cbcff5-bfcf-46a5-a386-65c4dd56c42f",
+              "name": "date",
+              "type": "string",
+              "value": "={{ $json.headers.date }}"
+            },
+            {
+              "id": "8c4155e4-bcc6-41dd-9582-346a57a7b997",
+              "name": "website",
+              "type": "string",
+              "value": "={{ $('Split Out').item.json.Websites }}"
+            },
+            {
+              "id": "9af72278-5b29-406a-b4c5-f47f3d805063",
+              "name": "IS_UP",
+              "type": "boolean",
+              "value": "={{ $json.statusCode <= 400  }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.3
+    },
+    {
+      "id": "99b6c3a6-d874-4dad-ab5c-f2191158508a",
+      "name": "Perform Site Test1",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        1540,
+        760
+      ],
+      "parameters": {
+        "url": "={{ $json.Websites }}",
+        "options": {
+          "batching": {
+            "batch": {}
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          }
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {}
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "33584ca6-caf9-4059-b008-1fd8131207e3",
+      "name": "Status Router1",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        2220,
+        760
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "UP",
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "7191e7cb-f2e1-4288-aa68-21f6efefafc5",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.IS_UP }}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "DOWN",
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "e07edddc-70be-46ed-9f5c-7fba0ed52bc3",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "false",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.IS_UP }}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "33fe7424-fab8-4c48-8165-ed81cc3a676f",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        780,
+        680
+      ],
+      "parameters": {
+        "width": 360,
+        "height": 280,
+        "content": "# Получите уведомление, если сайт недоступен\n\nЕсли вы управляете веб-сайтом, это обязательно для вас!\n\nЭтот рабочий процесс поможет вам быстро определить, если сайт перестал работать, до того как это заметят ваши клиенты."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4cc57d3a-c91e-490c-9f13-663cc4aa172f",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        780,
+        960
+      ],
+      "parameters": {
+        "width": 360,
+        "height": 200,
+        "content": "# Инструкции\n\n1 - Добавьте учетные данные Gmail (вход в Google в один клик)  \n2 - Нажмите на узел *Config* и добавьте URL вашего сайта в *Websites* (вы можете добавить несколько!)  \n3 - Измените адрес электронной почты для уведомлений + возможно \"wait_secs\" для механизма двойной проверки."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "79b8d891-c24c-48db-b059-150fe7f833a8",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        900,
+        400
+      ],
+      "parameters": {
+        "color": 3,
+        "content": "## 👇👇 Добавьте свои веб-сайты здесь"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "da29d998-597c-40ca-b13d-18f80557ed6a",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        640,
+        400
+      ],
+      "parameters": {
+        "color": 3,
+        "content": "## 👇👇 Изменить расписание"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "139dca56-a9aa-41a9-93b3-19651b647a41",
+      "name": "Websites to Array",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1160,
+        500
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ce076f11-d745-43a9-8069-a55759ceb0c9",
+              "name": "Websites",
+              "type": "array",
+              "value": "={{\n  // we split by line, and only keep non-empty lines\n  $json.Websites.split('\\n').filter((url) => url)\n}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "3ea70e14-f2e6-4879-a5bb-bece6e487a92",
+      "name": "Merge Error & Success",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1820,
+        500
+      ],
+      "parameters": {},
+      "typeVersion": 3.2
+    },
+    {
+      "id": "8b214988-91c5-48d1-ad4d-3b23e846f33a",
+      "name": "Merge Error & Success1",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1820,
+        760
+      ],
+      "parameters": {},
+      "typeVersion": 3.2
+    },
+    {
+      "id": "eb077379-89e7-46b2-bd92-6450b4e895d5",
+      "name": "Wait before Second Attempt",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        2540,
+        520
+      ],
+      "webhookId": "f66ae3bf-225b-40f3-a091-b0d765bc35b7",
+      "parameters": {
+        "amount": "={{ $('Config').item.json.wait_secs }}"
+      },
+      "typeVersion": 1.1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Websites to Array",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Perform Site Test",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Status Router": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Wait before Second Attempt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Status Router1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Send Email Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Status": {
+      "main": [
+        [
+          {
+            "node": "Status Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email Alert": {
+      "main": [
+        []
+      ]
+    },
+    "Calculate Status1": {
+      "main": [
+        [
+          {
+            "node": "Status Router1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Perform Site Test": {
+      "main": [
+        [
+          {
+            "node": "Merge Error & Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge Error & Success",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Websites to Array": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Perform Site Test1": {
+      "main": [
+        [
+          {
+            "node": "Merge Error & Success1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge Error & Success1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Error & Success": {
+      "main": [
+        [
+          {
+            "node": "Calculate Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Error & Success1": {
+      "main": [
+        [
+          {
+            "node": "Calculate Status1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait before Second Attempt": {
+      "main": [
+        [
+          {
+            "node": "Perform Site Test1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

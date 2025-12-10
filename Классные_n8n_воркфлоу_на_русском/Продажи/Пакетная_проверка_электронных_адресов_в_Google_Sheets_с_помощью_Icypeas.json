@@ -1,0 +1,194 @@
+{
+  "meta": {
+    "instanceId": "257476b1ef58bf3cb6a46e65fac7ee34a53a5e1a8492d5c6e4da5f87c9b82833"
+  },
+  "nodes": [
+    {
+      "id": "8e31498a-d004-4d55-8952-b07e4e49f75f",
+      "name": "When clicking \"Execute Workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        800,
+        1320
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "56e1351c-804d-41d4-9651-d2ca2020c4ce",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        660,
+        1020
+      ],
+      "parameters": {
+        "height": 292.0581548177272,
+        "content": "## Выполните пакетную обработку проверок электронной почты с Icypeas"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0bd19032-2894-4e0e-b66f-00718bd389a7",
+      "name": "Authenticates to your Icypeas account",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1300,
+        1320
+      ],
+      "parameters": {
+        "jsCode": "const API_BASE_URL = \"https://app.icypeas.com/api\";\nconst API_PATH = \"/bulk-search\";\nconst METHOD = \"POST\";\n\n// Change here\nconst API_KEY = \"PUT_API_KEY_HERE\";\nconst API_SECRET = \"PUT_API_SECRET_HERE\";\nconst USER_ID = \"PUT_USER_ID_HERE\";\n////////////////\n\nconst genSignature = (\n    url,\n    method,\n    secret,\n    timestamp = new Date().toISOString()\n) => {\n    const Crypto = require('crypto');\n    const payload = `${method}${url}${timestamp}`.toLowerCase();\n    const sign = Crypto.createHmac(\"sha1\", secret).update(payload).digest(\"hex\");\n\n    return sign;\n};\n\nconst apiUrl = `${API_BASE_URL}${API_PATH}`;\n\nconst data = $input.all().map((x) => [ x.json.email]);\n$input.first().json.data = data;\n$input.first().json.api = {\n  timestamp: new Date().toISOString(),\n  secret: API_SECRET,\n  key: API_KEY,\n  userId: USER_ID,\n  url: apiUrl,\n};\n\n$input.first().json.api.signature = genSignature(apiUrl, METHOD, API_SECRET, $input.first().json.api.timestamp);\nreturn $input.first();"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "df9bc762-c680-447f-a4f3-eba1ba13cb3d",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        940,
+        1168.9314213779933
+      ],
+      "parameters": {
+        "height": 523.2083276562503,
+        "content": "Этот рабочий процесс демонстрирует, как выполнять проверки электронной почты (массовый поиск) с помощью Icypeas. Посетите https://icypeas.com, чтобы создать свою учетную запись."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c542f720-7c21-4161-a643-4e67983ad090",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1181.009231449947,
+        1078.51011235955
+      ],
+      "parameters": {
+        "width": 392.0593078758952,
+        "height": 1203.3290499048028,
+        "content": "## Прочитайте файл Google таблицы"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "26602f88-789e-4f9e-8df0-2f7f498f242c",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1573,
+        1080
+      ],
+      "parameters": {
+        "width": 328.8456933308303,
+        "height": 869.114109302513,
+        "content": "Этот узел читает Google Таблицу. Вам нужно создать таблицу с:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "96128999-d7e1-44cd-b9d3-7550e4333414",
+      "name": "Reads lastname,firstname and company from your sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1000,
+        1320
+      ],
+      "parameters": {
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "bc548060-6e09-493b-9e74-fc7ef6a9b88f",
+      "name": "Run bulk search (email-verif)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1640,
+        1320
+      ],
+      "parameters": {
+        "url": "={{ $json.api.url }}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "task",
+              "value": "=email-verification"
+            },
+            {
+              "name": "name",
+              "value": "dernierTsfg"
+            },
+            {
+              "name": "user",
+              "value": "={{ $json.api.userId }}"
+            },
+            {
+              "name": "data",
+              "value": "={{ $json.data }}"
+            }
+          ]
+        },
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-ROCK-TIMESTAMP",
+              "value": "={{ $json.api.timestamp }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking \"Execute Workflow\"": {
+      "main": [
+        [
+          {
+            "node": "Reads lastname,firstname and company from your sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Authenticates to your Icypeas account": {
+      "main": [
+        [
+          {
+            "node": "Run bulk search (email-verif)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reads lastname,firstname and company from your sheet": {
+      "main": [
+        [
+          {
+            "node": "Authenticates to your Icypeas account",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

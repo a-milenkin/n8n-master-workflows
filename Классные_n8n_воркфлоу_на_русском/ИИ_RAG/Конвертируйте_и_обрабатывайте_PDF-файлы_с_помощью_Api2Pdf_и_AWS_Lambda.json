@@ -1,0 +1,507 @@
+{
+  "id": "L7ZgmrqmEBeiLlPk",
+  "meta": null,
+  "name": "Api2Pdf - Генерация PDF, работающая на сервере AWS Lambda MCP",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "65d3bc5d-fb22-4959-9fde-ebf153e1bfc3",
+      "name": "Setup Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1380,
+        -240
+      ],
+      "parameters": {
+        "color": 4,
+        "height": 1060,
+        "content": "### ⚙️ Инструкции по настройке\n\n1. **Импорт рабочего процесса**: \nЗагрузите этот рабочий процесс в вашу инстанцию n8n\n\n2. **Настройка аутентификации**: \nНастройте учетные данные apiKey\n   - Тип: API Key в заголовке\n   - Имя ключа: Authorization\n\n3. **Активировать рабочий процесс**:\nВключите рабочий процесс, чтобы запустить сервер MCP\n\n4. **Получить URL MCP**: \nСкопируйте URL вебхука из триггера MCP\n\n5. **Подключить AI-агента**:\nИспользуйте URL MCP в конфигурации вашего AI-агента\n\n\n### 💡 Примечания по использованию\n• Параметры автоматически заполняются AI с использованием выражений $fromAI()\n• Доступно 9 конечных точек API в качестве инструментов\n• Ответы сохраняют оригинальную структуру API\n\n\n### 🛠️ Настройка\n• Добавьте узлы преобразования данных при необходимости\n• Реализуйте пользовательскую обработку ошибок\n• Добавьте узлы логирования или мониторинга\n\n• Измените значения по умолчанию параметров в любом узле HTTP-запроса по мере необходимости\n\n### 💬 Нужна помощь?\nНапишите мне в [discord](https://discord.me/cfomodz) для получения рекомендаций по интеграции и пользовательским автоматизациям. Ознакомьтесь с [документацией n8n](https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.toolmcp/) для получения дополнительной информации."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "94fe9d0f-2004-409b-a8cc-8217f65d20c1",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1120,
+        -240
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 1300,
+        "content": "## 🛠️ Api2Pdf - Генерация PDF, работающая на AWS Lambda MCP сервере ✅ 9 операций\n\n### Описание\nВведение [Api2Pdf](https://www.api2pdf.com) — это мощный API для генерации PDF без ограничений по количеству запросов и размеру файлов. Api2Pdf работает на AWS Lambda, безсерверной архитектуре, предоставляемой Amazon, которая позволяет обрабатывать миллионы запросов при стоимости до 90% ниже, чем у альтернатив. **Поддерживает wkhtmltopdf, Headless Chrome, LibreOffice и объединение PDF.** Вы также можете генерировать штрих-коды с помощью ZXING (Zebra Crossing). SDK и клиентские библиотеки Мы предоставили ряд открытых библиотек для API - Python: [https://github.com/api2pdf/api2pdf.python](https://github.com/api2pdf/api2pdf.python) - .NET: [https://github.com/api2pdf/api2pdf.dotnet](https://github.com/api2pdf/api2pdf.dotnet) - Nodejs: [https://github.com/api2pdf/api2pdf.node](https://github.com/api2pdf/api2pdf.node) - PHP: [https://github.com/Api2Pdf/api2pdf.php](https://github.com/Api2Pdf/api2pdf.php) - Ruby: (Скоро) Авторизация Создайте учетную запись на [portal.api2pdf.com](https://portal.api2pdf.com/register), чтобы получить API-ключ. **Авторизуйте ваши API-запросы** - Для GET-запросов добавьте apikey=ВАШ-API-КЛЮЧ в качестве параметра строки запроса - Для POST-запросов добавьте **Authorization** в заголовок. ``` Authorization: ВАШ-API-КЛЮЧ ``` Быстрый старт Если вам нужен просто быстрый вызов для получения PDF по URL, вы можете сделать GET-запрос, например: ``` https://v2018.api2pdf.com/chrome/url?url={UrlToConvert}&apikey={YourApiKey} ``` Для более продвинутого использования и настроек смотрите спецификацию API ниже.\n\n### 🔧 Как это работает\n\nЭтот рабочий процесс преобразует Api2Pdf - Генерация PDF, работающая на AWS Lambda API в интерфейс, совместимый с MCP, для AI-агентов.\n\n• **MCP триггер**: служит вашим конечным пунктом сервера для запросов AI-агентов\n• **HTTP запросы**: обрабатывают API-вызовы к https://v2018.api2pdf.com\n• **AI выражения**: автоматически заполняют параметры через `$fromAI()` заполнители\n• **Нативная интеграция**: возвращает ответы непосредственно AI-агенту\n\n\n### 📋 Доступные операции (9 конечных точек)\n\n**Headless Chrome (3 операции)**\nконвертировать\n\n**Libre Office (1 операция)**\nконвертировать\n\n**Объединить / Скомбинировать PDF (1 операция)**\nобъединить\n\n**W K Html To Pdf (3 операции)**\nконвертировать\n\n**Zxing (zebra Crossing) Штрих-коды (1 операция)**\nгенерировать"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9fb074ab-63a5-4128-a578-9ccedea16425",
+      "name": "Api2Pdf - PDF Generation, Powered by AWS Lambda MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        -580,
+        -240
+      ],
+      "webhookId": "75fd1faf-ce37-44d9-9e2b-d19840d7b2c7",
+      "parameters": {
+        "path": "api2pdf---pdf-generation,-powered-by-aws-lambda-mcp"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a7de75a3-d818-43e1-a3da-93f727a63fda",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        -100
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 700,
+        "height": 200,
+        "content": "## Безголовый Chrome"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "93b208ae-c5a1-4403-9533-eed464c4a850",
+      "name": "Convert raw HTML to PDF",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        -60
+      ],
+      "parameters": {
+        "url": "=https://v2018.api2pdf.com/chrome/html",
+        "method": "POST",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Convert raw HTML to PDF"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "9362c0b2-02eb-4d27-8098-13791767ef25",
+      "name": "Convert URL to PDF",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        -60
+      ],
+      "parameters": {
+        "url": "=https://v2018.api2pdf.com/chrome/url",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $fromAI('url', 'Url of the page to convert to PDF. Must start with http:// or https://.', 'string') }}"
+            },
+            {
+              "name": "output",
+              "value": "={{ $fromAI('output', 'Specify output=json to receive a JSON output. Defaults to PDF file.', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Convert URL to PDF\n\nParameters:\n- Query parameters:\n  • url (required) - Url of the page to convert to PDF. Must start with http:// or https://.\n  • output (optional) - Specify output=json to receive a JSON output. Defaults to PDF file."
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "8e713c5a-1416-4c77-bff1-ca2e01d82699",
+      "name": "Convert URL to PDF 1",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        -60
+      ],
+      "parameters": {
+        "url": "=https://v2018.api2pdf.com/chrome/url",
+        "method": "POST",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Convert URL to PDF"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d577b5ba-7dc9-48ca-8f59-483423cd3380",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        140
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 300,
+        "height": 200,
+        "content": "## Libre Office"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a25f441d-4db0-48a0-a3df-4c0df9922d94",
+      "name": "Convert office document or image to PDF",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        180
+      ],
+      "parameters": {
+        "url": "=https://v2018.api2pdf.com/libreoffice/convert",
+        "method": "POST",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Convert office document or image to PDF"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "292f4eb9-8c03-4687-ac9d-129780ca1110",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        380
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 300,
+        "height": 200,
+        "content": "## Объединить / Слить Pdf файлы"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3efbf8bc-12ba-4549-b22c-efd94393b968",
+      "name": "Merge multiple PDFs together",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        420
+      ],
+      "parameters": {
+        "url": "=https://v2018.api2pdf.com/merge",
+        "method": "POST",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Merge multiple PDFs together"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "69bfade2-eef2-4eda-873f-23c4102ccbe9",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        620
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 700,
+        "height": 200,
+        "content": "## W K Html To Pdf"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "54e6233c-dd39-4de5-8c71-7e6cc1437163",
+      "name": "Convert raw HTML to PDF 1",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        660
+      ],
+      "parameters": {
+        "url": "=https://v2018.api2pdf.com/wkhtmltopdf/html",
+        "method": "POST",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Convert raw HTML to PDF"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "dd97a4ce-df42-4675-93cf-8109a9771567",
+      "name": "Convert URL to PDF 2",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        660
+      ],
+      "parameters": {
+        "url": "=https://v2018.api2pdf.com/wkhtmltopdf/url",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $fromAI('url', 'Url of the page to convert to PDF. Must start with http:// or https://.', 'string') }}"
+            },
+            {
+              "name": "output",
+              "value": "={{ $fromAI('output', 'Specify output=json to receive a JSON output. Defaults to PDF file.', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Convert URL to PDF\n\nParameters:\n- Query parameters:\n  • url (required) - Url of the page to convert to PDF. Must start with http:// or https://.\n  • output (optional) - Specify output=json to receive a JSON output. Defaults to PDF file."
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "ceba0dad-6e3f-4f94-ac91-c74f533a092d",
+      "name": "Convert URL to PDF 3",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        660
+      ],
+      "parameters": {
+        "url": "=https://v2018.api2pdf.com/wkhtmltopdf/url",
+        "method": "POST",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Convert URL to PDF"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0d31e401-d0f2-4e3a-9656-eb910de634b4",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        860
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 300,
+        "height": 200,
+        "content": "## Zxing (зебра-переход) Штрих-коды"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6717ea20-b643-48c6-8c25-9f7e21e7801e",
+      "name": "Generate bar codes and QR codes with ZXING.",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        900
+      ],
+      "parameters": {
+        "url": "=https://v2018.api2pdf.com/zebra",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "format",
+              "value": "={{ $fromAI('format', 'Most common is CODE_39 or QR_CODE', 'string') }}"
+            },
+            {
+              "name": "value",
+              "value": "={{ $fromAI('value', 'Specify the text value you want to convert', 'string') }}"
+            },
+            {
+              "name": "showlabel",
+              "value": "={{ $fromAI('showlabel', 'Show label of text below barcode', 'boolean') }}"
+            },
+            {
+              "name": "height",
+              "value": "={{ $fromAI('height', 'Height of the barcode generated image', 'number') }}"
+            },
+            {
+              "name": "width",
+              "value": "={{ $fromAI('width', 'Width of the barcode generated image', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Generate bar codes and QR codes with ZXING.\n\nParameters:\n- Query parameters:\n  • format (required) - Most common is CODE_39 or QR_CODE\n  • value (required) - Specify the text value you want to convert\n  • showlabel (optional) - Show label of text below barcode\n  • height (optional) - Height of the barcode generated image\n  • width (optional) - Width of the barcode generated image"
+      },
+      "typeVersion": 4.2
+    }
+  ],
+  "active": false,
+  "shared": [
+    {
+      "role": "workflow:owner",
+      "project": {
+        "id": "G5fce9xGuBAsWBXe",
+        "icon": null,
+        "name": "David Ashby <david.ashby.lds@gmail.com>",
+        "type": "personal",
+        "createdAt": "2025-06-04T02:55:02.013Z",
+        "updatedAt": "2025-06-04T02:56:01.361Z",
+        "projectRelations": [
+          {
+            "role": "project:personalOwner",
+            "user": {
+              "id": "715c1c00-cb48-4712-9a32-f1f4b6db2b30",
+              "role": "global:owner",
+              "email": "david.ashby.lds@gmail.com",
+              "disabled": false,
+              "lastName": "Ashby",
+              "settings": {
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1749357655581
+                },
+                "userActivated": true,
+                "userActivatedAt": 1749075994495,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "3N3vVikZb3MckFYm"
+              },
+              "createdAt": "2025-06-04T02:55:01.745Z",
+              "firstName": "David",
+              "isPending": false,
+              "updatedAt": "2025-06-08T04:40:58.399Z",
+              "mfaEnabled": false,
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_n8n_version": "1.95.3",
+                "personalization_survey_submitted_at": "2025-06-04T02:56:07.075Z"
+              }
+            },
+            "userId": "715c1c00-cb48-4712-9a32-f1f4b6db2b30",
+            "createdAt": "2025-06-04T02:55:02.013Z",
+            "projectId": "G5fce9xGuBAsWBXe",
+            "updatedAt": "2025-06-04T02:55:02.013Z"
+          }
+        ]
+      },
+      "createdAt": "2025-07-01T14:38:52.773Z",
+      "projectId": "G5fce9xGuBAsWBXe",
+      "updatedAt": "2025-07-01T14:38:52.773Z",
+      "workflowId": "L7ZgmrqmEBeiLlPk"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "timezone": "America/New_York"
+  },
+  "createdAt": "2025-07-01T14:38:52.768Z",
+  "updatedAt": "2025-07-01T17:11:36.000Z",
+  "versionId": "8986c82d-cdf4-4eeb-a574-555d65fd4829",
+  "isArchived": false,
+  "staticData": null,
+  "connections": {
+    "Convert URL to PDF": {
+      "ai_tool": [
+        [
+          {
+            "node": "Api2Pdf - PDF Generation, Powered by AWS Lambda MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert URL to PDF 1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Api2Pdf - PDF Generation, Powered by AWS Lambda MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert URL to PDF 2": {
+      "ai_tool": [
+        [
+          {
+            "node": "Api2Pdf - PDF Generation, Powered by AWS Lambda MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert URL to PDF 3": {
+      "ai_tool": [
+        [
+          {
+            "node": "Api2Pdf - PDF Generation, Powered by AWS Lambda MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert raw HTML to PDF": {
+      "ai_tool": [
+        [
+          {
+            "node": "Api2Pdf - PDF Generation, Powered by AWS Lambda MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert raw HTML to PDF 1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Api2Pdf - PDF Generation, Powered by AWS Lambda MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge multiple PDFs together": {
+      "ai_tool": [
+        [
+          {
+            "node": "Api2Pdf - PDF Generation, Powered by AWS Lambda MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert office document or image to PDF": {
+      "ai_tool": [
+        [
+          {
+            "node": "Api2Pdf - PDF Generation, Powered by AWS Lambda MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate bar codes and QR codes with ZXING.": {
+      "ai_tool": [
+        [
+          {
+            "node": "Api2Pdf - PDF Generation, Powered by AWS Lambda MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "triggerCount": 0
+}

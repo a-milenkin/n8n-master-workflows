@@ -1,0 +1,83 @@
+{
+  "meta": {
+    "instanceId": "cd59eaaeb7b34d06e24511380db94cdb7fbce6037cc4de22e539c5158ab9cdfc"
+  },
+  "nodes": [
+    {
+      "id": "e5f5a8ea-1bd2-48e9-881e-fae427079fab",
+      "name": "Workflow Overview 0",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1460,
+        -300
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 780,
+        "content": "## 🛠️ Инструмент LinkedIn MCP Server"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "731411cc-9ecc-4654-b187-cbd468fd3b88",
+      "name": "LinkedIn Tool MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        -840,
+        -160
+      ],
+      "webhookId": "a6ddc7a9-6e0a-454e-9728-6ad68b63a3e8",
+      "parameters": {
+        "path": "linkedin-tool-mcp"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "197f1ef7-d3ef-44d2-b5d1-c681a9e3333a",
+      "name": "Create a post",
+      "type": "n8n-nodes-base.linkedInTool",
+      "position": [
+        -800,
+        140
+      ],
+      "parameters": {
+        "text": "={{ $fromAI('Text', ``, 'string') }}",
+        "person": "={{ $fromAI('Person', ``, 'string') }}",
+        "additionalFields": {},
+        "binaryPropertyName": "={{ $fromAI('Binary_Property_Name', ``, 'string') }}",
+        "shareMediaCategory": "={{ $fromAI('Share_Media_Category', ``, 'string') }}"
+      },
+      "credentials": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "9b8254b6-c00f-4e3d-bb9b-f29870a1c186",
+      "name": "Sticky Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1000,
+        120
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 400,
+        "content": "### 📋 Доступные операции (всего 1)"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Create a post": {
+      "ai_tool": [
+        [
+          {
+            "node": "LinkedIn Tool MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

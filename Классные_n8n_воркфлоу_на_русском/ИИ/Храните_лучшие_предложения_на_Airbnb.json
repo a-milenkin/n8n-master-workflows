@@ -1,0 +1,380 @@
+{
+  "id": "kO0kNE2AKKzesj0F",
+  "meta": {
+    "instanceId": "60046904b104f0f72b2629a9d88fe9f676be4035769f1f08dad1dd38a76b9480"
+  },
+  "name": "#### ⏰ **Запускать ежедневно**",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "3be17a72-1d6a-4bea-a36c-708125eef7ef",
+      "name": "Run Daily (9 AM)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        20,
+        1020
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "d47e5caa-a861-4dad-9f48-52e816fc7a71",
+      "name": "Set Search Criteria",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        240,
+        1020
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9426515e-7232-483f-ae94-09cf500c8dc4",
+              "name": "Location",
+              "type": "string",
+              "value": "Los-Angeles"
+            },
+            {
+              "id": "61bc5a40-687c-4f49-b9dc-ee0f24511b6f",
+              "name": "checkin",
+              "type": "string",
+              "value": "2025-09-15"
+            },
+            {
+              "id": "5bc0153f-90cc-43cc-92b0-64c87dcc4e59",
+              "name": "checkout",
+              "type": "string",
+              "value": "2025-09-20"
+            },
+            {
+              "id": "e6b268f2-c05a-44ed-9303-c0def3abf4fe",
+              "name": "adults",
+              "type": "number",
+              "value": 2
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "80e8b765-0840-47d3-b591-060f82bb97c2",
+      "name": "Scrape Airbnb via Bright Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        500,
+        1020
+      ],
+      "parameters": {
+        "url": "https://api.brightdata.com/request",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "zone",
+              "value": "n8n_unblocker"
+            },
+            {
+              "name": "url",
+              "value": "=https://www.airbnb.com/s/{{ $json.Location }}--CA--United-States/homes?checkin={{ $json.checkin }}&checkout={{ $json.checkout }}&adults={{ $json.adults }}"
+            },
+            {
+              "name": "country",
+              "value": "us"
+            },
+            {
+              "name": "format",
+              "value": "raw"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer API KEY"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "59da6712-9264-4622-a2ca-9791a892d336",
+      "name": "Extract Price & Title",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        720,
+        1020
+      ],
+      "parameters": {
+        "jsCode": "// Get the HTML content from the previous node.\n// Assuming your HTTP Request node's output is named 'data'.\nconst html = items[0].json.data;\n\n// This regex finds the specific <script> tag containing the search results.\nconst regex = /<script id=\"data-deferred-state-0\"[^>]*>([\\s\\S]*?)<\\/script>/;\nconst match = html.match(regex);\n\nif (!match || !match[1]) {\n  console.log(\"Could not find the data script tag.\");\n  return [{\n    error: \"Data script tag not found. The page structure might have changed.\"\n  }];\n}\n\ntry {\n  // Parse the JSON string found inside the script tag.\n  const jsonData = JSON.parse(match[1]);\n\n  // Navigate through the complex object to find the search results array.\n  // Using optional chaining (?.) prevents errors if a key doesn't exist.\n  const searchResults = jsonData?.niobeMinimalClientData?.[0]?.[1]?.data?.presentation?.staysSearch?.results?.searchResults;\n\n  if (!searchResults || !Array.isArray(searchResults)) {\n    console.log(\"Could not find search results in the JSON data.\");\n    return [{\n      error: \"Search results not found in the JSON data. The data structure may have changed.\"\n    }];\n  }\n\n  // Map over the results to extract the title and price for each listing.\n  const listings = searchResults.map(item => {\n    const title = item.title;\n    \n    // The price can be in 'discountedPrice' or 'price', so we check for both.\n    const primaryLine = item.structuredDisplayPrice?.primaryLine;\n    let price = \"N/A\";\n    if (primaryLine) {\n      const priceValue = primaryLine.discountedPrice || primaryLine.price;\n      const qualifier = primaryLine.qualifier || '';\n      price = `${priceValue} ${qualifier}`.trim();\n    }\n\n    return {\n      title,\n      price,\n    };\n  });\n\n  // n8n expects an array of objects to be returned.\n  // Each object will become a separate item for the next node.\n  return listings;\n\n} catch (e) {\n  console.error(\"Error parsing JSON data:\", e);\n  return [{\n    error: \"Failed to parse JSON data from the script tag.\"\n  }];\n}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4710e13c-3ce5-4980-bfbf-727b4a425ae3",
+      "name": "Save to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1000,
+        1020
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Price": "={{ $json.price }}",
+            "Title": "={{ $json.title }}",
+            "Adults": "={{ $('Set Search Criteria').item.json.adults }}",
+            "CheckIn": "={{ $('Set Search Criteria').item.json.checkin }}",
+            "CheckOut": "={{ $('Set Search Criteria').item.json.checkout }}",
+            "Location": "={{ $('Set Search Criteria').item.json.Location }}"
+          },
+          "schema": [
+            {
+              "id": "Location",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Location",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CheckIn",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "CheckIn",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CheckOut",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "CheckOut",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Adults",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Adults",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Price",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Price",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Title",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Title",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1nwNkfh8n1qr6ft5mF3PhhDTTaDXb1K_4H3gd3D-nADc/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1nwNkfh8n1qr6ft5mF3PhhDTTaDXb1K_4H3gd3D-nADc",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1nwNkfh8n1qr6ft5mF3PhhDTTaDXb1K_4H3gd3D-nADc/edit?usp=drivesdk",
+          "cachedResultName": "Rooms on Airbnb"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "r2mDaisH6e9VkwHl",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "7e0664d1-40ce-4498-b412-6ebc60fc9a7f",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 380,
+        "height": 1180,
+        "content": "## 🟢 **Раздел 1: 🧭 Определите и запустите поиск**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b3904951-145f-44dd-947d-d99194798798",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        420,
+        60
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 440,
+        "height": 1120,
+        "content": "### 🧩 Узлы:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c41d599a-6211-4d0b-a392-212d2f948612",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        900,
+        280
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 320,
+        "height": 900,
+        "content": "⏰ **Запускать ежедневно**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6d833041-f1a3-40e4-a192-78aa903cb9e7",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1880,
+        20
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 320,
+        "content": "🛠 **Установить критерии поиска**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1adeb274-de15-4f85-b198-5a235ae934a5",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1880,
+        360
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1289,
+        "height": 2738,
+        "content": "---"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d309ee77-594c-40ad-b943-2ea268b0b47f",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1300,
+        280
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 380,
+        "height": 240,
+        "content": "### ✨ Что здесь происходит:"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4a456006-c946-40d6-8cd8-55db7f2518a6",
+  "connections": {
+    "Run Daily (9 AM)": {
+      "main": [
+        [
+          {
+            "node": "Set Search Criteria",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Search Criteria": {
+      "main": [
+        [
+          {
+            "node": "Scrape Airbnb via Bright Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Price & Title": {
+      "main": [
+        [
+          {
+            "node": "Save to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape Airbnb via Bright Data": {
+      "main": [
+        [
+          {
+            "node": "Extract Price & Title",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

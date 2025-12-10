@@ -1,0 +1,217 @@
+{
+  "meta": {
+    "instanceId": "0a7ae129a7d703150135f6cc24d0469f20ffd22b5ed59c23ee3e0608264e6d98",
+    "templateId": "3905",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "2175eca1-4842-4601-b0ac-84264cdc48ca",
+      "name": "🎙️ Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -260,
+        720
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 460,
+        "height": 720,
+        "content": "## 🎙️ AI Аудио Транскрипция с VLM Run"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3d1b367c-226c-4d9c-bc9e-0643ff3896bc",
+      "name": "📧 Email Monitoring",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        720
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 360,
+        "height": 720,
+        "content": "**Обзор:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4c2744d9-c35d-4629-ac54-b3f299cf16e3",
+      "name": "🤖 AI Transcription",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        600,
+        720
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 360,
+        "height": 720,
+        "content": "Автоматически транскрибирует аудиофайлы из Gmail и генерирует отформатированные отчеты о транскрипции в Google Docs."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "52c19808-27ae-4ccd-af4d-a977bd44f18a",
+      "name": "🔗 Async Processing",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        980,
+        720
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 320,
+        "height": 720,
+        "content": "**Рабочий процесс:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7046634c-3534-4f62-9df9-7ece42a4b969",
+      "name": "📄 Document Generation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1320,
+        720
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 320,
+        "height": 720,
+        "content": "📧 Мониторинг Gmail на наличие аудиофайлов"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "31d1f0c3-73e7-4e1a-bc08-72c5694e7153",
+      "name": "Monitor Email Attachments",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "notes": "Continuously monitors Gmail for new emails with audio attachments. Automatically downloads all attachments and triggers the transcription workflow.",
+      "position": [
+        320,
+        1260
+      ],
+      "parameters": {
+        "simple": false,
+        "filters": {},
+        "options": {
+          "downloadAttachments": true
+        },
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "7MVziRpoyD8arghO",
+          "name": "Gmail account 2"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "d2c14402-db05-4bf4-a8a5-402587d69ee8",
+      "name": "VLM Run Audio Transcriber",
+      "type": "@vlm-run/n8n-nodes-vlmrun.vlmRun",
+      "notes": "Processes audio files using VLM AI to generate accurate transcriptions with timestamps. Runs asynchronously for large audio files.",
+      "position": [
+        720,
+        1260
+      ],
+      "parameters": {
+        "file": "attachment_0",
+        "domain": "audio.transcription",
+        "operation": "audio",
+        "callbackUrl": "https://playground.vlm.run/webhook/audio-transcription",
+        "processAsynchronously": true
+      },
+      "credentials": {
+        "vlmRunApi": {
+          "id": "cF5KpbVmnt36bdWr",
+          "name": "VLM Run account 6"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "98e98532-dc44-4b15-a75d-24b3d7823c84",
+      "name": "Receive Transcription Results",
+      "type": "n8n-nodes-base.webhook",
+      "notes": "Receives the completed transcription from VLM AI when asynchronous processing is finished. Contains full transcript with timestamps.",
+      "position": [
+        1080,
+        1260
+      ],
+      "webhookId": "d599acd8-1891-4d07-b2f9-092cb6381b41",
+      "parameters": {
+        "path": "audio-transcription",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c9468f04-42da-4725-a462-97cdcf6c40ac",
+      "name": "Generate Transcription Report",
+      "type": "n8n-nodes-base.googleDocs",
+      "notes": "Creates a professionally formatted Google Doc with the transcription results, including timestamps and metadata.",
+      "position": [
+        1420,
+        1260
+      ],
+      "parameters": {
+        "simple": false,
+        "actionsUi": {
+          "actionFields": [
+            {
+              "text": "=📄 Audio Transcription Report\n\n🗓️ Date: {{ new Date($json.body.completed_at).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) }}  \n⏱️ Total Duration: {{ $json.body.response.metadata.duration }} seconds  \n{{ \n$json.body.response.segments.map((segment, index) => \n  `\\n` +\n  `🔹 Segment ${index + 1}\\n` +\n  `⏰ Time: ${segment.start_time.toFixed(2)}s → ${segment.end_time.toFixed(2)}s\\n` +\n  `📝 Transcript: \"${segment.content.trim()}\"\\n`\n).join('\\n')\n}}\n",
+              "action": "insert"
+            }
+          ]
+        },
+        "operation": "update",
+        "documentURL": "https://docs.google.com/document/d/1QFHvOgEYKMLVpIRv6Mc7lXfDXhtoozgEK7O-wuNLzl0/edit?tab=t.0",
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "3x0WI9iZ6ToA2fXw",
+          "name": "Google Docs account"
+        }
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Monitor Email Attachments": {
+      "main": [
+        [
+          {
+            "node": "VLM Run Audio Transcriber",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receive Transcription Results": {
+      "main": [
+        [
+          {
+            "node": "Generate Transcription Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

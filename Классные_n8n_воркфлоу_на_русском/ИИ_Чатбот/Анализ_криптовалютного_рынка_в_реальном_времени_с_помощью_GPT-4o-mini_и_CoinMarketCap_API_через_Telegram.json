@@ -1,0 +1,804 @@
+{
+  "id": "0bpLB8rVNAjTBiVp",
+  "meta": {
+    "instanceId": "eb2e35a6e4ba3ff63ef980c031da61d993b4f2faa0ccc19283b4ab43f9ca13e6",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Анализ монет",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "20daf4ff-1efc-4e86-9eb5-7b4bc15f9a7c",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        912,
+        1024
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "message"
+            },
+            {
+              "name": "sessionId"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "93f91000-fcad-42be-8716-1c7e1d79a89c",
+      "name": "CoinMarketCap Crypto Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1408,
+        1024
+      ],
+      "parameters": {
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "You are an AI cryptocurrency analyst. You have access to six live CoinMarketCap tools, each linked to a real API endpoint. These tools allow you to retrieve price data, metadata, market rankings, conversions, and global market stats.\n\nUse the most relevant tool based on the user’s intent. Below is a list of your currently connected tools, their functions, and accepted input parameters.\n\n---\n\n### 🔧 **Connected Tools & Supported Inputs**\n\n---\n\n#### 1. **Crypto Map**\n- **Endpoint**: `/v1/cryptocurrency/map`\n- **Purpose**: Get CoinMarketCap IDs, symbols, and names.\n- **Supported Inputs**:\n  - `symbol` – (Optional) Comma-separated crypto symbols (e.g., BTC,ETH)\n  - `listing_status` – `active`, `inactive`, or `untracked`\n  - `start` – (Pagination start)\n  - `limit` – (Number of results)\n- **Use Cases**:\n  - “What is the CoinMarketCap ID for SOL?”\n  - “List all active cryptocurrencies.”\n\n---\n\n#### 2. **Crypto Info**\n- **Endpoint**: `/v2/cryptocurrency/info`\n- **Purpose**: Get metadata like description, whitepaper, and social links.\n- **Supported Inputs**:\n  - `symbol` – (Required) Comma-separated symbols\n- **Use Cases**:\n  - “Show me the whitepaper for ETH.”\n  - “What’s the website and Twitter handle of DOGE?”\n\n---\n\n#### 3. **Crypto Listings**\n- **Endpoint**: `/v1/cryptocurrency/listings/latest`\n- **Purpose**: Ranked list of coins sorted by market cap.\n- **Supported Inputs**:\n  - `start` – (e.g., 1 for top coin, 101 for rank 101+)\n  - `limit` – (e.g., 10 for top 10)\n  - `convert` – Currency to convert values into (e.g., USD, EUR)\n- **Use Cases**:\n  - “Show me the top 20 coins.”\n  - “What are the top 5 coins in EUR?”\n\n---\n\n#### 4. **CoinMarketCap Price**\n- **Endpoint**: `/v2/cryptocurrency/quotes/latest`\n- **Purpose**: Real-time price, volume, and market cap.\n- **Supported Inputs**:\n  - `symbol` – (Required) Single or multiple symbols\n  - `convert` – Currency to display results in (e.g., USD)\n- **Use Cases**:\n  - “What’s the current price of ADA?”\n  - “How much volume has BTC traded in the last 24h?”\n\n---\n\n#### 5. **Global Metrics**\n- **Endpoint**: `/v1/global-metrics/quotes/latest`\n- **Purpose**: Global crypto market stats.\n- **Supported Inputs**:\n  - *(None required)*\n- **Use Cases**:\n  - “What’s the total crypto market cap?”\n  - “How dominant is Bitcoin?”\n\n---\n\n#### 6. **Price Conversion**\n- **Endpoint**: `/v1/tools/price-conversion`\n- **Purpose**: Convert one crypto/fiat into another.\n- **Supported Inputs**:\n  - `amount` – (Required) Numerical amount to convert\n  - `symbol` – (Required) The crypto to convert from\n  - `convert` – (Required) The target currency (e.g., BTC, USD)\n- **Use Cases**:\n  - “Convert 5 ETH to USD.”\n  - “What’s 1000 DOGE in BTC?”\n\n"
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "2f5fc766-5047-450e-83b0-3383957840b6",
+      "name": "Crypto Agent Brain",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        848,
+        1280
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini-2024-07-18",
+          "cachedResultName": "gpt-4o-mini-2024-07-18"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "7kz46LiiQlJ8S4vd",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "ccf5a653-9a36-46eb-b487-f993f7f344cd",
+      "name": "Crypto Agent Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        1024,
+        1280
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "1eb526ee-96e3-4048-bd32-04a7fc0148d0",
+      "name": "CoinMarketCap Price",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "position": [
+        1744,
+        1280
+      ],
+      "parameters": {
+        "url": "https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest",
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "parametersQuery": {
+          "values": [
+            {
+              "name": "symbol"
+            },
+            {
+              "name": "convert"
+            }
+          ]
+        },
+        "toolDescription": "The tool going to recieve input of cryptocurrency name and then request the price from CoinMarketCap and send the price back in a message.",
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "Accept",
+              "value": "application/json",
+              "valueProvider": "fieldValue"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "96t6ijcMldnWBOhy",
+          "name": "Header Auth account"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "b4cdfd58-fd4f-429b-9a37-e0aa0a816e78",
+      "name": "Crypto Map",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "position": [
+        1200,
+        1280
+      ],
+      "parameters": {
+        "url": "https://pro-api.coinmarketcap.com/v1/cryptocurrency/map",
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "parametersQuery": {
+          "values": [
+            {
+              "name": "symbol",
+              "valueProvider": "modelOptional"
+            },
+            {
+              "name": "listing_status",
+              "valueProvider": "modelOptional"
+            },
+            {
+              "name": "start",
+              "valueProvider": "modelOptional"
+            },
+            {
+              "name": "limit",
+              "valueProvider": "modelOptional"
+            }
+          ]
+        },
+        "toolDescription": "Get a map of all cryptocurrencies with CoinMarketCap ID, name, and symbol.",
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "Accept"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "96t6ijcMldnWBOhy",
+          "name": "Header Auth account"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "e110aeb4-9c36-44df-b0be-e0ffa9b022f3",
+      "name": "Crypto Info",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "position": [
+        1392,
+        1280
+      ],
+      "parameters": {
+        "url": "https://pro-api.coinmarketcap.com/v2/cryptocurrency/info",
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "parametersQuery": {
+          "values": [
+            {
+              "name": "symbol"
+            }
+          ]
+        },
+        "toolDescription": "Get metadata for one or more cryptocurrencies including logo, description, and links.\n\n",
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "Accept"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "96t6ijcMldnWBOhy",
+          "name": "Header Auth account"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "da4c29eb-e3aa-470f-bd1b-f1cd2bf7d9cc",
+      "name": "Crypto Listings",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "position": [
+        1568,
+        1280
+      ],
+      "parameters": {
+        "url": "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest",
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "parametersQuery": {
+          "values": [
+            {
+              "name": "start"
+            },
+            {
+              "name": "limit"
+            },
+            {
+              "name": "convert"
+            }
+          ]
+        },
+        "toolDescription": "Retrieve a ranked list of cryptocurrencies sorted by market cap. Supports pagination and conversion currency.",
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "Accept"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "96t6ijcMldnWBOhy",
+          "name": "Header Auth account"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "c99f8b90-f98b-4efb-80a1-2c3e221d526b",
+      "name": "Global Metrics",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "position": [
+        1952,
+        1280
+      ],
+      "parameters": {
+        "url": "https://pro-api.coinmarketcap.com/v1/global-metrics/quotes/latest",
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Returns global crypto market metrics including market cap, 24h volume, BTC dominance, and total active cryptocurrencies.",
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "Accept"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "96t6ijcMldnWBOhy",
+          "name": "Header Auth account"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "0843fb98-04e5-40dc-be99-9df61e3f96a8",
+      "name": "Price Conversion",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "position": [
+        2144,
+        1280
+      ],
+      "parameters": {
+        "url": "https://pro-api.coinmarketcap.com/v1/tools/price-conversion",
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "parametersQuery": {
+          "values": [
+            {
+              "name": "amount"
+            },
+            {
+              "name": "symbol"
+            },
+            {
+              "name": "convert"
+            }
+          ]
+        },
+        "toolDescription": "Convert cryptocurrency or fiat value from one currency to another.",
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "Accept"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "96t6ijcMldnWBOhy",
+          "name": "Header Auth account"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "cb570baa-427f-44b6-888c-988562cc0aad",
+      "name": "Telegram Send Message",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1552,
+        32
+      ],
+      "webhookId": "0eeae020-ed6f-4900-ae38-d646d893171d",
+      "parameters": {
+        "text": "={{ $json.output }}",
+        "chatId": "={{ $('Telegram Input').item.json.message.chat.id }}",
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "LdwJ13TjT1oJsgCd",
+          "name": "Telegram account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a8966fcc-e308-484c-b6e3-fa574e6fd1f7",
+      "name": "Adds SessionId",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        656,
+        32
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b5c25cd4-226b-4778-863f-79b13b4a5202",
+              "name": "sessionId",
+              "type": "string",
+              "value": "={{ $json.message.chat.id }}"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "0a8b4ec5-0b38-4ee1-8ec8-d0141fe73e80",
+      "name": "CoinMarketCap AI Data Analyst Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "notes": "{{ $json.sessionId }}",
+      "position": [
+        1040,
+        32
+      ],
+      "parameters": {
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "You are the **CoinMarketCap AI Data Analyst**, a powerful, multi-source crypto intelligence system that integrates three specialized agents:  \n- **CoinMarketCap Crypto Agent**  \n- **CoinMarketCap Exchange & Community Agent**  \n- **CoinMarketCap DEXScan Agent**\n\nYour job is to provide accurate, real-time, and strategic insights into the cryptocurrency landscape across centralized and decentralized platforms.\n\n---\n\n### 🛠️ Tools and Agent Capabilities\n\nYou have access to a suite of **live CoinMarketCap APIs** organized by sub-agents. Each tool is mapped to an endpoint and validated for parameter safety to avoid 400 errors.\n\n---\n\n#### 🔹 1. CoinMarketCap Crypto Agent\n\n**Focus:** Cryptocurrency-level data, listings, quotes, and conversions.\n\n**Tools:**\n- `Crypto Map` – Get coin IDs, names, symbols  \n- `Crypto Info` – Metadata like whitepapers, socials  \n- `Crypto Listings` – Top market cap coins  \n- `Quotes Latest` – Live price, volume, market cap  \n- `Global Metrics` – Total market stats, BTC dominance  \n- `Price Conversion` – Convert one asset to another  \n\n✅ Use for:  \n“Top 10 coins by market cap,” “Convert 5 ETH to USD,” “BTC volume today,” “Whitepaper for SOL”\n\n---\n\n#### 🔹 2. CoinMarketCap Exchange & Community Agent\n\n**Focus:** Exchange intel, community sentiment, and market behavior.\n\n**Tools:**\n- `Exchange Map` – Discover exchanges and get IDs  \n- `Exchange Info` – Metadata like launch date, country, links  \n- `Exchange Assets` – Exchange token holdings & wallets  \n- `CMC 100 Index` – Latest CMC 100 index constituents  \n- `Fear and Greed Index` – Market sentiment tracker  \n\n✅ Use for:  \n“Which tokens does Binance hold?” “Current crypto sentiment” “Top 100 CMC coins”\n\n---\n\n#### 🔹 3. CoinMarketCap DEXScan Agent\n\n**Focus:** Decentralized trading data (spot pairs, pools, liquidity, OHLCV, trades).\n\n**Tools:**\n- `DEX Metadata` – Info for any DEX (logo, date, description)  \n- `DEX Networks List` – All blockchain networks  \n- `DEX Listings Quotes` – DEXs with live trading stats  \n- `DEX Pair Quotes Latest` – Live price/liquidity for spot pairs  \n- `DEX OHLCV Historical` – Historical OHLCV (e.g., 1h, 1d)  \n- `DEX OHLCV Latest` – Real-time OHLCV for current UTC day  \n- `DEX Trades Latest` – Up to 100 recent trades  \n- `DEX Spot Pairs Latest` – All active spot pairs with filters  \n\n✅ Use for:  \n“Price history of USDT/ETH on Uniswap,” “Show DEXs with highest volume,” “Get liquidity of token pair,” “Security scan for PancakeSwap pools”\n\n---\n\n### ⚙️ Multi-Agent Coordination (Advanced Multi-Query Reasoning)\n\nYou are empowered with **advanced multi-query analysis** capabilities:\n- Chain data between agents (e.g., map → quote → historical chart)\n- Use outputs from one tool as inputs for another\n- Automatically fetch required IDs (e.g., exchange ID, contract address) before making a final API call\n- Combine centralized (CEX) and decentralized (DEX) insights into one unified response\n- Filter and compare across timeframes, assets, exchanges, and networks\n\n---\n\n### ⚠️ Validation & Error Prevention Guidelines\n\nTo prevent 400 Bad Request errors:\n- Always include at least **one required field** per endpoint  \n- Use **valid slugs, symbols, or CoinMarketCap IDs**  \n- Don’t use `convert` and `convert_id` together  \n- Use **comma-separated lists** for multi-inputs (if allowed)  \n- Use documented `aux`, `sort`, `interval` fields only  \n- Handle pagination via `scroll_id` or `start/limit` properly  \n\nIf output is too large:\n> ⚠️ “The requested data exceeds the model’s context limit. Please reduce the scope using filters, limits, or sort.”\n\n---\n\n### ✅ Example Tasks You Can Perform\n- “Get liquidity and 24h volume for ETH/USDC on Polygon”\n- “Compare BTC price on Binance vs Uniswap”\n- “Show top 5 DEXs by volume and their top pairs”\n- “Analyze historical price of SHIBA on Ethereum over last 7 days”\n- “Get CoinMarketCap’s sentiment index and top index coins”\n- “List active spot pairs on Arbitrum with volume > $1M and return price, liquidity, and last 24h % change”\n\n---\n\nYou are a **real-time, multi-source AI analyst** purpose-built to extract deep insights from CoinMarketCap’s centralized and decentralized datasets. Use your agents intelligently, validate your queries, and return precise, structured results.\n\nLet’s analyze the crypto world. 🌍📊🧠\n"
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.7
+    },
+    {
+      "id": "12b00c1e-573f-474f-b427-b67ea2f34f82",
+      "name": "CoinMarketCap Agent Brain",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        800,
+        320
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "7kz46LiiQlJ8S4vd",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "10979046-104f-4cd8-99d4-dbedd1e658a8",
+      "name": "CoinMarketCap Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        960,
+        320
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "d1a1df80-5d30-4fbf-bc95-5f5ba802cb70",
+      "name": "CoinMarketCap Crypto Agent Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        1120,
+        320
+      ],
+      "parameters": {
+        "name": "CoinMarketCap_Crypto_Agent_Tool",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "PsE6s3G4eB6O9mQ3",
+          "cachedResultName": "Coin Subflow"
+        },
+        "workflowInputs": {
+          "value": {
+            "message": "={{ $('Adds SessionId').item.json.message.text }}",
+            "sessionId": "={{ $('Adds SessionId').item.json.sessionId }}"
+          },
+          "schema": [
+            {
+              "id": "message",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "message",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sessionId",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "sessionId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "7b76113f-6d7c-4669-a1ef-e8fa277a68c4",
+      "name": "CoinMarketCap Exchange and Community Agent Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        1280,
+        320
+      ],
+      "parameters": {
+        "name": "CoinMarketCap_Exchange_and_Community_Agent_Tool",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "0bpLB8rVNAjTBiVp",
+          "cachedResultName": "Coin Subflow"
+        },
+        "workflowInputs": {
+          "value": {
+            "message": "={{ $('Adds SessionId').item.json.message.text }}",
+            "sessionId": "={{ $('Adds SessionId').item.json.sessionId }}"
+          },
+          "schema": [
+            {
+              "id": "sessionId",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "sessionId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "message",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "message",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "747455f0-5ce3-4425-9b03-f474115ef4f2",
+      "name": "CoinMarketCap DEXScan Agent Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        1456,
+        320
+      ],
+      "parameters": {
+        "name": "CoinMarketCap_DEXScan_Agent_Tool",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "0bpLB8rVNAjTBiVp",
+          "cachedResultName": "Coin Subflow"
+        },
+        "workflowInputs": {
+          "value": {
+            "message": "={{ $('Adds SessionId').item.json.message.text }}",
+            "sessionId": "={{ $('Adds SessionId').item.json.sessionId }}"
+          },
+          "schema": [
+            {
+              "id": "message",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "message",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sessionId",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "sessionId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "8cb11c43-c188-44a7-9cc5-fa7bf228412f",
+      "name": "Telegram Input",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "position": [
+        416,
+        32
+      ],
+      "webhookId": "b33d2025-01c2-4386-b677-206a87a1856b",
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "LdwJ13TjT1oJsgCd",
+          "name": "Telegram account"
+        }
+      },
+      "typeVersion": 1.1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6aa9b902-7d40-4616-aca0-1f0095312824",
+  "connections": {
+    "Crypto Map": {
+      "ai_tool": [
+        [
+          {
+            "node": "CoinMarketCap Crypto Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crypto Info": {
+      "ai_tool": [
+        [
+          {
+            "node": "CoinMarketCap Crypto Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adds SessionId": {
+      "main": [
+        [
+          {
+            "node": "CoinMarketCap AI Data Analyst Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Global Metrics": {
+      "ai_tool": [
+        [
+          {
+            "node": "CoinMarketCap Crypto Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Input": {
+      "main": [
+        [
+          {
+            "node": "Adds SessionId",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crypto Listings": {
+      "ai_tool": [
+        [
+          {
+            "node": "CoinMarketCap Crypto Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Price Conversion": {
+      "ai_tool": [
+        [
+          {
+            "node": "CoinMarketCap Crypto Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crypto Agent Brain": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "CoinMarketCap Crypto Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CoinMarketCap Price": {
+      "ai_tool": [
+        [
+          {
+            "node": "CoinMarketCap Crypto Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crypto Agent Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "CoinMarketCap Crypto Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CoinMarketCap Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "CoinMarketCap AI Data Analyst Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CoinMarketCap Agent Brain": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "CoinMarketCap AI Data Analyst Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CoinMarketCap Crypto Agent Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "CoinMarketCap AI Data Analyst Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CoinMarketCap DEXScan Agent Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "CoinMarketCap AI Data Analyst Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "CoinMarketCap Crypto Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CoinMarketCap AI Data Analyst Agent": {
+      "main": [
+        [
+          {
+            "node": "Telegram Send Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CoinMarketCap Exchange and Community Agent Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "CoinMarketCap AI Data Analyst Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

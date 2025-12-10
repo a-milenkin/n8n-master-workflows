@@ -1,0 +1,609 @@
+{
+  "id": "W7g7Xt2KOVfqdX6H",
+  "meta": {
+    "instanceId": "a9966e7d53853abbaaeed78ba2b9971c959f5792b2cccdff75eb461951503a7f",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "## ChatGPT-4 и Экспорт",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "c356df28-51e3-423d-aab8-706b9d3690c6",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        760,
+        60
+      ],
+      "parameters": {},
+      "typeVersion": 3.1
+    },
+    {
+      "id": "9538c50f-97f3-4dc4-a3b6-f63ed21bd11b",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        1260,
+        60
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "8ad05e8c-809a-4c02-8117-01420f55fa6b",
+      "name": "Google Sheets Trigger",
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "position": [
+        -860,
+        40
+      ],
+      "parameters": {
+        "event": "rowAdded",
+        "options": {},
+        "pollTimes": {
+          "item": [
+            {}
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "TrzvQZYVopztSMKU",
+          "name": "Google Sheets Trigger account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e869dfee-73a3-4d94-8b19-f210d04a0b91",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -920,
+        -260
+      ],
+      "parameters": {
+        "width": 880,
+        "height": 760,
+        "content": "## Ввод данных"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "833d877e-f935-4648-b69f-55e5e29c8973",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        20,
+        -260
+      ],
+      "parameters": {
+        "width": 1120,
+        "height": 760,
+        "content": "Этот рабочий процесс срабатывает каждый раз, когда в эту таблицу Google Sheets добавляется новая строка. Затем он читает строки и продолжает только для тех, в которых в колонке статуса нет \"выполнено\"."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9c141382-e315-4f01-bc5b-6e2c189b5506",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1220,
+        -260
+      ],
+      "parameters": {
+        "width": 1140,
+        "height": 740,
+        "content": "## Автозаполнение Google и PAA"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d8e18fb8-a539-45e4-94e7-cc3975f21cb1",
+      "name": "All of the Information",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        980,
+        60
+      ],
+      "parameters": {
+        "jsCode": "const autocompleteItems = $items(\"Autocomplete\");\nconst paaItems = $items(\"Format PAA (SerpAPI)\");\nconst topicItems = $items(\"Broad Words\");\n\nconst output = [];\n\nfunction normalize(str) {\n  return (str || \"\").toLowerCase().trim();\n}\n\nfor (let i = 0; i < topicItems.length; i++) {\n  const topicRaw = topicItems[i].json[\"Blog Inspiration\"] || \"Unknown Topic\";\n  const topic = topicRaw.trim();\n\n  // Normalize for matching\n  const normTopic = normalize(topic);\n\n  // Get autocomplete suggestions\n  const autocomplete = autocompleteItems[i]?.json?.autocomplete || [];\n\n  // Get PAA from autocomplete\n  const paaFromAutocomplete = autocompleteItems[i]?.json?.paa || [];\n\n  // Match SerpAPI result by normalized topic\n  const matchingPAAObj = paaItems.find(p => normalize(p.json.topic) === normTopic);\n  const paaFromSerpAPI = matchingPAAObj?.json?.paa || [];\n\n  // Merge + clean\n  const allPAA = [...paaFromAutocomplete, ...paaFromSerpAPI].filter(\n    q => q && typeof q === \"string\" && !q.toLowerCase().includes(\"no paa\")\n  );\n\n  output.push({\n    json: {\n      topic,\n      autocomplete,\n      paa: allPAA.length ? allPAA : undefined\n    }\n  });\n}\n\nreturn output;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "64bd9019-b056-4ecb-b91f-60a3ec360d30",
+      "name": "Read Rows",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -640,
+        40
+      ],
+      "parameters": {
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Fujtlc6eM7k9s5AV",
+          "name": "Google Sheets account 3"
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 4.5
+    },
+    {
+      "id": "ff7793b0-ce67-4d3c-848e-d942df68a809",
+      "name": "Only Reads Empty Status",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -420,
+        40
+      ],
+      "parameters": {
+        "jsCode": "return items.filter(item => {\n  const status = item.json.Status?.trim();\n  return !status || status === \"\";\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b53e7fa6-d6fa-473f-ba37-77f088da2979",
+      "name": "Broad Words",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        160,
+        -40
+      ],
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  const inspiration = item.json[\"Blog Inspiration\"];\n  // Simplify to just the last 3 words or a fallback keyword\n  const words = inspiration.split(\" \");\n  const shortTopic = words.slice(-3).join(\" \");\n  item.json.topic = shortTopic || \"photo ideas\";\n  return item;\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "befb3c85-7862-4cce-85fd-5e33c40dadcc",
+      "name": "PAA (SerpAPI)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        160,
+        220
+      ],
+      "parameters": {
+        "url": "https://serpapi.com/search",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $('Only Reads Empty Status').item.json['Blog Inspiration'] }}"
+            },
+            {
+              "name": "api_key"
+            },
+            {
+              "name": "engine",
+              "value": "google"
+            },
+            {
+              "name": "hl",
+              "value": "en"
+            },
+            {
+              "name": "google_domain",
+              "value": "google.com"
+            },
+            {
+              "name": "device",
+              "value": "desktop"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "bedcb5a4-10cb-43b3-a885-6d0f7e51691c",
+      "name": "Autocomplete",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 5,
+      "position": [
+        460,
+        -40
+      ],
+      "parameters": {
+        "url": "https://seo-api2.onrender.com/get-seo-data",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "topic",
+              "value": "={{ $json.topic }}"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "2819cef3-19b5-43a7-b931-fda48e19ce49",
+      "name": "Format PAA (SerpAPI)",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        480,
+        220
+      ],
+      "parameters": {
+        "jsCode": "const formatted = [];\n\nfor (const item of items) {\n  const data = item.json;\n  const query = data.search_information?.query_displayed || \"Unknown query\";\n\n  const paaList = [];\n\n  // ✅ PRIORITY 1: related_questions (People Also Ask)\n  if (Array.isArray(data.related_questions)) {\n    for (const q of data.related_questions) {\n      if (q.question && q.snippet) {\n        paaList.push(`(PAA) ${q.question} — ${q.snippet}`);\n      } else if (q.question) {\n        paaList.push(`(PAA) ${q.question}`);\n      }\n    }\n  }\n\n  // 🔄 FALLBACK 1: organic_results\n  if (paaList.length === 0 && Array.isArray(data.organic_results)) {\n    for (const result of data.organic_results) {\n      if (result.title && result.snippet) {\n        paaList.push(`(Organic) ${result.title} — ${result.snippet}`);\n      }\n    }\n  }\n\n  // 🔄 FALLBACK 2: answer_box\n  if (paaList.length === 0 && data.answer_box?.title && data.answer_box?.snippet) {\n    paaList.push(`(Answer Box) ${data.answer_box.title} — ${data.answer_box.snippet}`);\n  }\n\n  // 🔄 FALLBACK 3: related_searches\n  if (paaList.length === 0 && Array.isArray(data.related_searches)) {\n    for (const rel of data.related_searches) {\n      if (rel.query) {\n        paaList.push(`(Related Search) ${rel.query}`);\n      }\n    }\n  }\n\n  formatted.push({\n    json: {\n      topic: query,\n      paa: paaList.length > 0 ? paaList : null\n    }\n  });\n}\n\nreturn formatted;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "264916e1-9d3e-4db6-9938-cb24615da143",
+      "name": "Generate Blog Post",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1540,
+        80
+      ],
+      "parameters": {
+        "text": "=Write a blog post based on the following topic:\n{{ $json.topic }}\n\nYour audience is ___. The tone should feel warm, personal, emotionally resonant, and elegant.\n\nUse the following to guide the content:\n\nAutocomplete keywords:\n{{ $json.autocomplete }}\nWeave these naturally into the blog — not as a list. Use them to inspire talking points, not as SEO stuffing.\n\nPeople Also Ask questions, Organic Results, or Related Searches:\n{{ $json.paa }}\nReference or gently answer these questions where they align with the topic.\n\nContent Guidelines:\n\nGenerate a warm, SEO-optimized blog title that includes relevant keywords and reflects the post’s focus. Do not use clickbait or vague titles.\n\nStart with a warm, seasonal, or situational hook\n\nOffer client-relevant insights (e.g., wardrobe planning, session timing, location ideas, lifestyle reflections)\n\nUse clear, specific language — avoid filler, clichés, metaphors, or flowery phrasing\n\nAvoid headings unless they add structure\n\nKeep it narrative and around 500 words\n\nEnd with a gentle call-to-action (e.g., inviting readers to reach out with outfit questions, booking ideas, or planning support)\n\n",
+        "options": {
+          "systemMessage": ""
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "8a42f3e0-dee2-4b68-970d-771e1f5a4397",
+      "name": "GPT-4",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1520,
+        280
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "niPVUMBH1mYOAFdj",
+          "name": "OpenAi account 3"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "cf4bb6ec-8f18-465f-854a-f2354386a02a",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -920,
+        560
+      ],
+      "parameters": {
+        "width": 900,
+        "height": 280,
+        "content": "Автозаполнение Google — это функция, которая предсказывает запрос пользователя по мере его ввода. В этом рабочем процессе актер Автозаполнения использует динамический ввод: поскольку актер срабатывает через POST-запрос, он извлекает любое содержимое, которое в данный момент находится в узле \"Широкие слова\" во время выполнения. Этот узел извлекает общие ключевые слова по теме из колонки \"Вдохновение\" в таблице Google, что упрощает генерацию релевантных результатов Автозаполнения и PAA."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "64e00b0b-c74b-4bc1-904e-e5588c9257f2",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2420,
+        -260
+      ],
+      "parameters": {
+        "width": 1020,
+        "height": 540,
+        "content": "PAA (Люди также спрашивают) — это еще одна функция Google, которая показывает связанные вопросы и ответы на основе исходного поискового запроса. Эти результаты извлекаются с помощью SerpAPI."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "94bc89a2-d61f-421d-9c5d-87d0ab2b3488",
+      "name": "Update \"Done\" Status",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1900,
+        80
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c99cfee7-74c6-46bf-9da8-97fa73cbfac4",
+              "name": "Blog Draft ",
+              "type": "string",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "id": "acf40ab4-bbe1-4d5f-b3dc-5ac4320c0ff8",
+              "name": "Blog Inspiration",
+              "type": "string",
+              "value": "={{ $('Loop Over Items').item.json.topic }}"
+            },
+            {
+              "id": "2dbbac0b-8b55-4cae-a8d3-6857bb7f8b30",
+              "name": "Status",
+              "type": "string",
+              "value": "done"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "3f9e78e2-1d2c-4242-9753-d57adfaa2cd9",
+      "name": "Export",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2140,
+        80
+      ],
+      "parameters": {
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Fujtlc6eM7k9s5AV",
+          "name": "Google Sheets account 3"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "2609db84-b19f-48aa-a656-032ce8761830",
+      "name": "Use Wait Node for Large Batches",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        -180,
+        40
+      ],
+      "webhookId": "a129fe57-aa57-4929-b88c-b0aa170e22a4",
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "6eaa572d-ebbf-4f3a-8805-e549c49db795",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1700,
+        -260
+      ],
+      "parameters": {
+        "width": 680,
+        "height": 1220,
+        "content": "После того как данные Автозаполнения и PAA собраны, они объединяются и отправляются в ChatGPT для дальнейшего анализа и генерации контента."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "54400ae2-8bf3-4dcc-991d-b44832948053",
+  "connections": {
+    "GPT-4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Blog Post",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "All of the Information",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Export": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Rows": {
+      "main": [
+        [
+          {
+            "node": "Only Reads Empty Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Broad Words": {
+      "main": [
+        [
+          {
+            "node": "Autocomplete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Autocomplete": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PAA (SerpAPI)": {
+      "main": [
+        [
+          {
+            "node": "Format PAA (SerpAPI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Generate Blog Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Blog Post": {
+      "main": [
+        [
+          {
+            "node": "Update \"Done\" Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format PAA (SerpAPI)": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Update \"Done\" Status": {
+      "main": [
+        [
+          {
+            "node": "Export",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "All of the Information": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only Reads Empty Status": {
+      "main": [
+        [
+          {
+            "node": "Use Wait Node for Large Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Use Wait Node for Large Batches": {
+      "main": [
+        [
+          {
+            "node": "Broad Words",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "PAA (SerpAPI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

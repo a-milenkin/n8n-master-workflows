@@ -1,0 +1,2103 @@
+{
+  "meta": {
+    "instanceId": "95a1299fb2b16eb2219cb044f54e72c2d00dcd2c72efe717b3c308d200f29927"
+  },
+  "nodes": [
+    {
+      "id": "527f31ed-e87c-450e-8db9-befe4f560c29",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -2220,
+        2160
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "b091d1d3-4a86-4464-88cb-9bba8247f631",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        -1800,
+        2160
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "settings"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "591dd146-f7c5-4327-991f-553f95ff2507",
+      "name": "Companies Recovery",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -1360,
+        2160
+      ],
+      "parameters": {
+        "options": {
+          "dataLocationOnSheet": {
+            "values": {
+              "rangeDefinition": "detectAutomatically"
+            }
+          }
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j8AHiPiHEXVOkUhO2ms-lw1Ygu1eWIWW-8Qe1OoHpCo/edit#gid=0",
+          "cachedResultName": "Companies"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1j8AHiPiHEXVOkUhO2ms-lw1Ygu1eWIWW-8Qe1OoHpCo",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j8AHiPiHEXVOkUhO2ms-lw1Ygu1eWIWW-8Qe1OoHpCo/edit?usp=drivesdk",
+          "cachedResultName": "Lead Machine - Ghost Genius"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "4cee9f5e-762b-40e3-850d-4bea4e358aa2",
+      "name": "Filter Score and State",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        -1160,
+        2160
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "146a686b-6a22-4a33-8e04-a4e7d0fc3eb9",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              },
+              "leftValue": "={{ $json.Score }}",
+              "rightValue": 7
+            },
+            {
+              "id": "31a8bdd6-1f27-4dec-9fbf-f5895087d54b",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.State }}",
+              "rightValue": "Qualified"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "ab23d372-06ec-4351-8f9f-b9ed5779db86",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -640,
+        2160
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "26d91167-6488-4a90-b7e1-fc46a22f58aa",
+      "name": "Find Employees",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -420,
+        2160
+      ],
+      "parameters": {
+        "url": "https://api.ghostgenius.fr/v2/private/sales-navigator",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "current_company",
+              "value": "={{ $('Loop Over Items').item.json.ID }}"
+            },
+            {
+              "name": "account_id",
+              "value": "={{ $('Aggregate').item.json.settings[2]['Value (edit with your use case)'] }}"
+            },
+            {
+              "name": "current_title",
+              "value": "={{ $('Aggregate').item.json.settings[3]['Value (edit with your use case)'] }}"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Aggregate').item.json.settings[6]['Value (edit with your use case)'] }}"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "af94a547-1dd5-4d28-8375-0afe92f3994c",
+      "name": "Check profiles Found",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -200,
+        2160
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "62313990-929a-4859-aab7-0efe2f434dc9",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              },
+              "leftValue": "={{ $json.total }}",
+              "rightValue": 1
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "f776e58c-ec9f-4317-bdc8-754d35b7e424",
+      "name": "Split Profiles",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        40,
+        2160
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "data"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a0935fd0-b693-49de-a90f-a1d2085d947d",
+      "name": "Get Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        480,
+        2160
+      ],
+      "parameters": {
+        "url": "https://api.ghostgenius.fr/v2/contact/email",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 1500
+            }
+          }
+        },
+        "sendQuery": true,
+        "sendHeaders": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "company_url",
+              "value": "={{ $('Loop Over Items').item.json.Website }}"
+            },
+            {
+              "name": "first_name",
+              "value": "={{ $json.first_name }}"
+            },
+            {
+              "name": "last_name",
+              "value": "={{ $json.last_name }}"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Aggregate').item.json.settings[6]['Value (edit with your use case)'] }}"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "495a8283-e3c0-4ea2-9acb-548125c2ce8f",
+      "name": "Get Profile details",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        260,
+        2160
+      ],
+      "parameters": {
+        "url": "https://api.ghostgenius.fr/v2/profile",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 1500
+            }
+          }
+        },
+        "sendQuery": true,
+        "sendHeaders": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.url }}"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Aggregate').item.json.settings[6]['Value (edit with your use case)'] }}"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "e1490ca1-2909-458b-958d-209a93c80317",
+      "name": "Create Personalization",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        1020,
+        2160
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "o3-mini",
+          "cachedResultName": "O3-MINI"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=Вы специалист по настройке холодных писем. Ваша роль заключается в создании НАСТРОЙКИ для ДРУГОГО ИИ, который позже будет писать персонализированные холодные письма потенциальным клиентам."
+            },
+            {
+              "content": "ПРОДУКТ: {{ $('Aggregate').item.json.settings[0]['Value (edit with your use case)'] }}"
+            }
+          ]
+        },
+        "jsonOutput": true
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "e1d18c75-9695-402d-aadd-ec9a7730b5e5",
+      "name": "Generate Emails Messages",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        1380,
+        2160
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "o3-mini",
+          "cachedResultName": "O3-MINI"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "ЦЕЛЕВАЯ АУДИТОРИЯ: {{ $('Aggregate').item.json.settings[1]['Value (edit with your use case)'] }}"
+            },
+            {
+              "content": "ВАША ЗАДАЧА:"
+            }
+          ]
+        },
+        "jsonOutput": true
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "e0b48005-689d-4787-8d82-d9c9a79f0141",
+      "name": "Generate Emails Subjects",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        1740,
+        2160
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "o3-mini",
+          "cachedResultName": "O3-MINI"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Проанализируйте предоставленную информацию о потенциальном клиенте"
+            },
+            {
+              "content": "=Вот последовательность электронных писем:"
+            }
+          ]
+        },
+        "jsonOutput": true
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "a3cb6e48-6ca4-40f0-9b1a-0afae64f33e8",
+      "name": "Keep relevant information",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        700,
+        2160
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const simplifiedItem = {\n  first_name: $('Get Profile details').item.json.first_name || null,\n  last_name: $('Get Profile details').item.json.last_name || null,\n  headline: $('Get Profile details').item.json.headline || null,\n  position: $('Get Profile details').item.json.experiences[0].position || null,\n  position_description: $('Get Profile details').item.json.experiences[0].description || null,\n  summary: $('Get Profile details').item.json.summary || null, \n  company_name: $('Loop Over Items').item.json.Name || null\n};\nreturn simplifiedItem;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3cb270ad-30aa-4d8d-a405-cf85c8f45d80",
+      "name": "Add lead(s)",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2100,
+        2160
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Email": "={{ $('Get Email').item.json.email }}",
+            "Mail 1": "={{ $('Generate Emails Messages').item.json.message.content.initial_email }}",
+            "Mail 2": "={{ $('Generate Emails Messages').item.json.message.content.first_follow_up }}",
+            "Mail 3": "={{ $('Generate Emails Messages').item.json.message.content.second_follow_up }}",
+            "Lastname": "={{ $('Get Profile details').item.json.last_name }}",
+            "LinkedIn": "={{ $('Get Profile details').item.json.url }}",
+            "Firstname": "={{ $('Get Profile details').item.json.first_name }}",
+            "Subject 1": "={{ $json.message.content.subject_1 }}",
+            "Subject 2": "={{ $json.message.content.subject_2 }}",
+            "Subject 3": "={{ $json.message.content.subject_3 }}",
+            "Company name": "={{ $('Loop Over Items').item.json.Name }}",
+            "Current Position": "={{ $('Get Profile details').item.json.experiences[0].position }}"
+          },
+          "schema": [
+            {
+              "id": "Firstname",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Firstname",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lastname",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Lastname",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "LinkedIn",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "LinkedIn",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Company name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Current Position",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Current Position",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Mail 1",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Mail 1",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Mail 2",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Mail 2",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Mail 3",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Mail 3",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject 1",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Subject 1",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject 2",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Subject 2",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject 3",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Subject 3",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 664133164,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j8AHiPiHEXVOkUhO2ms-lw1Ygu1eWIWW-8Qe1OoHpCo/edit#gid=664133164",
+          "cachedResultName": "Leads"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1j8AHiPiHEXVOkUhO2ms-lw1Ygu1eWIWW-8Qe1OoHpCo",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j8AHiPiHEXVOkUhO2ms-lw1Ygu1eWIWW-8Qe1OoHpCo/edit?usp=drivesdk",
+          "cachedResultName": "Lead Machine - Ghost Genius"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "f87cffea-66d2-4839-b99a-bf3cf327967c",
+      "name": "Lead(s) found",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2300,
+        2160
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "State": "Enriched",
+            "LinkedIn": "={{ $('Loop Over Items').item.json.LinkedIn }}"
+          },
+          "schema": [
+            {
+              "id": "Name",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Website",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Website",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "LinkedIn",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "LinkedIn",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ID",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Summary",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Score",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Score",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Explanation",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Explanation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "State",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "State",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "LinkedIn"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j8AHiPiHEXVOkUhO2ms-lw1Ygu1eWIWW-8Qe1OoHpCo/edit#gid=0",
+          "cachedResultName": "Companies"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1j8AHiPiHEXVOkUhO2ms-lw1Ygu1eWIWW-8Qe1OoHpCo",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j8AHiPiHEXVOkUhO2ms-lw1Ygu1eWIWW-8Qe1OoHpCo/edit?usp=drivesdk",
+          "cachedResultName": "Lead Machine - Ghost Genius"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "46d11554-545b-4eef-89df-462c1cf3f5af",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2300,
+        1880
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1520,
+        "height": 460,
+        "content": "Открывающее письмо:  {{ $json.message.content.initial_email }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "81f67e40-ccd2-405a-8498-46b7e2061076",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -720,
+        1880
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1600,
+        "height": 460,
+        "content": "Письмо с напоминанием 1: {{ $json.message.content.first_follow_up }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6c4e2ff0-b274-4ced-837c-2793221820bd",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        940,
+        1880
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1560,
+        "height": 460,
+        "content": "Письмо с напоминанием 2: {{ $json.message.content.second_follow_up }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8d0d97aa-ec10-44ba-a772-cf68d5f4c657",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -120,
+        2340
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 400,
+        "height": 260,
+        "content": "## Восстановление данных"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "df380fac-a327-4ab0-91fa-8686389b4bfe",
+      "name": "Limit",
+      "type": "n8n-nodes-base.limit",
+      "position": [
+        -960,
+        2160
+      ],
+      "parameters": {
+        "maxItems": 100
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4b52c6a4-a050-45d3-918b-f23df9f97bc7",
+      "name": "Process Each Company",
+      "type": "n8n-nodes-base.splitInBatches",
+      "onError": "continueRegularOutput",
+      "position": [
+        20,
+        1100
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3,
+      "alwaysOutputData": false
+    },
+    {
+      "id": "9f18ad76-89d8-452c-ad18-bd86c5559177",
+      "name": "Get Company Info",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        240,
+        1100
+      ],
+      "parameters": {
+        "url": "https://api.ghostgenius.fr/v2/company",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.url }}"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Aggregate1').item.json.settings[6]['Value (edit with your use case)'] }}"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "51553d5e-f61f-4c23-b390-c3f6a2d92b76",
+      "name": "Filter Valid Companies",
+      "type": "n8n-nodes-base.if",
+      "onError": "continueRegularOutput",
+      "position": [
+        440,
+        1100
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "5ea943a6-8f6c-4cb0-b194-8c92d4b2aacc",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.website }}",
+              "rightValue": "[null]"
+            },
+            {
+              "id": "8235b9bb-3cd4-4ed4-a5dc-921127ff47c7",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.followers_count }}",
+              "rightValue": 200
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "c0fea429-5620-440f-bdc9-fc1d7ee32dbf",
+      "name": "Is New Company?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        880,
+        1100
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "050c33be-c648-44d7-901c-51f6ff024e97",
+              "operator": {
+                "type": "object",
+                "operation": "empty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Check If Company Exists').all().first().json }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "bf81fc2b-3bfc-4e83-a9fc-c997db7eee01",
+      "name": "Search Companies",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -500,
+        1100
+      ],
+      "parameters": {
+        "url": "https://api.ghostgenius.fr/v2/search/companies",
+        "options": {
+          "pagination": {
+            "pagination": {
+              "parameters": {
+                "parameters": [
+                  {
+                    "name": "page",
+                    "value": "={{ $pageCount + 1 }}"
+                  }
+                ]
+              },
+              "maxRequests": 1,
+              "requestInterval": 2000,
+              "limitPagesFetched": true,
+              "completeExpression": "={{ $response.body.data.isEmpty() }}",
+              "paginationCompleteWhen": "other"
+            }
+          }
+        },
+        "sendQuery": true,
+        "sendHeaders": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "keywords",
+              "value": "={{ $json.message.content.keywords }}"
+            },
+            {
+              "name": "locations",
+              "value": "={{ $('Aggregate1').item.json.settings[4]['Value (edit with your use case)'] }}"
+            },
+            {
+              "name": "company_size",
+              "value": "={{ $('Aggregate1').item.json.settings[5]['Value (edit with your use case)'] }}"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Aggregate1').item.json.settings[6]['Value (edit with your use case)'] }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "5edc2d62-71a0-46d2-96ab-6cc70d6e37c0",
+      "name": "Extract Company Data",
+      "type": "n8n-nodes-base.splitOut",
+      "onError": "continueRegularOutput",
+      "position": [
+        -300,
+        1100
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "data"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "26a2cfb1-a4e8-49cd-ac1b-9f9db5dc78b6",
+      "name": "Check If Company Exists",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        660,
+        1100
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "={{ $json.id }}",
+              "lookupColumn": "ID"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j8AHiPiHEXVOkUhO2ms-lw1Ygu1eWIWW-8Qe1OoHpCo/edit#gid=0",
+          "cachedResultName": "Companies"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1j8AHiPiHEXVOkUhO2ms-lw1Ygu1eWIWW-8Qe1OoHpCo",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j8AHiPiHEXVOkUhO2ms-lw1Ygu1eWIWW-8Qe1OoHpCo/edit?usp=drivesdk",
+          "cachedResultName": "Lead Machine - Ghost Genius"
+        }
+      },
+      "typeVersion": 4.5,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "0aa49615-1e7a-4c3a-85d8-9756fb67881e",
+      "name": "AI Company Scoring",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        1220,
+        1100
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "o3-mini",
+          "cachedResultName": "O3-MINI"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=Вы — ИИ-ассистент, который оценивает компании, чтобы определить, могут ли они быть заинтересованы в {{ $('Aggregate1').item.json.settings[0]['Value (edit with your use case)'] }}."
+            },
+            {
+              "content": "Оцените информацию о компании по шкале от 0 до 10, где:"
+            }
+          ]
+        },
+        "jsonOutput": true
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "ed5f6a15-5284-4594-8aca-86327038bc8c",
+      "name": "Add Company to CRM",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1580,
+        1100
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "ID": "={{ $('Get Company Info').item.json.id }}",
+            "Name": "={{ $('Get Company Info').item.json.name }}",
+            "Score": "={{ $('AI Company Scoring').item.json.message.content.score }}",
+            "State": "Qualified",
+            "Summary": "={{ $('Get Company Info').item.json.description }}",
+            "Website": "={{ $('Get Company Info').item.json.website }}",
+            "LinkedIn": "={{ $('Get Company Info').item.json.url }}",
+            "Explanation": "={{ $('AI Company Scoring').item.json.message.content.explanation }}"
+          },
+          "schema": [
+            {
+              "id": "Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Website",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Website",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "LinkedIn",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "LinkedIn",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ID",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Summary",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Score",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Score",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Explanation",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Explanation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "State",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "State",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j8AHiPiHEXVOkUhO2ms-lw1Ygu1eWIWW-8Qe1OoHpCo/edit#gid=0",
+          "cachedResultName": "Companies"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1j8AHiPiHEXVOkUhO2ms-lw1Ygu1eWIWW-8Qe1OoHpCo",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j8AHiPiHEXVOkUhO2ms-lw1Ygu1eWIWW-8Qe1OoHpCo/edit?usp=drivesdk",
+          "cachedResultName": "Lead Machine - Ghost Genius"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "bd105774-d426-459d-8f50-ea0a4bcf95aa",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1700,
+        820
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1580,
+        "height": 460,
+        "content": "- 0 = Совсем не вероятно, что они заинтересованы"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8e641e38-a6c4-4768-a640-346db5044b74",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1120,
+        820
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 680,
+        "height": 460,
+        "content": "- 10 = Очень вероятно, что они заинтересованы"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "10bb1319-98b9-45fd-8f35-b127b6bc97a8",
+      "name": "Aggregate1",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        -1220,
+        1100
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "settings"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2d73b959-0088-455d-8af7-16e834e3f051",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        820
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1120,
+        "height": 460,
+        "content": "Основывайте свою оценку на следующих критериях:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f7d3e1fd-580f-4b21-8c62-8c614897f9e6",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -1620,
+        1100
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "084a6aae-552e-42de-a363-987a1aedc55e",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1820,
+        680
+      ],
+      "parameters": {
+        "width": 3820,
+        "height": 920,
+        "content": "# Ищите компании в LinkedIn, оценивайте их с помощью ИИ и отправляйте в свою CRM"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5f1e2de8-10cd-421a-806b-b3895c9618a9",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2380,
+        1740
+      ],
+      "parameters": {
+        "width": 5000,
+        "height": 920,
+        "content": "# Находите лиц, принимающих решения, получайте проверенные электронные адреса и генерируйте 3 холодных письма с помощью ИИ"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d14c5fe0-d645-4633-8b9f-90b41ec46386",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1000,
+        140
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 720,
+        "height": 420,
+        "content": "## Введение"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c231d4b7-49ff-4bb7-95a0-be2061b1cc8e",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -220,
+        140
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 600,
+        "height": 420,
+        "content": "Добро пожаловать в мой шаблон! Прежде чем объяснить, как его настроить, вот **важная информация:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6fe93d40-8512-4ace-9e30-402acbf93e49",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        440,
+        140
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 600,
+        "height": 420,
+        "content": "Этот шаблон разделен на две автоматизации, которые дополняют друг друга."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1c0cc83e-d59e-486e-9131-09949c58930b",
+      "name": "Make the perfect request",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        -860,
+        1100
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "o3-mini",
+          "cachedResultName": "O3-MINI"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Вы - ИИ помощник, который извлекает чистые, релевантные ключевые слова для поиска компаний на LinkedIn."
+            },
+            {
+              "content": "Ввод пользователя часто шумный, неопределенный или включает ненужные детали. Ваша задача - вернуть только **ясные, лаконичные ключевые слова**, которые описывают **тип компании**, которую ищет пользователь."
+            }
+          ]
+        },
+        "jsonOutput": true
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "ab27f2a8-0ac3-4450-96c8-be0a21dd18ce",
+      "name": "Get Settings",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -1420,
+        1100
+      ],
+      "parameters": {
+        "options": {
+          "dataLocationOnSheet": {
+            "values": {
+              "rangeDefinition": "detectAutomatically"
+            }
+          }
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1782913168,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j8AHiPiHEXVOkUhO2ms-lw1Ygu1eWIWW-8Qe1OoHpCo/edit#gid=1782913168",
+          "cachedResultName": "Settings"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1j8AHiPiHEXVOkUhO2ms-lw1Ygu1eWIWW-8Qe1OoHpCo",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j8AHiPiHEXVOkUhO2ms-lw1Ygu1eWIWW-8Qe1OoHpCo/edit?usp=drivesdk",
+          "cachedResultName": "Lead Machine - Ghost Genius"
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 4.5
+    },
+    {
+      "id": "fe218ee4-c06b-48c0-b47f-db5321fbfe39",
+      "name": "Get Settings1",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -2020,
+        2160
+      ],
+      "parameters": {
+        "options": {
+          "dataLocationOnSheet": {
+            "values": {
+              "rangeDefinition": "detectAutomatically"
+            }
+          }
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1782913168,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j8AHiPiHEXVOkUhO2ms-lw1Ygu1eWIWW-8Qe1OoHpCo/edit#gid=1782913168",
+          "cachedResultName": "Settings"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1j8AHiPiHEXVOkUhO2ms-lw1Ygu1eWIWW-8Qe1OoHpCo",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j8AHiPiHEXVOkUhO2ms-lw1Ygu1eWIWW-8Qe1OoHpCo/edit?usp=drivesdk",
+          "cachedResultName": "Lead Machine - Ghost Genius"
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 4.5
+    },
+    {
+      "id": "c4ad0b09-a510-45f8-a851-3b01ea95ef8e",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -1060,
+        1100
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "1fb2a486-8581-4d1e-9a83-26992e4ff505",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.settings[6]['Value (edit with your use case)'] }}",
+              "rightValue": ""
+            },
+            {
+              "id": "35ea5c51-10f6-4fe1-b802-9cbd202d8381",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.settings[2]['Value (edit with your use case)'] }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "bb99d5d0-0e6e-4346-9167-433775e80bb3",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -920,
+        1280
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 400,
+        "height": 260,
+        "content": "Сохраняйте только термины, относящиеся к:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "da3811ad-fcd2-47db-afa9-fe1bfca1ce51",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1500,
+        2340
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 400,
+        "height": 260,
+        "content": "- Отрасли или сектору (например, финтех, юридические технологии, SaaS)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e4ed5a84-f464-40d2-b1ff-eb3059270d77",
+      "name": "If1",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -1600,
+        2160
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "1fb2a486-8581-4d1e-9a83-26992e4ff505",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.settings[6]['Value (edit with your use case)'] }}",
+              "rightValue": ""
+            },
+            {
+              "id": "35ea5c51-10f6-4fe1-b802-9cbd202d8381",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.settings[2]['Value (edit with your use case)'] }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "3921bf36-d8a9-4864-b1e7-4891f4aaeed2",
+      "name": "Missing API Key or Account ID1",
+      "type": "n8n-nodes-base.stopAndError",
+      "position": [
+        -1340,
+        2420
+      ],
+      "parameters": {
+        "errorMessage": "Missing API Key or Account ID in the Google Sheet"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2dc2a7e0-380f-4182-babe-06de9445f78d",
+      "name": "Missing API Key or Account ID",
+      "type": "n8n-nodes-base.stopAndError",
+      "position": [
+        -760,
+        1360
+      ],
+      "parameters": {
+        "errorMessage": "Missing API Key or Account ID in the Google Sheet"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7285df69-42cf-4df5-8d5e-1efcddd9683a",
+      "name": "Sticky Note14",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 300,
+        "height": 80,
+        "content": "- Деятельности компании или профессии (например, цифровое агентство, программное обеспечение для HR, логистика)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "02a044ae-38a5-4141-a2d8-fdcd025c3ccc",
+      "name": "No decision maker found",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        40,
+        2420
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "State": "No decision maker found",
+            "LinkedIn": "={{ $('Loop Over Items').item.json.LinkedIn }}"
+          },
+          "schema": [
+            {
+              "id": "Name",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Website",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Website",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "LinkedIn",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "LinkedIn",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ID",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Summary",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Score",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Score",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Explanation",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Explanation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "State",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "State",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "LinkedIn"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j8AHiPiHEXVOkUhO2ms-lw1Ygu1eWIWW-8Qe1OoHpCo/edit#gid=0",
+          "cachedResultName": "Companies"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1j8AHiPiHEXVOkUhO2ms-lw1Ygu1eWIWW-8Qe1OoHpCo",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1j8AHiPiHEXVOkUhO2ms-lw1Ygu1eWIWW-8Qe1OoHpCo/edit?usp=drivesdk",
+          "cachedResultName": "Lead Machine - Ghost Genius"
+        }
+      },
+      "typeVersion": 4.5
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Make the perfect request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Missing API Key or Account ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Companies Recovery",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Missing API Key or Account ID1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Get Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Email": {
+      "main": [
+        [
+          {
+            "node": "Keep relevant information",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add lead(s)": {
+      "main": [
+        [
+          {
+            "node": "Lead(s) found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Settings": {
+      "main": [
+        [
+          {
+            "node": "Aggregate1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Settings1": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead(s) found": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Employees": {
+      "main": [
+        [
+          {
+            "node": "Check profiles Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Profiles": {
+      "main": [
+        [
+          {
+            "node": "Get Profile details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is New Company?": {
+      "main": [
+        [
+          {
+            "node": "AI Company Scoring",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Process Each Company",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Find Employees",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Company Info": {
+      "main": [
+        [
+          {
+            "node": "Filter Valid Companies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Settings1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Companies": {
+      "main": [
+        [
+          {
+            "node": "Extract Company Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Company Scoring": {
+      "main": [
+        [
+          {
+            "node": "Add Company to CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Company to CRM": {
+      "main": [
+        [
+          {
+            "node": "Process Each Company",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Companies Recovery": {
+      "main": [
+        [
+          {
+            "node": "Filter Score and State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Profile details": {
+      "main": [
+        [
+          {
+            "node": "Get Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check profiles Found": {
+      "main": [
+        [
+          {
+            "node": "Split Profiles",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No decision maker found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Company Data": {
+      "main": [
+        [
+          {
+            "node": "Process Each Company",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Each Company": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Get Company Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Personalization": {
+      "main": [
+        [
+          {
+            "node": "Generate Emails Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Score and State": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Valid Companies": {
+      "main": [
+        [
+          {
+            "node": "Check If Company Exists",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Process Each Company",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Company Exists": {
+      "main": [
+        [
+          {
+            "node": "Is New Company?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No decision maker found": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Emails Messages": {
+      "main": [
+        [
+          {
+            "node": "Generate Emails Subjects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Emails Subjects": {
+      "main": [
+        [
+          {
+            "node": "Add lead(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Make the perfect request": {
+      "main": [
+        [
+          {
+            "node": "Search Companies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep relevant information": {
+      "main": [
+        [
+          {
+            "node": "Create Personalization",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

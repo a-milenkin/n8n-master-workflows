@@ -1,0 +1,2287 @@
+{
+  "id": "XTgfESAfWAeBnkDR",
+  "meta": null,
+  "name": "Расширенный сервер Mandrill MCP",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "92f8ab00-f668-434e-aa68-2151c8cbaa6c",
+      "name": "Advanced Warning",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1380,
+        -900
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "537abbe0-fcb9-4a1f-b66b-e8c44e13d9f6",
+      "name": "Setup Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1380,
+        -240
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6fc5f54c-3cb0-4e66-b747-46e15c0f7f79",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1120,
+        -240
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fddaad8c-5901-4946-9d71-aacf594ee7f7",
+      "name": "Mandrill MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        -620,
+        -240
+      ],
+      "webhookId": "3e40fa61-4b22-4e35-ae3f-c3edd4c761e0",
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "dade284b-4af9-4a41-981f-5814a14f0b31",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        -100
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6c835cd6-650f-4c4a-a4ce-d67f722bdc9c",
+      "name": "Create Export 5",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        -60
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b1cc5c2c-6225-481d-9a1c-d1624c51f774",
+      "name": "Create Export 6",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        -60
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "052f9d53-de6c-4ff2-b5fc-c4c6306c5eab",
+      "name": "Create Export 7",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        -60
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "1f72d383-32a6-4702-97de-0178248b8ea1",
+      "name": "Create Export 8",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        80,
+        -60
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c32cb3a1-7eda-416c-864b-6496a454277d",
+      "name": "Create Export 9",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        280,
+        -60
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "1a7de763-de1e-4786-b502-e81abe9d65e8",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        140
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "05c3668d-8018-4207-85e6-47a806861503",
+      "name": "Create Inbound 9",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        180
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a20e8aa8-1611-4d65-bd34-1775740a8514",
+      "name": "Create Inbound 10",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        180
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "faed0001-85d5-4fff-a4c1-60f17d99648e",
+      "name": "Create Inbound 11",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        180
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "2ed0acb5-1fff-4737-96aa-b92ce1f4576c",
+      "name": "Create Inbound 12",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        80,
+        180
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "2f4087f9-4d1c-419b-aa34-31f9a044d4f4",
+      "name": "Create Inbound 13",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        280,
+        180
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f5fcd665-ccf0-4566-afb7-be06d2aefc36",
+      "name": "Create Inbound 14",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        480,
+        180
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e5776e5a-691a-40ab-aa17-481be108d3ec",
+      "name": "Create Inbound 15",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        680,
+        180
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d2ab20c2-bdb2-43ee-977e-e937af8d9133",
+      "name": "Create Inbound 16",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        880,
+        180
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "17369935-9702-4a98-ad41-9f939e5b9dd5",
+      "name": "Create Inbound 17",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1080,
+        180
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "99050178-12be-4925-9cbf-b71997822948",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        380
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "db529ee1-ddbb-4e38-bc9a-8401326e1d8f",
+      "name": "Create Ip 13",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        420
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "94ee46c7-4063-47aa-93f6-879713b1db2a",
+      "name": "Create Ip 14",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        420
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "9433b3ee-5c35-41e2-a3fb-924c70840372",
+      "name": "Create Ip 15",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        420
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c79ee729-85d7-434d-a951-d7fb815a9d66",
+      "name": "Create Ip 16",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        80,
+        420
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c28d560b-397f-441e-b756-c3819bf66840",
+      "name": "Create Ip 17",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        280,
+        420
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "5e1487ed-fa6c-42dc-8f06-ed9bee0fd795",
+      "name": "Create Ip 18",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        480,
+        420
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "9df03bbf-1a69-4d03-bdbd-322297a4a79c",
+      "name": "Create Ip 19",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        680,
+        420
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e87e7b85-9c01-40fc-ab0b-dfe6d4211f45",
+      "name": "Create Ip 20",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        880,
+        420
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a2841663-2768-4983-a7c4-fdd2a73c06bf",
+      "name": "Create Ip 21",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1080,
+        420
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c7b5fd29-aa96-45e5-982c-ec5d6349448c",
+      "name": "Create Ip 22",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1280,
+        420
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "8046ca2d-4f96-465a-9503-38c1a30d2131",
+      "name": "Create Ip 23",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1480,
+        420
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "99b94695-5769-4400-9d6a-2e10c0448cb4",
+      "name": "Create Ip 24",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1680,
+        420
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b743e14d-bfb9-416c-ab62-b57aa9a2a6d5",
+      "name": "Create Ip 25",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1880,
+        420
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f220fa8e-092a-44bd-a9d6-281a3d9ccfae",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        620
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0a00196b-14ce-45bb-b7e7-9d665d832aaf",
+      "name": "Create Message 11",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        660
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "3bee6691-d2db-47fd-ab7d-eca52ea08a43",
+      "name": "Create Message 12",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        660
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a56527c4-1d6e-41bd-bcf5-9e2a20686f25",
+      "name": "Create Message 13",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        660
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0cda691c-c2c9-4100-ac18-29f891b100fc",
+      "name": "Create Message 14",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        80,
+        660
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "5e7e54d5-f6d0-4f28-9f8b-cfb00982f753",
+      "name": "Create Message 15",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        280,
+        660
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "7192994e-e035-4d91-b59c-ebb54cea2489",
+      "name": "Create Message 16",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        480,
+        660
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "11e45bba-ea70-4819-a790-3c6f4ef78224",
+      "name": "Create Message 17",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        680,
+        660
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "74f3ac27-4257-4dcf-95fe-49421fbd8196",
+      "name": "Create Message 18",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        880,
+        660
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "65c29323-7722-43ad-90f2-e1800fde93cd",
+      "name": "Create Message 19",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1080,
+        660
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "99e9a797-1484-4f7b-94d5-2379c652861c",
+      "name": "Create Message 20",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1280,
+        660
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c0f91e91-41e1-4965-afc2-c7a0bd3841db",
+      "name": "Create Message 21",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        1480,
+        660
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "92213c3e-964e-4cc4-bc84-93169a5cd4fe",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        860
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "743ba8db-9838-4537-8097-abe8f7b29b8d",
+      "name": "Create Metadata 4",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        900
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0a47aa20-2ba8-426f-acb6-a5107312c75e",
+      "name": "Create Metadata 5",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        900
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "29ac8de0-06e2-4884-9f77-093b7cc2f47d",
+      "name": "Create Metadata 6",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        900
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c97836e1-1967-4bf1-ad41-5e36f3778a8f",
+      "name": "Create Metadata 7",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        80,
+        900
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "83f5b680-1849-4530-b6f0-701159ccfaa3",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        1100
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7605bd7c-d263-4130-acb3-991fea89c8c1",
+      "name": "Create Reject 3",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        1140
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "3886ef36-f1e3-4b7a-8881-fe4ecb7b664a",
+      "name": "Create Reject 4",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        1140
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "013f7978-83b6-4f7f-b9ba-2fe1b5cb5a85",
+      "name": "Create Reject 5",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        1140
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "2910314c-9fac-4cfe-aba0-49dec870f5a5",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        1340
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "068c34ee-54b2-4b52-8a6a-669cb5548c0f",
+      "name": "Create Sender 7",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        1380
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "fc7e3011-f579-4201-935c-95cb31c475e3",
+      "name": "Create Sender 8",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        1380
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f1bdf6d9-bf51-4f9f-b135-13a9085494ca",
+      "name": "Create Sender 9",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        1380
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "1b33703f-4e6d-46e9-b8b2-08a4f78450dc",
+      "name": "Create Sender 10",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        80,
+        1380
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a4b2f859-7479-4ae2-ae35-15ecd1f39946",
+      "name": "Create Sender 11",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        280,
+        1380
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "86762b41-d184-4fd8-96c8-58c8b75729f7",
+      "name": "Create Sender 12",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        480,
+        1380
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e4c5239b-53e3-4722-b81d-4a84309e9204",
+      "name": "Create Sender 13",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        680,
+        1380
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c455dc18-8032-41be-9589-8f44a09ee552",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        1580
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f7ec81f3-248d-491c-8255-ce6171876609",
+      "name": "Create Subaccount 7",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        1620
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f4038d2a-49ff-4b4f-a008-e83daefe1a87",
+      "name": "Create Subaccount 8",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        1620
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f28ff86e-8d0b-4388-aceb-a85b075bfcfc",
+      "name": "Create Subaccount 9",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        1620
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "496da09b-6ada-4d73-aa13-2ea512ce20ab",
+      "name": "Create Subaccount 10",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        80,
+        1620
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "cd99384e-f033-4978-904c-1a518281e2f6",
+      "name": "Create Subaccount 11",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        280,
+        1620
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b9ecb5b1-9307-4085-9eba-c33e12df38a2",
+      "name": "Create Subaccount 12",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        480,
+        1620
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e5e07deb-f916-4442-b043-6b2906ad67c0",
+      "name": "Create Subaccount 13",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        680,
+        1620
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f7a2a5ed-1cb5-4be0-9c5f-37260121d292",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        1820
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d2ac52ba-0b0b-4e33-8fde-7916de9c43a3",
+      "name": "Create Tag 5",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        1860
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "6cee04c3-6ddf-426d-b186-17f119e7a527",
+      "name": "Create Tag 6",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        1860
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "5833a0a7-d8e3-488b-b5d3-f378b1337921",
+      "name": "Create Tag 7",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        1860
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "58efa661-5da0-424e-bdb3-128f843da885",
+      "name": "Create Tag 8",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        80,
+        1860
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "6dcb5895-4f69-4b0e-ab93-9a1cb0a4681e",
+      "name": "Create Tag 9",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        280,
+        1860
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "31e914a1-5326-4b54-820b-94b0910b8933",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        2060
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d0f0af8e-cd5f-4689-a133-78154a82cb38",
+      "name": "Create Template 8",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        2100
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "9de6100c-1af2-4b6e-ba3f-026936a398de",
+      "name": "Create Template 9",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        2100
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "dd635bbb-9db5-48c5-ad7e-f041665522c0",
+      "name": "Create Template 10",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        2100
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "62fa27b0-f247-4376-80e7-1c2c74243ec8",
+      "name": "Create Template 11",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        80,
+        2100
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "29a72ed6-b52d-4a9d-819f-19624c16b3ad",
+      "name": "Create Template 12",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        280,
+        2100
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "77f7e52c-201f-4f5e-a553-6871efd0746b",
+      "name": "Create Template 13",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        480,
+        2100
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f41edf9c-6f9c-443f-b70b-e4518434eaf2",
+      "name": "Create Template 14",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        680,
+        2100
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "144235a3-999d-4a8a-b973-4a3546ea7266",
+      "name": "Create Template 15",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        880,
+        2100
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d05eb005-c31f-44dd-8195-99c40b066e2a",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        2300
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "05acbf8c-89e1-47b5-ae82-3b5f8835ac93",
+      "name": "Create Url 6",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        2340
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "507929c0-a0e9-496c-968d-2316066295d3",
+      "name": "Create Url 7",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        2340
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a2a6123a-fa21-4170-9de5-f2d74d930f44",
+      "name": "Create Url 8",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        2340
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "348a93b5-9d4a-4cf8-ab61-c6e5d58169e3",
+      "name": "Create Url 9",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        80,
+        2340
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "aa58ede1-4972-47c7-a8e5-f3605e71354b",
+      "name": "Create Url 10",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        280,
+        2340
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "728ac8e9-a40a-4de4-950d-57bca35e9675",
+      "name": "Create Url 11",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        480,
+        2340
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e223a6b7-4928-4088-94a0-971df95bed3d",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        2540
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ce883a75-97f9-47bc-bef0-eb8f257c742b",
+      "name": "Create User 4",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        2580
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "9d3ab454-a288-4d03-a757-74238875477c",
+      "name": "Create User 5",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        2580
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "633c1af2-b302-4911-95c1-1f8111b73e4f",
+      "name": "Create User 6",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        2580
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c491ce88-d4e5-4673-90ff-933d79fb4352",
+      "name": "Create User 7",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        80,
+        2580
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b47dafce-c013-4a58-b405-e889793e85eb",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        2780
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "845aa704-2d23-4b58-8572-87e8e9b2d76b",
+      "name": "Create Webhook 5",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        2820
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c2cc4d4e-0754-4841-8e87-cef841469fbf",
+      "name": "Create Webhook 6",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        2820
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "319d9e63-8ef2-492b-a499-aaa311b14746",
+      "name": "Create Webhook 7",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        2820
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "8d3a40f6-c1b4-4a6d-bb2a-d374c0213d74",
+      "name": "Create Webhook 8",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        80,
+        2820
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "9154f5b3-b92d-4599-985d-d05eb3635bb2",
+      "name": "Create Webhook 9",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        280,
+        2820
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "76ff9fa2-5210-46c7-b420-7b200889870d",
+      "name": "Sticky Note14",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        3020
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "658e5943-e5f9-4127-86a8-45040ef5e82c",
+      "name": "Create Whitelist 3",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        3060
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "35bf8b6a-ba3d-49f4-afbc-2b82c93a03fb",
+      "name": "Create Whitelist 4",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        3060
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e715f8e9-3271-449f-82c0-14f73926bc6e",
+      "name": "Create Whitelist 5",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        3060
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    }
+  ],
+  "active": false,
+  "shared": [
+    {
+      "role": "workflow:owner",
+      "project": {
+        "id": "G5fce9xGuBAsWBXe",
+        "icon": null,
+        "name": "David Ashby <david.ashby.lds@gmail.com>",
+        "type": "personal",
+        "createdAt": "2025-06-04T02:55:02.013Z",
+        "updatedAt": "2025-06-04T02:56:01.361Z",
+        "projectRelations": [
+          {
+            "role": "project:personalOwner",
+            "user": {
+              "id": "715c1c00-cb48-4712-9a32-f1f4b6db2b30",
+              "role": "global:owner",
+              "email": "david.ashby.lds@gmail.com",
+              "disabled": false,
+              "lastName": "Ashby",
+              "settings": {
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1749357655581
+                },
+                "userActivated": true,
+                "userActivatedAt": 1749075994495,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "3N3vVikZb3MckFYm"
+              },
+              "createdAt": "2025-06-04T02:55:01.745Z",
+              "firstName": "David",
+              "isPending": false,
+              "updatedAt": "2025-06-08T04:40:58.399Z",
+              "mfaEnabled": false,
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_n8n_version": "1.95.3",
+                "personalization_survey_submitted_at": "2025-06-04T02:56:07.075Z"
+              }
+            },
+            "userId": "715c1c00-cb48-4712-9a32-f1f4b6db2b30",
+            "createdAt": "2025-06-04T02:55:02.013Z",
+            "projectId": "G5fce9xGuBAsWBXe",
+            "updatedAt": "2025-06-04T02:55:02.013Z"
+          }
+        ]
+      },
+      "createdAt": "2025-07-03T05:07:05.420Z",
+      "projectId": "G5fce9xGuBAsWBXe",
+      "updatedAt": "2025-07-03T05:07:05.420Z",
+      "workflowId": "XTgfESAfWAeBnkDR"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "timezone": "America/New_York"
+  },
+  "createdAt": "2025-07-03T05:07:05.413Z",
+  "updatedAt": "2025-07-03T05:07:39.000Z",
+  "versionId": "cd28113a-2c79-4e65-82e2-6728eb05ac42",
+  "isArchived": false,
+  "staticData": null,
+  "connections": {
+    "Create Ip 13": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Ip 14": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Ip 15": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Ip 16": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Ip 17": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Ip 18": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Ip 19": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Ip 20": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Ip 21": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Ip 22": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Ip 23": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Ip 24": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Ip 25": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Tag 5": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Tag 6": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Tag 7": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Tag 8": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Tag 9": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Url 6": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Url 7": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Url 8": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Url 9": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Url 10": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Url 11": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create User 4": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create User 5": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create User 6": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create User 7": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Export 5": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Export 6": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Export 7": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Export 8": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Export 9": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Reject 3": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Reject 4": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Reject 5": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Sender 7": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Sender 8": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Sender 9": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Inbound 9": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Sender 10": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Sender 11": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Sender 12": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Sender 13": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Webhook 5": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Webhook 6": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Webhook 7": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Webhook 8": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Webhook 9": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Inbound 10": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Inbound 11": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Inbound 12": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Inbound 13": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Inbound 14": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Inbound 15": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Inbound 16": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Inbound 17": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Message 11": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Message 12": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Message 13": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Message 14": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Message 15": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Message 16": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Message 17": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Message 18": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Message 19": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Message 20": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Message 21": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Metadata 4": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Metadata 5": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Metadata 6": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Metadata 7": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Template 8": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Template 9": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Template 10": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Template 11": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Template 12": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Template 13": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Template 14": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Template 15": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Whitelist 3": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Whitelist 4": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Whitelist 5": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Subaccount 7": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Subaccount 8": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Subaccount 9": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Subaccount 10": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Subaccount 11": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Subaccount 12": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Subaccount 13": {
+      "ai_tool": [
+        [
+          {
+            "node": "Mandrill MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "triggerCount": 0
+}

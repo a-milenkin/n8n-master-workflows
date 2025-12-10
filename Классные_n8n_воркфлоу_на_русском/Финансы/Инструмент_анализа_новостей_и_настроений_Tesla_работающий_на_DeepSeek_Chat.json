@@ -1,0 +1,344 @@
+{
+  "id": "BTnE5RUvVamK64A3",
+  "meta": {
+    "instanceId": "a5283507e1917a33cc3ae615b2e7d5ad2c1e50955e6f831272ddd5ab816f3fb6",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Этот узел использует **DeepSeek LLM** для:",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "4003f0ec-f9c2-49f0-8aab-72c7f0a8b9ff",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -120,
+        300
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "message"
+            },
+            {
+              "name": "sessionId"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "d9113a0b-296a-43fb-b2de-9fa7ac9f4b60",
+      "name": "Tesla News and Sentiment Analyst",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        320,
+        300
+      ],
+      "parameters": {
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "You are a Tesla News and Sentiment Analyst AI powered by DeepSeek.\n\nYour role is to analyze Tesla-related headlines across trusted news feeds and produce structured sentiment insight for investors and swing traders.\n\nYou are always connected to the following live news sources via RSS:\n\n- Google News (filtered by Tesla/TSLA stock)\n- Yahoo Finance (TSLA-specific)\n- Electrek (Tesla news)\n- CleanTechnica (Tesla archive)\n- TeslaNorth\n\n🧠 You must always call all 5 tools during analysis to ensure full market coverage.\n\nFor each execution, follow these steps:\n\n1. Collect and read articles from all sources.\n2. Extract top 3–5 headlines that are most relevant to Tesla's financial, technical, or macro outlook.\n3. Classify sentiment as:\n   - **Bullish** (positive impact on TSLA)\n   - **Bearish** (negative impact on TSLA)\n   - **Neutral** (mixed or inconclusive)\n4. Write a clear, 2–3 sentence **news sentiment summary** highlighting the major drivers of sentiment (e.g. earnings, product updates, factory news, market reactions).\n5. Output in strict JSON format.\n\n🚫 Never output anything other than the structured JSON response.\n\n✅ Format:\n\n```json\n{\n  \"sentiment\": \"bullish\",\n  \"summary\": \"Tesla's stock is climbing after it beat Q1 delivery estimates and announced progress on the Cybertruck ramp-up. Analysts are reacting positively to recent margin recovery hints.\",\n  \"topHeadlines\": [\n    \"Tesla beats Q1 delivery forecast – Yahoo Finance\",\n    \"Cybertruck production scaling in Austin – Electrek\",\n    \"Tesla Model Y becomes top-selling EV in Europe – CleanTechnica\"\n  ]\n}\n"
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "b43759f2-87d2-410c-a33a-84af4c93862e",
+      "name": "RSS - TeslaNorth",
+      "type": "n8n-nodes-base.rssFeedReadTool",
+      "position": [
+        1320,
+        640
+      ],
+      "parameters": {
+        "url": "https://teslanorth.com/feed/",
+        "options": {},
+        "toolDescription": "This node retrieves Tesla-focused news from TeslaNorth’s RSS feed. TeslaNorth provides daily updates on software releases, feature rollouts, vehicle pricing changes, charging infrastructure, and app enhancements.\n\nIt’s a fast, dedicated source ideal for capturing technical and consumer sentiment trends—especially useful for tracking real-time updates that may not yet reach major financial media."
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "dc9766af-f3cf-4c56-9675-f308952a7d5d",
+      "name": "RSS - Google News Tesla-specific",
+      "type": "n8n-nodes-base.rssFeedReadTool",
+      "position": [
+        360,
+        640
+      ],
+      "parameters": {
+        "url": "https://news.google.com/rss/search?q=Tesla+OR+TSLA+stock&hl=en-US&gl=US&ceid=US:en",
+        "options": {},
+        "toolDescription": "This node pulls the latest Tesla-related headlines using the Google News RSS feed filtered by the search query Tesla OR TSLA stock. It aggregates news articles from multiple top-tier sources like CNBC, Reuters, Bloomberg, and more. The feed is regionally scoped to the U.S. and provided in English.\n\nThis node is typically used as the first step in Tesla sentiment analysis, providing real-time news updates for downstream summarization and sentiment classification."
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "acfe1510-c3cd-4aea-9a22-ea5a4a9969fa",
+      "name": "RSS - Electrek Tesla",
+      "type": "n8n-nodes-base.rssFeedReadTool",
+      "position": [
+        600,
+        640
+      ],
+      "parameters": {
+        "url": "https://electrek.co/guides/tesla/feed/",
+        "options": {},
+        "toolDescription": "This node fetches Tesla-focused news from Electrek, a trusted source for electric vehicle and clean energy industry reporting. The feed includes updates on Tesla vehicles, software, charging infrastructure, factory production, and executive announcements.\n\nElectrek is considered one of the most in-depth sources for Tesla technology and operations, making it ideal for high-quality sentiment analysis beyond just stock price speculation.\n"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "0410c7e4-49f0-4dcb-83c6-47d69a805f4e",
+      "name": "RSS - Yahoo Finance TSLA",
+      "type": "n8n-nodes-base.rssFeedReadTool",
+      "position": [
+        840,
+        640
+      ],
+      "parameters": {
+        "url": "https://feeds.finance.yahoo.com/rss/2.0/headline?s=TSLA®ion=US&lang=en-US",
+        "options": {},
+        "toolDescription": "This node pulls TSLA-specific financial news from Yahoo Finance, offering timely updates on stock movements, earnings reports, analyst upgrades/downgrades, and broader market trends that impact Tesla. The feed is curated to provide high-signal information for traders and investors focused on Tesla’s financial outlook.\n\nIt’s ideal for generating sentiment insights directly tied to stock price catalysts and market positioning."
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "13b3c9e9-6f27-47ca-81b3-0b1dcd6e83f6",
+      "name": "RSS - CleanTechnica Tesla Archives",
+      "type": "n8n-nodes-base.rssFeedReadTool",
+      "position": [
+        1080,
+        640
+      ],
+      "parameters": {
+        "url": "https://cleantechnica.com/tag/tesla/feed/",
+        "options": {},
+        "toolDescription": "This node pulls Tesla-related content from CleanTechnica's Tesla archive RSS feed. It includes coverage of Tesla’s clean energy initiatives, vehicle technology, charging networks, battery advancements, and policy impacts.\n\nCleanTechnica offers insightful, environmentally focused reporting that adds depth to Tesla sentiment analysis, especially around sustainability and innovation narratives."
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "2b6f6765-5c71-4324-9d6b-784fb5b3edc9",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        20,
+        640
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "c3880bbb-3238-43bb-b4a0-11cdd0da8154",
+      "name": "DeepSeek Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "position": [
+        -300,
+        640
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "credentials": {
+        "deepSeekApi": {
+          "id": "IFGrgxPb0zqN41tB",
+          "name": "DeepSeek account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "554f078b-2c38-4bb0-97f7-f8bbc577d0da",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -200,
+        100
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 280,
+        "height": 380,
+        "content": "## Триггер из родительского рабочего процесса"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "06136f71-ea9a-42a0-b12b-cb1df01fe980",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        600
+      ],
+      "parameters": {
+        "color": 3,
+        "height": 480,
+        "content": "Этот узел активирует рабочий процесс, когда его вызывают для выполнения действия рабочего процесса от **Tesla Quant Trading AI Agent**. Убедитесь, что переданы правильные входные данные **message, sessionId**."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "df12641e-8bf0-4c5f-a934-71a3c6b3363d",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -380,
+        600
+      ],
+      "parameters": {
+        "color": 2,
+        "height": 480,
+        "content": "## Модуль краткосрочной памяти"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a53b7ad4-270a-4989-ab10-f1b1bc18451f",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        240,
+        600
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1240,
+        "height": 480,
+        "content": "Поддерживает **краткосрочный** контекст рассуждений по **запросам, связанным с Tesla**."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "18e103b1-3e6f-4954-88e2-d51a05070e7f",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        40
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 480,
+        "height": 440,
+        "content": "Позволяет аналитикам отслеживать логику сессии для **согласования заголовков** и **избегать дублирования анализа**."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "37533426-bb9a-404e-ae2b-11e4a3a34bb3",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1560,
+        -1340
+      ],
+      "parameters": {
+        "width": 1260,
+        "height": 2420,
+        "content": "## 🧠 DeepSeek (Парсинг новостей)"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "32533aa3-e569-40cc-ae52-62f0d93db532",
+  "connections": {
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Tesla News and Sentiment Analyst",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS - TeslaNorth": {
+      "ai_tool": [
+        [
+          {
+            "node": "Tesla News and Sentiment Analyst",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Tesla News and Sentiment Analyst",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS - Electrek Tesla": {
+      "ai_tool": [
+        [
+          {
+            "node": "Tesla News and Sentiment Analyst",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS - Yahoo Finance TSLA": {
+      "ai_tool": [
+        [
+          {
+            "node": "Tesla News and Sentiment Analyst",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS - Google News Tesla-specific": {
+      "ai_tool": [
+        [
+          {
+            "node": "Tesla News and Sentiment Analyst",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Tesla News and Sentiment Analyst",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS - CleanTechnica Tesla Archives": {
+      "ai_tool": [
+        [
+          {
+            "node": "Tesla News and Sentiment Analyst",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

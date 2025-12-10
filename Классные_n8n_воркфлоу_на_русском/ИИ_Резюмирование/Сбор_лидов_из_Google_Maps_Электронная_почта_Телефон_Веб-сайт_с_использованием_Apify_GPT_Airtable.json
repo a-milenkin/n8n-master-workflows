@@ -1,0 +1,469 @@
+{
+  "id": "n7GCtCY2vrmRZEPS",
+  "meta": {
+    "instanceId": "2698fb90c872341655d36c9377b0dd8ca572ac3c6ee494b27ca6ac82ec175b2a"
+  },
+  "name": "Введите ключевое слово вашего бизнеса (например, агентство недвижимости, парикмахерская, ресторан)",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "e5d812c7-bf71-44fc-918b-151eeb1e9fcf",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        620,
+        -200
+      ],
+      "parameters": {
+        "width": 400,
+        "height": 1720,
+        "content": "Что если вы сможете **извлечь каждое электронное письмо**, номер телефона и веб-сайт из определенной области всего за несколько кликов?"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e0fea6a2-9c64-4c24-8508-79f252b09ef2",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1180,
+        620
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 220,
+        "height": 900,
+        "content": "В этом рабочем процессе мы будем собирать данные с Google Maps и автоматически **организовывать данные** в базе Airtable."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fc30bfdf-7a69-46d0-9e72-262fd7938f7d",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1620,
+        680
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 220,
+        "height": 840,
+        "content": "Мы используем недвижимость в Париже в качестве примера, но это работает **для любого бизнеса** — от местных терапевтов до продавцов надувных бассейнов."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d9b647b2-ba50-4912-98d8-e0bd07361e88",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1980,
+        720
+      ],
+      "parameters": {
+        "color": 4,
+        "height": 800,
+        "content": "## Шаг 1 – Запустите сборщик Google Maps"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f3198479-6cb4-429c-8521-c96d91ee2a9b",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2340,
+        400
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 220,
+        "height": 1120,
+        "content": "Начните с триггера выполнения рабочего процесса, чтобы запустить поток вручную."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "99450c1c-db8c-4be7-884e-77391695bb92",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2680,
+        500
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 360,
+        "height": 1020,
+        "content": "Затем **добавьте узел HTTP-запроса** с методом, установленным на POST."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8963bf7e-7d98-4416-9108-bd9e9c2156e0",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3120,
+        300
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 460,
+        "height": 1220,
+        "content": "👉 Перейдите на Apify: Сборщик Google Maps"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b21cc192-0e26-45cf-965a-bd00412005b4",
+      "name": "Fetch Business Data from Google Maps (Apify)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        880,
+        1260
+      ],
+      "parameters": {
+        "url": "<your apify url>",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "{\n    \"categoryFilterWords\": [\n        \"real estate agency\"\n    ],\n    \"city\": \"Paris\",\n    \"countryCode\": \"fr\",\n    \"language\": \"en\",\n    \"locationQuery\": \"France, Paris\",\n    \"maxCrawledPlacesPerSearch\": 50,\n    \"postalCode\": \"75000\",\n    \"searchStringsArray\": [\n        \"agence immobilière\"\n    ],\n    \"skipClosedPlaces\": false\n}",
+        "sendBody": true,
+        "specifyBody": "json"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "2976c24c-7032-4e1e-88b6-58eb290abbe4",
+      "name": "Clean Google Maps Data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1240,
+        1260
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e0ee1e00-da28-49c7-b8ad-b1cf983b1004",
+              "name": "Title",
+              "type": "string",
+              "value": "={{ $json.title }}"
+            },
+            {
+              "id": "ac43f911-1a98-4b12-9c95-b3836e13788d",
+              "name": "Address",
+              "type": "string",
+              "value": "={{ $json.address }}"
+            },
+            {
+              "id": "bdc01304-c710-4aeb-99e5-75924e33b0c6",
+              "name": "Website",
+              "type": "string",
+              "value": "={{ $json.website }}"
+            },
+            {
+              "id": "024a396b-a476-4a72-a39c-3a97e417775c",
+              "name": "Phone",
+              "type": "string",
+              "value": "={{ $json.phone }}"
+            },
+            {
+              "id": "f6f4c12d-401d-4596-8cd4-f1d06e68ecd1",
+              "name": "URL",
+              "type": "string",
+              "value": "={{ $json.url }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "19e2d18e-9bb2-445d-9171-51f2d2a53258",
+      "name": "Manual Workflow Execution",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        640,
+        1260
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "c9bf49f6-f6de-42e8-9d51-74abdfac407b",
+      "name": "Iterate Through Each Business Contact",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        1680,
+        1260
+      ],
+      "parameters": {
+        "options": {},
+        "batchSize": 20
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "84306120-0192-452b-b057-f001609b642c",
+      "name": "Extract Only Website URLs",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2060,
+        1280
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ccc11066-fad4-4931-acf6-6c45e5e7b117",
+              "name": "Website",
+              "type": "string",
+              "value": "={{ $json.Website }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "c7af89ca-1d92-484c-a524-f1091a6647fa",
+      "name": "Fetch Raw HTML Content from Business Website",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2400,
+        1280
+      ],
+      "parameters": {
+        "url": "={{ $json.Website }}",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "20f63382-dec2-4fd3-921f-c7b42cb23724",
+      "name": "Extract Business Email from Website HTML (GPT-4)",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        2740,
+        1280
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "content": "На странице: [https://apify.com/compass/google-maps-extractor](https://apify.com/compass/google-maps-extractor)"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "dde69d47-627c-4fb1-926a-2ac39dbc01bc",
+      "name": "Save Cleaned Lead Data into Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "position": [
+        3240,
+        1280
+      ],
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "mode": "list",
+          "value": "app7nzaQOYoq0cF1n",
+          "cachedResultUrl": "https://airtable.com/app7nzaQOYoq0cF1n",
+          "cachedResultName": "GOOGLE MAP SCRAPPING"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "tblJIrBU19hfFYdL9",
+          "cachedResultUrl": "https://airtable.com/app7nzaQOYoq0cF1n/tblJIrBU19hfFYdL9",
+          "cachedResultName": "Data"
+        },
+        "columns": {
+          "value": {
+            "URL": "={{ $('Clean Google Maps Data').item.json.URL }}",
+            "Email": "={{ $json.message.content }}",
+            "Title": "={{ $('Clean Google Maps Data').item.json.Title }}",
+            "Street": "={{ $('Clean Google Maps Data').item.json.Address }}",
+            "Website": "={{ $('Clean Google Maps Data').item.json.Website }}",
+            "Phone Number": "={{ $('Clean Google Maps Data').item.json.Phone }}"
+          },
+          "schema": [
+            {
+              "id": "Title",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Title",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Street",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Street",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Website",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Website",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone Number",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Phone Number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "URL",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "URL",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "create"
+      },
+      "typeVersion": 2.1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8ec78184-bbf5-4955-9d7f-6258b9f33f61",
+  "connections": {
+    "Clean Google Maps Data": {
+      "main": [
+        [
+          {
+            "node": "Iterate Through Each Business Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Only Website URLs": {
+      "main": [
+        [
+          {
+            "node": "Fetch Raw HTML Content from Business Website",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Workflow Execution": {
+      "main": [
+        [
+          {
+            "node": "Fetch Business Data from Google Maps (Apify)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Iterate Through Each Business Contact": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Extract Only Website URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Business Data from Google Maps (Apify)": {
+      "main": [
+        [
+          {
+            "node": "Clean Google Maps Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Raw HTML Content from Business Website": {
+      "main": [
+        [
+          {
+            "node": "Extract Business Email from Website HTML (GPT-4)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Business Email from Website HTML (GPT-4)": {
+      "main": [
+        [
+          {
+            "node": "Save Cleaned Lead Data into Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

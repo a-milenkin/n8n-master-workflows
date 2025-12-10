@@ -1,0 +1,328 @@
+{
+  "id": "KwfGSgwPQrcD92Gg",
+  "meta": {
+    "instanceId": "10a5c562c9a735159d1eb02179d8395916de079abee02b87ec2c2b97f278000a"
+  },
+  "name": "Интеграция WordPress с Pipedrive: Автоматизация управления контактами и лидами",
+  "tags": [
+    {
+      "id": "vlXJOdNziJAjaypM",
+      "name": "Templates",
+      "createdAt": "2023-11-29T10:41:32.132Z",
+      "updatedAt": "2023-11-29T10:41:32.132Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "51bde0f3-2300-4a85-89d3-cf7d7b43c94d",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -120,
+        0
+      ],
+      "parameters": {
+        "width": 611,
+        "height": 1168.7934508816131,
+        "content": "### Настройка вебхука для Contact Form 7 в WordPress\n* Установите Contact Form 7: Начните с установки плагина Contact Form 7 на вашем сайте WordPress. Этот плагин позволяет легко создавать и управлять контактными формами. Вы можете скачать и установить его из каталога плагинов WordPress здесь: [Плагин Contact Form 7](https://example.com/).\n* Используйте расширение CF7 Webhook: Чтобы включить функциональность вебхука в CF7, используйте расширение CF7 Webhook. Это расширение позволяет отправлять данные формы на указанный URL, что имеет решающее значение для интеграции с вашим рабочим процессом. Вы можете найти дополнительную информацию и скачать его здесь: [Расширение CF7 Webhook](https://example.com/).\n\n### Настройка вебхука с Contact Form 7 в WordPress\n* Получите URL вебхука n8n: Сначала получите ваш URL вебхука n8n. Это конкретный адрес, на который будут отправлены данные из вашей контактной формы WordPress.\n* Обновите Contact Form 7 с помощью пользовательского кода формы: В вашей панели управления WordPress перейдите к плагину Contact Form 7. Создайте новую форму или отредактируйте существующую, и вставьте следующий код для создания пользовательской контактной формы: \n\n<label> Имя [text* your-name autocomplete:name] </label>\n<label> E-Mail-Adresse [email* your-email autocomplete:email] </label> \n<label> Компания [text* company] </label> \n[submit \"Отправить\"]    \n\nЭтот код создаст форму с полями для Имени, Адреса электронной почты и Компании.\n* Вставьте URL вебхука n8n в поле вебхука: В настройках вашей формы CF7 найдите поле вебхука. Здесь вставьте URL вебхука n8n, который вы получили на шаге 1. Этот шаг имеет решающее значение для обеспечения отправки данных из вашей формы в ваш рабочий процесс n8n.\n* Сохраните и протестируйте вашу форму: После настройки URL вебхука сохраните вашу форму. Рекомендуется протестировать форму, чтобы убедиться, что данные правильно передаются на ваш вебхук n8n.\n\n### Получение API-ключа в Pipedrive\n* Войдите в Pipedrive: Войдите в свою учетную запись Pipedrive.\n* Перейдите в настройки: Перейдите в свои личные настройки. Обычно это доступно через значок вашего профиля в правом верхнем углу интерфейса Pipedrive.\n* Найдите API-ключ: Найдите раздел с названием “API” или “API Key”. В этом разделе будет отображен ваш личный API-ключ. Этот ключ уникален для вашей учетной записи и позволяет таким приложениям, как n8n, получать доступ к вашим данным Pipedrive.\n* Скопируйте API-ключ: Скопируйте отображаемый API-ключ.\n\n### Настройка учетных данных Pipedrive в n8n\n* Добавьте учетные данные: Нажмите на опцию в узле, чтобы добавить или выбрать новые учетные данные. Выберите “Pipedrive API” в качестве типа учетных данных.\n* Введите API-ключ: Вставьте API-ключ, который вы скопировали из Pipedrive, в соответствующее поле.\n* Сохраните учетные данные: Сохраните учетные данные (дайте им имя). Теперь ваш рабочий процесс n8n может взаимодействовать с Pipedrive.\n\n![Пример источника](https://kapio.eu/kapio_logo.jpeg)\nВам нужна помощь: Напишите нам на hallo@kapio.eu\nСайт: www.kapio.eu"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ba7c4fdd-5502-408b-ba04-484f3d3b6240",
+      "name": "Create Lead",
+      "type": "n8n-nodes-base.pipedrive",
+      "position": [
+        2020,
+        400
+      ],
+      "parameters": {
+        "title": "=Website request: {{ $('Webhook').item.json.body.company }}",
+        "resource": "lead",
+        "person_id": "={{ $json.person_id }}",
+        "associateWith": "person",
+        "additionalFields": {
+          "label_ids": [
+            "2a875ff0-eb41-11ed-80d0-59a724a2c908"
+          ]
+        }
+      },
+      "credentials": {
+        "pipedriveApi": {
+          "id": "20",
+          "name": "Pipedrive kapio"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0a211c74-0ea2-4385-a19f-5d35603ca64f",
+      "name": "Search Person in Pipedrive",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        900,
+        420
+      ],
+      "parameters": {
+        "url": "=https://api.pipedrive.com/v1/itemSearch?term={{ $json.body['your-email'] }}&field_key=email&exact_match=true&item_types=person",
+        "options": {},
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "pipedriveApi"
+      },
+      "credentials": {
+        "pipedriveApi": {
+          "id": "20",
+          "name": "Pipedrive kapio"
+        }
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "79fd1b5d-874f-4ffd-ab3c-1969fb71e7c2",
+      "name": "Check if person is in Pipedrive and output the ID",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1120,
+        420
+      ],
+      "parameters": {
+        "jsCode": "const inputItems = $input.all();\n\n// Check if there are items and that the items array is not empty\nconst hasItems = inputItems.length > 0 && inputItems[0]?.json?.data?.items.length > 0;\n\n// Retrieve the ID of the first item if available\nconst firstItemId = hasItems ? inputItems[0].json.data.items[0].item.id : null;\n\nreturn { hasItems, firstItemId };\n"
+      },
+      "typeVersion": 2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "9664b373-11f8-4dbb-adcf-5db14498f03d",
+      "name": "IF Person exists in Pipedrive",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1320,
+        420
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.hasItems }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d98569ea-9879-4e65-b310-82f199abe436",
+      "name": "Pipedrive",
+      "type": "n8n-nodes-base.pipedrive",
+      "position": [
+        1540,
+        520
+      ],
+      "parameters": {
+        "name": "={{ $('Webhook').item.json.body[\"your-name\"] }}",
+        "resource": "person",
+        "additionalFields": {
+          "email": [
+            "={{ $('Webhook').item.json.body[\"your-email\"] }}"
+          ]
+        }
+      },
+      "credentials": {
+        "pipedriveApi": {
+          "id": "20",
+          "name": "Pipedrive kapio"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1afebef2-cb8c-4ef7-bb37-820b9d20f8fd",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        720,
+        420
+      ],
+      "webhookId": "d296fe58-4ba1-4089-ac91-88cd07a40571",
+      "parameters": {
+        "path": "d296fe58-4ba1-4089-ac91-88cd07a40571",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "67813ff5-2017-4850-b9b9-2267f1bc60e6",
+      "name": "New Person ID",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1820,
+        400
+      ],
+      "parameters": {
+        "jsCode": "// Check whether the value from the previous node is available\nlet personId;\n\n// Check whether the value of 'IF Person exists in Pipedrive' node is present\nif ($('IF Person exists in Pipedrive').item.json.firstItemId) {\n    personId = $('IF Person exists in Pipedrive').item.json.firstItemId;\n} \n// If the above value is not available, check whether a value of '$('Pipedrive').item.json.id' is available\nelse if ($('Pipedrive').item.json.id) {\n    personId = $('Pipedrive').item.json.id;\n}\n\n// If a value was found for personId, it is output as a new variable\nif (personId) {\n    return { person_id: personId };\n} else {\n    return { error: 'Keine Person-ID gefunden' };\n}\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bd5b9b7d-0450-4739-9956-51aa8339d181",
+      "name": "Create Note",
+      "type": "n8n-nodes-base.pipedrive",
+      "position": [
+        2180,
+        400
+      ],
+      "parameters": {
+        "content": "=Website-Request:<br>\nName: {{ $('Webhook').item.json.body[\"your-name\"] }} <br>\nE-Mail: {{ $('Webhook').item.json.body[\"your-email\"] }}<br>\nCompany: {{ $('Webhook').item.json.body.company }}",
+        "resource": "note",
+        "additionalFields": {
+          "lead_id": "={{ $json.id }}",
+          "person_id": "={{ $('New Person ID').item.json.person_id }}"
+        }
+      },
+      "credentials": {
+        "pipedriveApi": {
+          "id": "20",
+          "name": "Pipedrive kapio"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b864919c-1438-4705-8822-0752c88f3a76",
+      "name": "Create Activity",
+      "type": "n8n-nodes-base.pipedrive",
+      "position": [
+        2340,
+        400
+      ],
+      "parameters": {
+        "type": "task",
+        "subject": "Contacting new website lead",
+        "resource": "activity",
+        "additionalFields": {
+          "person_id": "={{ $('New Person ID').item.json.person_id }}",
+          "customProperties": {
+            "property": [
+              {
+                "name": "lead_id",
+                "value": "={{ $('Create Lead').item.json.id }}"
+              }
+            ]
+          }
+        }
+      },
+      "credentials": {
+        "pipedriveApi": {
+          "id": "20",
+          "name": "Pipedrive kapio"
+        }
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1392a3ca-f07b-4acf-8ff5-3e692445696d",
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Search Person in Pipedrive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pipedrive": {
+      "main": [
+        [
+          {
+            "node": "New Person ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Lead": {
+      "main": [
+        [
+          {
+            "node": "Create Note",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Note": {
+      "main": [
+        [
+          {
+            "node": "Create Activity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Person ID": {
+      "main": [
+        [
+          {
+            "node": "Create Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Person in Pipedrive": {
+      "main": [
+        [
+          {
+            "node": "Check if person is in Pipedrive and output the ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Person exists in Pipedrive": {
+      "main": [
+        [
+          {
+            "node": "New Person ID",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Pipedrive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if person is in Pipedrive and output the ID": {
+      "main": [
+        [
+          {
+            "node": "IF Person exists in Pipedrive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

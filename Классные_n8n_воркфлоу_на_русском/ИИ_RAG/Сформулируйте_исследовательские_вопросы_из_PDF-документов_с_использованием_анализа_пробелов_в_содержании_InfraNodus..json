@@ -1,0 +1,389 @@
+{
+  "id": "oOxhkss1gOyLvJyf",
+  "meta": {
+    "instanceId": "2a26454b0172ffcb8d70ba77c235b1209f92cd71bf06c79ba609c7173b416d68",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Сгенерируйте исследовательские вопросы и AI-подсказки из PDF-документов на основе пробелов в содержании.",
+  "tags": [
+    {
+      "id": "66wgFoDi9Xjl74M3",
+      "name": "Support",
+      "createdAt": "2025-05-21T17:06:32.355Z",
+      "updatedAt": "2025-05-21T17:06:32.355Z"
+    },
+    {
+      "id": "kRM0hQV2zw7VxrON",
+      "name": "Research",
+      "createdAt": "2025-05-21T19:44:19.136Z",
+      "updatedAt": "2025-05-21T19:44:19.136Z"
+    },
+    {
+      "id": "sJk9cUvmMU8FkJXv",
+      "name": "AI",
+      "createdAt": "2025-05-20T13:16:15.636Z",
+      "updatedAt": "2025-05-20T13:16:15.636Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "a2339bb9-abb9-41bf-8064-8c3af94df039",
+      "name": "Convert File to PDF",
+      "type": "n8n-nodes-base.httpRequest",
+      "disabled": true,
+      "position": [
+        1880,
+        180
+      ],
+      "parameters": {
+        "url": "https://v2.convertapi.com/convert/pdf/to/txt",
+        "method": "POST",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "file",
+              "parameterType": "formBinaryData",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "genericAuthType": "httpBearerAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/octet-stream"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "9fXf9Np7XsCWgxhg",
+          "name": "Perplexity"
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "989a0d6c-12a1-45d4-8b6b-206855177df7",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1840,
+        -400
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 360,
+        "height": 820,
+        "content": "## Дополнительно: Лучшее преобразование PDF\n\n### Стандартный узел PDF в текст разделит ваши PDF-файлы на очень короткие фрагменты, что ухудшит извлечение.\n\nВы можете использовать [ConvertAPI](https://convertapi.com?ref=4l54n), который является высококачественным конвертером, который сохранит макет оригинального документа и не разобьет абзацы на короткие фрагменты.\n\nВот HTTP-узел, который делает запрос к их API для преобразования PDF в текст. Если у вас есть аккаунт ConvertAPI, вы можете заменить узел \"Извлечь текст из PDF\" на Шаге 3 на этот узел.\n\nОбратите внимание, что вам нужно будет правильно сопоставить текстовый вывод из этого узла на Шаге 4."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4d698efb-6b02-4e95-9a6f-dca8bc1fbea7",
+      "name": "On form submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        -380,
+        -60
+      ],
+      "webhookId": "f35f0686-fbcb-466c-a59e-48ee9d360024",
+      "parameters": {
+        "options": {
+          "appendAttribution": false
+        },
+        "formTitle": "Find Content Gaps in Your PDF Files",
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "file",
+              "fieldLabel": "Add Your Files",
+              "acceptFileTypes": ".pdf"
+            }
+          ]
+        },
+        "formDescription": "Upload the files you'd like to analyze and we will extract content gaps and interesting questions based on them."
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "5798ca71-eb05-4097-ace1-9457be450e21",
+      "name": "Convert binary files to PDF",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -60,
+        -60
+      ],
+      "parameters": {
+        "jsCode": "let results = [];\n\nfor (let item of items) {\n    if (item.binary) {\n        // If there's binary data in the item, process each binary file\n        for (let key in item.binary) {\n            // Use the key as the file name\n            let binaryKey = key.replace(/\\s/g, '_'); // Replace spaces with underscores for the key\n            results.push({\n                json: {\n                    fileName: binaryKey\n                },\n                binary: {\n                    [binaryKey]: item.binary[key] // Use the modified key for the binary data\n                }\n            });\n        }\n    }\n}\n\nreturn results;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6770b616-db38-48a8-8063-f3f5639d0946",
+      "name": "Extract text from PDF files",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        280,
+        -60
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "pdf",
+        "binaryPropertyName": "={{ $json.fileName }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2e47ecb8-cb9e-434a-ae9e-aae2ddb5fb54",
+      "name": "Prepare for InfraNodus",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        580,
+        -60
+      ],
+      "parameters": {
+        "jsCode": "\nlet plainText = '' // we send plain text from all the PDFs to InfraNodus for analysis\n\nconst randomNum = Math.floor(Math.random() * 3); // replace this with a 0 if you'd like to address the biggest gap in the knowledge graph\n\nfor (let item of items) {\n   plainText += item.json.text + '\\n\\n'  \n}\n\n\nreturn {text: plainText, randomNum};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "422faf1e-1545-4e5e-98aa-75c51a06c863",
+      "name": "Display on the Form to the User",
+      "type": "n8n-nodes-base.form",
+      "position": [
+        1380,
+        -60
+      ],
+      "webhookId": "091aab99-a4cf-40ec-b3bb-655d8e0b9a5c",
+      "parameters": {
+        "operation": "completion",
+        "respondWith": "showText",
+        "responseText": "=<br>\n<h3>{{ $json.aiAdvice[0].text }}</h3>\n<br>\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "820a3e64-1108-4c41-88e2-90d98fbd548f",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -420,
+        -400
+      ],
+      "parameters": {
+        "height": 520,
+        "content": "## Шаг 1: Пользователь загружает PDF-файлы для анализа\n\n### Вы можете открыть этот конечный пункт и сделать его общедоступным через URL для вашей организации."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8dc2769a-b797-42c4-b531-82ce7f866dac",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -120,
+        -400
+      ],
+      "parameters": {
+        "width": 280,
+        "height": 520,
+        "content": "## Шаг 2: Преобразование загруженных бинарных файлов в PDF\n\n### Нам нужно преобразовать загруженные бинарные файлы в PDF, чтобы мы могли извлечь текст из них."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8f8cf47a-726c-4db8-9362-f68c94e75254",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        -400
+      ],
+      "parameters": {
+        "width": 220,
+        "height": 520,
+        "content": "## Шаг 3: Извлечение обычного текста из PDF файлов\n\n### Для лучшего качества извлечения текста вы можете использовать необязательный [ConvertAPI](https://convertapi.com?ref=4l54n) узел справа, который сохраняет оригинальное форматирование файлов."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f8da708a-ab86-40d7-bef0-dea600e5a032",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        520,
+        -400
+      ],
+      "parameters": {
+        "width": 220,
+        "height": 520,
+        "content": "## Шаг 4: Объедините извлеченный текст в строку текста\n\n### Подготовьте данные для InfraNodus: объедините весь извлеченный текст в строку текста и также укажите InfraNodus глубину пропуска, которую он должен использовать при генерации советов"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d63bb46c-5d0a-4fb9-8f9c-06a3aba63959",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        820,
+        -400
+      ],
+      "parameters": {
+        "width": 380,
+        "height": 820,
+        "content": "## Шаг 5: Используйте InfraNodus GraphRAG для создания графа знаний, нахождения пробела и генерации исследовательского вопроса на его основе.\n\n### [InfraNodus](https://infranodus.com) создает граф знаний из всех текстов, определяет тематические кластеры, которые наименее связаны, и генерирует исследовательский вопрос, который имеет потенциал связать их новым способом.\n\n🚨 УКАЖИТЕ СВОЙ API КЛЮЧ INFRANODUS ЗДЕСЬ"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0eeaef66-b9f5-4589-b663-9a992913fe1e",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1280,
+        -400
+      ],
+      "parameters": {
+        "width": 380,
+        "height": 820,
+        "content": "## Шаг 6: Показать вопрос / запрос пользователю\n\n### При желании вы можете передать ответ в другой рабочий процесс n8n или выставить его через вебхук и показать в своем приложении, используя iframe."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b82fefa5-5882-4ecf-8b68-f884b42411c9",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -420,
+        180
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1160,
+        "height": 1000,
+        "content": "# Как InfraNodus GraphRAG генерирует исследовательские вопросы?\n\n## [InfraNodus](https://infranodus.com) GraphRAG помогает избежать общих ответов и предвзятости LLM, анализируя структуру вашего текста. Вот как это работает:\n\n### 1. Он представляет ваш текст в виде сети концепций и отношений, создавая граф знаний.\n\n### 2. Затем он определяет кластеры концепций, которые находятся наибольшем расстоянии друг от друга — они появляются в одном и том же контексте (ваших текстах), но не связаны между собой.\n\n### 3. InfraNodus затем использует ИИ для генерации вопроса / подсказки, которая преодолевает этот разрыв — касаясь актуальных тем, но связывая их новым способом.\n\n![структурный разрыв infranodus](https://infranodus.com/images/front/infranodus-structural-gaps-ideas.jpg)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "da7cf09a-d3f3-41d8-9ae4-4b4b1bcfc80f",
+      "name": "InfraNodus GraphRAG Question Generator",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        960,
+        0
+      ],
+      "parameters": {
+        "url": "=https://infranodus.com/api/v1/graphAndAdvice?doNotSave=true&optimize=develop&includeGraph=false&includeGraphSummary=true&gapDepth={{ $json.randomNum }}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "aiTopics",
+              "value": "true"
+            },
+            {
+              "name": "requestMode",
+              "value": "question"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.text }}"
+            }
+          ]
+        },
+        "genericAuthType": "httpBearerAuth"
+      },
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "FPDx6PA5CtzGEIQc",
+          "name": "InfraNodus DeeMeeTree API Key"
+        }
+      },
+      "typeVersion": 4.2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "abd96e27-8999-4490-9c4c-8eda846dfc3b",
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Convert binary files to PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare for InfraNodus": {
+      "main": [
+        [
+          {
+            "node": "InfraNodus GraphRAG Question Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert binary files to PDF": {
+      "main": [
+        [
+          {
+            "node": "Extract text from PDF files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract text from PDF files": {
+      "main": [
+        [
+          {
+            "node": "Prepare for InfraNodus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "InfraNodus GraphRAG Question Generator": {
+      "main": [
+        [
+          {
+            "node": "Display on the Form to the User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

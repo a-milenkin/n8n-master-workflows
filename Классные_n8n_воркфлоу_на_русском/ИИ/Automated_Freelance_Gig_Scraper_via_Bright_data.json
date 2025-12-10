@@ -1,0 +1,350 @@
+{
+  "id": "HyNR7wCUHOWoSMB1",
+  "meta": {
+    "instanceId": "60046904b104f0f72b2629a9d88fe9f676be4035769f1f08dad1dd38a76b9480",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "### https://get.brightdata.com/1tndi4600b25",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "ca434966-ab56-4335-88ea-c066a3a33cf4",
+      "name": "Run Scraper Daily",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        1720,
+        1400
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "f5446f3e-3eaf-44ac-b363-1fd61da36512",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 320,
+        "content": "======================================="
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b7e24008-ca38-4d8a-b17c-57a979307618",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        340
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1289,
+        "height": 3418,
+        "content": "ПОМОЩЬ С РАБОЧИМ ПРОЦЕССОМ"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a83a04d5-6bec-4c7e-8d8d-538c4957a9c8",
+      "name": "Set Skill Filter",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1960,
+        1400
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "442d4787-7045-46e7-a86a-ccc522413ac9",
+              "name": "Skills",
+              "type": "string",
+              "value": "AI"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "33e2c73b-41e4-4f60-9b6c-4c954cc7e856",
+      "name": "Scrape WWR with Bright Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2200,
+        1400
+      ],
+      "parameters": {
+        "url": "https://api.brightdata.com/request",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "zone",
+              "value": "n8n_unblocker"
+            },
+            {
+              "name": "url",
+              "value": "=https://weworkremotely.com/remote-jobs/search?term={{ $json.Skills }}"
+            },
+            {
+              "name": "country",
+              "value": "us"
+            },
+            {
+              "name": "format",
+              "value": "raw"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer API_KEY"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "23709278-a9bb-4b46-a418-62a15c49f6ab",
+      "name": "Extract Jobs from HTML",
+      "type": "n8n-nodes-base.html",
+      "position": [
+        2420,
+        1400
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "Job",
+              "cssSelector": "#category-18 > article > ul > li.new-listing-container.feature > a > div > div.new-listing__header > h4"
+            },
+            {
+              "key": "Company",
+              "cssSelector": "#category-18 > article > ul > li.new-listing-container.feature > a > div > p.new-listing__company-name"
+            },
+            {
+              "key": "Country",
+              "cssSelector": "#category-18 > article > ul > li.new-listing-container.feature > a > div > p.new-listing__company-headquarters"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "564c4101-2929-49fe-a651-134a0addfe35",
+      "name": "Save Jobs to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2720,
+        1400
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Job": "={{ $json.Job }}",
+            "Company": "={{ $json.Company }}",
+            "Location": "={{ $json.Country }}"
+          },
+          "schema": [
+            {
+              "id": "Job",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Job",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Company",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Location",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Location",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14JmN5gkBRW6Vgevf2oNXXvEuZXPwBCk4JxQqEfJOHSw/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "14JmN5gkBRW6Vgevf2oNXXvEuZXPwBCk4JxQqEfJOHSw",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14JmN5gkBRW6Vgevf2oNXXvEuZXPwBCk4JxQqEfJOHSw/edit?usp=drivesdk",
+          "cachedResultName": "weworkremotely jobs"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "r2mDaisH6e9VkwHl",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "3354904f-1735-4e89-a0a8-1914f707ee8b",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1700,
+        -20
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 380,
+        "height": 1640,
+        "content": "======================================="
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "302ea26f-4b92-41c2-9859-17a937f7b141",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2140,
+        -160
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 420,
+        "height": 1780,
+        "content": "По любым вопросам или для получения поддержки, пожалуйста, свяжитесь с:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a789140f-8006-4cae-ad40-0e595052b0d9",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2620,
+        420
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 300,
+        "height": 1200,
+        "content": "Yaron@nofluff.online"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1c541cd3-09f3-4534-b6cb-53027d87873b",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3020,
+        420
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 380,
+        "height": 240,
+        "content": "## Я получу небольшую комиссию, если вы присоединитесь к Bright Data по этой ссылке — спасибо за поддержку бесплатного контента!"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "860467ec-cde7-45f3-aab5-814a1cab069f",
+  "connections": {
+    "Set Skill Filter": {
+      "main": [
+        [
+          {
+            "node": "Scrape WWR with Bright Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Scraper Daily": {
+      "main": [
+        [
+          {
+            "node": "Set Skill Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Jobs from HTML": {
+      "main": [
+        [
+          {
+            "node": "Save Jobs to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape WWR with Bright Data": {
+      "main": [
+        [
+          {
+            "node": "Extract Jobs from HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,578 @@
+{
+  "meta": {
+    "instanceId": "60c025075753afcab9f803964b4caaca9402f435deb4efafbb8e3b93b54d8752",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "72819496-27be-41bf-952e-b7cd3d3c705c",
+      "name": "On form submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        -380,
+        -20
+      ],
+      "webhookId": "2451102d-b2f4-4406-8984-7df962426524",
+      "parameters": {
+        "options": {
+          "respondWithOptions": {
+            "values": {
+              "redirectUrl": "https://docs.google.com/spreadsheets/d/1j_t4wtj3vYG6yGhJJdFVaKsr9wyYvPEWcUm5lWH24rc/edit?gid=0#gid=0",
+              "respondWith": "redirect"
+            }
+          }
+        },
+        "formTitle": "Background Removal AI",
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "file",
+              "fieldLabel": "Image",
+              "multipleFiles": false,
+              "requiredField": true
+            }
+          ]
+        },
+        "responseMode": "lastNode"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "2a802d55-cd1c-4360-a65b-71fe90a0c232",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -140,
+        0
+      ],
+      "parameters": {
+        "url": "https://background-remover-ai3.p.rapidapi.com/index.php",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "file",
+              "parameterType": "formBinaryData",
+              "inputDataFieldName": "Image"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-rapidapi-host",
+              "value": "background-remover-ai3.p.rapidapi.com"
+            },
+            {
+              "name": "x-rapidapi-key",
+              "value": "your key"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "fd6755a4-f7ba-4af5-99ef-9cab758804d2",
+      "name": "Convert to File",
+      "type": "n8n-nodes-base.convertToFile",
+      "position": [
+        80,
+        -20
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "toBinary",
+        "sourceProperty": "base64"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "f772d815-5bd0-45c5-ab25-ddeac40a15a5",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        640,
+        -60
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "b134c11f-b776-4335-9256-11af7b9fd536",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "success"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "271d69a2-ece8-4880-9ce8-2d49549e7408",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        940,
+        -220
+      ],
+      "webhookId": "69d92853-05e0-4ba7-b86e-ea7a17591e3e",
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "23ef4eb0-72ec-4c79-9e54-41a678ca64e5",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1240,
+        -140
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Link": "={{ $json.data.url }}",
+            "status": "={{ $json.status }}",
+            "Expire at": "={{ new Date(new Date($now).setMinutes(new Date($now).getMinutes() + 60)).toISOString() }}",
+            "Image name": "={{ $('On form submission').item.json.Image.filename }}"
+          },
+          "schema": [
+            {
+              "id": "Image name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Image name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Link",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Link",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Expire at",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Expire at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "data",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "data",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Image name"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        },
+        "authentication": "serviceAccount"
+      },
+      "credentials": {
+        "googleApi": {
+          "id": "qUtlCnYpk7bXXaYp",
+          "name": "Google Sheets account 3"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "09157090-fa1e-4ca4-9f2b-4ca5eccd1ba5",
+      "name": "Google Sheets1",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1060,
+        240
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Link": "Not found",
+            "status": "=Failed",
+            "Expire at": "={{ $now }}",
+            "Image name": "={{ $('On form submission').item.json.Image.filename }}"
+          },
+          "schema": [
+            {
+              "id": "Image name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Image name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Link",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Link",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Expire at",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Expire at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "data",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "data",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Image name"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        },
+        "authentication": "serviceAccount"
+      },
+      "credentials": {
+        "googleApi": {
+          "id": "qUtlCnYpk7bXXaYp",
+          "name": "Google Sheets account 3"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "391378d0-e0da-4986-acaf-6f4d65aa51d5",
+      "name": "File Upload Api",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        360,
+        -20
+      ],
+      "parameters": {
+        "url": "https://temp-file-upload.p.rapidapi.com/temp-file.php",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "file",
+              "parameterType": "formBinaryData",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-rapidapi-host",
+              "value": "temp-file-upload.p.rapidapi.com"
+            },
+            {
+              "name": "x-rapidapi-key",
+              "value": "your key"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f4cef78e-bb7c-4002-8ee7-4ffd6dcebb64",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1240,
+        -460
+      ],
+      "parameters": {
+        "width": 540,
+        "height": 860,
+        "content": "# Удаление фона AI"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "416bc2fc-6565-4639-a003-e35e96b3c011",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -460,
+        -200
+      ],
+      "parameters": {
+        "width": 220,
+        "height": 340,
+        "content": "## **Преимущества использования:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d9861b51-a7b4-42ce-91e6-933b7c59e81f",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -200,
+        -200
+      ],
+      "parameters": {
+        "height": 340,
+        "content": "Этот рабочий процесс автоматизирует процесс удаления фона из изображений с использованием AI. Когда пользователь загружает изображение, фон удаляется, а результат сохраняется и управляется в Google Sheets. Преимущества включают:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "81dced60-06f7-400a-b486-d2a1dc551718",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        60,
+        -200
+      ],
+      "parameters": {
+        "height": 340,
+        "content": "- **Автоматизированная обработка изображений**: Удаляет фоны из загруженных изображений с помощью AI-сервиса."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "17a73e52-d0e6-4688-9083-746d9bee10e7",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        320,
+        -200
+      ],
+      "parameters": {
+        "height": 340,
+        "content": "- **Управление файлами**: Сохраняет URL-адреса и имена обработанных изображений в Google Sheets."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c232313d-5722-4be5-8d5e-8a975c2b19c6",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        600,
+        -200
+      ],
+      "parameters": {
+        "height": 340,
+        "content": "**Если**:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a5e0ea23-7f5c-488d-9d63-93269b6351eb",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        880,
+        -400
+      ],
+      "parameters": {
+        "height": 320,
+        "content": "- **Тип**: Условный узел"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "847aaa09-7ce5-4f54-a451-8f34576205b4",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1180,
+        -300
+      ],
+      "parameters": {
+        "height": 300,
+        "content": "- **Описание**: Оценивает статус удаления фона; продолжает обновление Google Sheets, если успешно, или регистрирует сбой в противном случае."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5ce6be0a-387b-4623-b867-3246649a489c",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        980,
+        40
+      ],
+      "parameters": {
+        "height": 340,
+        "content": "**Подождите**:"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "File Upload Api",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "File Upload Api": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

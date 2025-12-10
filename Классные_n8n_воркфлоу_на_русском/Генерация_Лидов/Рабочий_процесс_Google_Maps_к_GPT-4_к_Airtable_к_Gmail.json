@@ -1,0 +1,535 @@
+{
+  "id": "QxA84PjVLxwyv6jP",
+  "meta": {
+    "instanceId": "2698fb90c872341655d36c9377b0dd8ca572ac3c6ee494b27ca6ac82ec175b2a"
+  },
+  "name": "Установите местоположение, которое хотите нацелить (например, Париж, Франция)",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "81c2c47f-3792-462e-bbfc-c2a1024faa16",
+      "name": "When clicking ‘Execute workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        40,
+        1520
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "a8ae3851-1bc9-4b62-a6c6-ec24bf791f45",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 1680,
+        "content": "Что если вы сможете **извлечь каждое электронное письмо**, номер телефона и веб-сайт из определенной области всего за несколько кликов?"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "99736afa-8c3b-41b9-bf22-7e04b2aa04c6",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        580,
+        760
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 220,
+        "height": 920,
+        "content": "В этом рабочем процессе мы будем собирать данные с Google Maps и автоматически **организовывать данные** в базу Airtable."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "639156da-d94c-4e27-a55f-fe636b99d727",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        880,
+        840
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 220,
+        "height": 840,
+        "content": "Мы используем недвижимость в Париже в качестве примера, но это работает **для любого бизнеса** — от местных терапевтов до продавцов надувных бассейнов."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "07b4bef0-2e76-4cba-a0ce-8040c5382bab",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1500,
+        880
+      ],
+      "parameters": {
+        "color": 4,
+        "height": 800,
+        "content": "## Шаг 1 – Запустите сборщик Google Maps"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ac2184fc-df0c-4c76-88ba-39f18bd977e1",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1200,
+        560
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 220,
+        "height": 1120,
+        "content": "Начните с триггера рабочего процесса \"Когда нажимаете Выполнить\", чтобы запустить поток вручную."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c3e61b79-91a8-439d-b0be-84e63c2bb837",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1840,
+        660
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 360,
+        "height": 1020,
+        "content": "Затем **добавьте узел HTTP-запроса** с методом, установленным на POST."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5232a658-1878-47d5-a258-69b0e564f8b8",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2300,
+        280
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 300,
+        "height": 1420,
+        "content": "👉 Перейдите на Apify: Извлекатель Google Maps"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b1e51a79-059c-4b14-8b51-79896a100211",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2700,
+        520
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 300,
+        "height": 1180,
+        "content": "На странице: [https://apify.com/compass/google-maps-extractor](https://apify.com/compass/google-maps-extractor)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a94d54e1-0b8d-4583-a576-0af01c72bdeb",
+      "name": "Apify Google Maps Scraper",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        260,
+        1520
+      ],
+      "parameters": {
+        "url": "API URL APIFY",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "{\n    \"categoryFilterWords\": [\n        \"real estate agency\"\n    ],\n    \"city\": \"Paris\",\n    \"countryCode\": \"fr\",\n    \"language\": \"en\",\n    \"locationQuery\": \"France, Paris\",\n    \"maxCrawledPlacesPerSearch\": 50,\n    \"postalCode\": \"75000\",\n    \"searchStringsArray\": [\n        \"agence immobilière\"\n    ],\n    \"skipClosedPlaces\": false\n}",
+        "sendBody": true,
+        "specifyBody": "json"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c6a23564-94d2-4184-a42b-fc9f4af1b100",
+      "name": "Clean Google Maps Lead Data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        640,
+        1520
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e0ee1e00-da28-49c7-b8ad-b1cf983b1004",
+              "name": "Title",
+              "type": "string",
+              "value": "={{ $json.title }}"
+            },
+            {
+              "id": "ac43f911-1a98-4b12-9c95-b3836e13788d",
+              "name": "Address",
+              "type": "string",
+              "value": "={{ $json.address }}"
+            },
+            {
+              "id": "bdc01304-c710-4aeb-99e5-75924e33b0c6",
+              "name": "Website",
+              "type": "string",
+              "value": "={{ $json.website }}"
+            },
+            {
+              "id": "024a396b-a476-4a72-a39c-3a97e417775c",
+              "name": "Phone",
+              "type": "string",
+              "value": "={{ $json.phone }}"
+            },
+            {
+              "id": "f6f4c12d-401d-4596-8cd4-f1d06e68ecd1",
+              "name": "URL",
+              "type": "string",
+              "value": "={{ $json.url }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "cece28f1-3bd2-4533-a6f5-f6d8870a14ac",
+      "name": "Extract Website URLs for Scraping",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1260,
+        1540
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ccc11066-fad4-4931-acf6-6c45e5e7b117",
+              "name": "Website",
+              "type": "string",
+              "value": "={{ $json.Website }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "648cb018-dd1d-4654-a841-064e23d40f42",
+      "name": "Process Each Lead Individually",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        940,
+        1520
+      ],
+      "parameters": {
+        "options": {},
+        "batchSize": 20
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "56d78fa9-9427-4258-97c0-3c11354ff26d",
+      "name": "Fetch Raw HTML from Business Websites",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1580,
+        1540
+      ],
+      "parameters": {
+        "url": "={{ $json.Website }}",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "9d160a79-6de6-495b-9bb7-2c5a1538b532",
+      "name": "Extract Business Email from Website with GPT-4",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        1920,
+        1540
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "content": "Введите ключевое слово вашего бизнеса (например, агентство недвижимости, парикмахерская, ресторан)"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "2b93c91a-5a22-4880-9461-98f3f8f3e2e3",
+      "name": "Send Personalized Email via Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2800,
+        1540
+      ],
+      "webhookId": "5536d486-ce2e-4bdb-994e-078d12bc081e",
+      "parameters": {
+        "sendTo": "={{ $json.fields.Email }}",
+        "message": "=Hi, I came across your website {{ $json.fields.Website }} in {{ $('Apify Google Maps Scraper').item.json.city }} Just wanted to share a quick method that helps some {{ $('Apify Google Maps Scraper').item.json.categoryName }} professionals generate 15 to 30 qualified leads per month through Google Maps — no ads, no complicated CRM.\n\nIf that sounds interesting, I’d be happy to show you how it works.\n\nHave a great day,  \nBaptiste Fort  ",
+        "options": {},
+        "subject": "=Quick idea for  {{ $json.fields.Title }}",
+        "authentication": "serviceAccount"
+      },
+      "credentials": {
+        "googleApi": {
+          "id": "pN92UW9grckxUHFS",
+          "name": "Gmail account 2"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "4dada73a-259e-46a2-9841-ac2782041d58",
+      "name": "Save Leads to Airtable Database",
+      "type": "n8n-nodes-base.airtable",
+      "position": [
+        2400,
+        1540
+      ],
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "mode": "list",
+          "value": "app7nzaQOYoq0cF1n",
+          "cachedResultUrl": "https://airtable.com/app7nzaQOYoq0cF1n",
+          "cachedResultName": "GOOGLE MAP SCRAPPING"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "tblJIrBU19hfFYdL9",
+          "cachedResultUrl": "https://airtable.com/app7nzaQOYoq0cF1n/tblJIrBU19hfFYdL9",
+          "cachedResultName": "Data"
+        },
+        "columns": {
+          "value": {
+            "URL": "={{ $('Clean Google Maps Lead Data').item.json.URL }}",
+            "Email": "={{ $json.message.content }}",
+            "Title": "={{ $('Clean Google Maps Lead Data').item.json.Title }}",
+            "Street": "={{ $('Clean Google Maps Lead Data').item.json.Address }}",
+            "Website": "={{ $('Clean Google Maps Lead Data').item.json.Website }}",
+            "Phone Number": "={{ $('Clean Google Maps Lead Data').item.json.Phone }}"
+          },
+          "schema": [
+            {
+              "id": "Title",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Title",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Street",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Street",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Website",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Website",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone Number",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Phone Number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "Email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "URL",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "URL",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "create"
+      },
+      "typeVersion": 2.1
+    }
+  ],
+  "active": false,
+  "pinData": {
+    "Extract Business Email from Website with GPT-4": [
+      {
+        "json": {
+          "code": 1,
+          "name": "First item"
+        }
+      },
+      {
+        "json": {
+          "code": 2,
+          "name": "Second item"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4648927d-6633-4e5f-a44c-602d35b6e169",
+  "connections": {
+    "Apify Google Maps Scraper": {
+      "main": [
+        [
+          {
+            "node": "Clean Google Maps Lead Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Google Maps Lead Data": {
+      "main": [
+        [
+          {
+            "node": "Process Each Lead Individually",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Each Lead Individually": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Extract Website URLs for Scraping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Leads to Airtable Database": {
+      "main": [
+        [
+          {
+            "node": "Send Personalized Email via Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Website URLs for Scraping": {
+      "main": [
+        [
+          {
+            "node": "Fetch Raw HTML from Business Websites",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Apify Google Maps Scraper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Raw HTML from Business Websites": {
+      "main": [
+        [
+          {
+            "node": "Extract Business Email from Website with GPT-4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Business Email from Website with GPT-4": {
+      "main": [
+        [
+          {
+            "node": "Save Leads to Airtable Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

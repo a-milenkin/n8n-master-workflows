@@ -1,0 +1,246 @@
+{
+  "meta": {
+    "instanceId": "e409ea34548a2afe2dffba31130cd1cf2e98ebe2afaeed2a63caf2a0582d1da0"
+  },
+  "nodes": [
+    {
+      "id": "180a023e-a350-4315-a7f2-968d052f634d",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "onError": "continueErrorOutput",
+      "position": [
+        280,
+        -20
+      ],
+      "parameters": {
+        "text": "Only output \"test\".",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "32f3f1ad-8e72-427b-9bcf-0686ae3c4c5c",
+      "name": "Agent Variables",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -40,
+        -20
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "38ce3db6-ce1d-4091-9645-39e674ad1782",
+              "name": "models",
+              "type": "array",
+              "value": "[\"gemini-2.5-flash\"]"
+            },
+            {
+              "id": "151da1bf-a82a-40a9-bca2-a85ab48f1c5b",
+              "name": "fail_count",
+              "type": "number",
+              "value": "={{ $('Agent Variables')?.isExecuted ? $('Agent Variables').last()?.json?.fail_count + 1 : 0 }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "2d7804a4-3744-4866-89b2-705bbec66acc",
+      "name": "Fallback Models",
+      "type": "@n8n/n8n-nodes-langchain.code",
+      "position": [
+        280,
+        500
+      ],
+      "parameters": {
+        "code": {
+          "supplyData": {
+            "code": "let llms = await this.getInputConnectionData('ai_languageModel', 0);\nllms.reverse(); // reverse array, so the order matches the UI elements\n\nconst llm_index = $input.item.json.fail_count;\n\nif (!Number.isInteger(llm_index)) {\n  console.log(\"'llm_index' is udefined or not a valid integer\");\n  throw new Error(\"'llm_index' is udefined or not a valid integer\");\n}\n\nif(typeof llms[llm_index] === 'undefined') {\n  console.log(`No LLM found with index ${llm_index}`);\n  throw new Error(`No LLM found with index ${llm_index}`);\n}\n\nreturn llms[llm_index];"
+          }
+        },
+        "inputs": {
+          "input": [
+            {
+              "type": "ai_languageModel",
+              "required": true
+            }
+          ]
+        },
+        "outputs": {
+          "output": [
+            {
+              "type": "ai_languageModel"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e3d0d416-2571-4e86-b701-27aee1e5856e",
+      "name": "First Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        300,
+        700
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "75ce0d64-dcbd-47bf-a15b-802fa979333a",
+      "name": "Falback Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        420,
+        700
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemma-3-27b-it"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "10efe391-496f-45db-ae13-52324b41b4ff",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        200,
+        200
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 420,
+        "height": 640,
+        "content": "### ⚙️ НАСТРОЙТЕ СВОЮ РЕЗЕРВНУЮ ЦЕПЬ ЗДЕСЬ ⚙️"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "93797015-159e-4e43-bf72-47f0533e92f1",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        240,
+        -240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 340,
+        "height": 320,
+        "content": "Этот узел выбирает, какую модель ИИ использовать на основе количества предыдущих сбоев."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4cedd679-70d3-41a2-9bf5-addf8e146c9a",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -180,
+        -240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 320,
+        "content": "**Чтобы настроить свои модели:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4b5e9318-16fd-4e69-add6-0edbca278d91",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -320,
+        -20
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Agent Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "First Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Fallback Models",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Falback Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Fallback Models",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Agent Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent Variables": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fallback Models": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

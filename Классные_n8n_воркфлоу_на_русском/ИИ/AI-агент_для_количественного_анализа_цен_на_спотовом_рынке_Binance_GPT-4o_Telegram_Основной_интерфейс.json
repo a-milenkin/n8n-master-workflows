@@ -1,0 +1,511 @@
+{
+  "id": "82r122lbmQPWishF",
+  "meta": {
+    "instanceId": "a5283507e1917a33cc3ae615b2e7d5ad2c1e50955e6f831272ddd5ab816f3fb6",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "## Основной AI агент: Генератор отчетов",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "6c6238ec-ba3d-4c59-a612-c3b4e9ae8b73",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -440,
+        620
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "yUizd8t0sD5wMYVG",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "b8b90061-9d5e-4e48-a0b0-bb6bdb193771",
+      "name": "Binance Spot Market Quant AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -80,
+        160
+      ],
+      "parameters": {
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "You are the **Binance Spot Market Quant AI Agent**, responsible for generating structured, professional swing-trading reports for **any trading pair** on the Binance Spot Market. You use **validated technical indicators**, **order flow data**, and **curated crypto sentiment** to create actionable trading strategies.\n\n---\n\n### 🔗 Connected Tools\n\n1. **🧠 Binance Financial Market Analyst Tool**\n\n   • Aggregates outputs from:\n\n   * `Binance 15min Indicators Tool`\n   * `Binance 1h Indicators Tool`\n   * `Binance 4h Indicators Tool`\n   * `Binance 1d Indicators Tool`\n   * `Binance Price/OrderBook/Kline Tool`\n\n   • Each indicator tool calculates:\n\n   * **RSI, BBANDS, SMA, EMA, ADX, MACD**\n   * Based on the **latest 20 klines** for its interval\n   * Returns both values and signal labels (e.g. overbought, divergence)\n\n   • The Price Tool provides:\n\n   * **Live price**\n   * **24h OHLCV**\n   * **Order book depth (top 100 bids/asks)**\n   * **Klines** for `15m`, `1h`, `4h`, and `1d` intervals\n\n2. **📰 Binance News and Sentiment Analyst Tool**\n\n   • Pulls from sources like:\n\n   * CoinDesk, Cointelegraph, BitcoinMagazine, NewsBTC, CryptoBriefing, and more\n\n   • Returns:\n\n   * **Sentiment Score**: Bullish / Bearish / Neutral\n   * **Summary**: 2–3 sentence market snapshot\n   * **Top 3–5 headlines** (with source links)\n\n---\n\n### 📊 Core Responsibilities\n\nYou always:\n\n1. **Call all tools concurrently** for each query\n\n   * Pass the extracted symbol and sessionId as input\n   * Wait for structured results from each tool\n   * Do not skip any tool even if user prompt is vague\n\n2. **Perform full technical analysis** for the symbol\n\n   * Short-term: `15m + 1h`\n   * Mid-term: `4h`\n   * Long-term: `1d`\n   * Detect breakouts, trend shifts, divergences, and confluence signals\n   * Confirm findings using multiple timeframes and indicator alignment\n\n3. **Synthesize the final report** with:\n\n<b>Spot Trade Strategy</b>\n• Action: Buy / Sell / Hold\n• Entry Price, Stop Loss, Take Profit\n• Rationale:\n - <b>Price Action Signals</b>\n - <b>Lagging Indicator Confirmation</b>\n - <b>Sentiment Alignment</b>\n\n<b>Leverage Strategy</b>\n• Position: Long / Short\n• Leverage: 2x / 3x / 5x\n• Rationale + Risk Zones\n\n4. **Score signal strength**\n   • Confidence Score: `0–100`\n   • Label: Low / Medium / High / Very High\n\n5. **Include sentiment and headlines section**\n   • `<b>News Sentiment:</b>` \\[summary]\n   • `•` Top headlines with clickable links\n\n---\n\n### 📤 Output Format (Telegram HTML)\n\nStart with:\n\n```html\n<b>{{SYMBOL}} Market Report</b>\n```\n\nUse clean formatting:\n\n* `<b>` for headers\n* `•` for bullet lists\n* Logical grouping: price > indicators > strategy > sentiment\n\n---\n\n### ⚠️ Rules\n\nDO NOT:\n\n* Fabricate any values\n* Repeat this system message\n* Output raw JSON or API structure\n\nONLY use **tool-delivered** and **validated** data. Write with clarity and tone of a senior quant analyst.\n"
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "13965042-ad03-4108-88b3-250955bdbd28",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "position": [
+        -1000,
+        160
+      ],
+      "webhookId": "944e6f8d-ffcc-4692-a777-7410f2fd4016",
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "NRLKuLR7z8vCesub",
+          "name": "BinanceSpotTradingAIAgent_Bot"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "3f98e10f-fe7e-4c87-9e4f-4b6d8bfb805b",
+      "name": "User Authentication (Replace Telegram ID)",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -680,
+        160
+      ],
+      "parameters": {
+        "jsCode": "if ($input.first().json.message.from.id !== <Replace Telegram ID>) { // Replace with your actual ID\n  return {unauthorized: true};\n} else {\n  // Return the original data when authorized\n  return $input.all();\n}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ef715512-2d57-447e-969d-c173a823775b",
+      "name": "Adds \"SessionId\"",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -400,
+        160
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "47598bf1-e55f-4cc0-ae75-272085e7ce02",
+              "name": "=sessionId",
+              "type": "string",
+              "value": "={{ $json.message.chat.id }}"
+            },
+            {
+              "id": "daa49d74-e55e-47bc-ac52-8686d591ab83",
+              "name": "message",
+              "type": "string",
+              "value": "={{ $json.message.text }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "876e3ec9-3453-4db9-928a-6163c1c6702b",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        900,
+        160
+      ],
+      "webhookId": "79d6c29c-1e04-414a-9989-afb1f7a58035",
+      "parameters": {
+        "text": "={{ $json.message }}",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "NRLKuLR7z8vCesub",
+          "name": "BinanceSpotTradingAIAgent_Bot"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "70c70549-1c58-478d-a39f-5bccc7b76b04",
+      "name": "Splits message is more than 4000 characters",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        480,
+        160
+      ],
+      "parameters": {
+        "jsCode": "// Input: assumes incoming message in `item.json.message`\nconst input = $json.output;\nconst chunkSize = 4000;\n\n// Function to split text\nfunction splitMessage(text, size) {\n  const result = [];\n  for (let i = 0; i < text.length; i += size) {\n    result.push(text.substring(i, i + size));\n  }\n  return result;\n}\n\n// Logic\nif (input.length <= chunkSize) {\n  return [{ json: { message: input } }];\n} else {\n  const chunks = splitMessage(input, chunkSize);\n  return chunks.map(chunk => ({ json: { message: chunk } }));\n}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "85e0b819-f722-43ae-93b7-5317ff877804",
+      "name": "News and Sentiment Analysis Request",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        120,
+        600
+      ],
+      "parameters": {
+        "url": "https://treasurium.app.n8n.cloud/webhook/newsanalyst",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "=={{ $json.message }}"
+            }
+          ]
+        },
+        "toolDescription": "It will post the name of the cryptocurrency to get the News and Sentiment Analysis for use in the Binance Quant AI Agent."
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "27c27a35-fe83-4c4b-b9b1-90f2e1de8602",
+      "name": "Binance SM Financial Analyst Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        380,
+        580
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "Nm41n4i6VMhrixZs",
+          "cachedResultName": "Work Drive — Binance SM Financial Analyst Tool"
+        },
+        "workflowInputs": {
+          "value": {
+            "message": "={{ $fromAI(\"message\",\"Populate this with a relevant message to this subagent\")}}",
+            "sessionId": "={{ $json.sessionId }}"
+          },
+          "schema": [
+            {
+              "id": "message",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "message",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sessionId",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "sessionId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "78c6847a-8449-45dd-8aa6-1ce69e3d4e67",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        -160,
+        620
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "7ded5880-cf83-483c-84b9-dfce5e11d616",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1060,
+        -100
+      ],
+      "parameters": {
+        "color": 4,
+        "height": 460,
+        "content": "## Триггер входящей команды Telegram"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dfb57705-77b8-4c88-a6b0-aa8128b08400",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -740,
+        -100
+      ],
+      "parameters": {
+        "color": 2,
+        "height": 460,
+        "content": "Узел: Триггер Telegram"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "37372f5a-db8c-4335-81a4-de437aff4782",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -460,
+        -100
+      ],
+      "parameters": {
+        "color": 5,
+        "height": 460,
+        "content": "**Слушает новые сообщения Telegram** от пользователей."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "952adc52-49a1-49c8-8bd5-d31c8277af83",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -180,
+        -220
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 480,
+        "height": 580,
+        "content": "Запускает полный процесс агента и передает необработанный ввод пользователя вниз по потоку."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a6475e05-c83a-4dce-acd1-19294077912f",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        400,
+        -100
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 260,
+        "height": 460,
+        "content": "## Проверка доступа пользователя"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "413aff1b-43a3-4f81-b82d-eab2f18aed61",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        840,
+        -100
+      ],
+      "parameters": {
+        "color": 4,
+        "height": 460,
+        "content": "Узел: Аутентификация пользователя"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8b7687eb-9c5f-4745-8700-cc337a1a2505",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -520,
+        520
+      ],
+      "parameters": {
+        "height": 540,
+        "content": "Проверяет входящий Telegram ID** на соответствие списку одобренных пользователей."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fc0fa082-96d7-4dda-8273-0aa44f6b1f97",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        40,
+        520
+      ],
+      "parameters": {
+        "color": 6,
+        "height": 660,
+        "content": "## Генерация метаданных сессии"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "becbf326-b8d3-482e-b9c5-7a1bed58b112",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        300,
+        520
+      ],
+      "parameters": {
+        "color": 6,
+        "height": 660,
+        "content": "Узел: Добавить S**essionId"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "46cb7225-7ba9-4270-988e-74e4a30403fc",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -240,
+        520
+      ],
+      "parameters": {
+        "color": 3,
+        "height": 540,
+        "content": "Создает sessionId, используя Telegram chat_id**."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "238ff914-0c43-4cdf-9506-61e67306300f",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1400,
+        -1340
+      ],
+      "parameters": {
+        "width": 1780,
+        "height": 2540,
+        "content": "Это передается во все инструменты вниз по потоку для памяти и маршрутизации рабочего процесса."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bb69da16-db3d-4804-ad9d-a3d971f8fa36",
+  "connections": {
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Binance Spot Market Quant AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adds \"SessionId\"": {
+      "main": [
+        [
+          {
+            "node": "Binance Spot Market Quant AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "User Authentication (Replace Telegram ID)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Binance Spot Market Quant AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Binance SM Financial Analyst Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Binance Spot Market Quant AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Binance Spot Market Quant AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Splits message is more than 4000 characters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "News and Sentiment Analysis Request": {
+      "ai_tool": [
+        [
+          {
+            "node": "Binance Spot Market Quant AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "User Authentication (Replace Telegram ID)": {
+      "main": [
+        [
+          {
+            "node": "Adds \"SessionId\"",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Splits message is more than 4000 characters": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

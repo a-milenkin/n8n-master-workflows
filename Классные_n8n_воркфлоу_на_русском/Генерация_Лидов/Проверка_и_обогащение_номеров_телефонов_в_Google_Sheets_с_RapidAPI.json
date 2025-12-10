@@ -1,0 +1,362 @@
+{
+  "meta": {
+    "instanceId": "60c025075753afcab9f803964b4caaca9402f435deb4efafbb8e3b93b54d8752",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "ae2548f3-672a-4fe2-9d1e-04c98bac8e26",
+      "name": "When clicking ‘Execute workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "3ceca160-6e38-42db-8175-a64e5d56cdf4",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        },
+        "authentication": "serviceAccount"
+      },
+      "credentials": {
+        "googleApi": {
+          "id": "Rt0RWApx8PL9t0RF",
+          "name": "Google Docs account"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "31e4f63b-30a7-4bda-b08a-85306912ca34",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        560,
+        0
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "ff87e1b1-858b-4f99-89b2-9396a151626b",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        840,
+        20
+      ],
+      "parameters": {
+        "url": "https://phone-number-validator11.p.rapidapi.com/phone.php",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $json.phone }}"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-rapidapi-host",
+              "value": "phone-number-validator11.p.rapidapi.com"
+            },
+            {
+              "name": "x-rapidapi-key",
+              "value": "your key"
+            }
+          ]
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e61fda30-c825-4d14-aabf-04ce8bbbf3ca",
+      "name": "Google Sheets1",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1200,
+        180
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "phone": "={{ $('Google Sheets').item.json.phone }}",
+            "country": "={{ $json.country }}",
+            "is_valid": "={{ $json.is_valid }}",
+            "location": "={{ $json.location }}",
+            "timezone": "={{ $json.timezones[0] }}"
+          },
+          "schema": [
+            {
+              "id": "phone",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "phone",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "is_valid",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "is_valid",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "country",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "country",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "location",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "location",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "timezone",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "timezone",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "phone"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        },
+        "authentication": "serviceAccount"
+      },
+      "credentials": {
+        "googleApi": {
+          "id": "Rt0RWApx8PL9t0RF",
+          "name": "Google Docs account"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "27898315-d755-48c7-8da0-a560ef937c89",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -840,
+        -180
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 700,
+        "content": "# 📋 Проверка номера телефона с помощью Google Sheets"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "773175b3-9bf1-4843-81ea-f809c883f10e",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -180
+      ],
+      "parameters": {
+        "height": 340,
+        "content": "## 🧩 **Случай использования**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "00f5d71c-1a2e-4006-9111-46b6a863475b",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        200,
+        -180
+      ],
+      "parameters": {
+        "height": 340,
+        "content": "Автоматически проверяет номера телефонов из Google Sheets с использованием RapidAPI и обновляет результаты обратно в тот же лист."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bac029d1-2ce5-4499-a1b9-9d9d2112f196",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        -180
+      ],
+      "parameters": {
+        "height": 340,
+        "content": "## ✅ **Преимущества**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6fa7f8c8-7c17-4f83-a698-9ecc36201626",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        760,
+        -180
+      ],
+      "parameters": {
+        "height": 340,
+        "content": "- Автоматизация проверки телефонов"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "32337c3b-6b95-46ac-b563-3ad05c55892c",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1140,
+        -40
+      ],
+      "parameters": {
+        "height": 420,
+        "content": "- Обогащение данных местоположением, страной, часовым поясом"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

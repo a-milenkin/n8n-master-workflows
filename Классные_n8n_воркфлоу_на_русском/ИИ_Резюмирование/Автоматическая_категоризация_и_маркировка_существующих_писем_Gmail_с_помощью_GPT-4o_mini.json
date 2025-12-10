@@ -1,0 +1,605 @@
+{
+  "meta": {
+    "instanceId": "0a82a9d5784b67ad963ceff89283b2e40cb771be10fe58ba2682f3598a37c6e1",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "a31a7280-34ee-44bf-80e4-0a366ab0e649",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -560,
+        1392
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 736,
+        "height": 972,
+        "content": "## 1. Ручной триггер + Получение Gmail + Проверка меток"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "69df5c49-b33d-4d71-a687-b60650f17297",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1184,
+        1392
+      ],
+      "parameters": {
+        "width": 588,
+        "height": 1628,
+        "content": "[Читать подробнее о узле Ручной триггер](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.manualworkflowtrigger/?utm_source=n8n_app&utm_medium=node_settings_modal-credential_link&utm_campaign=n8n-nodes-base.manualTrigger)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fd2816b9-05f1-4717-8a48-eee68b34e9ed",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        208,
+        1392
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 560,
+        "height": 972,
+        "content": "[Читать подробнее о узле Получение Gmail](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.gmail/draft-operations/#get-many-drafts)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f36f9faf-daa7-47ac-8508-46dda10483e9",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        800,
+        1392
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 760,
+        "height": 1620,
+        "content": "[Читать подробнее о узле Фильтр](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.filter/?utm_source=n8n_app&utm_medium=node_settings_modal-credential_link&utm_campaign=n8n-nodes-base.filter)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "23ffde1f-a7ec-47e8-b4bb-6f1741e32074",
+      "name": "Give a Label AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        336,
+        1792
+      ],
+      "parameters": {
+        "text": "=Topic: {{ $json.subject }}\nDescription: {{ $json.text }}\nSender: {{ $json.from.text }}",
+        "options": {
+          "systemMessage": "=**Your Role**\n\nYou are an intelligent email assistant responsible for sorting incoming messages. Your task is to analyze the content, subject, and sender of each email and assign it to the appropriate category.\n\n**Categories**\n\nCategories for sorting:\n\n-Work: Emails related to jobs, coworkers, meetings, projects, or professional tasks.\n\n-Personal: Messages from friends, family, or general personal life content.\n\n-Finance: Bank emails, invoices, receipts, bills, or payment confirmations.\n\n-Shopping: Order confirmations, promotions, receipts, or product updates from stores.\n\n-Travel: Booking confirmations, tickets, hotel or car rental details, itineraries.\n\n-Newsletters: Recurring marketing or informational emails from subscriptions or blogs.\n\n-Others: Relevant emails that don’t clearly fit into any of the categories above.\n\n**Instructions**\n\n-For each email:\n\n-Analyze the content, subject, and sender\n\n-Assign it to the appropriate category\n\n-Add a label with the category\n\n-If you are unsure, do not label the message\n\n**Response Format**\n\nAlways return the result in JSON format:\n\n{\n  \"email_label\": \"Shopping\"\n}\n\nIMPORTANT – the response must use the exact label format as listed (capitalized with spaces).\n"
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "1bd62e9b-2b93-4e79-99c0-f993a04079b3",
+      "name": "Label Checker Filter",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        0,
+        1792
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "6c287523-4ae2-43c4-8f9a-faf756f01855",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              },
+              "leftValue": "={{ $json.labelIds[0] }}",
+              "rightValue": "Label"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "c2d50354-0427-41bf-89f8-fb931bfcaefa",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        832,
+        2096
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "Work",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "10893f03-231e-4dba-bfdf-69530f908b4d",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output.email_label }}",
+                    "rightValue": "Work"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Personal",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "23e430c2-ac8b-4fb5-bb5a-1fafb9e41b09",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output.email_label }}",
+                    "rightValue": "Personal"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Finance",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "53698e8e-f038-405d-a1d3-274dba7fb2a2",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output.email_label }}",
+                    "rightValue": "Finance"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Shopping",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "b3b7ffc6-d046-402f-8c9d-2e19d00b49a7",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output.email_label }}",
+                    "rightValue": "Shopping"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Travel",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "4e0a670b-4017-4d83-b01a-78a79c55daf2",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output.email_label }}",
+                    "rightValue": "Travel"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Newsletters",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "f0079792-cf4b-4c3e-8aed-48e2dddb4e05",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output.email_label }}",
+                    "rightValue": "Newsletters"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Others",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "a0c39fdd-3312-4a34-8cd4-41a1a10f9149",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output.email_label }}",
+                    "rightValue": "Others"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "1300cdf3-5b22-45ee-af81-5d94723c10e3",
+      "name": "Work",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1312,
+        1712
+      ],
+      "webhookId": "5bdf6b2d-0758-46b7-aaf6-986bfe12ec95",
+      "parameters": {
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "operation": "addLabels"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "cb4ea5c6-a638-425d-8b45-a8621a8a0e33",
+      "name": "Personal",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1312,
+        1872
+      ],
+      "webhookId": "94e0ab36-8603-4087-b255-60540d7b590a",
+      "parameters": {
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "operation": "addLabels"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "1db6e7ff-6770-4a66-8f05-3fae33b597f0",
+      "name": "Finance",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1312,
+        2032
+      ],
+      "webhookId": "77838975-4c75-48c8-be70-eed18459a492",
+      "parameters": {
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "operation": "addLabels"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "19233ac1-848d-4d3b-abca-4022f3ffa17c",
+      "name": "Shopping",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1152,
+        2176
+      ],
+      "webhookId": "f609cdc3-d9a6-425c-89ff-e4e8c6bcf3cf",
+      "parameters": {
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "operation": "addLabels"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "99b15563-82da-4321-8ff0-60c21861f764",
+      "name": "travel",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1312,
+        2288
+      ],
+      "webhookId": "3af1d5fe-1f25-49ea-9c9d-faa959fa7dbe",
+      "parameters": {
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "operation": "addLabels"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "bfa96076-0b6f-4c39-8f75-e2e6312d2831",
+      "name": "Newsletters",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1312,
+        2464
+      ],
+      "webhookId": "6d81f863-edcb-487c-a553-638b2b6bfd0a",
+      "parameters": {
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "operation": "addLabels"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "2f2937a3-22b8-4a71-920d-1393056eee25",
+      "name": "Others",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1312,
+        2656
+      ],
+      "webhookId": "ea8c4ab1-7d55-48ec-9395-5042bf4e6abc",
+      "parameters": {
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "operation": "addLabels"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "bf124f1b-0167-479c-a91f-0d759f3f7e60",
+      "name": "When clicking ‘Execute workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -496,
+        1792
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "3adb0acd-3a61-451b-b93a-bebf60b9c213",
+      "name": "Get many messages",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        -256,
+        1792
+      ],
+      "webhookId": "155bf8bb-cac7-4d9b-91aa-afdc0cbee0f2",
+      "parameters": {
+        "filters": {},
+        "operation": "getAll"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "pVkuuYNT0KTxFcw0",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "12bd7049-1364-4339-af20-f50a765fda3b",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        544,
+        2032
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"email_label\": \"business\"\n}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "84d8bff0-4363-4fd1-b830-68c23952d7d0",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        288,
+        2032
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "typeVersion": 1.2
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Work",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Personal",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Finance",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Shopping",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "travel",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Newsletters",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Others",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many messages": {
+      "main": [
+        [
+          {
+            "node": "Label Checker Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Give a Label AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Label Checker Filter": {
+      "main": [
+        [
+          {
+            "node": "Give a Label AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Give a Label AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Give a Label AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get many messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

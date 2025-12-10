@@ -1,0 +1,311 @@
+{
+  "meta": {
+    "instanceId": "6b6a2db47bdf8371d21090c511052883cc9a3f6af5d0d9d567c702d74a18820e"
+  },
+  "nodes": [
+    {
+      "id": "f4570aad-db25-4dcd-8589-b1c8335935de",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        480,
+        1800
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "1c1be9d6-3fd5-44c2-a7dd-d291b9efe65b",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -260,
+        1360
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 657.3293805248016,
+        "height": 843.3412992154545,
+        "content": "## Генерация данных объема поиска SEO-ключевых слов с использованием Google API"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "adbbe4ee-d671-4b9b-b619-47f7522e2af4",
+      "name": "Split Out by KW",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        1180,
+        1800
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "results"
+      },
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "654c95b4-1018-496e-a0eb-75fddfd98d68",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        622.1526025594685,
+        1740
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 250.00985945500486,
+        "height": 249.10159911061476,
+        "content": "## Случай использования"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0ddcd5f2-fb3b-425c-95d3-f22b9b99c3c4",
+      "name": "Sticky Note25",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1400,
+        1740
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 231.51775697271012,
+        "height": 213.62075341687063,
+        "content": "Генерируйте точные данные объема поиска для исследования SEO-ключевых слов:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dca7e597-4aa9-440b-8861-2453a5e455fe",
+      "name": "Sticky Note26",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        891.5919235222407,
+        1740
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 475.3228796552902,
+        "height": 250.67161641737852,
+        "content": "- У вас есть список потенциальных ключевых слов для таргетинга на SEO вашего сайта, но вы не знаете их фактический объем поиска"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "217565a9-0c8b-4725-bbda-bcd1968567ac",
+      "name": "Sticky Note19",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        620,
+        2000
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 248.59379819295242,
+        "height": 94.39142091152823,
+        "content": "- Вам нужны исторические данные, чтобы определить сезонные тренды в популярности ключевых слов"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a836e364-0526-47aa-938a-d32cc47efbd8",
+      "name": "Sticky Note20",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        880,
+        2000
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 723.161826981043,
+        "height": 217.5249520543415,
+        "content": "**ТРЕБУЕТСЯ**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3dac2fe3-8710-49cc-87ed-918972d00354",
+      "name": "Sticky Note21",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1400,
+        1640
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 284.87764467541297,
+        "height": 80,
+        "content": "На данный момент 15/10/2024 этот конечный пункт API является последним, его необходимо обновить по мере изменений"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "806fd20d-4bc4-41a3-9ef7-77561e2cfc0c",
+      "name": "Set >=20 Keywords",
+      "type": "n8n-nodes-base.set",
+      "notes": "Insert up to 20 keywords to test",
+      "position": [
+        680,
+        1800
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "973e949e-1afd-4378-8482-d2168532eff6",
+              "name": "Keyword",
+              "type": "array",
+              "value": "=[\"workflow automation software\", \"enterprise workflow automation\", \"finance automation software\", \"saas automation platform\", \"automation roi calculator\", \"hr process automation\", \"data synchronization software\", \"n8n workflow automation\", \"scalable business operations\", \"n8n vs zapier\", \"lead generation automation\", \"automation consulting services\", \"n8n automation\", \"marketing automation tools\", \"custom automation solutions\", \"ecommerce automation solutions\", \"business process automation\", \"small business automation\", \"no code automation\", \"crm automation integration\"] "
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 3.4
+    },
+    {
+      "id": "430d4950-1e49-460e-bb9b-56e0e825e621",
+      "name": "Connect to your own database.",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1460,
+        1800
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "464cfe3f-3a3f-4ec0-882d-861e48916e0b",
+      "name": "Get Search Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Seed KW with Vol & Comp\n\nhttps://developers.google.com/google-ads/api/docs/concepts/call-structure Google API call structure",
+      "position": [
+        960,
+        1800
+      ],
+      "parameters": {
+        "url": "https://googleads.googleapis.com/v16/customers/{customer_id}:generateKeywordHistoricalMetrics",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "sendHeaders": true,
+        "authentication": "predefinedCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "keywords",
+              "value": "={{ $json.Keyword }}"
+            },
+            {
+              "name": "keywordPlanNetwork",
+              "value": "GOOGLE_SEARCH"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "content-type",
+              "value": "application/json"
+            },
+            {
+              "name": "developer-token",
+              "value": "replace-with-value"
+            },
+            {
+              "name": "login-customer-id",
+              "value": "replace-with-value"
+            }
+          ]
+        },
+        "nodeCredentialType": "googleAdsOAuth2Api"
+      },
+      "credentials": {
+        "googleAdsOAuth2Api": {
+          "id": "1Htz9e3PoJufbctg",
+          "name": "Google Ads account"
+        }
+      },
+      "notesInFlow": false,
+      "retryOnFail": true,
+      "typeVersion": 4.2
+    }
+  ],
+  "pinData": {
+    "Set >=20 Keywords": [
+      {
+        "Keyword": [
+          "workflow automation software",
+          "enterprise workflow automation",
+          "finance automation software",
+          "saas automation platform",
+          "automation roi calculator",
+          "hr process automation",
+          "data synchronization software",
+          "n8n workflow automation",
+          "scalable business operations",
+          "n8n vs zapier",
+          "lead generation automation",
+          "automation consulting services",
+          "n8n automation",
+          "marketing automation tools",
+          "custom automation solutions",
+          "ecommerce automation solutions",
+          "business process automation",
+          "small business automation",
+          "no code automation",
+          "crm automation integration"
+        ]
+      }
+    ]
+  },
+  "connections": {
+    "Get Search Data": {
+      "main": [
+        [
+          {
+            "node": "Split Out by KW",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out by KW": {
+      "main": [
+        [
+          {
+            "node": "Connect to your own database.",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set >=20 Keywords": {
+      "main": [
+        [
+          {
+            "node": "Get Search Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Set >=20 Keywords",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

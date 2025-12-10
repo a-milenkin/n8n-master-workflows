@@ -1,0 +1,325 @@
+{
+  "meta": {
+    "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "95fbf42b-4efb-4301-8e8f-34859156534c",
+      "name": "MCP Server Trigger",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "8d7910ab-f0db-4042-9da9-f580647a8a8e",
+      "parameters": {
+        "path": "8d7910ab-f0db-4042-9da9-f580647a8a8e"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0d2f7b7c-a2e2-43ec-baf1-d0e507977bab",
+      "name": "Qdrant Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "position": [
+        440,
+        140
+      ],
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "options": {},
+        "toolDescription": "Use this tool to retrieve data from a database",
+        "qdrantCollection": {
+          "__rl": true,
+          "mode": "id",
+          "value": "mcp_rag"
+        }
+      },
+      "credentials": {
+        "qdrantApi": {
+          "id": "sFfERYppMeBnFNeA",
+          "name": "Local QdrantApi database"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "6c0a4301-66d6-40a6-b133-d809de367e0e",
+      "name": "Embeddings Ollama",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "position": [
+        620,
+        320
+      ],
+      "parameters": {
+        "model": "mxbai-embed-large:latest"
+      },
+      "credentials": {
+        "ollamaApi": {
+          "id": "xHuYe0MDGOs9IpBW",
+          "name": "Local Ollama service"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a0c04dfe-aa62-4dae-b0e2-b7882c1c06fd",
+      "name": "MCP Client",
+      "type": "n8n-nodes-mcp.mcpClientTool",
+      "position": [
+        -20,
+        280
+      ],
+      "parameters": {},
+      "credentials": {
+        "mcpClientApi": {
+          "id": "gtICJ1VBUVNpQahr",
+          "name": "MCP Client (STDIO) account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6b2e162e-3431-41e3-839e-5b4a206de768",
+      "name": "MCP Client1",
+      "type": "n8n-nodes-mcp.mcpClientTool",
+      "position": [
+        200,
+        280
+      ],
+      "parameters": {
+        "toolName": "execute_tool",
+        "operation": "executeTool"
+      },
+      "credentials": {
+        "mcpClientApi": {
+          "id": "gtICJ1VBUVNpQahr",
+          "name": "MCP Client (STDIO) account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2989e6de-fe14-4215-ab7e-350b52faa011",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -100
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 880,
+        "height": 620,
+        "content": "## MCP Сервер\n**Будет активирован клиентом MCP**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fb2c49d7-fa34-4ac9-b2e8-1d5dd9a73b3c",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        860,
+        -100
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 880,
+        "height": 620,
+        "content": "## Пайплайн загрузки RAG  \n**Запускайте только один раз для загрузки ваших документов**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "34e2aafe-c627-4af8-a673-16526802fbd5",
+      "name": "On form submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        960,
+        40
+      ],
+      "webhookId": "7d7ae610-42c0-4fbf-a286-df5c6b62a510",
+      "parameters": {
+        "options": {},
+        "formTitle": "Ingest PDF Files in semantic database",
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "file",
+              "fieldLabel": "Upload a file",
+              "acceptFileTypes": ".pdf"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "efb5839e-104c-4920-b932-34d9177a5c70",
+      "name": "Qdrant Vector Store1",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "position": [
+        1180,
+        40
+      ],
+      "parameters": {
+        "mode": "insert",
+        "options": {},
+        "qdrantCollection": {
+          "__rl": true,
+          "mode": "id",
+          "value": "mcp_rag"
+        }
+      },
+      "credentials": {
+        "qdrantApi": {
+          "id": "sFfERYppMeBnFNeA",
+          "name": "Local QdrantApi database"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "92f0f26c-5af6-4943-bdbf-45777267598d",
+      "name": "Embeddings Ollama1",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "position": [
+        1100,
+        300
+      ],
+      "parameters": {
+        "model": "mxbai-embed-large:latest"
+      },
+      "credentials": {
+        "ollamaApi": {
+          "id": "xHuYe0MDGOs9IpBW",
+          "name": "Local Ollama service"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "950a0544-43c4-4423-982e-b04408e46a97",
+      "name": "Default Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "position": [
+        1400,
+        220
+      ],
+      "parameters": {
+        "options": {},
+        "dataType": "binary",
+        "textSplittingMode": "custom"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "7cd3a5f4-ffb1-4f93-9a7d-a40aea4aa64a",
+      "name": "Recursive Character Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "position": [
+        1300,
+        360
+      ],
+      "parameters": {
+        "options": {},
+        "chunkSize": 400,
+        "chunkOverlap": 100
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client1": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Qdrant Vector Store1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Qdrant Vector Store1",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

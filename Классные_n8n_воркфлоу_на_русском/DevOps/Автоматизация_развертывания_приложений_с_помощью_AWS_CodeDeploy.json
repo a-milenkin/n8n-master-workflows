@@ -1,0 +1,2687 @@
+{
+  "id": "ft6Ik64LVNdEV6jN",
+  "meta": null,
+  "name": "AWS CodeDeploy MCP Сервер",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "e50e36de-191d-49a3-bc78-2142dad26625",
+      "name": "Advanced Warning",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1380,
+        -900
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1380,
+        "height": 620,
+        "content": "# ⚠️ ТОЛЬКО ДЛЯ ПРОДВИНУТЫХ ПОЛЬЗОВАТЕЛЕЙ\n\n### 🚨 Этот рабочий процесс предназначен только для продвинутых пользователей!\n\nЭтот сервер MCP содержит **47 операций**, что значительно больше рекомендуемого максимума в 40 инструментов для большинства AI-клиентов.\n\n### 🔍 Рекомендуемая альтернатива\n**Ищите упрощенный сервер MCP**, который использует официальную реализацию инструмента n8n для AWS CodeDeploy, если это возможно, так как это будет более эффективно и легче в управлении.\n\n### 🛠️ Инструкции по продвинутому использованию\n\n**ПЕРЕД добавлением этого сервера MCP в ваш клиент:**\n### Отключите или удалите неиспользуемые узлы - Просмотрите разделы и отключите/удалите те, которые вам не нужны\n\n**ПОСЛЕ добавления сервера MCP в ваш клиент:**\n1. **Выборочное включение инструментов** - Вместо того чтобы включать все инструменты (по умолчанию), вручную выберите только те конкретные инструменты, которые вам нужны для *этого* клиента MCP рабочего процесса.\n2. **Мониторинг производительности** - Слишком много инструментов может замедлить ответы AI\n\n### 💡 Полезные советы\n**Сохраняйте максимум 40 включенных инструментов** - Большинство AI-клиентов работают лучше с меньшим количеством инструментов\n- Группируйте связанные операции и включайте только одну группу за раз\n- Используйте обзорную заметку, чтобы понять, что делает каждая группа операций\n- Рассмотрите возможность создания нескольких меньших серверов MCP для разных случаев использования"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "07468c2e-62c0-4e3f-8bb1-f18a39a930af",
+      "name": "Setup Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1380,
+        -240
+      ],
+      "parameters": {
+        "color": 4,
+        "height": 1060,
+        "content": "### ⚙️ Инструкции по настройке\n\n1. **Импорт рабочего процесса**:  \nЗагрузите этот рабочий процесс в вашу инстанцию n8n\n\n2. **Настройка аутентификации**:  \nНастройте учетные данные apiKey  \n   - Тип: API Key в заголовке  \n   - Имя ключа: Authorization\n\n3. **Активировать рабочий процесс**:  \nВключите рабочий процесс, чтобы запустить сервер MCP\n\n4. **Получить URL MCP**:  \nСкопируйте URL вебхука из триггера MCP\n\n5. **Подключить AI-агента**:  \nИспользуйте URL MCP в конфигурации вашего AI-агента\n\n\n### 💡 Примечания по использованию\n• Параметры автоматически заполняются AI с помощью выражений $fromAI()  \n• Доступно 47 конечных точек API в качестве инструментов  \n• Ответы сохраняют оригинальную структуру API\n\n\n### 🛠️ Настройка\n• Добавьте узлы преобразования данных, если это необходимо  \n• Реализуйте пользовательскую обработку ошибок  \n• Добавьте узлы логирования или мониторинга  \n\n• Измените значения параметров по умолчанию в любом узле HTTP-запроса по мере необходимости\n\n### 💬 Нужна помощь?  \nНапишите мне в [discord](https://discord.me/cfomodz) для получения рекомендаций по интеграции и пользовательским автоматизациям. Ознакомьтесь с [документацией n8n](https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.toolmcp/) для получения дополнительной информации."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "96832a22-4a64-41b5-af13-824ec3e04676",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1120,
+        -100
+      ],
+      "parameters": {
+        "width": 320,
+        "height": 2180,
+        "content": "## 🛠️ AWS CodeDeploy MCP Server ✅ 47 операций\n\n### Описание\nCodeDeploy — это служба развертывания, которая автоматизирует развертывание приложений на экземплярах Amazon EC2, локальных экземплярах, работающих в вашем собственном центре обработки данных, безсерверных функциях Lambda или приложениях в службе Amazon ECS. Вы можете развернуть практически неограниченное количество содержимого приложений, такого как обновленная функция Lambda, обновленные приложения в службе Amazon ECS, код, веб- и конфигурационные файлы, исполняемые файлы, пакеты, скрипты, мультимедийные файлы и так далее. CodeDeploy может развертывать содержимое приложений, хранящееся в корзинах Amazon S3, репозиториях GitHub или Bitbucket. Вам не нужно вносить изменения в ваш существующий код, прежде чем вы сможете использовать CodeDeploy. CodeDeploy упрощает вам быстрое выпуск новых функций, помогает избежать простоя во время развертывания приложения и справляется со сложностью обновления ваших приложений, без многих рисков, связанных с подверженными ошибкам ручными развертываниями. Компоненты CodeDeploy Используйте информацию в этом руководстве, чтобы помочь вам работать со следующими компонентами CodeDeploy: Приложение: Имя, которое уникально идентифицирует приложение, которое вы хотите развернуть. CodeDeploy использует это имя, которое функционирует как контейнер, чтобы обеспечить правильное сочетание ревизии, конфигурации развертывания и группы развертывания во время развертывания. Группа развертывания: Набор отдельных экземпляров, настройки конфигурации развертывания CodeDeploy Lambda или служба Amazon ECS и сетевые детали. Группа развертывания Lambda определяет, как направлять трафик на новую версию функции Lambda. Группа развертывания Amazon ECS определяет службу, созданную в Amazon ECS для развертывания, балансировщик нагрузки и слушатель для перенаправления производственного трафика на обновленное контейнеризованное приложение. Группа развертывания Amazon EC2/локальная содержит индивидуально помеченные экземпляры, экземпляры Amazon EC2 в группах автоматического масштабирования Amazon EC2 или то и другое. Все группы развертывания могут указывать необязательные настройки триггера, тревоги и отката. Конфигурация развертывания: Набор правил развертывания и условий успеха и неудачи развертывания, используемых CodeDeploy во время развертывания. Развертывание: Процесс и компоненты, используемые при обновлении функции Lambda, контейнеризованного приложения в службе Amazon ECS или установки содержимого на один или несколько экземпляров. Ревизии приложений: Для развертывания Lambda это файл AppSpec, который указывает функцию Lambda, которую нужно обновить, и одну или несколько функций для проверки событий жизненного цикла развертывания. Для развертывания Amazon ECS это файл AppSpec, который указывает определение задачи Amazon ECS, контейнер и порт, на который перенаправляется производственный трафик. Для развертывания EC2/локального это архивный файл, который содержит исходное содержимое — исходный код, веб-страницы, исполняемые файлы и скрипты развертывания — вместе с файлом AppSpec. Ревизии хранятся в корзинах Amazon S3 или репозиториях GitHub. Для Amazon S3 ревизия уникально идентифицируется по ключу объекта Amazon S3 и его ETag, версии или обоим. Для GitHub ревизия уникально идентифицируется по идентификатору коммита. Это руководство также содержит информацию, чтобы помочь вам получить детали о экземплярах в ваших развертываниях, сделать локальные экземпляры доступными для развертываний CodeDeploy, получить детали о развертывании функции Lambda и получить детали о развертываниях службы Amazon ECS. Ресурсы информации CodeDeploy Руководство пользователя CodeDeploy Справочник API CodeDeploy Справочник CLI для CodeDeploy Форум разработчиков CodeDeploy\n\n### 🔧 Как это работает\n\nЭтот рабочий процесс преобразует API AWS CodeDeploy в интерфейс, совместимый с MCP, для AI-агентов.\n\n• **MCP Триггер**: Служит вашим серверным конечным пунктом для запросов AI-агентов\n• **HTTP Узлы Запросов**: Обрабатывают API-вызовы к http://codedeploy.{region}.amazonaws.com\n• **AI Выражения**: Автоматически заполняют параметры через заполнители `$fromAI()`\n• **Нативная Интеграция**: Возвращает ответы непосредственно AI-агенту"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "854c06f4-df62-4d7f-8fd4-e10b4937bafa",
+      "name": "AWS CodeDeploy MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        -940,
+        -240
+      ],
+      "webhookId": "a3e190f7-f6f6-4ded-892a-bb6474a38112",
+      "parameters": {
+        "path": "aws-codedeploy-mcp"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "03f0144f-b38b-4cb4-a3df-0843ca53f5fd",
+      "name": "Adds tags to on-premises instances.",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -400,
+        -200
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.AddTagsToOnPremisesInstances",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Adds tags to on-premises instances.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b2da97c1-49fd-46dc-be93-eb0c063ebd60",
+      "name": "Grid Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -500,
+        -260
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Добавить теги к локальным экземплярам"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "10217ebb-cd89-40d7-8dc8-3e89ee2b44f1",
+      "name": "Gets information about one or more application rev",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        -200
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.BatchGetApplicationRevisions",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Gets information about one or more application revisions. The maximum number of application revisions that can be returned is 25.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "547996c8-70b0-48d7-a242-11d0104e10a5",
+      "name": "Grid Note 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -220,
+        -260
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Пакетное получение ревизий приложений"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c8c2ea46-f0c3-4d3e-92f9-db35dee39ef5",
+      "name": "Gets information about one or more applications. T",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        160,
+        -200
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.BatchGetApplications",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Gets information about one or more applications. The maximum number of applications that can be returned is 100.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0da460ed-379d-43a8-b39f-0d45b06265be",
+      "name": "Grid Note 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        60,
+        -260
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Пакетное получение приложений"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "92dc7316-9e0b-4d62-b860-cfcc2dbf7ac0",
+      "name": "Gets information about one or more deployment grou",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        440,
+        -200
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.BatchGetDeploymentGroups",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Gets information about one or more deployment groups.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "82caf0e9-199c-496a-a9a6-590e2dbf5cfd",
+      "name": "Grid Note 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        340,
+        -260
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Пакетное получение групп развертывания"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "073e63e9-c962-4890-9a98-f84991f7dff1",
+      "name": "<note> This method works, but is deprecated. Use B",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        720,
+        -200
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.BatchGetDeploymentInstances",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "<note> This method works, but is deprecated. Use BatchGetDeploymentTargets instead. </note> Returns an array of one or more instances associated with a deployment. This method works with EC2/On-premises and Lambda compute platforms. The newer BatchGetDeploymentTargets works with all compute platforms. The maximum number of instances that can be returned is 25.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "040b5a2b-b072-430e-b5f0-992befcfb0b1",
+      "name": "Grid Note 5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        620,
+        -260
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Пакетное получение экземпляров развертывания"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "29334e62-abb2-47c7-9b3b-9edafc031899",
+      "name": "Returns an array of one or more targets associated",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -680,
+        20
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.BatchGetDeploymentTargets",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Returns an array of one or more targets associated with a deployment. This method works with all compute types and should be used instead of the deprecated BatchGetDeploymentInstances. The maximum number of targets that can be returned is 25. The type of targets returned depends on the deployment's compute platform or deployment method: EC2/On-premises: Information about Amazon EC2 instance targets. Lambda: Information about Lambda functions targets. Amazon ECS: Information about Amazon ECS service targets. CloudFormation: Information about targets of blue/green deployments initiated by a CloudFormation stack update.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "62c4b00e-ee5a-48f0-b73a-88b352f0a3bc",
+      "name": "Grid Note 6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -780,
+        -40
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Пакетное получение целевых развертываний"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bd65922f-f066-4e1b-9b0b-20323e30f09b",
+      "name": "Gets information about one or more deployments. Th",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -400,
+        20
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.BatchGetDeployments",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Gets information about one or more deployments. The maximum number of deployments that can be returned is 25.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "32cf7a44-a08d-4166-8447-1bd82a7a5d3a",
+      "name": "Grid Note 7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -520,
+        -40
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 280,
+        "height": 220,
+        "content": "## Пакетное получение развертываний"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "651701e7-fc2b-4203-be09-5230cf64d047",
+      "name": "Gets information about one or more on-premises ins",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        20
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.BatchGetOnPremisesInstances",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Gets information about one or more on-premises instances. The maximum number of on-premises instances that can be returned is 25.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c0e61acc-f32c-4c11-aac6-90f7ecb9d177",
+      "name": "Grid Note 8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -220,
+        -40
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Пакетное получение локальных экземпляров"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "14c95c6b-2c65-480d-8c91-9cadc6a5fe29",
+      "name": "For a blue/green deployment, starts the process of",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        160,
+        20
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.ContinueDeployment",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "For a blue/green deployment, starts the process of rerouting traffic from instances in the original environment to instances in the replacement environment without waiting for a specified wait time to elapse. (Traffic rerouting, which is achieved by registering instances in the replacement environment with the load balancer, can start as soon as all instances have a status of Ready.)\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "9e3f7513-6f4a-46dd-bc8a-4ed8cc0b1216",
+      "name": "Grid Note 9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        60,
+        -40
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 260,
+        "height": 220,
+        "content": "## Продолжить развертывание"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7f7e61b6-73e4-4c64-9483-36cec07eed5f",
+      "name": "Creates an application.",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        440,
+        20
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.CreateApplication",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Creates an application.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d59fe311-52a7-4752-87da-dfd8698cbcec",
+      "name": "Grid Note 10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        340,
+        -40
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 260,
+        "height": 220,
+        "content": "## Создать приложение"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5d5bbe3a-ad21-449c-bcff-3e827448beab",
+      "name": "Deploys an application revision through the specif",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        720,
+        20
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.CreateDeployment",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Deploys an application revision through the specified deployment group.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "add985df-a2c8-482a-a865-f6f3a2de0041",
+      "name": "Grid Note 11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        620,
+        -40
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "## Создать развертывание"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1f631256-c6f6-4cc6-937e-266b09d96110",
+      "name": "Creates a deployment configuration.",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -680,
+        240
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.CreateDeploymentConfig",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Creates a deployment configuration.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "9366c09a-3875-4f5b-809e-698d125aff81",
+      "name": "Grid Note 12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -780,
+        180
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Создать конфигурацию развертывания"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1079e07e-e845-4b8a-8a71-0988d668f8a9",
+      "name": "Creates a deployment group to which application re",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -400,
+        240
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.CreateDeploymentGroup",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Creates a deployment group to which application revisions are deployed.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b65bfbfd-2e4a-4378-8104-c8af72074684",
+      "name": "Grid Note 13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -500,
+        180
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Создать группу развертывания"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e70bd768-df93-40c4-b9ed-20660f60d8f9",
+      "name": "Deletes an application.",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        240
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.DeleteApplication",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Deletes an application.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "36857294-1fb1-42a8-888d-a346eec2967e",
+      "name": "Grid Note 14",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -220,
+        180
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 260,
+        "height": 220,
+        "content": "## Удалить приложение"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "079e9e50-9f58-459b-b5c0-7cbeaa6f3323",
+      "name": "Deletes a deployment configuration. <note> A deplo",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        160,
+        240
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.DeleteDeploymentConfig",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Deletes a deployment configuration. <note> A deployment configuration cannot be deleted if it is currently in use. Predefined configurations cannot be deleted. </note>\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "9bab660b-5010-4657-add5-278a499a9a4e",
+      "name": "Grid Note 15",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        60,
+        180
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Удалить конфигурацию развертывания"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4dc5f850-4489-42db-a0dc-5bdbe0ef040d",
+      "name": "Deletes a deployment group.",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        440,
+        240
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.DeleteDeploymentGroup",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Deletes a deployment group.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "389e086b-2f88-445e-8527-49587e73f6f4",
+      "name": "Grid Note 16",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        340,
+        180
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Удалить группу развертывания"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "168d9eb9-93e5-4a9f-b1a1-cf969140724e",
+      "name": "Deletes a GitHub account connection.",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        720,
+        240
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.DeleteGitHubAccountToken",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Deletes a GitHub account connection.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c1377685-e59d-487e-abed-f752e61375da",
+      "name": "Grid Note 17",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        620,
+        180
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Удалить токен аккаунта G It Hub"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e655a85c-b3f3-44ba-a4ad-af3d2ab4f433",
+      "name": "Deletes resources linked to an external ID.",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -680,
+        460
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.DeleteResourcesByExternalId",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Deletes resources linked to an external ID.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "261123c6-8e5b-4ee4-b826-eb9d867c5288",
+      "name": "Grid Note 18",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -780,
+        400
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Удалить ресурсы по внешнему идентификатору"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7d948f29-2673-4455-9056-76b0fdb4663e",
+      "name": "Deregisters an on-premises instance.",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -400,
+        460
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.DeregisterOnPremisesInstance",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Deregisters an on-premises instance.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d74153ac-977e-4074-8e14-e7b60df34dad",
+      "name": "Grid Note 19",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -500,
+        400
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Зарегистрировать локальный экземпляр"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f82fa534-720d-407f-9329-4c0e96e501ec",
+      "name": "Gets information about an application.",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        460
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.GetApplication",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Gets information about an application.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "6b217d52-8fa3-4e8b-a192-9ae4e2e4cb21",
+      "name": "Grid Note 20",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -220,
+        400
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "## Получить приложение"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "431c99b9-52c8-477e-8db5-d77b3443601c",
+      "name": "Gets information about an application revision.",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        160,
+        460
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.GetApplicationRevision",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Gets information about an application revision.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "7f38093f-ccd7-4402-871d-8b1177ed4839",
+      "name": "Grid Note 21",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        60,
+        400
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Получить пересмотр приложения"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3c60661c-16d3-4c2b-bdb1-eb9f5357ab4e",
+      "name": "Gets information about a deployment. <note> The co",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        440,
+        460
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.GetDeployment",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Gets information about a deployment. <note> The content property of the appSpecContent object in the returned revision is always null. Use GetApplicationRevision and the sha256 property of the returned appSpecContent object to get the content of the deploymentâs AppSpec file. </note>\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "6c30be77-945d-4b27-88e0-aee1c70641fa",
+      "name": "Grid Note 22",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        340,
+        400
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "## Получить развертывание"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "baaef572-48fd-45e0-afa5-776a9e0e15bd",
+      "name": "Gets information about a deployment configuration.",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        720,
+        460
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.GetDeploymentConfig",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Gets information about a deployment configuration.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "3a8d0b7a-56f3-4590-afd7-35d05ff96e01",
+      "name": "Grid Note 23",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        600,
+        400
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 280,
+        "height": 220,
+        "content": "## Получить конфигурацию развертывания"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "40a88db8-99aa-4891-8bb9-f623555ddd52",
+      "name": "Gets information about a deployment group.",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -680,
+        680
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.GetDeploymentGroup",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Gets information about a deployment group.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f046d054-1191-4025-961e-6f773123ca64",
+      "name": "Grid Note 24",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -800,
+        620
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 280,
+        "height": 220,
+        "content": "## Получить группу развертывания"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "07ddb125-2ebe-4008-842d-1f620296b016",
+      "name": "Gets information about an instance as part of a de",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -400,
+        680
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.GetDeploymentInstance",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Gets information about an instance as part of a deployment.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "330762d1-0ff6-4465-8d98-6bbedb34c4f6",
+      "name": "Grid Note 25",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -500,
+        620
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Получить экземпляр развертывания"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ad55b434-5b10-4ffa-b523-250980a58846",
+      "name": "Returns information about a deployment target.",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        680
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.GetDeploymentTarget",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Returns information about a deployment target.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "50a24901-5020-4561-b0b7-772d87beba0d",
+      "name": "Grid Note 26",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -240,
+        620
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 280,
+        "height": 220,
+        "content": "## Получить целевой развертывание"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8fe4f7c6-69d8-46d0-be05-68fe2f9a8ff6",
+      "name": "Gets information about an on-premises instance.",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        160,
+        680
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.GetOnPremisesInstance",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Gets information about an on-premises instance.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b08c52b3-d743-4b83-87ff-8e967144120a",
+      "name": "Grid Note 27",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        60,
+        620
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Получить локальный экземпляр"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b8540834-02c1-4c89-b42a-f7e1d471c1e0",
+      "name": "Lists information about revisions for an applicati",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        440,
+        680
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.ListApplicationRevisions",
+        "method": "POST",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "nextToken",
+              "value": "={{ $fromAI('nextToken', 'Pagination token', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Lists information about revisions for an application.\n\nParameters:\n- Query parameters:\n  • nextToken (optional) - Pagination token\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e348fe83-1a2d-4d31-9f29-41419f51b6b6",
+      "name": "Grid Note 28",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        340,
+        620
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Список исправлений приложения"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8faf3859-b868-4b0a-be7a-ec031050451e",
+      "name": "Lists the applications registered with the IAM use",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        720,
+        680
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.ListApplications",
+        "method": "POST",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "nextToken",
+              "value": "={{ $fromAI('nextToken', 'Pagination token', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Lists the applications registered with the IAM user or Amazon Web Services account.\n\nParameters:\n- Query parameters:\n  • nextToken (optional) - Pagination token\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "57da6950-52f9-4f25-9c3c-252d9f60feff",
+      "name": "Grid Note 29",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        620,
+        620
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "## Список приложений"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6c2e86ac-717f-4cc4-8071-c9ab0762944f",
+      "name": "Lists the deployment configurations with the IAM u",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -680,
+        900
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.ListDeploymentConfigs",
+        "method": "POST",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "nextToken",
+              "value": "={{ $fromAI('nextToken', 'Pagination token', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Lists the deployment configurations with the IAM user or Amazon Web Services account.\n\nParameters:\n- Query parameters:\n  • nextToken (optional) - Pagination token\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b1128096-6630-4865-9b17-bca5c5e5c740",
+      "name": "Grid Note 30",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -780,
+        840
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Список конфигурации развертывания S"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1358b091-9977-4b81-aa98-06c24b949466",
+      "name": "Lists the deployment groups for an application reg",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -400,
+        900
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.ListDeploymentGroups",
+        "method": "POST",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "nextToken",
+              "value": "={{ $fromAI('nextToken', 'Pagination token', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Lists the deployment groups for an application registered with the IAM user or Amazon Web Services account.\n\nParameters:\n- Query parameters:\n  • nextToken (optional) - Pagination token\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "ac08f422-de20-4c71-ba4f-7b9385f2c790",
+      "name": "Grid Note 31",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -500,
+        840
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Список групп развертывания"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5a0327f6-fc26-42e0-bd6a-41f9c5164fc6",
+      "name": "<note> The newer BatchGetDeploymentTargets should ",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        900
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.ListDeploymentInstances",
+        "method": "POST",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "nextToken",
+              "value": "={{ $fromAI('nextToken', 'Pagination token', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "<note> The newer BatchGetDeploymentTargets should be used instead because it works with all compute types. ListDeploymentInstances throws an exception if it is used with a compute platform other than EC2/On-premises or Lambda. </note> Lists the instance for a deployment associated with the IAM user or Amazon Web Services account.\n\nParameters:\n- Query parameters:\n  • nextToken (optional) - Pagination token\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "902e040c-1622-413f-b8ad-c40fde8da9ef",
+      "name": "Grid Note 32",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -220,
+        840
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Список экземпляров развертывания"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f2315a58-f82e-44ed-91b2-d447e5eb7bb9",
+      "name": "Returns an array of target IDs that are associated",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        160,
+        900
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.ListDeploymentTargets",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Returns an array of target IDs that are associated a deployment.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d764d77b-3d72-432f-9305-a6d01dc2801a",
+      "name": "Grid Note 33",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        60,
+        840
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Список целей развертывания"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "04418e16-a343-42ce-9c96-fe78b9243f0b",
+      "name": "Lists the deployments in a deployment group for an",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        440,
+        900
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.ListDeployments",
+        "method": "POST",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "nextToken",
+              "value": "={{ $fromAI('nextToken', 'Pagination token', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Lists the deployments in a deployment group for an application registered with the IAM user or Amazon Web Services account.\n\nParameters:\n- Query parameters:\n  • nextToken (optional) - Pagination token\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "6894980b-0550-447f-8c52-71a715573431",
+      "name": "Grid Note 34",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        340,
+        840
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "## Список развертываний"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ca76c14d-924e-4361-80aa-295d1c3ccd30",
+      "name": "Lists the names of stored connections to GitHub ac",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        720,
+        900
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.ListGitHubAccountTokenNames",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Lists the names of stored connections to GitHub accounts.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "09a829de-e0bf-400a-a8d9-96214a894036",
+      "name": "Grid Note 35",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        620,
+        840
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Список G It Hub учетных токенов"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "90c182bd-e220-40ae-a288-8daa1b3c05ed",
+      "name": "Gets a list of names for one or more on-premises i",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -680,
+        1120
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.ListOnPremisesInstances",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Gets a list of names for one or more on-premises instances. Unless otherwise specified, both registered and deregistered on-premises instance names are listed. To list only registered or deregistered on-premises instance names, use the registration status parameter.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e5eb4241-fcba-44f7-ac19-d9012ad8c6e2",
+      "name": "Grid Note 36",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -780,
+        1060
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Список локальных экземпляров"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b1dab7a9-266a-45bf-a1e1-8c8543101a42",
+      "name": "Returns a list of tags for the resource identified",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -400,
+        1120
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.ListTagsForResource",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Returns a list of tags for the resource identified by a specified Amazon Resource Name (ARN). Tags are used to organize and categorize your CodeDeploy resources.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "05660e0d-df51-4a49-8b7b-f661c221c8dc",
+      "name": "Grid Note 37",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -500,
+        1060
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Список тегов для ресурса"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "06b6f348-7f43-4766-8e4f-53ec96bb912d",
+      "name": "Sets the result of a Lambda validation function. T",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        1120
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.PutLifecycleEventHookExecutionStatus",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Sets the result of a Lambda validation function. The function validates lifecycle hooks during a deployment that uses the Lambda or Amazon ECS compute platform. For Lambda deployments, the available lifecycle hooks are BeforeAllowTraffic and AfterAllowTraffic. For Amazon ECS deployments, the available lifecycle hooks are BeforeInstall, AfterInstall, AfterAllowTestTraffic, BeforeAllowTraffic, and AfterAllowTraffic. Lambda validation functions return Succeeded or Failed. For more information, see <a href=\"https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-structure-hooks.html#appspec-hooks-lambda\">AppSpec 'hooks' Section for an Lambda Deployment </a> and <a href=\"https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-structure-hooks.html#appspec-hooks-ecs\">AppSpec 'hooks' Section for an Amazon ECS Deployment</a>.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a6745dc6-e66e-48ee-a9a1-b7f7dd767544",
+      "name": "Grid Note 38",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -220,
+        1060
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Статус выполнения хуков событий жизненного цикла"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ed3cc72f-c37f-42e3-86b0-aee208946a31",
+      "name": "Registers with CodeDeploy a revision for the speci",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        160,
+        1120
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.RegisterApplicationRevision",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Registers with CodeDeploy a revision for the specified application.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c189e34c-40bc-4f48-a349-340d1808ab2b",
+      "name": "Grid Note 39",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        60,
+        1060
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Регистрация приложения Редакция"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "49da2567-c1d9-4f02-9aaf-af5f72c6e752",
+      "name": "Registers an on-premises instance. <note> Only one",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        440,
+        1120
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.RegisterOnPremisesInstance",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Registers an on-premises instance. <note> Only one IAM ARN (an IAM session ARN or IAM user ARN) is supported in the request. You cannot use both. </note>\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "99a0ff1a-e058-463f-8af0-9fe8f8749ac9",
+      "name": "Grid Note 40",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        340,
+        1060
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Зарегистрировать локальный экземпляр"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4880b54e-c49e-42dd-8486-745c9c1a4b14",
+      "name": "Removes one or more tags from one or more on-premi",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        720,
+        1120
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.RemoveTagsFromOnPremisesInstances",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Removes one or more tags from one or more on-premises instances.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "7b338f9b-d789-493b-8293-97f10036989c",
+      "name": "Grid Note 41",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        620,
+        1060
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Удалить теги с локальных экземпляров"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2267bc55-65aa-404d-9925-82e0d13ba30a",
+      "name": "In a blue/green deployment, overrides any specifie",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -680,
+        1340
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.SkipWaitTimeForInstanceTermination",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "In a blue/green deployment, overrides any specified wait time and starts terminating instances immediately after the traffic routing is complete.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "5f78e0ed-d2ba-493c-9ade-c310a573a3e4",
+      "name": "Grid Note 42",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -780,
+        1280
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Пропустить время ожидания для завершения экземпляра"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5d7ff111-0d40-4356-8e79-a66ee1b6eb5d",
+      "name": "Attempts to stop an ongoing deployment.",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -400,
+        1340
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.StopDeployment",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Attempts to stop an ongoing deployment.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "979fdf00-1a29-4539-aded-db963b859ad8",
+      "name": "Grid Note 43",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -500,
+        1280
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "## Остановить развертывание"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9a1083a2-39ac-40a3-a047-b1cacc5f271b",
+      "name": "Associates the list of tags in the input Tags para",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        1340
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.TagResource",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Associates the list of tags in the input Tags parameter with the resource identified by the ResourceArn input parameter.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0d602207-3968-4d7a-aef1-36913e0f89f8",
+      "name": "Grid Note 44",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -220,
+        1280
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "## Ресурс Тега"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "07391ce3-f03a-4202-b4a9-d65971499599",
+      "name": "Disassociates a resource from a list of tags. The ",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        160,
+        1340
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.UntagResource",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Disassociates a resource from a list of tags. The resource is identified by the ResourceArn input parameter. The tags are identified by the list of keys in the TagKeys input parameter.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "55c9956e-1d00-4f59-9a38-f72e75a139b2",
+      "name": "Grid Note 45",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        60,
+        1280
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "## Un Tag Ресурс"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ae42ecc2-a39d-4f33-8e7d-9af942905e3c",
+      "name": "Changes the name of an application.",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        440,
+        1340
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.UpdateApplication",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Changes the name of an application.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "74552108-a1ec-49d1-b16f-8adf3bbcc82e",
+      "name": "Grid Note 46",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        340,
+        1280
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 260,
+        "height": 220,
+        "content": "## Обновить приложение"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "38ed53b1-fd0a-403e-8bf1-cdcedf2d7b56",
+      "name": "Changes information about a deployment group.",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        720,
+        1340
+      ],
+      "parameters": {
+        "url": "=http://codedeploy.{region}.amazonaws.com/#X-Amz-Target=CodeDeploy_20141006.UpdateDeploymentGroup",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Changes information about a deployment group.\n\nParameters:\n- Header parameters:\n  • X-Amz-Target (required)",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $fromAI('X-Amz-Target', 'X Amz Target', 'string') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "af7e995e-e646-4195-84ed-354ae033eb2d",
+      "name": "Grid Note 47",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        620,
+        1280
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 220,
+        "content": "### Обновить группу развертывания"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "shared": [
+    {
+      "role": "workflow:owner",
+      "project": {
+        "id": "G5fce9xGuBAsWBXe",
+        "icon": null,
+        "name": "David Ashby <david.ashby.lds@gmail.com>",
+        "type": "personal",
+        "createdAt": "2025-06-04T02:55:02.013Z",
+        "updatedAt": "2025-06-04T02:56:01.361Z",
+        "projectRelations": [
+          {
+            "role": "project:personalOwner",
+            "user": {
+              "id": "715c1c00-cb48-4712-9a32-f1f4b6db2b30",
+              "role": "global:owner",
+              "email": "david.ashby.lds@gmail.com",
+              "disabled": false,
+              "lastName": "Ashby",
+              "settings": {
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1749357655581
+                },
+                "userActivated": true,
+                "userActivatedAt": 1749075994495,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "3N3vVikZb3MckFYm"
+              },
+              "createdAt": "2025-06-04T02:55:01.745Z",
+              "firstName": "David",
+              "isPending": false,
+              "updatedAt": "2025-06-08T04:40:58.399Z",
+              "mfaEnabled": false,
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_n8n_version": "1.95.3",
+                "personalization_survey_submitted_at": "2025-06-04T02:56:07.075Z"
+              }
+            },
+            "userId": "715c1c00-cb48-4712-9a32-f1f4b6db2b30",
+            "createdAt": "2025-06-04T02:55:02.013Z",
+            "projectId": "G5fce9xGuBAsWBXe",
+            "updatedAt": "2025-06-04T02:55:02.013Z"
+          }
+        ]
+      },
+      "createdAt": "2025-07-01T04:47:27.222Z",
+      "projectId": "G5fce9xGuBAsWBXe",
+      "updatedAt": "2025-07-01T04:47:27.222Z",
+      "workflowId": "ft6Ik64LVNdEV6jN"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "timezone": "America/New_York"
+  },
+  "createdAt": "2025-07-01T04:47:27.219Z",
+  "updatedAt": "2025-07-01T04:52:22.000Z",
+  "versionId": "a9462f57-7d52-4c08-bf54-bfa9dc2eb38f",
+  "isArchived": false,
+  "staticData": null,
+  "connections": {
+    "Creates an application.": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deletes an application.": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deletes a deployment group.": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adds tags to on-premises instances.": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Changes the name of an application.": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Creates a deployment configuration.": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deletes a GitHub account connection.": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deregisters an on-premises instance.": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gets information about an application.": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attempts to stop an ongoing deployment.": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gets information about a deployment group.": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deletes resources linked to an external ID.": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Changes information about a deployment group.": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Returns information about a deployment target.": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gets information about an application revision.": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gets information about an on-premises instance.": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "<note> The newer BatchGetDeploymentTargets should ": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "<note> This method works, but is deprecated. Use B": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Associates the list of tags in the input Tags para": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Creates a deployment group to which application re": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deletes a deployment configuration. <note> A deplo": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deploys an application revision through the specif": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Disassociates a resource from a list of tags. The ": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "For a blue/green deployment, starts the process of": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gets a list of names for one or more on-premises i": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gets information about a deployment configuration.": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gets information about a deployment. <note> The co": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gets information about an instance as part of a de": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gets information about one or more application rev": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gets information about one or more applications. T": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gets information about one or more deployment grou": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gets information about one or more deployments. Th": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gets information about one or more on-premises ins": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "In a blue/green deployment, overrides any specifie": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lists information about revisions for an applicati": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lists the applications registered with the IAM use": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lists the deployment configurations with the IAM u": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lists the deployment groups for an application reg": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lists the deployments in a deployment group for an": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lists the names of stored connections to GitHub ac": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registers an on-premises instance. <note> Only one": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registers with CodeDeploy a revision for the speci": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Removes one or more tags from one or more on-premi": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Returns a list of tags for the resource identified": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Returns an array of one or more targets associated": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Returns an array of target IDs that are associated": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sets the result of a Lambda validation function. T": {
+      "ai_tool": [
+        [
+          {
+            "node": "AWS CodeDeploy MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "triggerCount": 0
+}

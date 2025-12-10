@@ -1,0 +1,656 @@
+{
+  "id": "nRLCZA7NYHrfbtKp",
+  "meta": {
+    "instanceId": "28bd95de2c15632ac4fbb9a674b8e7a0156e242a724a5996b55587928eb6fb92",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Синхронизация файлов Google Drive с векторным хранилищем OpenAI",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "a08cbfb8-3f3e-431c-ba48-3a4a48fed182",
+      "name": "Set variables",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -1560,
+        0
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "00537a7b-95ce-4584-9044-9c0e2e73dff5",
+      "name": "Loop over files",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        200,
+        0
+      ],
+      "parameters": {},
+      "typeVersion": 3
+    },
+    {
+      "id": "233cde2b-93a0-43a0-8e86-c1bf89b68d21",
+      "name": "Upload new or updated file",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        1300,
+        100
+      ],
+      "parameters": {},
+      "typeVersion": 1.8
+    },
+    {
+      "id": "acff13fe-92a6-4cc8-9aa6-6db1faf137db",
+      "name": "End loop",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        2180,
+        320
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "ebc9f4e5-cb3f-495a-8802-5f0b65631db9",
+      "name": "End workflow",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        640,
+        -100
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "c66d70c0-0527-4712-a580-23e99199d2d3",
+      "name": "Search for existing file in vector store [OpenAI]",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        640,
+        320
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f0efe965-eb17-43c7-84e2-5e8d1d46d412",
+      "name": "Add uploaded file to vector store [OpenAI]",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1520,
+        100
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "dfc411af-64d0-46f3-ae4f-bb1612fae0c5",
+      "name": "\"Test workflow\" clicked",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -1780,
+        100
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "b96721bc-231f-4d39-bf2f-5d97a9b61805",
+      "name": "Schedule trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -1780,
+        -100
+      ],
+      "parameters": {},
+      "typeVersion": 1.2
+    },
+    {
+      "id": "b655f126-95ca-4c1a-b4b8-bfe8eb3c36be",
+      "name": "Download new or updated file",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        1080,
+        100
+      ],
+      "parameters": {},
+      "typeVersion": 3
+    },
+    {
+      "id": "687fa008-6254-430e-a030-bf9c0cffd79e",
+      "name": "Aggregate vector store files",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        420,
+        -100
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "0bd37e6a-ff46-4438-9d5b-63c0ffb392b0",
+      "name": "List vector store files [OpenAI]",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1340,
+        100
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "bb850390-6373-43a0-92bc-a8dc3b028a2d",
+      "name": "Split vector store files",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        -1120,
+        100
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "717fcc7a-2f5c-453a-87e8-625f66605d92",
+      "name": "Set vector store file",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -900,
+        100
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "8854a514-5364-47b9-aad6-74321041c052",
+      "name": "List files from folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        -1340,
+        -100
+      ],
+      "parameters": {},
+      "typeVersion": 3
+    },
+    {
+      "id": "be48c9c1-2e62-4965-8706-1bb549c923cb",
+      "name": "Set Google Drive file",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -1120,
+        -100
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "4a4bab67-2970-4dbc-81a4-5410d459701b",
+      "name": "Set Google Drive file to create in vector store",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -460,
+        -300
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "485c333b-bdc8-4b4c-aa0d-00a12c8232f7",
+      "name": "Set Google Drive file to update in vector store",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -460,
+        100
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "d7d818eb-a721-431b-9a65-2d454e607e72",
+      "name": "Set Google Drive file to delete from vector store",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -460,
+        300
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "88e2790b-405a-47ca-b192-7daf3604b427",
+      "name": "Set Google Drive file to ignore",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -460,
+        -100
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "374667d2-846e-4e40-a27f-ee5a36d9ecb3",
+      "name": "Merge Google Drive files",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        -240,
+        -20
+      ],
+      "parameters": {},
+      "typeVersion": 3.1
+    },
+    {
+      "id": "97531565-4195-43f6-9a87-0ef571a9a891",
+      "name": "Compare Google Drive files with vector store files",
+      "type": "n8n-nodes-base.compareDatasets",
+      "position": [
+        -680,
+        -20
+      ],
+      "parameters": {},
+      "typeVersion": 2.3
+    },
+    {
+      "id": "2e2f9e58-7b22-4e1b-9fb6-3b1b5461fcaf",
+      "name": "Filter out files to ignore",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        -20,
+        0
+      ],
+      "parameters": {},
+      "typeVersion": 2.2
+    },
+    {
+      "id": "ab34129d-950c-4e3a-9f40-542d09243266",
+      "name": "Does file need to be created in vector store?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        420,
+        220
+      ],
+      "parameters": {},
+      "typeVersion": 2.2
+    },
+    {
+      "id": "ca7c9d34-ee6b-477e-95e1-7c6d6e09a220",
+      "name": "Delete outdated file or previous version",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1960,
+        320
+      ],
+      "parameters": {},
+      "typeVersion": 4.2
+    },
+    {
+      "id": "65ac2653-7aa3-44d2-94d2-34065e1f7e00",
+      "name": "Does file need to be updated or deleted from vector store?",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        860,
+        320
+      ],
+      "parameters": {},
+      "typeVersion": 3.2
+    },
+    {
+      "id": "6f68cf8f-d77f-4c51-8237-aae51c151173",
+      "name": "Has file been created or updated?",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        1740,
+        100
+      ],
+      "parameters": {},
+      "typeVersion": 3.2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c5785279-3303-4e4b-8312-17872bbab6f7",
+  "connections": {
+    "End loop": {
+      "main": [
+        [
+          {
+            "node": "Loop over files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set variables": {
+      "main": [
+        [
+          {
+            "node": "List vector store files [OpenAI]",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "List files from folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop over files": {
+      "main": [
+        [
+          {
+            "node": "Aggregate vector store files",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Does file need to be created in vector store?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule trigger": {
+      "main": [
+        [
+          {
+            "node": "Set variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Google Drive file": {
+      "main": [
+        [
+          {
+            "node": "Compare Google Drive files with vector store files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set vector store file": {
+      "main": [
+        [
+          {
+            "node": "Compare Google Drive files with vector store files",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "List files from folder": {
+      "main": [
+        [
+          {
+            "node": "Set Google Drive file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "\"Test workflow\" clicked": {
+      "main": [
+        [
+          {
+            "node": "Set variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Google Drive files": {
+      "main": [
+        [
+          {
+            "node": "Filter out files to ignore",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split vector store files": {
+      "main": [
+        [
+          {
+            "node": "Set vector store file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter out files to ignore": {
+      "main": [
+        [
+          {
+            "node": "Loop over files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload new or updated file": {
+      "main": [
+        [
+          {
+            "node": "Add uploaded file to vector store [OpenAI]",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate vector store files": {
+      "main": [
+        [
+          {
+            "node": "End workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download new or updated file": {
+      "main": [
+        [
+          {
+            "node": "Upload new or updated file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Google Drive file to ignore": {
+      "main": [
+        [
+          {
+            "node": "Merge Google Drive files",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "List vector store files [OpenAI]": {
+      "main": [
+        [
+          {
+            "node": "Split vector store files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has file been created or updated?": {
+      "main": [
+        [
+          {
+            "node": "End loop",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Delete outdated file or previous version",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete outdated file or previous version": {
+      "main": [
+        [
+          {
+            "node": "End loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add uploaded file to vector store [OpenAI]": {
+      "main": [
+        [
+          {
+            "node": "Has file been created or updated?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Does file need to be created in vector store?": {
+      "main": [
+        [
+          {
+            "node": "Download new or updated file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Search for existing file in vector store [OpenAI]",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Google Drive file to create in vector store": {
+      "main": [
+        [
+          {
+            "node": "Merge Google Drive files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Google Drive file to update in vector store": {
+      "main": [
+        [
+          {
+            "node": "Merge Google Drive files",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Search for existing file in vector store [OpenAI]": {
+      "main": [
+        [
+          {
+            "node": "Does file need to be updated or deleted from vector store?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Google Drive file to delete from vector store": {
+      "main": [
+        [
+          {
+            "node": "Merge Google Drive files",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Compare Google Drive files with vector store files": {
+      "main": [
+        [
+          {
+            "node": "Set Google Drive file to create in vector store",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Google Drive file to ignore",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Google Drive file to update in vector store",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Google Drive file to delete from vector store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Does file need to be updated or deleted from vector store?": {
+      "main": [
+        [
+          {
+            "node": "Download new or updated file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Delete outdated file or previous version",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

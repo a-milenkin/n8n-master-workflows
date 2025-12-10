@@ -1,0 +1,256 @@
+{
+  "nodes": [
+    {
+      "id": "764c42ae-3761-4375-9de4-69ecdaf82b10",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -20,
+        520
+      ],
+      "parameters": {
+        "width": 377.1993316649719,
+        "height": 590.2004455566864,
+        "content": "## 👋 Как использовать этот шаблон"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b35b39f5-2937-437e-b4bb-bfd4fc06b2e2",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        423.0997586567955,
+        520
+      ],
+      "parameters": {
+        "width": 398.2006312053042,
+        "height": 600.6569416091058,
+        "content": "Этот шаблон показывает, как вы можете взять любое событие из любого сервиса, преобразовать его данные и отправить уведомление в нужное вам приложение. Вот как его использовать:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "466097b6-a830-43fb-9776-d3c7f676fc9a",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1400,
+        620
+      ],
+      "parameters": {
+        "width": 317.52886836027733,
+        "height": 408.7361996915138,
+        "content": "Дважды щелкните на узле `Slack` и подключитесь к своей учетной записи Slack, создав учетные данные."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "99b3eadc-f3ff-4f73-91c2-909ab17ea8ff",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        880,
+        620
+      ],
+      "parameters": {
+        "width": 462,
+        "height": 407,
+        "content": "Измените имя канала в узле `Slack` на канал или пользователя, которого вы имеете в Slack."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "90e3e605-f497-4aaa-b0be-cb064e9b9ac9",
+      "name": "Linear Trigger",
+      "type": "n8n-nodes-base.linearTrigger",
+      "disabled": true,
+      "position": [
+        500,
+        600
+      ],
+      "webhookId": "b705f01f-3262-46d4-90f2-fc9f962e6766",
+      "parameters": {
+        "teamId": "583b87b7-a8f8-436b-872c-61373503d61d",
+        "resources": [
+          "issue"
+        ]
+      },
+      "credentials": {
+        "linearApi": {
+          "id": "15",
+          "name": "Linear account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f956bf3b-b119-4006-b964-6fdb089ff877",
+      "name": "When clicking \"Execute Workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "notes": "For testing the workflow",
+      "position": [
+        500,
+        800
+      ],
+      "parameters": {},
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "2b347886-f7a8-44eb-b26a-57c436eda594",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "notes": "Mock Data",
+      "position": [
+        680,
+        800
+      ],
+      "parameters": {
+        "jsCode": "return [\n  {\n    \"action\": \"create\",\n    \"createdAt\": \"2023-06-27T13:15:14.118Z\",\n    \"data\": {\n      \"id\": \"204224f8-3084-49b0-981f-3ad7f9060316\",\n      \"createdAt\": \"2023-06-27T13:15:14.118Z\",\n      \"updatedAt\": \"2023-06-27T13:15:14.118Z\",\n      \"number\": 647,\n      \"title\": \"Test event\",\n      \"priority\": 3,\n      \"boardOrder\": 0,\n      \"sortOrder\": -48454,\n      \"teamId\": \"583b87b7-a8f8-436b-872c-61373503d61d\",\n      \"previousIdentifiers\": [],\n      \"creatorId\": \"49ae7598-ae5d-42e6-8a03-9f6038a0d37a\",\n      \"stateId\": \"49c4401a-3d9e-40f6-a904-2a5eb95e0237\",\n      \"priorityLabel\": \"No priority\",\n      \"subscriberIds\": [\n        \"49ae7598-ae5d-42e6-8a03-9f6038a0d37a\"\n      ],\n      \"labelIds\": [\n        \"23381844-cdf1-4547-8d42-3b369af5b4ef\"\n      ],\n      \"state\": {\n        \"id\": \"49c4401a-3d9e-40f6-a904-2a5eb95e0237\",\n        \"color\": \"#bec2c8\",\n        \"name\": \"Backlog\",\n        \"type\": \"backlog\"\n      },\n      \"team\": {\n        \"id\": \"583b87b7-a8f8-436b-872c-61373503d61d\",\n        \"key\": \"PD\",\n        \"name\": \"Product & Design\"\n      },\n      \"labels\": [\n        {\n          \"id\": \"23381844-cdf1-4547-8d42-3b369af5b4ef\",\n          \"color\": \"#4CB782\",\n          \"name\": \"bug\"\n        }\n      ]\n    },\n    \"url\": \"https://linear.app/n8n/issue/PD-647/test-event\",\n    \"type\": \"Issue\",\n    \"organizationId\": \"1c35bbc6-9cd4-427e-8bc5-e5d370a9869f\",\n    \"webhookTimestamp\": 1687871714230\n  }\n]"
+      },
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "750acf22-5fc7-40b6-8989-aa8ba1cb207b",
+      "name": "Filter",
+      "type": "n8n-nodes-base.filter",
+      "notes": "Keep urgent bugs only",
+      "position": [
+        960,
+        700
+      ],
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.data.priority }}",
+              "value2": 3,
+              "operation": "largerEqual"
+            }
+          ],
+          "string": [
+            {
+              "value1": "={{ $json.data.labels[0].name }}",
+              "value2": "bug"
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "8ce7bb41-30f6-4d28-a5c7-ae5cb856ecc2",
+      "name": "Set",
+      "type": "n8n-nodes-base.set",
+      "notes": "Transform title",
+      "position": [
+        1180,
+        700
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "title",
+              "value": "={{ $json.data.title.toTitleCase() }}"
+            },
+            {
+              "name": "url",
+              "value": "={{ $json.url }}"
+            }
+          ]
+        },
+        "options": {},
+        "keepOnlySet": true
+      },
+      "notesInFlow": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "b9c6f60a-5b69-4bf5-9514-9c9dc9813595",
+      "name": "Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1500,
+        700
+      ],
+      "parameters": {
+        "text": "=<!channel> New urgent bug *<{{ $json.url }}|{{ $json.title }}>*",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#important bugs"
+        },
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "6",
+          "name": "Idea Bot"
+        }
+      },
+      "typeVersion": 2
+    }
+  ],
+  "connections": {
+    "Set": {
+      "main": [
+        [
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Set",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Linear Trigger": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking \"Execute Workflow\"": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,263 @@
+{
+  "id": "KKQJKkfiLQQ48JSW",
+  "meta": {
+    "instanceId": "68ab8a7bd891eafb85f915471f38591da0135936f93fdf7e27d0ebea24fea950"
+  },
+  "name": "*Чтобы редактировать узлы на шагах 2 и 5: просто дважды щелкните!*",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "f22c8bec-268f-46d5-844d-61870dfcf208",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        320,
+        -140
+      ],
+      "parameters": {
+        "width": 400,
+        "height": 920,
+        "content": "![CSCRM Logo](https://s3.42he.com/cscrm-marketing-page-production/Logo_Central_Station_CRM_0dd02e23d2.jpeg)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b59e4c49-c129-42bb-a64c-7a282d8e69d6",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1600,
+        -140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 680,
+        "content": "# Автоматическая отправка открыток контактам с помощью CentralStationCRM и EchtPost"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "06574510-ef2e-4b29-9bce-33cca25c6f5c",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2080,
+        -140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 500,
+        "height": 840,
+        "content": "В этом рабочем процессе вы отправляете **открытку** человеку, который был только что создан в CentralStationCRM."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d97824f2-b8fa-4097-8a68-1d116fbd76b1",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        760,
+        -20
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 420,
+        "height": 960,
+        "content": "* рабочий процесс запускается, когда человек обновляется в CRM"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5ad18049-d75e-4f30-a4bb-0767c0f24c8a",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1220,
+        -140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 340,
+        "height": 1080,
+        "content": "* синий узел фильтрует данные, необходимые для EchtPost"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d62b9617-88a2-4512-bfca-47fe2e924be3",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        320,
+        820
+      ],
+      "parameters": {
+        "width": 400,
+        "height": 120,
+        "content": "* зеленый узел проверяет, появляется ли слово \"EchtPost\" в тегах"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "34c8516a-1201-4e95-9789-8ff2e33b56b6",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        760,
+        -140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 420,
+        "height": 100,
+        "content": "* если да, карта отправляется через API EchtPost"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c76bf839-75d8-4224-9ed6-f5c21d33ba2d",
+      "name": "Person is updated in CentralStationCRM",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        1320,
+        640
+      ],
+      "webhookId": "aa45aef4-1eff-46b8-9b72-4240a40b2f6c",
+      "parameters": {
+        "path": "aa45aef4-1eff-46b8-9b72-4240a40b2f6c",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "41c8b450-e3db-481d-ba09-2dc266e4afdb",
+      "name": "Set fields needed for EchtPost",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1640,
+        640
+      ],
+      "parameters": {
+        "include": "selected",
+        "options": {},
+        "includeFields": "body.record.companies[0].name, body.record.addrs[0].street, body.record.addrs[0].zip, body.record.addrs[0].city, body.record.addrs[0].country_code, body.record.taggings",
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "f7516740-bad6-4070-be78-d354a7d92581",
+      "name": "Is \"EchtPost\" included in \"taggings\"?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1860,
+        640
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "877d4a0a-805a-4884-ae82-cc63978b02ba",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "leftValue": "={{ $json.taggings }}",
+              "rightValue": "\"EchtPost\""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "7f7d46d7-3d20-4f1b-8f3f-cdc5dd072dc5",
+      "name": "Do nothing",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        2260,
+        780
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "e6f0d1ca-c04b-4e07-bea5-046ac92d1010",
+      "name": "Send postcard with EchtPost",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2260,
+        520
+      ],
+      "parameters": {
+        "url": "https://api.echtpost.de/v1/cards",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"apikey\": \"HIER-API-KEY-EINTRAGEN\",\n  \"card\": {\n    \"template_id\": \"HIER-TEMPLATE-ID\",\n    \"deliver_at\": \"3-days-from-now\",\n    \"notification_type\": \"before_send\",\n    \"notification_email\": \"EMAIL EINTRAGEN\",\n    \"contacts_attributes\": [\n      {\n        \"company_name\": \"{{ $json.name }}\",\n        \"street\": \"{{ $json.street }}\",\n        \"zip\": \"{{ $json.zip }}\",\n        \"city\": \"{{ $json.city }}\",\n        \"country_code\": \"{{ $json.country_code }}\"\n      }\n    ]\n  }\n}",
+        "sendBody": true,
+        "specifyBody": "json"
+      },
+      "typeVersion": 4.2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "152242be-1fe6-4528-999d-993fb0593528",
+  "connections": {
+    "Set fields needed for EchtPost": {
+      "main": [
+        [
+          {
+            "node": "Is \"EchtPost\" included in \"taggings\"?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is \"EchtPost\" included in \"taggings\"?": {
+      "main": [
+        [
+          {
+            "node": "Send postcard with EchtPost",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Person is updated in CentralStationCRM": {
+      "main": [
+        [
+          {
+            "node": "Set fields needed for EchtPost",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

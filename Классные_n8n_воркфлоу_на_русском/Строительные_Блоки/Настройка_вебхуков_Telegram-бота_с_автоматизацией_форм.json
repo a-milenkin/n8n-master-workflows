@@ -1,0 +1,168 @@
+{
+  "id": "BpTvf5dZvJNwRVzq",
+  "meta": {
+    "instanceId": "a98b2884375a41e5c54ee9fdf1ece06db7f5771d5abd20450875f3922d7c41f8"
+  },
+  "name": "- URL вебхука (ваш конечный пункт n8n)",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "069cd3df-bc76-494f-ae26-997c6f20e405",
+      "name": "Webhook Configuration Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        -460,
+        160
+      ],
+      "webhookId": "9488bcec-68a2-4d19-a81d-b0c13e2bdedc",
+      "parameters": {
+        "options": {},
+        "formTitle": "Telegram Bot Webhook Configuration",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Bot API Token",
+              "requiredField": true
+            },
+            {
+              "fieldType": "url",
+              "fieldLabel": "Webhook URL",
+              "requiredField": true
+            }
+          ]
+        },
+        "formDescription": "Quickly configure your Telegram bot webhook with this free tool. No data is stored - your information is processed in real-time for immediate webhook setup."
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "695cf6d2-c03f-4aa9-88d7-c1d8ce0295f9",
+      "name": "Build Telegram API URL",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        0,
+        160
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a938e7ac-efa9-4124-976a-60a8bb85f624",
+              "name": "telegram_api_url",
+              "type": "string",
+              "value": "=https://api.telegram.org/bot{{ $json['Bot API Token'] }}/setWebhook?url={{ $json['Webhook URL'] }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "0ebd493a-8e29-4463-bc86-f631102557d7",
+      "name": "Redirect to Telegram API",
+      "type": "n8n-nodes-base.form",
+      "position": [
+        440,
+        160
+      ],
+      "webhookId": "605eff30-86b5-4638-885b-5e84e7fec134",
+      "parameters": {
+        "operation": "completion",
+        "redirectUrl": "={{ $json.telegram_api_url }}",
+        "respondWith": "redirect"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "03c8261a-4b83-4e3f-bd1a-ff7361271987",
+      "name": "Form Collection Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        -220
+      ],
+      "parameters": {
+        "width": 500,
+        "height": 540,
+        "content": "## Сбор данных формы ввода"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d5680d48-d3c4-4495-a973-2286a0865619",
+      "name": "URL Processing Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -140,
+        -220
+      ],
+      "parameters": {
+        "width": 380,
+        "height": 540,
+        "content": "Этот узел создает удобную веб-форму для сбора данных конфигурации вебхука:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "243ecd80-ffec-465b-bf84-c46e0a30fadc",
+      "name": "API Redirect Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        260,
+        -220
+      ],
+      "parameters": {
+        "width": 440,
+        "height": 540,
+        "content": "**Поля ввода:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2e782593-940a-40ad-b7a4-74c69834a28b",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        360
+      ],
+      "parameters": {
+        "width": 1360,
+        "height": 300,
+        "content": "- Токен API бота (от @BotFather)"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ca3fa150-2a99-416d-a47f-0923c3054bb4",
+  "connections": {
+    "Build Telegram API URL": {
+      "main": [
+        [
+          {
+            "node": "Redirect to Telegram API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Configuration Form": {
+      "main": [
+        [
+          {
+            "node": "Build Telegram API URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

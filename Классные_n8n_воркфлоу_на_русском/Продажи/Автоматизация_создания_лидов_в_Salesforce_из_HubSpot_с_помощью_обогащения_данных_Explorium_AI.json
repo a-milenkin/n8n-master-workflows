@@ -1,0 +1,391 @@
+{
+  "id": "A1ANYPPCR58x29nH",
+  "meta": {
+    "instanceId": "0a70652f43c1b29dd16c35b61a38fd31c8004f58bc7e723bf43262a797407c77",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Hubspot -> Salesforce - финал",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "306813bf-056d-48fc-ba8b-e64ddb01beda",
+      "name": "Match_prospect",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1820,
+        360
+      ],
+      "parameters": {
+        "url": "https://api.explorium.ai/v1/prospects/match",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"prospects_to_match\": [\n    {\n      \"full_name\": \"{{ ($json.properties.firstname.value || '') + ' ' + ($json.properties.lastname.value || '') }}\",\n      \"company_name\": \"{{ ($json.properties.company.value || '').trim() }}\",\n      \"email\": \"{{ $json['identity-profiles'][0].identities.find(id => id.type === 'EMAIL').value }}\"\n    }\n  ]\n}",
+        "sendBody": true,
+        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\",\n  \"Accept\": \"application/json\"\n}",
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "specifyHeaders": "json",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "85mkGmNNdK1951hF",
+          "name": "Header Auth Connection"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "08e9aa3a-6957-4f88-9ad7-f492652046e4",
+      "name": "Extract Prospect IDs from Matched Results",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1380,
+        360
+      ],
+      "parameters": {
+        "jsCode": "const allItems = $input.all();\nconst prospectIds = allItems.map(item => \n  item.json.matched_prospects.map(prospect => prospect.prospect_id)\n).flat();\n\nreturn [{\n  json: {\n    prospect_ids: prospectIds\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e786a130-996c-414a-b87c-aec3a61a960e",
+      "name": "Explorium Enrich Contacts Information",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1160,
+        260
+      ],
+      "parameters": {
+        "url": "https://api.explorium.ai/v1/prospects/contacts_information/bulk_enrich",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ { \"prospect_ids\": $json.prospect_ids } }}",
+        "sendBody": true,
+        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\",\n  \"Accept\": \"application/json\"\n}",
+        "sendHeaders": true,
+        "specifyBody": "=json",
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "specifyHeaders": "json",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "85mkGmNNdK1951hF",
+          "name": "Header Auth Connection"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "205c6a21-e0fd-4963-aacf-8498eba0e838",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        -940,
+        360
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "fieldsToMatchString": "data[0].prospect_id"
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "faa070fd-841b-460c-b25f-0e3bed266f17",
+      "name": "HubSpot Trigger",
+      "type": "n8n-nodes-base.hubspotTrigger",
+      "position": [
+        -2260,
+        360
+      ],
+      "webhookId": "d359fd68-9568-4787-93dd-192be0fda279",
+      "parameters": {
+        "eventsUi": {
+          "eventValues": [
+            {}
+          ]
+        },
+        "additionalFields": {}
+      },
+      "credentials": {
+        "hubspotDeveloperApi": {
+          "id": "MpQJKDhz8ijUUHzc",
+          "name": "HubSpot Developer account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "76b419d5-f31d-4657-8157-a26d83564b2d",
+      "name": "HubSpot",
+      "type": "n8n-nodes-base.hubspot",
+      "position": [
+        -2040,
+        360
+      ],
+      "parameters": {
+        "contactId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $input.item.json.contactId }}"
+        },
+        "operation": "get",
+        "authentication": "appToken",
+        "additionalFields": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "cBozD4139iWohcJ2",
+          "name": "HubSpot App Token account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "17e5e938-690b-41f0-b9b1-10981f109f20",
+      "name": "Salesforce",
+      "type": "n8n-nodes-base.salesforce",
+      "position": [
+        -500,
+        360
+      ],
+      "parameters": {
+        "company": "={{ $json.experience[0].company.name }}",
+        "lastname": "={{ $json.full_name }}",
+        "additionalFields": {
+          "city": "={{ $json.city || null }}",
+          "email": "={{ $json.professions_email || null }}",
+          "phone": "={{ $json.phone_numbers?.[0]?.phone_number || \"null\" }}\n",
+          "state": "={{ $json.region_name || '' }}",
+          "title": "={{ $json.experience?.[0]?.title?.name || null }}",
+          "country": "={{ $json.country_name || null }}",
+          "website": "={{ $json.experience?.[0]?.company?.website || null }}",
+          "mobilePhone": "={{ $json.mobile_phone }}"
+        }
+      },
+      "credentials": {
+        "salesforceOAuth2Api": {
+          "id": "unhmsSbB64eNwCMO",
+          "name": "Salesforce account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "53699185-4fe8-4add-8b6f-4825e481dcf3",
+      "name": "Code - flatten",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -720,
+        360
+      ],
+      "parameters": {
+        "jsCode": "return $input.all().map(item => \n    item.json.data.map(prospect => ({\n      prospect_id: prospect.prospect_id,\n      ...prospect.data\n    }))\n  ).flat()"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a39d10c7-e80e-4493-a555-f1fe36216c59",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3320,
+        80
+      ],
+      "parameters": {
+        "width": 960,
+        "height": 2800,
+        "content": "# Автоматически обогащайте данные о потенциальных клиентах из HubSpot с помощью Explorium и создавайте лиды в Salesforce\n\nЭтот рабочий процесс n8n упрощает процесс обогащения информации о потенциальных клиентах, автоматически извлекая данные из HubSpot, обрабатывая их с помощью инструментов на базе ИИ от Explorium и создавая новые лиды в Salesforce с улучшенными деталями о потенциальных клиентах.\n\n## Необходимые учетные данные\n\nЧтобы использовать этот рабочий процесс, настройте следующие учетные данные в вашей среде n8n:\n\n### HubSpot\n- **Тип**: Токен приложения (или OAuth2 для более широкой совместимости)\n- **Используется для**: триггера на новых контактах, получения данных о контактах\n\n### API Explorium\n- **Тип**: Общая аутентификация заголовка\n- **Заголовок**: Authorization\n- **Значение**: Bearer YOUR_API_KEY\n\n### Salesforce\n- **Тип**: OAuth2 или Имя пользователя/Пароль\n- **Используется для**: создания новых записей лидов\n\nПерейдите в Настройки → Учетные данные, создайте эти три учетные данных и назначьте их в соответствующих узлах перед запуском рабочего процесса.\n\n## Обзор рабочего процесса\n\n### Узел 1: Триггер HubSpot\nЭтот узел отслеживает события в реальном времени из подключенной учетной записи HubSpot. После срабатывания узел передает метаданные о событии на следующий шаг в потоке.\n\n### Узел 2: HubSpot\nЭтот узел извлекает данные о контакте из HubSpot после события триггера.\n\n- **Учетные данные**: Подключено с использованием токена приложения HubSpot\n- **Ресурс**: Контакт\n- **Операция**: Получить контакт\n- **Вернуть все**: Отключено\n\nЭтот узел получает полные данные о контакте, необходимые для дальнейшей обработки и обогащения.\n\n### Узел 3: Сопоставить потенциального клиента\nЭтот узел отправляет данные каждого контакта в API сопоставления потенциальных клиентов на базе ИИ от Explorium в реальном времени.\n\n- **Метод**: POST\n- **Конечная точка**: https://api.explorium.ai/v1/prospects/match\n- **Аутентификация**: Общая аутентификация заголовка (с использованием настроенных учетных данных)\n- **Заголовки**: Content-Type: application/json\n\nТело запроса динамически формируется на основе данных о контакте, обычно включая: full_name, company_name, email, phone_number, linkedin. Эти поля сопоставляются с интеллект-графом Explorium для возврата обогащенных или проверенных профилей.\n\n**Выходной ответ**: total_matches, matched_prospects и prospect_id. Каждый ответ используется далее для обогащения, проверки или создания информации о лидах.\n\n### Узел 4: Фильтр\nЭтот узел фильтрует выходные данные из шага сопоставления потенциального клиента, чтобы гарантировать, что только действительные, сопоставленные результаты продолжают движение по потоку. Только записи, содержащие хотя бы одного сопоставленного потенциального клиента с ненулевым prospect_id, передаются дальше.\n\n**Статус**: В настоящее время деактивирован (как показано меткой \"Deactivate\")\n\n### Узел 5: Извлечь идентификаторы потенциальных клиентов из сопоставленных результатов\nЭтот узел извлекает все действительные значения prospect_id из ранее сопоставленных потенциальных клиентов и компилирует их в плоский массив. Он проходит по всем сопоставленным элементам, извлекает каждый prospect_id из массива matched_prospects и возвращает один объект с массивом всех prospect_ids.\n\n### Узел 6: Explorium Обогатить информацию о контактах\nЭтот узел выполняет массовое обогащение контактов, запрашивая Explorium с помощью списка сопоставленных prospect_ids.\n\n**Конфигурация узла:**\n- **Метод**: POST\n- **Конечная точка**: https://api.explorium.ai/v1/prospects/contacts_information/bulk_enrich\n- **Аутентификация**: Аутентификация заголовка (с использованием сохраненных учетных данных)\n- **Заголовки**: \"Content-Type\": \"application/json\", \"Accept\": \"application/json\"\n\nВозвращает обогащенную информацию о контактах, такую как:\n- **emails**: профессиональные/личные адреса электронной почты\n- **phone_numbers**: мобильные и рабочие номера\n- **professions_email**, **professional_email_status**, **mobile_phone**\n\n### Узел 7: Explorium Обогатить профили\nЭтот дополнительный узел обогащения предоставляет дополнительное улучшение данных о контактах, работая параллельно с основным процессом обогащения.\n\n### Узел 8: Объединить\nЭтот узел объединяет несколько потоков данных из параллельных процессов обогащения в один выход, позволяя вам консолидировать данные из различных конечных точек обогащения Explorium. Настройка \"combine\" указывает, что он будет объединять входящие потоки данных, а не перезаписывать их.\n\n### Узел 9: Код - упрощение\nЭтот пользовательский код узел обрабатывает и преобразует объединенные данные обогащения перед созданием лида в Salesforce. Он может использоваться для:\n- Упрощения вложенных структур данных\n- Форматирования данных в соответствии с требованиями полей Salesforce\n- Применения бизнес-логики или проверки данных\n- Сопоставления полей Explorium с свойствами лида Salesforce\n- Обработки преобразований типов данных\n\n### Узел 10: Salesforce\nЭтот последний узел создает новые лиды в Salesforce, используя обогащенные данные, возвращенные Explorium.\n\n- **Учетные данные**: Salesforce OAuth2 или Имя пользователя/Пароль\n- **Ресурс**: Лид\n- **Операция**: Создать лид\n\nУзел создает новые записи лидов с обогащенной информацией, включая данные о контактах, информацию о компании и профессиональные данные, полученные в процессе обогащения Explorium.\n\n## Резюме потока рабочего процесса\n\n1. **Триггер**: Вебхук HubSpot срабатывает на новых/обновленных контактах\n2. **Получить**: Извлечь данные о контактах из HubSpot\n3. **Сопоставить**: Найти совпадения потенциальных клиентов с помощью Explorium\n4. **Фильтр**: Сохранять только успешно сопоставленные потенциальные клиенты (в настоящее время деактивирован)\n5. **Извлечь**: Скомпилировать идентификаторы потенциальных клиентов для массового обогащения\n6. **Обогатить**: Параллельное обогащение информации о контактах через несколько конечных точек Explorium\n7. **Объединить**: Объединить результаты обогащения\n8. **Преобразовать**: Упрощение и подготовка данных для Salesforce (узел кода)\n9. **Создать**: Создать новые записи лидов в Salesforce\n\nЭтот рабочий процесс обеспечивает комплексное обогащение данных, сохраняя при этом качество данных и обеспечивая бесшовную интеграцию между данными о потенциальных клиентах HubSpot и созданием лидов в Salesforce. Структура параллельного обогащения максимизирует эффективность сбора данных перед созданием высококачественных лидов в вашей CRM-системе."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "60f1e6d3-7bbe-435a-85af-59c79f81aa5f",
+      "name": "Filter - non matched",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        -1600,
+        360
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "6896e951-8d66-41b1-87a5-a96d2e049675",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.matched_prospects.some(prospect => prospect.prospect_id !== null).toBoolean() }}",
+              "rightValue": "null"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "459bb55b-663d-4913-b11a-b3be6b16de06",
+      "name": "Explorium Enrich Profiles",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1160,
+        460
+      ],
+      "parameters": {
+        "url": "https://api.explorium.ai/v1/prospects/profiles/bulk_enrich",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ { \"prospect_ids\": $json.prospect_ids } }}",
+        "sendBody": true,
+        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\",\n  \"Accept\": \"application/json\"\n}",
+        "sendHeaders": true,
+        "specifyBody": "=json",
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "specifyHeaders": "json",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "85mkGmNNdK1951hF",
+          "name": "Header Auth Connection"
+        }
+      },
+      "typeVersion": 4.2
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d2824b55-3ef6-41ac-a550-ef8701401167",
+  "connections": {
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code - flatten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HubSpot": {
+      "main": [
+        [
+          {
+            "node": "Match_prospect",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - flatten": {
+      "main": [
+        [
+          {
+            "node": "Salesforce",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Match_prospect": {
+      "main": [
+        [
+          {
+            "node": "Filter - non matched",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HubSpot Trigger": {
+      "main": [
+        [
+          {
+            "node": "HubSpot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter - non matched": {
+      "main": [
+        [
+          {
+            "node": "Extract Prospect IDs from Matched Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Explorium Enrich Profiles": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Explorium Enrich Contacts Information": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Prospect IDs from Matched Results": {
+      "main": [
+        [
+          {
+            "node": "Explorium Enrich Contacts Information",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Explorium Enrich Profiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,1245 @@
+{
+  "meta": {
+    "creator": "Lucas Peyrin",
+    "instanceId": "e409ea34548a2afe2dffba31130cd1cf2e98ebe2afaeed2a63caf2a0582d1da0",
+    "fingerprint": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVhdG9yIjoiIiwiaXNzIjoibjhuIiwiaWF0IjoxNzUyODM5MzA5fQ.k6ahllL6jpUP1RyR1HivRKhU-qbLdMf_7QlUmPKor2Y",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "f8083b86-d34e-4499-8366-1321ed4cff73",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        1632,
+        3040
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "e4b137f4-11b8-4559-b1d1-eb66ea99a59d",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Default Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        3344,
+        1520
+      ],
+      "parameters": {
+        "options": {},
+        "jsonData": "={{ $json.documentation }}",
+        "jsonMode": "expressionData",
+        "textSplittingMode": "custom"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "de258e6d-8c4f-4c3c-934b-f96413f4d617",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Recursive Character Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        3440,
+        1728
+      ],
+      "parameters": {
+        "options": {
+          "splitCode": "markdown"
+        },
+        "chunkSize": 1500,
+        "chunkOverlap": 200
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c54c329b-3d8a-47c6-87f3-ffb06d6d71d5",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Remove Duplicate Documentation Content",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        2720,
+        1296
+      ],
+      "parameters": {
+        "options": {
+          "scope": "node",
+          "historySize": 10000
+        },
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $json.documentation }}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4e9f3fa9-2c4f-49e4-b9c3-3ff2130a37dd",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Only Keep Doc Paths",
+      "type": "n8n-nodes-base.filter",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        2848,
+        528
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "52b8b89a-30cd-4a0d-a428-e5d341bcebbf",
+              "operator": {
+                "type": "string",
+                "operation": "endsWith"
+              },
+              "leftValue": "={{ $json.link }}",
+              "rightValue": "/"
+            },
+            {
+              "id": "d8019c4e-e1a1-43ec-93a8-dac3d8c083b6",
+              "operator": {
+                "type": "string",
+                "operation": "notStartsWith"
+              },
+              "leftValue": "={{ $json.link }}",
+              "rightValue": "https://"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "37b9faf8-da95-4add-a8fb-d16083582e81",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Clean Documentation",
+      "type": "n8n-nodes-base.set",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        2288,
+        1296
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5ed964a6-5200-454c-b983-f3dc7c8c7a48",
+              "name": "documentation",
+              "type": "string",
+              "value": "={{ $json.data.replace(/([^#\\n]+)\\s*#/g, '# $1').trim().replace(/^\\s*https?:\\/\\/\\S+\\s*/, '') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "49b430d0-253a-4247-8b17-400f9ec580f2",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Gemini 2.5 Flash",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        1280,
+        3040
+      ],
+      "parameters": {
+        "options": {
+          "temperature": 0
+        }
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "AXawYbABK5aZbGBE",
+          "name": "IA2S"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "327aafbb-3628-4fdc-84fc-567caa2643c8",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Get All n8n Documentation Links",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        1696,
+        528
+      ],
+      "parameters": {
+        "url": "https://docs.n8n.io/",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "03e6b6f4-1674-4be6-b5c8-9505d39b3d13",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Extract Links from HTML",
+      "type": "n8n-nodes-base.html",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        1984,
+        528
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "links",
+              "attribute": "href",
+              "cssSelector": "a",
+              "returnArray": true,
+              "returnValue": "attribute"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "a1a3eb41-4d40-4cab-8f9f-507fe968b211",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Split Out Links",
+      "type": "n8n-nodes-base.splitOut",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        2320,
+        528
+      ],
+      "parameters": {
+        "options": {
+          "destinationFieldName": "link"
+        },
+        "fieldToSplitOut": "links"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "65a57136-d329-4455-9301-13f808f8dfef",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Remove Duplicate Links",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        2624,
+        528
+      ],
+      "parameters": {
+        "compare": "selectedFields",
+        "options": {},
+        "fieldsToCompare": "link"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7051a5f4-ee42-42ce-b678-f76e5e96e22f",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Add Documentation Page to Vector Store",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        3360,
+        560
+      ],
+      "parameters": {
+        "options": {
+          "waitForSubWorkflow": true
+        },
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "workflowInputs": {
+          "value": {
+            "path": "={{ $json.link }}"
+          },
+          "schema": [
+            {
+              "id": "path",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "path",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "data"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "typeVersion": 1.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "40517663-1ce0-47d8-9596-2bff302d0e58",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Get Documentation Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "onError": "continueErrorOutput",
+      "position": [
+        1760,
+        1296
+      ],
+      "parameters": {
+        "url": "=https://docs.n8n.io/{{ $('Ingest Web Page').last().json.path }}",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "cb53b073-26df-401e-927a-5e0f3d27acfc",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Extract Documentation Content",
+      "type": "n8n-nodes-base.html",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        2064,
+        1296
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "data",
+              "cssSelector": "article",
+              "skipSelectors": "img, footer, form"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "0e3082ce-da0b-4e17-b3a6-627575be1ea0",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Gemini Query Embedding",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        2000,
+        3232
+      ],
+      "parameters": {},
+      "credentials": {
+        "googlePalmApi": {
+          "id": "AXawYbABK5aZbGBE",
+          "name": "IA2S"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7cfedc9b-de49-49e2-bf53-ba15fcb22284",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Gemini Chunk Embedding",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        3216,
+        1520
+      ],
+      "parameters": {},
+      "credentials": {
+        "googlePalmApi": {
+          "id": "AXawYbABK5aZbGBE",
+          "name": "IA2S"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1087b5fe-d8c5-46fc-884a-f173b4f22859",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        1104,
+        176
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 2640,
+        "height": 1760,
+        "content": "## Часть 1: Создание базы знаний (Библиотека)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "793bbb80-797b-429c-8710-41dec44ae84c",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Loop Over Documentation Pages",
+      "type": "n8n-nodes-base.splitInBatches",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        3136,
+        528
+      ],
+      "parameters": {
+        "options": {},
+        "batchSize": 10
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "7fbac9ee-8be3-4407-adcd-4420c63ac793",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        144,
+        -144
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1064,
+        "height": 296,
+        "content": "**Цель:** Прочитать всю документацию n8n, разбить её на небольшие части и сохранить в **временном векторном хранилище** n8n."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d64e0666-3ea6-4abf-8a3d-331300df7631",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        144,
+        176
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 924,
+        "height": 1392,
+        "content": "**Действие:** Вам нужно выполнить эту часть **ОДИН РАЗ** за сессию n8n, нажав кнопку \"Выполнить рабочий процесс\" на триггере `Начать индексацию`."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c58ee1a1-1626-441b-9b19-26f31acc2308",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "n8n Docs AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        1648,
+        2432
+      ],
+      "parameters": {
+        "options": {
+          "systemMessage": "=<role>\nYou are a specialized AI assistant, an expert in n8n's official documentation. Your sole mission is to help users by providing accurate and factual information extracted exclusively from this documentation. You are meticulous, factual, and never deviate from your knowledge scope.\n</role>\n\n<instructions>\n<goal>\nYour primary goal is to provide precise and factual answers to user questions about the n8n automation platform, based **exclusively** on the excerpts from the official documentation provided in the context.\n</goal>\n\n<context>\nYou operate according to a RAG (Retrieval-Augmented Generation) model. For each user question, use the appropriate tool to retrieve the necessary information from the n8n documentation's vector database.\n\n**Mandatory rules:**\n\n1.  **Single source of truth:** Your answer MUST be entirely and solely derived from the information present in the provided documentation.\n2.  **Accuracy and implicit citation:** Base your answer as literally as possible on the documentation text. Rephrase for clarity and conciseness, but do not add any information not found there. Act as if the documentation is your only knowledge in the world.\n3.  **Do not mention the process:** Never mention your tool or the fact that you are a RAG system in your answer to the user. Respond as an expert who directly consults their documentation.\n</context>\n\n<output_format>\n*   **Clarity:** Provide a clear, concise, and direct answer.\n*   **Structuring:** If the context contains steps, lists, or code examples, use Markdown syntax to format them legibly (bullet points, numbered lists, code blocks for code snippets, JSON, etc.).\n*   **Tone:** Adopt a professional, helpful, and confident tone, that of a technical n8n expert.\n</output_format>\n</instructions>"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "efc769ba-fc45-48aa-9924-9f9fe7572b5d",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        1600,
+        320
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 288,
+        "height": 400,
+        "content": "**Время:** Это займет несколько минут (~15-20)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a988d207-5afd-41f0-9992-3ac21d22e19f",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        1904,
+        320
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 272,
+        "height": 400,
+        "content": "**Важно:** Временное хранилище не является постоянным. Если вы перезапустите n8n, вам нужно будет снова запустить этот поток индексации, чтобы восстановить базу знаний."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "114aa79b-0cc7-4f66-866f-2d8cbe001a0f",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        2192,
+        320
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 336,
+        "height": 400,
+        "content": "### Шаг 1.3: Обработка одной книги за раз"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a9b6daac-c326-4d38-ace1-e9cd633fd0b5",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        2544,
+        320
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 480,
+        "height": 400,
+        "content": "**Что это делает:** Он берет большой список ссылок и превращает каждую ссылку в отдельный элемент для обработки n8n."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a2f4b7c5-e034-4782-ae0b-8ee358b02e91",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        3040,
+        320
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 512,
+        "height": 464,
+        "content": "**Аналогия:** Вместо того чтобы пытаться прочитать все книги сразу, мы создаем отдельный элемент списка дел для каждой книги."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0acc8bef-4f0b-42e2-b960-d5577ae4b5d8",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        1664,
+        1088
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 288,
+        "height": 384,
+        "content": "### Шаг 1.4: Упорядочить список дел"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "32c25451-55f0-44b6-9ff3-20a4339c44dd",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        1136,
+        944
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 512,
+        "height": 528,
+        "content": "**Что это делает:** Сначала он удаляет любые дубликаты ссылок. Затем он фильтрует любые ссылки, которые не указывают на фактическую страницу документации (например, ссылки на главную страницу или внешние сайты)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "582348d6-f15f-42c7-b3dc-4863fbde6983",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        1968,
+        1088
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 512,
+        "height": 384,
+        "content": "### Шаг 1.5.2: Получите хорошие вещи"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "db1bc60f-46a4-40a8-96b4-2fdbb7fc8e5c",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note14",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        2496,
+        864
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 544,
+        "height": 608,
+        "content": "**Что это делает:** Он извлекает только основной текст из статьи на странице, игнорируя меню, нижние колонтитулы и изображения. Затем он очищает форматирование."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "14010f42-6221-4f38-bbe8-7db8b60a4308",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note15",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        3056,
+        864
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 656,
+        "height": 1040,
+        "content": "**Аналогия:** Библиотекарь вырывает только полезные страницы из книги и очищает любые пятна или неразборчивый почерк."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "35c92a42-b5ad-4e87-b3a3-9d5c8446aabd",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note16",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        1104,
+        1968
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1200,
+        "height": 1456,
+        "content": "### Шаг 1.5.3: Избегайте повторного чтения"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "80b158c2-7e0f-4fc2-ab4e-ed7ff6b19f78",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note17",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        1136,
+        2128
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 368,
+        "height": 448,
+        "content": "**Что это делает:** Он проверяет, обрабатывали ли мы уже этот точный контент страницы в предыдущем запуске. Если да, то он останавливается здесь, чтобы сэкономить время и ресурсы."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6b1e818e-2834-434a-a2e6-34fab11f0355",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note18",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        1520,
+        2240
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 560,
+        "height": 400,
+        "content": "### Мозги: Экспертная Библиотекарь"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b287613a-0b9d-4663-b389-cdab7066751a",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note19",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        1136,
+        2592
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 368,
+        "height": 592,
+        "content": "**Что это делает:** Это AI-агент, который организует весь ответ. Он понимает ваш вопрос, решает, какие инструменты использовать, и формулирует окончательный ответ."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7f2a8dd1-f702-4eec-b5e7-e7e93eb72201",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note20",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        1520,
+        2656
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 288,
+        "height": 528,
+        "content": "**Системный Запрос:** Его инструкции (в Системном Сообщении) очень строгие: **\"Используйте только предоставленные документы для ответа. Не выдумывайте.\"**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fea370b3-4d87-4f6d-baf4-d59bffee633f",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note21",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        1824,
+        2656
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 448,
+        "height": 736,
+        "content": "### 'Синтезатор' и 'Стратег'"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "126b13aa-a2eb-4454-badb-fa97bf30d03b",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Start Indexing",
+      "type": "n8n-nodes-base.manualTrigger",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        1456,
+        528
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "9cceee8c-9f01-44d4-9dfd-03e28c1d40f6",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "RAG Chatbot",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        1296,
+        2432
+      ],
+      "webhookId": "285e5d0b-ffcf-44e8-a80c-0683966b78a4",
+      "parameters": {
+        "public": true,
+        "options": {
+          "title": "",
+          "subtitle": "",
+          "customCss": "/* === THEME OVERRIDE: n8n Glass & Glow (Revised) === */\n\n/*\n  This theme is built upon the default n8n chat CSS variables.\n  We'll use your desired branding and layout, and then add\n  the \"glass\" effect using a semi-transparent background\n  and a backdrop-filter on the main window class.\n*/\n\n:root {\n  /* --- 1. CORE BRANDING & FONTS --- */\n  /* Your choices for font and primary color are applied here. */\n  --chat--font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;\n  --chat--color-primary: #EA4B71; /* n8n Red */\n  --chat--color-primary-shade-50: #D93A60;\n  --chat--color-primary-shade-100: #C82A50;\n  --chat--color-secondary: #20b69e; /* Kept default secondary for things like file uploads */\n  --chat--color-secondary-shade-50: #1ca08a;\n  --chat--color-white: #ffffff;\n  --chat--color-light: #f2f4f8;\n  --chat--color-dark: #1F2937; /* Darker, more modern text color */\n  --chat--color-disabled: #9CA3AF;\n  --chat--color-typing: #404040;\n\n  /* --- 2. WINDOW & LAYOUT --- */\n  /* Your dimensions and rounded corners. The actual glass effect is handled in the class override below. */\n  --chat--window--width: 430px;\n  --chat--window--height: 80vh;\n  --chat--window--border-radius: 16px;\n  --chat--window--border: 1px solid rgba(255, 255, 255, 0.3);\n  --chat--spacing: 1rem; /* 16px base spacing */\n  --chat--window--z-index: 9999;\n  --chat--window--bottom: var(--chat--spacing);\n  --chat--window--right: var(--chat--spacing);\n  --chat--window--margin-bottom: var(--chat--spacing);\n\n  /* --- 3. GLASSMORPHISM BACKGROUNDS --- */\n  /* We make the main sections transparent to let the glass window show through. */\n  --chat--header--background: transparent;\n  --chat--body--background: transparent;\n  --chat--footer--background: transparent;\n\n  /* --- 4. HEADER STYLING (REMOVED) --- */\n  /* The header is removed by setting its height, padding, and border to 0/none. */\n  --chat--header-height: 0;\n  --chat--header--padding: 0;\n  --chat--header--border-bottom: none;\n  /* The rest of the header variables are now irrelevant. */\n  --chat--header--color: var(--chat--color-dark);\n  --chat--heading--font-size: 1.5rem;\n  --chat--subtitle--font-size: 0.875rem;\n  --chat--subtitle--line-height: 1.4;\n  --chat--close--button--color-hover: var(--chat--color-primary);\n\n  /* --- 5. MESSAGE BUBBLES --- */\n  --chat--message--font-size: 0.875rem;\n  --chat--message--padding: 12px 16px;\n  --chat--message--border-radius: 12px;\n  --chat--message-line-height: 1.6;\n  --chat--message--margin-bottom: calc(var(--chat--spacing) * 0.75);\n  /* Adjusted padding: Top is 0, sides and bottom use the base spacing. */\n  --chat--messages-list--padding: 0 var(--chat--spacing) var(--chat--spacing);\n  --chat--message--bot--background: var(--chat--color-white);\n  --chat--message--bot--color: #111827;\n  --chat--message--bot--border: none;\n  --chat--message--user--background: var(--chat--color-primary);\n  --chat--message--user--color: var(--chat--color-white);\n  --chat--message--user--border: none;\n\n  /* --- 6. INPUT AREA --- */\n  --chat--textarea--height: 50px;\n  --chat--textarea--max-height: 10rem;\n  --chat--input--font-size: 0.9rem;\n  --chat--input--border: 0;\n  --chat--input--border-radius: 12px; /* Rounded input field */\n  --chat--input--padding: 12px 16px;\n  --chat--input--background: rgba(255, 255, 255, 0.5); /* Semi-transparent input */\n  --chat--input--text-color: #111827;\n  --chat--input--line-height: 1.5;\n  --chat--input--border-active: 0;\n\n  /* --- 7. SEND & FILE BUTTONS --- */\n  --chat--input--send--button--background: transparent;\n  --chat--input--send--button--color: var(--chat--color-primary);\n  --chat--input--send--button--background-hover: transparent;\n  --chat--input--send--button--color-hover: var(--chat--color-primary-shade-50);\n  --chat--input--file--button--background: transparent;\n  --chat--input--file--button--color: var(--chat--color-secondary);\n  --chat--input--file--button--background-hover: transparent;\n  --chat--input--file--button--color-hover: var(--chat--color-secondary-shade-50);\n\n  /* --- 8. TOGGLE BUTTON & OTHERS --- */\n  /* Using your primary brand color for the main toggle button */\n  --chat--toggle--size: 64px;\n  --chat--toggle--width: var(--chat--toggle--size);\n  --chat--toggle--height: var(--chat--toggle--size);\n  --chat--toggle--border-radius: 50%;\n  --chat--toggle--background: var(--chat--color-primary);\n  --chat--toggle--hover--background: var(--chat--color-primary-shade-50);\n  --chat--toggle--active--background: var(--chat--color-primary-shade-100);\n  --chat--toggle--color: var(--chat--color-white);\n}\n\n/* === CLASS OVERRIDES === */\n/*\n  These are essential for effects that CSS variables can't control,\n  like the glass blur, shadows, and max-height.\n*/\n\n.chat-window {\n  /* This is the magic for the glass effect! */\n  background-color: rgba(249, 243, 245, 0.6); /* A semi-transparent background color */\n  backdrop-filter: blur(20px);\n  -webkit-backdrop-filter: blur(20px); /* For Safari compatibility */\n\n  /* A subtle shadow helps lift the window off the page */\n  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);\n\n  /* Here we apply the max-height you wanted */\n  max-height: 750px;\n}\n\n/* Add top margin to the first message only for initial spacing */\n.chat-messages-list .chat-message:first-child {\n  margin-top: var(--chat--spacing);\n}\n\n/* Make user messages slightly wider for better balance */\n.chat-message.is-user {\n\tmax-width: 70%;\n}\n\n.chat-message.is-bot {\n\tmax-width: 80%;\n}\n\n/* Add a subtle glow to messages on hover */\n.chat-message {\n    transition: transform 0.2s ease, box-shadow 0.2s ease;\n}\n.chat-message:hover {\n    transform: translateY(-2px);\n    box-shadow: 0 0 25px 0 rgba(234, 75, 113, 0.2);\n}\n\n/* === PAGE BACKGROUND === */\n/* Your dotted background to simulate the n8n canvas. Perfect as is! */\nbody {\n    background-color: #FDFBFF;\n    background-image:\n        radial-gradient(circle at 1px 1px, rgba(0,0,0,0.07) 1px, transparent 0),\n        linear-gradient(135deg, #F9F3F5 0%, #EFF3FB 100%);\n    background-size: 25px 25px, 100% 100%;\n}",
+          "inputPlaceholder": "Type your n8n related question.."
+        },
+        "initialMessages": "Hello! I'm an AI assistant trained on the official n8n documentation.\nYou can ask me anything about n8n nodes, workflows, or concepts. For example:\n\"How does the IF node work?\"\n\"What is a sub-workflow?\""
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "62f102ca-7c80-4b5c-b097-3f6383f2a6eb",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        176,
+        1216
+      ],
+      "parameters": {
+        "width": 624,
+        "height": 320,
+        "content": "**Что это делает:** Это Большая Языковая Модель (LLM). У нее есть две критически важные задачи:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4b82ed61-eee5-4a00-a8af-45157fa89cd6",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note24",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        176,
+        256
+      ],
+      "parameters": {
+        "width": 656,
+        "height": 272,
+        "content": "## Шаг настройки 1: Подключите свои учетные данные Google AI"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ec88d605-9af4-4144-99a4-4f394a8703ab",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note27",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        176,
+        544
+      ],
+      "parameters": {
+        "width": 864,
+        "height": 304,
+        "content": "Этот рабочий процесс использует модели Gemini от Google для генерации встраиваний и ответов в чате. Вам понадобится ключ API Google AI."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c6da61a2-5ad4-4263-af1e-a40603fb4654",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note28",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        176,
+        864
+      ],
+      "parameters": {
+        "width": 784,
+        "height": 336,
+        "content": "**Действие:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "15b0b258-5fa3-4084-a312-7a8b8f9d420c",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Ingest Web Page",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        1456,
+        1296
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "path"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "9346f322-9fb0-4eeb-a012-1db9cc3d7589",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note29",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        2336,
+        1968
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 544,
+        "height": 768,
+        "content": "Перейдите к любому из узлов Gemini (например, **`Gemini 2.5 Flash`**)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a3a90ed7-29c4-43b8-93f9-d0df4c05edfe",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        2912,
+        1968
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 832,
+        "height": 544,
+        "content": "Нажмите на выпадающее меню **Credential** и выберите **`+ Создать новые учетные данные`**."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "14d75d60-9364-454f-9903-f523a3532e4c",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Simple Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        3248,
+        1296
+      ],
+      "parameters": {
+        "mode": "insert",
+        "memoryKey": {
+          "__rl": true,
+          "mode": "id",
+          "value": "n8n_documentation_vector_store"
+        },
+        "embeddingBatchSize": 30
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "5ef1d0ac-137f-4b20-a9e0-150f2a36944c",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Official n8n Documentation",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        1904,
+        3040
+      ],
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "topK": 10,
+        "memoryKey": {
+          "__rl": true,
+          "mode": "id",
+          "value": "=n8n_documentation_vector_store"
+        },
+        "toolDescription": "Get related chunks of the official n8n documentation.",
+        "includeDocumentMetadata": false
+      },
+      "typeVersion": 1.3
+    }
+  ],
+  "pinData": {
+    "Ingest Web Page": [
+      {
+        "path": "integrations/builtin/core-nodes/n8n-nodes-base.comparedatasets/"
+      }
+    ]
+  },
+  "connections": {
+    "RAG Chatbot": {
+      "main": [
+        [
+          {
+            "node": "n8n Docs AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "n8n Docs AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Indexing": {
+      "main": [
+        [
+          {
+            "node": "Get All n8n Documentation Links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ingest Web Page": {
+      "main": [
+        [
+          {
+            "node": "Get Documentation Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Links": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicate Links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini 2.5 Flash": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "n8n Docs AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Documentation": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicate Documentation Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only Keep Doc Paths": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Documentation Pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Chunk Embedding": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Query Embedding": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Official n8n Documentation",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Documentation Page": {
+      "main": [
+        [
+          {
+            "node": "Extract Documentation Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicate Links": {
+      "main": [
+        [
+          {
+            "node": "Only Keep Doc Paths",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Links from HTML": {
+      "main": [
+        [
+          {
+            "node": "Split Out Links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Official n8n Documentation": {
+      "ai_tool": [
+        [
+          {
+            "node": "n8n Docs AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Documentation Content": {
+      "main": [
+        [
+          {
+            "node": "Clean Documentation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Documentation Pages": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Add Documentation Page to Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All n8n Documentation Links": {
+      "main": [
+        [
+          {
+            "node": "Extract Links from HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Documentation Page to Vector Store": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Documentation Pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicate Documentation Content": {
+      "main": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

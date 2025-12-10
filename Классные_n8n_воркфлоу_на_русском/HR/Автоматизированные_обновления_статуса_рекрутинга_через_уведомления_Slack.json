@@ -1,0 +1,120 @@
+{
+  "id": "q6IkLPK3fhmaaUBg",
+  "meta": {
+    "instanceId": "a287613f1596da776459594685fbf4e2b4a12124f80ab8c8772f5e37bff103ae"
+  },
+  "name": "## Проблема 😩",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "ef1fe3c8-04ab-404e-b703-667f21caac0a",
+      "name": "1. Webhook Trigger (Status Update)",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "5f3424e2-ffb3-4248-9d3d-971e15737c1b",
+      "parameters": {
+        "path": "candidate-status-update",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "description": "Receives candidate status updates (e.g., from a form, ATS webhook, or custom script). Copy this Webhook URL into your sending system.",
+      "typeVersion": 1
+    },
+    {
+      "id": "60448125-d750-46ee-9e42-e92267d0407c",
+      "name": "2. Extract & Prepare Data",
+      "type": "n8n-nodes-base.function",
+      "position": [
+        260,
+        0
+      ],
+      "parameters": {
+        "functionCode": "const inputData = items[0].json.body;\n\n// --- IMPORTANT: ADJUST THESE FIELD NAMES TO MATCH YOUR INCOMING DATA ---\n// Common assumption: Incoming data contains 'candidateName', 'position', 'newStatus', and optionally 'oldStatus' and 'notes'.\n// Example:\n// If your system sends: { \"applicant_name\": \"John Doe\", \"job_role\": \"Software Engineer\", \"current_stage\": \"Interview Scheduled\" }\n// Adjust the variables below:\n// const candidateName = inputData.applicant_name;\n// const position = inputData.job_role;\n// const newStatus = inputData.current_stage;\n\nconst candidateName = inputData.candidateName || inputData.applicant_name || 'Unknown Candidate';\nconst position = inputData.position || inputData.job_role || 'Unknown Position';\nconst newStatus = inputData.newStatus || inputData.current_status || 'No New Status';\nconst oldStatus = inputData.oldStatus || inputData.previous_status || null;\nconst notes = inputData.notes || inputData.comment || ''; // Optional: for additional notes\n\nif (!candidateName || !newStatus) {\n  throw new Error('Candidate data (name or new status) is incomplete. Please check your data sender configuration.');\n}\n\n// Prepare message for Slack/Email\nlet statusMessage;\nif (oldStatus && newStatus !== oldStatus) {\n    statusMessage = `Candidate Status Updated: *${candidateName}* for position *${position}* changed from *${oldStatus}* to *${newStatus}*.`;\n} else {\n    statusMessage = `New Candidate Status: *${candidateName}* for position *${position}* is now *${newStatus}*.`;\n}\n\nif (notes) {\n    statusMessage += `\\nNotes: ${notes}`; // Add notes if available\n}\n\nreturn [{\n    json: {\n        candidateName: candidateName,\n        position: position,\n        newStatus: newStatus,\n        oldStatus: oldStatus,\n        slackMessage: statusMessage, // Message formatted for Slack (supports simple Markdown)\n        emailSubject: `Candidate Status Update: ${candidateName} (${position})`,\n        emailBody: statusMessage.replace(/\\*/g, '**') // Convert Slack Markdown to bold for email\n    }\n}];"
+      },
+      "description": "Extracts candidate details and prepares the notification message.",
+      "typeVersion": 1
+    },
+    {
+      "id": "abe896cc-945f-4d49-be11-a53932b69d3d",
+      "name": "3. Send Slack Notification",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        500,
+        0
+      ],
+      "parameters": {
+        "text": "={{ $json.slackMessage }}",
+        "channel": "YOUR_SLACK_CHANNEL_ID_OR_NAME",
+        "attachments": [],
+        "otherOptions": {}
+      },
+      "description": "Sends a real-time notification to your Slack channel about the candidate status update.",
+      "typeVersion": 1
+    },
+    {
+      "id": "63686a52-aec3-4fb2-8bbe-24cdb61e446f",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -60
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 800,
+        "height": 240,
+        "content": "## Поток"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "51a80419-1aaf-41b8-9d4b-bba9f866d10b",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        220
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 800,
+        "height": 1820,
+        "content": "# Документация рабочего процесса: Автоматизированный уведомитель о статусе кандидата"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1ff87f1e-2e7f-4bbb-a796-135989964d30",
+  "connections": {
+    "2. Extract & Prepare Data": {
+      "main": [
+        [
+          {
+            "node": "3. Send Slack Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1. Webhook Trigger (Status Update)": {
+      "main": [
+        [
+          {
+            "node": "2. Extract & Prepare Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

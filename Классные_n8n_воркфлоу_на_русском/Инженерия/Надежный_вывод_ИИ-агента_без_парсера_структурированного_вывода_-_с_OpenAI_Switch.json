@@ -1,0 +1,510 @@
+{
+  "id": "",
+  "meta": {
+    "instanceId": ""
+  },
+  "name": "## Как это работает",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -400,
+        760
+      ],
+      "parameters": {
+        "text": "={{ $json.chatInput }}",
+        "options": {
+          "maxIterations": 10,
+          "systemMessage": "=You are a helpful assistant specialized in nutrition.  \nYour task is to provide accurate nutritional information for a given food item.  \nYou must return your answer strictly in the form of a JSON object matching the following schema:\n\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"alimentName\": {\n      \"type\": \"string\",\n      \"description\": \"The name of the food item, in English\"\n    },\n    \"averageCalories\": {\n      \"type\": \"number\",\n      \"description\": \"Average calories per 100g or standard portion (kcal)\"\n    },\n    \"proteins\": {\n      \"type\": \"number\",\n      \"description\": \"Amount of protein per 100g or portion (grams)\"\n    },\n    \"carbohydrates\": {\n      \"type\": \"number\",\n      \"description\": \"Total amount of carbohydrates per 100g or portion (grams), including fiber and sugars\"\n    },\n    \"sugar\": {\n      \"type\": \"number\",\n      \"description\": \"Amount of total sugars (subset of carbohydrates) per 100g or portion (grams)\"\n    },\n    \"fiber\": {\n      \"type\": \"number\",\n      \"description\": \"Amount of dietary fiber (subset of carbohydrates) per 100g or portion (grams)\"\n    },\n    \"fat\": {\n      \"type\": \"number\",\n      \"description\": \"Amount of fat per 100g or portion (grams)\"\n    },\n    \"sodium\": {\n      \"type\": \"number\",\n      \"description\": \"Amount of sodium per 100g or portion (milligrams)\"\n    },\n    \"healthyScore\": {\n      \"type\": \"number\",\n      \"minimum\": 0,\n      \"maximum\": 10,\n      \"description\": \"A healthiness score from 0 (very unhealthy) to 10 (very healthy), based on nutritional guidelines\"\n    }\n  },\n  \"required\": [\n    \"alimentName\",\n    \"averageCalories\",\n    \"proteins\",\n    \"carbohydrates\",\n    \"sugar\",\n    \"fiber\",\n    \"fat\",\n    \"sodium\",\n    \"healthyScore\"\n  ]\n}\n\n\nIf the user input is not a valid food item, or if you are unsure whether it is a real food, then instead return:\n\n{\n  \"error\": \"invalid_input\",\n  \"message\": \"The provided input does not appear to be a valid food item.\"\n}\n\n----\n\n⚠️ If you fail to produce output in the correct schema, the Schema Error Prompt below will contain an error message. You will need to follow the instructions it provides:\n\n## Schema Error Prompt:\n\n{{ $json.schemaErrorPrompt }}\n\n",
+          "returnIntermediateSteps": true
+        },
+        "promptType": "define"
+      },
+      "executeOnce": false,
+      "typeVersion": 1.8
+    },
+    {
+      "id": "",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        -800,
+        760
+      ],
+      "webhookId": "",
+      "parameters": {
+        "mode": "webhook",
+        "public": true,
+        "options": {
+          "responseMode": "responseNode"
+        },
+        "authentication": "basicAuth"
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -400,
+        920
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "=gpt-4.1-nano"
+        },
+        "options": {
+          "temperature": 0.8,
+          "responseFormat": "json_object"
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "OpenAi Connection"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        -260,
+        920
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        860,
+        760
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "invalidSchema",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.output.error !== undefined && $json.aiRunIndex < 3 }}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "validSchema",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.output.alimentName }}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "",
+      "name": "Validate Output + Set `aiRunIndex`",
+      "type": "n8n-nodes-base.set",
+      "onError": "continueRegularOutput",
+      "position": [
+        260,
+        760
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "",
+              "name": "output",
+              "type": "object",
+              "value": "={{ \n(() => {\n\tlet raw = $json.output;\n\n\tif (typeof raw === 'string') {\n\t\traw = raw\n\t\t\t.replace(/^\\s*```json/i, '')\n\t\t\t.replace(/```$/i, '')\n\t\t\t.trim();\n\t\ttry { raw = JSON.parse(raw); }\n\t\tcatch { return { error: 'invalid_json' }; }\n\t}\n\n\t// Allow alternative valid response when input is not a valid food item\n\tif (\n\t\traw.error === 'invalid_input' &&\n\t\traw.message === 'The provided input does not appear to be a valid food item.'\n\t) {\n\t\treturn JSON.stringify(raw, null, 2);\n\t}\n\n\t// Check required keys\n\tconst requiredKeys = [\n\t\t'alimentName',\n\t\t'averageCalories',\n\t\t'proteins',\n\t\t'carbohydrates',\n\t\t'sugar',\n\t\t'fiber',\n\t\t'fat',\n\t\t'sodium',\n\t\t'healthyScore'\n\t];\n\n\tfor (const key of requiredKeys) {\n\t\tif (!(key in raw)) {\n\t\t\treturn { error: 'missing_key', key };\n\t\t}\n\t}\n\n\t// Type checks\n\tif (typeof raw.alimentName !== 'string')\n\t\treturn { error: 'invalid_type', key: 'alimentName', expected: 'string' };\n\n\tif (typeof raw.averageCalories !== 'number')\n\t\treturn { error: 'invalid_type', key: 'averageCalories', expected: 'number' };\n\n\tif (typeof raw.proteins !== 'number')\n\t\treturn { error: 'invalid_type', key: 'proteins', expected: 'number' };\n\n\tif (typeof raw.carbohydrates !== 'number')\n\t\treturn { error: 'invalid_type', key: 'carbohydrates', expected: 'number' };\n\n\tif (typeof raw.sugar !== 'number')\n\t\treturn { error: 'invalid_type', key: 'sugar', expected: 'number' };\n\n\tif (typeof raw.fiber !== 'number')\n\t\treturn { error: 'invalid_type', key: 'fiber', expected: 'number' };\n\n\tif (typeof raw.fat !== 'number')\n\t\treturn { error: 'invalid_type', key: 'fat', expected: 'number' };\n\n\tif (typeof raw.sodium !== 'number')\n\t\treturn { error: 'invalid_type', key: 'sodium', expected: 'number' };\n\n\tif (typeof raw.healthyScore !== 'number')\n\t\treturn { error: 'invalid_type', key: 'healthyScore', expected: 'number' };\n\n\tif (raw.healthyScore < 0 || raw.healthyScore > 10)\n\t\treturn { error: 'invalid_range', key: 'healthyScore', expected: 'number between 0 and 10' };\n\n\t// If all checks pass, return the parsed and formatted JSON\n\treturn JSON.stringify(raw, null, 2);\n})() \n}}"
+            },
+            {
+              "id": "",
+              "name": "=aiRunIndex",
+              "type": "number",
+              "value": "={{ $node[\"AI Agent\"].runIndex }} "
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "",
+      "name": "Format Schema Error Prompt",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        920,
+        1020
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "",
+              "name": "schemaErrorPrompt",
+              "type": "string",
+              "value": "=If you're seeing this message, it means your previous response did not follow the required output schema defined in your prompt:\n\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"alimentName\": {\n      \"type\": \"string\",\n      \"description\": \"The name of the food item, in English\"\n    },\n    \"averageCalories\": {\n      \"type\": \"number\",\n      \"description\": \"Average calories per 100g or standard portion (kcal)\"\n    },\n    \"proteins\": {\n      \"type\": \"number\",\n      \"description\": \"Amount of protein per 100g or portion (grams)\"\n    },\n    \"carbohydrates\": {\n      \"type\": \"number\",\n      \"description\": \"Total amount of carbohydrates per 100g or portion (grams), including fiber and sugars\"\n    },\n    \"sugar\": {\n      \"type\": \"number\",\n      \"description\": \"Amount of total sugars (subset of carbohydrates) per 100g or portion (grams)\"\n    },\n    \"fiber\": {\n      \"type\": \"number\",\n      \"description\": \"Amount of dietary fiber (subset of carbohydrates) per 100g or portion (grams)\"\n    },\n    \"fat\": {\n      \"type\": \"number\",\n      \"description\": \"Amount of fat per 100g or portion (grams)\"\n    },\n    \"sodium\": {\n      \"type\": \"number\",\n      \"description\": \"Amount of sodium per 100g or portion (milligrams)\"\n    },\n    \"healthyScore\": {\n      \"type\": \"number\",\n      \"minimum\": 0,\n      \"maximum\": 10,\n      \"description\": \"A healthiness score from 0 (very unhealthy) to 10 (very healthy), based on nutritional guidelines\"\n    }\n  },\n  \"required\": [\n    \"alimentName\",\n    \"averageCalories\",\n    \"proteins\",\n    \"carbohydrates\",\n    \"sugar\",\n    \"fiber\",\n    \"fat\",\n    \"sodium\",\n    \"healthyScore\"\n  ]\n}\n\n\nPlease revise your output to strictly match this structure.\n\nFor reference, the last user message was:\n{{ $('When chat message received').item.json.chatInput }}\n\nAnd your response was:\n{{ $('AI Agent').item.json.output }}\n\nThis does not conform to the expected schema. Please correct your output accordingly."
+            },
+            {
+              "id": "",
+              "name": "sessionId",
+              "type": "string",
+              "value": "={{ $('When chat message received').item.json.sessionId }}"
+            },
+            {
+              "id": "",
+              "name": "chatInput",
+              "type": "string",
+              "value": "={{ $('When chat message received').item.json.chatInput }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "",
+      "name": "Valid Schema Output",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1460,
+        760
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "",
+              "name": "nutritionalValues",
+              "type": "object",
+              "value": "={{ $json.output }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        600,
+        -260
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 520,
+        "height": 1140,
+        "content": "## Переключатель"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -480,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 500,
+        "height": 1040,
+        "content": "## ⚠️ Предупреждение : 🔁 **Риск бесконечного цикла**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        60,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 500,
+        "height": 1040,
+        "content": "Если вы **измените этот узел, не понимая** выражения внутри, это может привести к бесконечному циклу, что **точно не то, что вам нужно** для вашей инстанции n8n, ваших результатов... или ваших кредитов API ($). 😉"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1160,
+        360
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 700,
+        "height": 520,
+        "content": "Логика использует **$json.output.error !== undefined && $json.aiRunIndex < 3** для управления повторными попытками."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1160,
+        940
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 700,
+        "height": 600,
+        "content": "Изменение этого без корректировки логики потока может вызвать бесконечные повторные попытки или тихие сбои."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "",
+      "name": "Set schemaValidationError & lastAgentOutput",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1280,
+        1020
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "",
+              "name": "schemaValidationError",
+              "type": "string",
+              "value": "={{ $('Validate Output + Set `aiRunIndex`').item.json.output }}"
+            },
+            {
+              "id": "",
+              "name": "lastAgentOutput",
+              "type": "string",
+              "value": "={{ $('AI Agent').item.json.output }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "",
+      "name": "Set chat Output",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1640,
+        1020
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "",
+              "name": "output",
+              "type": "string",
+              "value": "=This output was sent because a schema validation error occurred:\n\n{{ $json.schemaValidationError }}\n\nHowever, here is the last AI agent response:\n\n{{ $json.lastAgentOutput }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1580,
+        -60
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 720,
+        "height": 940,
+        "content": "----"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "callerPolicy": "",
+    "executionOrder": "v1",
+    "executionTimeout": 60
+  },
+  "versionId": "",
+  "connections": {
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Format Schema Error Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Valid Schema Output",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set schemaValidationError & lastAgentOutput",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Validate Output + Set `aiRunIndex`",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Schema Error Prompt": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Output + Set `aiRunIndex`": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set schemaValidationError & lastAgentOutput": {
+      "main": [
+        [
+          {
+            "node": "Set chat Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,157 @@
+{
+  "id": "YUOkKLDiARiuwpTP",
+  "meta": {
+    "instanceId": "a178adf4fc552be53aea873908ce86641ce2cc90fc0083d4c400639e377ba9d2",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "📤 Принимает динамические `SystemPrompt` и `UserPrompt`",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "33f3c51d-45f0-4c2b-9981-a413ae50772e",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -420,
+        -520
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 980,
+        "height": 240,
+        "content": "## 🔍 Интеграция API Perplexity"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "19797db1-b7bb-47c9-b13f-983639639309",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "SystemPrompt"
+            },
+            {
+              "name": "UserPrompt"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "58674959-f4bb-4bae-a6cd-600059072b6b",
+      "name": "Parameters",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "18e5ccd4-5538-4ace-9957-00a2c0c43518",
+              "name": "model",
+              "type": "string",
+              "value": "sonar"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "cf181e63-9a9b-4ab0-a4cf-cf8e8ceba85f",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        240,
+        -260
+      ],
+      "parameters": {
+        "width": 330,
+        "height": 240,
+        "content": "Этот рабочий процесс отправляет запрос к API завершения чата Perplexity, используя модель `sonar` или `sonar-pro`."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aed49866-4b61-4170-aafb-7c70b2312a3a",
+      "name": "Perplexity API Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        460,
+        0
+      ],
+      "parameters": {
+        "url": "https://api.perplexity.ai/chat/completions",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"model\": \"{{$('Parameters').item.json.model}}\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"{{ $('When Executed by Another Workflow').item.json.SystemPrompt }}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"{{ $('When Executed by Another Workflow').item.json.UserPrompt }}\"\n    }\n  ]\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0ae885d9-e8bf-4974-9741-46875836e6d7",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -420,
+        -260
+      ],
+      "parameters": {
+        "width": 380,
+        "height": 460,
+        "content": "➡️ Запускается через \"Выполнить рабочий процесс\""
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a1639271-f212-461b-b661-b0ecad7e9ebb",
+  "connections": {
+    "Parameters": {
+      "main": [
+        [
+          {
+            "node": "Perplexity API Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Perplexity API Request": {
+      "main": [
+        []
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Parameters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

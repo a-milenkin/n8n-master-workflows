@@ -1,0 +1,384 @@
+{
+  "meta": {
+    "instanceId": "04fd795d32aabb18b913b4a3350b5cd0e9313a422ea0e7bdac0da2fb76cac9f7"
+  },
+  "nodes": [
+    {
+      "id": "65aafe70-bcfb-4c28-96dd-17d9dd2f4203",
+      "name": "Get Ads Page 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -380,
+        580
+      ],
+      "parameters": {
+        "url": "https://serpapi.com/search.json",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "queryParametersUi": {
+          "parameter": [
+            {
+              "name": "engine",
+              "value": "google_ads_transparency_center"
+            },
+            {
+              "name": "text",
+              "value": "={{$json[\"domain\"]}}"
+            },
+            {
+              "name": "region",
+              "value": "={{$json[\"region\"]}}"
+            },
+            {
+              "name": "api_key",
+              "value": "your_serpapi_key"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6158066c-e944-42cf-9a40-5c2c309a8567",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -1260,
+        580
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "15dea6e9-0a6a-4ba1-ae36-7234f5f3ff13",
+      "name": "Set Domain & Region",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -820,
+        580
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "domain",
+              "value": "example.com"
+            },
+            {
+              "name": "region",
+              "value": "example_region_code"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "8b768e62-6697-491e-89d6-6fa40aa36619",
+      "name": "Extract Ad Creatives",
+      "type": "n8n-nodes-base.function",
+      "position": [
+        60,
+        580
+      ],
+      "parameters": {
+        "functionCode": "const targetDomain = items[0].json.search_parameters.text.toLowerCase();\n\nreturn items[0].json.ad_creatives\n  .filter(ad => (ad.target_domain || '').toLowerCase() === targetDomain)\n  .map(ad => ({ json: ad }));\n"
+      },
+      "typeVersion": 1,
+      "alwaysOutputData": false
+    },
+    {
+      "id": "50bcee68-570e-4b2f-bc14-3e5148f63ed6",
+      "name": "Split by Format1",
+      "type": "n8n-nodes-base.switch",
+      "rules": {
+        "rules": [
+          {
+            "value1": "text",
+            "operation": "equal"
+          },
+          {
+            "value1": "image",
+            "operation": "equal"
+          },
+          {
+            "value1": "video",
+            "operation": "equal"
+          }
+        ]
+      },
+      "position": [
+        500,
+        560
+      ],
+      "parameters": {
+        "rules": {
+          "rules": [
+            {
+              "value2": "text"
+            },
+            {
+              "output": 1,
+              "value2": "image"
+            },
+            {
+              "output": 2,
+              "value2": "video"
+            }
+          ]
+        },
+        "value1": "={{$json[\"format\"]}}",
+        "dataType": "string"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5a385bb4-a7eb-4327-8719-311ba61fe82a",
+      "name": "Convert Text Ads to CSV",
+      "type": "n8n-nodes-base.spreadsheetFile",
+      "position": [
+        900,
+        220
+      ],
+      "parameters": {
+        "options": {
+          "fileName": "=/files/text_{{ $json.target_domain }}_ads.csv"
+        },
+        "operation": "toFile"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2860d7c8-8c45-4d13-964d-40d6565e7a18",
+      "name": "Convert Image Ads to CSV",
+      "type": "n8n-nodes-base.spreadsheetFile",
+      "position": [
+        900,
+        680
+      ],
+      "parameters": {
+        "options": {
+          "fileName": "=/files/image_{{ $json.target_domain }}_ads.csv"
+        },
+        "operation": "toFile",
+        "fileFormat": "csv"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2240db0a-0cb3-4449-a187-6daa52bca0fd",
+      "name": "Convert Video Ads to CSV1",
+      "type": "n8n-nodes-base.spreadsheetFile",
+      "position": [
+        900,
+        1120
+      ],
+      "parameters": {
+        "options": {
+          "fileName": "=/files/video_{{ $json.target_domain }}_ads.csv"
+        },
+        "operation": "toFile",
+        "fileFormat": "csv"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bc86000d-ed7b-4690-a19e-3b9819024c8b",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1380,
+        120
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 360,
+        "height": 420,
+        "content": "# Аннотации узлов"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "431fdfd5-9550-4eca-8489-26fb126e828e",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -940,
+        120
+      ],
+      "parameters": {
+        "width": 360,
+        "height": 420,
+        "content": "✅ При нажатии 'Проверить рабочий процесс'"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "245857fd-4405-4f75-95d1-41d7374b770a",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -500,
+        120
+      ],
+      "parameters": {
+        "width": 360,
+        "height": 420,
+        "content": "Запустите рабочий процесс вручную во время тестирования или разработки."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "59c2eab0-ce67-463b-aaea-bf5c69fcb15e",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        120
+      ],
+      "parameters": {
+        "width": 360,
+        "height": 420,
+        "content": "📌 Примечание:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e87811c5-2f2a-4bd4-828b-ec4333393839",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        380,
+        120
+      ],
+      "parameters": {
+        "width": 360,
+        "height": 420,
+        "content": "Используется для отладки или одноразовых запусков. Конфигурация не требуется."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f18950f7-9c67-4ffb-8c89-b2b70287db05",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1140,
+        120
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 500,
+        "height": 300,
+        "content": "# ✏️ Установить домен и регион"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "25d6d14b-e4c7-40e4-97be-b422871cc756",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1140,
+        580
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 500,
+        "height": 300,
+        "content": "Определите, для какого домена и региона вы хотите извлекать рекламу."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7d05ce27-42ee-4799-807a-eeb204b05553",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1140,
+        1040
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 500,
+        "height": 300,
+        "content": "📌 Примечание:"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get Ads Page 1": {
+      "main": [
+        [
+          {
+            "node": "Extract Ad Creatives",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split by Format1": {
+      "main": [
+        [
+          {
+            "node": "Convert Text Ads to CSV",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Convert Image Ads to CSV",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Convert Video Ads to CSV1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Domain & Region": {
+      "main": [
+        [
+          {
+            "node": "Get Ads Page 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Ad Creatives": {
+      "main": [
+        [
+          {
+            "node": "Split by Format1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Set Domain & Region",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,451 @@
+{
+  "id": "czDg0Q7wsAoqYQIx",
+  "meta": {
+    "instanceId": "84ad02d6104594179f43f1ce9cfe3a81637b2faedb57dafcb9e649b7542988db"
+  },
+  "name": "### 🔹 **Узел: `Получить задачи из Asana`**",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "39d955ab-7c8e-4faa-ae3d-948dfa5e0615",
+      "name": "Pinecone Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "position": [
+        640,
+        500
+      ],
+      "parameters": {
+        "options": {},
+        "pineconeIndex": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "credentials": {
+        "pineconeApi": {
+          "id": "PSI5CiZnLRSkEgJg",
+          "name": "PineconeApi account"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "923a5e54-785a-4c4f-b6b8-f540bb1c4e19",
+      "name": "Daily 9AM Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "28adcd8d-e4cf-45f7-ad32-16ffe30a525b",
+      "name": "Fetch Tasks",
+      "type": "n8n-nodes-base.asana",
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "filters": {
+          "project": ""
+        },
+        "operation": "getAll",
+        "returnAll": true
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b43946e1-1b62-46fc-9211-72551b6c55c7",
+      "name": "COO Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "text": "={{ $json.data }}",
+        "options": {
+          "systemMessage": "=You are a COO AI agent that helps prioritize operational tasks. Use the retrieved context from vector_database_tool to assess task urgency and strategic importance.\n\nFor the most priority task, output:\n\nTask Name\n\nPriority Level: High / Medium / Low\n\nDue Date\n\nReason for Priority\n\nConsider urgency (due date), impact on operations, and dependencies retrieved from vector knowledge.\nJust give back the most important task"
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "b716a7b4-0357-4730-89b2-8bc295d5a22a",
+      "name": "Save Prioritized Task",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        1600,
+        0
+      ],
+      "parameters": {
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "prioritized_tasks",
+          "cachedResultName": "prioritized_tasks"
+        },
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "columns": {
+          "value": {
+            "task_name": "={{ $json.output.tasks[0][\"Task Name\"] }}",
+            "priority_level": "={{ $json.output.tasks[0][\"Priority Level\"] }}",
+            "reason_for_priority": "={{ $json.output.tasks[0][\"Reason for Priority\"] }}"
+          },
+          "schema": [
+            {
+              "id": "id",
+              "type": "number",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "id",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "task_name",
+              "type": "string",
+              "display": true,
+              "required": true,
+              "displayName": "task_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority_level",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "priority_level",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reason_for_priority",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "reason_for_priority",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "id"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "credentials": {
+        "postgres": {
+          "id": "6DsmtQnULFUnNgy4",
+          "name": "Postgres account"
+        }
+      },
+      "typeVersion": 2.6
+    },
+    {
+      "id": "759f799a-d046-4609-8894-99a9b951e43f",
+      "name": "Task Reasoning Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        560,
+        260
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "wYwTjEv45IzlAOAu",
+          "name": "OpenAi account 2"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "4e3a60ec-d900-44e9-beaf-0de5905d9b2e",
+      "name": "Priority Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        1120,
+        180
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"tasks\": [\n    {\n      \"Task Name\": \"Review quarterly KPIs\",\n      \"Priority Level\": \"High\",\n      \"Reason for Priority\": \"Provides critical performance metrics for all departments; deadline is approaching.\"\n    },\n"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "d7ae1305-e2f2-44c0-9c21-8cb29310a5d8",
+      "name": "Task Knowledge Vector DB",
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "position": [
+        820,
+        220
+      ],
+      "parameters": {
+        "name": "vector_database_tool",
+        "description": "Информация, касающаяся приоритизации задач, находится здесь"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "906b83fc-d501-4442-b470-3e90148ace33",
+      "name": "Vector Query Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        960,
+        440
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "wYwTjEv45IzlAOAu",
+          "name": "OpenAi account 2"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "e2b8e43c-1f7e-43e0-bba1-d186776d1e2b",
+      "name": "Generate Task Embeddings",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "position": [
+        580,
+        720
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "wYwTjEv45IzlAOAu",
+          "name": "OpenAi account 2"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "61c92166-6068-4884-ac39-af52ae4a496a",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        -480
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 400,
+        "height": 680,
+        "content": "## 🔁 Раздел 1: Триггер и извлечение данных"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c9d36c9c-2cd3-407c-bc97-c765e6cb3bc6",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        500,
+        -600
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 760,
+        "height": 1480,
+        "content": "### 🔹 **Узел: `Триггер в 9:00`**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4030c4f7-140c-453b-8441-4ed230da0928",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1460,
+        -460
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 380,
+        "height": 640,
+        "content": "* **Функция**: Запускает рабочий процесс каждый день в 9:00."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cd768682-0aee-41d9-bdbc-0b3e8509a042",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1980,
+        -460
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 320,
+        "content": "* **Тип**: Планировщик на основе времени."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "019cb716-597a-49b3-8eeb-fc523f210c8f",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1980,
+        -120
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1289,
+        "height": 2238,
+        "content": "* **Почему**: Обеспечивает автоматизированную и последовательную обработку задач по ежедневному расписанию."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8c201cdf-caaa-423e-ad38-f6ac7955ff32",
+  "connections": {
+    "COO Agent": {
+      "main": [
+        [
+          {
+            "node": "Save Prioritized Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Tasks": {
+      "main": [
+        [
+          {
+            "node": "COO Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily 9AM Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vector Query Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Task Knowledge Vector DB",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Task Reasoning Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "COO Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Task Knowledge Vector DB",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Priority Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "COO Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Task Embeddings": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Task Knowledge Vector DB": {
+      "ai_tool": [
+        [
+          {
+            "node": "COO Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

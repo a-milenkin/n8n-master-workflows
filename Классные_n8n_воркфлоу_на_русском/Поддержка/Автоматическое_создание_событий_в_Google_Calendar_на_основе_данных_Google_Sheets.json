@@ -1,0 +1,152 @@
+{
+  "id": "AvCMhDoSUAYXsrQX",
+  "meta": {
+    "instanceId": "14e4c77104722ab186539dfea5182e419aecc83d85963fe13f6de862c875ebfa"
+  },
+  "name": "В этом рабочем процессе мы упрощаем процесс создания событий в Google Календаре, используя данные о событиях, хранящиеся в Google Таблице, через автоматизацию n8n. Рабочий процесс начинается с извлечения последней записи о событии из Google Таблиц, что гарантирует обработку только самых свежих данных о событии. После получения данных о событии используется узел Функции для форматирования даты события так, чтобы она соответствовала требуемому формату Google Календаря. Этот шаг обеспечивает согласованность и предотвращает любые ошибки, связанные с датой.",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "b973046b-ff52-464e-8d34-fe57c5b1df7d",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -240,
+        0
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1200,
+        "height": 280,
+        "content": "# Автоматизация создания событий в Google Календаре из Google Таблиц"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e845b624-6c0a-4d31-aace-cc050f8613dc",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -240,
+        300
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1200,
+        "height": 280,
+        "content": "## Описание"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "60f2c8b8-a953-4fc1-8751-01d8b7924cb2",
+      "name": "Event Date Formatter",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        320,
+        100
+      ],
+      "parameters": {
+        "jsCode": "// Get the last item from the input data\nconst lastEvent = items[items.length - 1].json;\n\n// Extract relevant fields\nconst eventName = lastEvent[\"Event Name\"];\nconst eventDescription = lastEvent[\"Event Description\"];\nconst currentYear = new Date().getFullYear(); \n// Get the current year\nconst location = lastEvent[\"Location\"];\n\n// Ensure the date includes the year\nconst formatDateWithYear = (dateStr) => {\n    return dateStr.includes(currentYear) ? dateStr : `${dateStr} ${currentYear}`;\n};\n\n// Format the start date\nconst startDateString = formatDateWithYear(lastEvent[\"Event Start Date\"]); // Example: \"11 March 2024\"\n\n// Convert to JavaScript Date object\nconst startDate = new Date(startDateString);\n\n// Convert to ISO format (YYYY-MM-DD)\nconst formattedStartDate = startDate.toISOString().split(\"T\")[0]; // Extract only the date\n\n// Return the last event's formatted data\nreturn [{\n    json: {\n        eventName,\n        eventDescription,\n        startDate: formattedStartDate,\n      location: location,\n    }\n}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e27e0d10-71bb-4d01-ba92-5fb8c3195422",
+      "name": "New Event Entry Listener",
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "position": [
+        -120,
+        100
+      ],
+      "parameters": {
+        "event": "rowAdded",
+        "options": {
+          "valueRender": "FORMULA"
+        },
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            },
+            {}
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dKjIGmcnQgSEMVuWAAFVDaj_MCBFKBX8hCOk5OH2dK4/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1dKjIGmcnQgSEMVuWAAFVDaj_MCBFKBX8hCOk5OH2dK4",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dKjIGmcnQgSEMVuWAAFVDaj_MCBFKBX8hCOk5OH2dK4/edit?usp=drivesdk",
+          "cachedResultName": "N8n Event List"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "04864602-bf6a-4def-9bc3-c5ab4b5c8336",
+      "name": "Google Calendar Event Creator",
+      "type": "n8n-nodes-base.googleCalendar",
+      "position": [
+        700,
+        100
+      ],
+      "parameters": {
+        "end": "={{ $json.startDate }}",
+        "start": "={{ $json.startDate }}",
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": ""
+        },
+        "additionalFields": {
+          "color": "3",
+          "allday": "yes",
+          "summary": "={{ $json.eventName }}",
+          "location": "={{ $json.location }}",
+          "showMeAs": "transparent",
+          "description": "={{ $json.eventDescription }}",
+          "guestsCanInviteOthers": true
+        }
+      },
+      "typeVersion": 1.3
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "98bd043e-8dce-4eca-a22f-95ff61f07a1f",
+  "connections": {
+    "Event Date Formatter": {
+      "main": [
+        [
+          {
+            "node": "Google Calendar Event Creator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Event Entry Listener": {
+      "main": [
+        [
+          {
+            "node": "Event Date Formatter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "id": "PA9zKFnQ4ymUqIcq",
+  "meta": {
+    "instanceId": "e95c8554b03e2c16a5c8c44cc7d45f6192b966fba75d5438d1201989ceff13e2",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Давайте будем честными — кто хочет начинать день, гоняясь за коллегами по поводу того, что им нужно сделать?",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "5ce69b0e-4828-430c-a254-a690947fab76",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        500,
+        1000
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "c5dafe8d-4e21-46ac-8f78-f27b1128b434",
+      "name": "Search records",
+      "type": "n8n-nodes-base.airtable",
+      "position": [
+        620,
+        1960
+      ],
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "mode": "list",
+          "value": "appPk6zfIQ1EbBq43",
+          "cachedResultUrl": "https://airtable.com/appPk6zfIQ1EbBq43",
+          "cachedResultName": "Tâches"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "tblLkuoQ9AYsAQ0io",
+          "cachedResultUrl": "https://airtable.com/appPk6zfIQ1EbBq43/tblLkuoQ9AYsAQ0io",
+          "cachedResultName": "Produits"
+        },
+        "options": {},
+        "operation": "search",
+        "filterByFormula": "={Statut} = \"En cours\""
+      },
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "UnEwVjZLC3vauPax",
+          "name": "Airtable Personal Access Token account 4"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "e04b65a2-6c37-4595-b815-987946e6290b",
+      "name": "Send a message",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        680,
+        3380
+      ],
+      "webhookId": "e25887fe-9fe2-4750-824d-3e3cf706dd6a",
+      "parameters": {
+        "text": "=New task for {{ $json.name }}: *{{ $json[\"Titre\"] }}* 👉 Deadline: {{ $json[\"Date limite\"] }}\n",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "C0945G1M3T2",
+          "cachedResultName": "tous-n8n"
+        },
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "Uw4BOaewm5FIDdQM",
+          "name": "Slack account"
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "8ccb049d-aa1b-487c-a38a-2062a7215f0d",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        180
+      ],
+      "parameters": {
+        "width": 1000,
+        "height": 3760,
+        "content": "# Все еще напоминаете людям о их задачах вручную каждое утро?"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "12115582-a447-4b9f-aab4-782c85bd99b4",
+  "connections": {
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

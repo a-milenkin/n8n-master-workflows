@@ -1,0 +1,157 @@
+{
+  "id": "zAkPoRdcG5M5x4KT",
+  "meta": {
+    "instanceId": "a897062ac3223eacd9c7736276b653c446bc776a63cde2a42a2949ad984f7092"
+  },
+  "name": "Выполните поиск электронной почты с Icypeas (одиночный)",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "7bd55522-62dd-40da-939d-e10c185dd44d",
+      "name": "When clicking \"Execute Workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        1220,
+        480
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "422bb377-afe7-4332-a134-15af150e8006",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1060,
+        220
+      ],
+      "parameters": {
+        "height": 243.6494382022472,
+        "content": "## Выполните поиск по электронной почте с Icypeas (одиночный)\n\nЭтот рабочий процесс демонстрирует, как выполнить поиск по электронной почте с использованием Icypeas. Посетите https://icypeas.com, чтобы создать свою учетную запись."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a95bd610-e5e3-4343-afcc-4af22dca1f8f",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1367,
+        296
+      ],
+      "parameters": {
+        "width": 506,
+        "height": 1042.9602832148855,
+        "content": "## Аутентификация в вашем аккаунте Icypeas\n\nЭтот код-узел использует ваш API-ключ, секрет API и идентификатор пользователя для установления соединения с вашим аккаунтом Icypeas.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nОткройте этот узел и вставьте ваш API-ключ, секрет API и идентификатор пользователя в кавычках. Вы можете найти эти учетные данные в вашем профиле Icypeas на https://app.icypeas.com/bo/profile. Вот фрагмент того, что вам нужно изменить:\n\nconst API_KEY = \"**PUT_API_KEY_HERE**\";\nconst API_SECRET = \"**PUT_API_SECRET_HERE**\";\nconst USER_ID = \"**PUT_USER_ID_HERE**\";\n\nНе изменяйте ни одну другую строку кода.\n\nЕсли вы пользователь с собственным хостингом, выполните следующие шаги для активации модуля криптовалюты:\n\n1. Доступ к вашему экземпляру n8n:\nВойдите в ваш экземпляр n8n с помощью веб-браузера, перейдя по URL вашего экземпляра, например: http://your-n8n-instance.com.\n\n2. Перейдите в Настройки:\nВ правом верхнем углу нажмите на ваше имя пользователя, затем выберите \"Настройки\".\n\n3. Выберите Общие настройки:\nВ левом меню нажмите на \"Общие\".\n\n4. Включите модуль криптовалюты:\nПрокрутите вниз до раздела \"Дополнительные пакеты узлов\". Вы увидите опцию под названием \"crypto\" с флажком рядом с ней. Установите этот флажок, чтобы включить модуль криптовалюты.\n\n5. Сохраните изменения:\nВнизу страницы нажмите \"Сохранить\", чтобы применить изменения.\n\nПосле того как вы выполните эти шаги, модуль криптовалюты должен быть активирован для вашего экземпляра n8n с собственным хостингом. Убедитесь, что вы сохранили изменения и, при необходимости, перезапустите ваш экземпляр n8n, чтобы изменения вступили в силу."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f0951515-48cf-4c1b-82fd-960959a51bb7",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1873,
+        300
+      ],
+      "parameters": {
+        "width": 492,
+        "height": 961.061974298911,
+        "content": "## Выполняет поиск электронной почты в вашем аккаунте Icypeas\n\n\nЭтот узел выполняет HTTP-запрос (POST) для поиска адреса электронной почты с использованием Icypeas.\n\n\n\n\n\n\n\n\n\n\n\n\n\n### Вам нужно создать учетные данные в узле HTTP Request:\n\n➔ В разделе Credential for Header Auth нажмите - Создать новые учетные данные -.\n➔ В разделе Name напишите “Authorization”\n➔ В разделе Value выберите выражение (расположенное чуть выше поля справа, когда вы наведете курсор на него) и напишите {{ $json.api.key + ':' + $json.api.signature }}.\n➔ Затем нажмите “Сохранить”, чтобы сохранить изменения.\n\n### Чтобы найти адрес электронной почты:\n\n➔ перейдите в раздел Body Parameters,\n➔ создайте новый параметр,\n➔ введите \"lastname\" в поле Name.\n➔ укажите фамилию человека, чей email вы хотите.\n\n➔ перейдите в раздел Body Parameters,\n➔ создайте новый параметр,\n➔ введите \"firstname\" в поле Name.\n➔ укажите имя человека, чей email вы хотите.\n\n➔ перейдите в раздел Body Parameters,\n➔ создайте новый параметр,\n➔ введите \"domainOrCompany\" в поле Name.\n➔ укажите домен/название компании человека, чей email вы хотите.\n\n\n\nВы найдете результат здесь: https://app.icypeas.com/bo/singlesearch?task=email-search"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6d12e09f-143a-46f1-9790-512d4f10f51f",
+      "name": "Authenticates to your Icypeas account",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1560,
+        480
+      ],
+      "parameters": {
+        "jsCode": "const BASE_URL = \"https://app.icypeas.com\";\nconst PATH = \"/api/domain-search\";\nconst METHOD = \"POST\";\n\n// Change here\nconst API_KEY = \"PUT_API_KEY_HERE\";\nconst API_SECRET = \"PUT_API_SECRET_HERE\";\nconst USER_ID = \"PUT_USER_ID_HERE\";\n////////////////\n\nconst genSignature = (\n    path,\n    method,\n    secret,\n    timestamp = new Date().toISOString()\n) => {\n    const Crypto = require('crypto');\n    const payload = `${method}${path}${timestamp}`.toLowerCase();\n    const sign = Crypto.createHmac(\"sha1\", secret).update(payload).digest(\"hex\");\n\n    return sign;\n};\n\nconst fullPath = `${BASE_URL}${PATH}`;\n$input.first().json.api = {\n  timestamp: new Date().toISOString(),\n  secret: API_SECRET,\n  key: API_KEY,\n  userId: USER_ID,\n  url: fullPath,\n};\n$input.first().json.api.signature = genSignature(PATH, METHOD, API_SECRET, $input.first().json.api.timestamp);\nreturn $input.first();"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5f62f87f-7a25-4030-bcd4-d87b24269504",
+      "name": "Run email search (single)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1940,
+        480
+      ],
+      "parameters": {
+        "url": "={{ $json.api.url }}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "lastname",
+              "value": "=Landoin"
+            },
+            {
+              "name": "firstname",
+              "value": "Pierre"
+            },
+            {
+              "name": "domainOrCompany",
+              "value": "icypeas"
+            }
+          ]
+        },
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-ROCK-TIMESTAMP",
+              "value": "={{ $json.api.timestamp }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "KGXtUrqC6lNLwW2w",
+          "name": "Header Auth account"
+        }
+      },
+      "typeVersion": 4.1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "34ee6b2d-673e-4d5d-a0b2-7c7a4af14d3c",
+  "connections": {
+    "When clicking \"Execute Workflow\"": {
+      "main": [
+        [
+          {
+            "node": "Authenticates to your Icypeas account",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Authenticates to your Icypeas account": {
+      "main": [
+        [
+          {
+            "node": "Run email search (single)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

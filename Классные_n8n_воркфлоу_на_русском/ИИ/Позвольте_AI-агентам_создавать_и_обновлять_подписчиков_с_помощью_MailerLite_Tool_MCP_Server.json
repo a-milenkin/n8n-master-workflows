@@ -1,0 +1,162 @@
+{
+  "meta": {
+    "instanceId": "cd59eaaeb7b34d06e24511380db94cdb7fbce6037cc4de22e539c5158ab9cdfc"
+  },
+  "nodes": [
+    {
+      "id": "bdf03567-552e-4063-b488-1fab7e48755e",
+      "name": "Workflow Overview 0",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1460,
+        -200
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 780,
+        "content": "## 🛠️ MailerLite Tool MCP Server"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "77ee43e7-ea42-4538-afdc-74b19921e49c",
+      "name": "MailerLite Tool MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        -420,
+        -180
+      ],
+      "webhookId": "18ca216b-ef26-453f-b9a2-c02874d54ab8",
+      "parameters": {
+        "path": "mailerlite-tool-mcp"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8ec2ae06-f642-4558-8aff-bcee199ddbce",
+      "name": "Create a subscriber",
+      "type": "n8n-nodes-base.mailerLiteTool",
+      "position": [
+        -800,
+        140
+      ],
+      "parameters": {
+        "email": "={{ $fromAI('Email', ``, 'string') }}",
+        "additionalFields": {}
+      },
+      "credentials": {},
+      "typeVersion": 2
+    },
+    {
+      "id": "920923ad-9112-434c-85a0-a3cc3f21ad94",
+      "name": "Get a subscriber",
+      "type": "n8n-nodes-base.mailerLiteTool",
+      "position": [
+        -580,
+        140
+      ],
+      "parameters": {
+        "operation": "get",
+        "subscriberId": "={{ $fromAI('Subscriber_Id', ``, 'string') }}"
+      },
+      "credentials": {},
+      "typeVersion": 2
+    },
+    {
+      "id": "69391097-84ce-47c7-96d0-4ad7d881388f",
+      "name": "Get many subscribers",
+      "type": "n8n-nodes-base.mailerLiteTool",
+      "position": [
+        -360,
+        140
+      ],
+      "parameters": {
+        "limit": "={{ $fromAI('Limit', ``, 'number') }}",
+        "filters": {},
+        "operation": "getAll",
+        "returnAll": "={{ $fromAI('Return_All', ``, 'boolean') }}"
+      },
+      "credentials": {},
+      "typeVersion": 2
+    },
+    {
+      "id": "e88776ee-6348-4618-a413-10bec6557bd5",
+      "name": "Update a subscriber",
+      "type": "n8n-nodes-base.mailerLiteTool",
+      "position": [
+        -140,
+        140
+      ],
+      "parameters": {
+        "operation": "update",
+        "subscriberId": "={{ $fromAI('Subscriber_Id', ``, 'string') }}",
+        "additionalFields": {}
+      },
+      "credentials": {},
+      "typeVersion": 2
+    },
+    {
+      "id": "b9fbc3d0-d98f-48c8-81fc-4174e098c11c",
+      "name": "Sticky Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1000,
+        120
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1060,
+        "height": 180,
+        "content": "### 📋 Доступные операции (всего 4)"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get a subscriber": {
+      "ai_tool": [
+        [
+          {
+            "node": "MailerLite Tool MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a subscriber": {
+      "ai_tool": [
+        [
+          {
+            "node": "MailerLite Tool MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a subscriber": {
+      "ai_tool": [
+        [
+          {
+            "node": "MailerLite Tool MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many subscribers": {
+      "ai_tool": [
+        [
+          {
+            "node": "MailerLite Tool MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

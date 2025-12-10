@@ -1,0 +1,314 @@
+{
+  "id": "XJyz3uhjx55iLxQb",
+  "meta": {
+    "instanceId": "a287613f1596da776459594685fbf4e2b4a12124f80ab8c8772f5e37bff103ae"
+  },
+  "name": "* **Потерянным лидам:** Медленные сроки ответа или трудности с координацией расписаний могут заставить заинтересованных клиентов уйти.",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "ca5c7060-eec9-4d57-9fc2-9d48e825fc07",
+      "name": "0. Form Trigger (Property Tour Request)",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "a756358b-b478-4d6c-8df6-6f97040d77cd",
+      "parameters": {
+        "path": "prospect-tour-request",
+        "options": {},
+        "formTitle": "Property Tour Request",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Full Name"
+            },
+            {
+              "fieldLabel": "Email"
+            },
+            {
+              "fieldLabel": "Phone Number"
+            },
+            {
+              "fieldLabel": "Interested Property ID"
+            },
+            {
+              "fieldLabel": "Property Name (optional)"
+            }
+          ]
+        }
+      },
+      "description": "Triggers the workflow when a new form submission is received for a property tour request.",
+      "typeVersion": 1
+    },
+    {
+      "id": "299f1952-2e91-47ec-9142-a46e63b65c9d",
+      "name": "1. Extract Prospect Data",
+      "type": "n8n-nodes-base.function",
+      "position": [
+        260,
+        0
+      ],
+      "parameters": {
+        "functionCode": "const formData = items[0].json.body;\n\nconst clientName = formData['Full Name'] || '';\nconst clientEmail = formData['Email'] || '';\nconst clientPhone = formData['Phone Number'] || '';\nconst propertyId = formData['Interested Property ID'] || '';\nconst propertyName = formData['Property Name (optional)'] || `Property #${propertyId}`;\n\nreturn [\n  {\n    json: {\n      clientName: clientName,\n      clientEmail: clientEmail,\n      clientPhone: clientPhone,\n      propertyId: propertyId,\n      propertyName: propertyName\n    }\n  }\n];"
+      },
+      "description": "Extracts prospect and property details from the form data.",
+      "typeVersion": 1
+    },
+    {
+      "id": "2ccaeb4d-f047-4c78-95ef-118a43409587",
+      "name": "2. Generate Scheduling Link",
+      "type": "n8n-nodes-base.function",
+      "position": [
+        500,
+        0
+      ],
+      "parameters": {
+        "functionCode": "const prospectData = items[0].json;\nconst calendlyBaseLink = 'YOUR_CALENDLY_BASE_LINK_FOR_AGENT'; // Example: https://calendly.com/your-agent-name\n\nconst schedulingLink = `${calendlyBaseLink}?name=${encodeURIComponent(prospectData.clientName)}&email=${encodeURIComponent(prospectData.clientEmail)}&a1=${encodeURIComponent(prospectData.propertyName || '')}`;\n\nreturn [\n  {\n    json: {\n      ...prospectData,\n      schedulingLink: schedulingLink,\n      emailSubject: `Schedule Your Property Tour for ${prospectData.propertyName}`,\n      emailBody: `Hello ${prospectData.clientName},\n\nThank you for your interest in our property: ${prospectData.propertyName}.\n\nPlease use the link below to schedule your property tour at your most convenient time:\n\n<a href=\"${schedulingLink}\">${schedulingLink}</a>\n\nWe look forward to meeting you!\n\nSincerely,\nYour Property Agent Team`\n    }\n  }\n];"
+      },
+      "description": "Generates a personalized scheduling link for the prospect.",
+      "typeVersion": 1
+    },
+    {
+      "id": "ba3afff0-c72b-479f-b805-53c79cc9f59f",
+      "name": "3. Send Scheduling Link (Gmail)",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        760,
+        0
+      ],
+      "parameters": {
+        "subject": "={{ $json.emailSubject }}",
+        "additionalFields": {}
+      },
+      "description": "Sends an email containing the scheduling link to the prospect.",
+      "typeVersion": 1
+    },
+    {
+      "id": "858e468e-2714-4595-932b-be6a6685931b",
+      "name": "4. Webhook: Schedule Confirmation (Waiting for Confirmation)",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "5044cb70-b120-49c5-a65e-4c1ffddfda64",
+      "parameters": {
+        "path": "calendly-tour-confirm",
+        "options": {}
+      },
+      "description": "Receives a webhook from the scheduling tool (e.g., Calendly) once a tour is scheduled.",
+      "typeVersion": 1
+    },
+    {
+      "id": "6c467579-91c4-4c69-90f7-7db4b9f3527d",
+      "name": "6. Send Confirmation Notification (Slack to Agent)",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        500,
+        300
+      ],
+      "parameters": {
+        "text": "New property tour scheduled!\n\nProspect: {{ $json.payload.invitee.first_name }} {{ $json.payload.invitee.last_name }} ({{ $json.payload.invitee.email }})\nProperty: {{ $json.payload.event.name }}\nDate & Time: {{ new Date($json.payload.event.start_time).toLocaleString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) }}\n\nCalendly Event Link: {{ $json.payload.event.event_show_url }}",
+        "channel": "YOUR_AGENT_SLACK_CHANNEL_ID_OR_NAME",
+        "attachments": [],
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "description": "Sends a tour confirmation notification to the agent via Slack.",
+      "typeVersion": 1
+    },
+    {
+      "id": "038f6c54-7751-4988-8969-35c95c327c78",
+      "name": "7. Wait (For Tour Reminder)",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        760,
+        300
+      ],
+      "webhookId": "93166c45-24d4-4363-a24f-48beb4e0bdb3",
+      "parameters": {},
+      "description": "Waits until 1 hour before the tour time to send a reminder.",
+      "typeVersion": 1
+    },
+    {
+      "id": "b3f2bab3-3bc8-4ad7-b76f-8d1d74c84d9f",
+      "name": "8. Send Tour Reminder (Gmail)",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1000,
+        300
+      ],
+      "parameters": {
+        "subject": "Reminder: Your Property Tour for {{ $json.payload.event.name }}",
+        "additionalFields": {}
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "QFfaHpKmgq4YPiRN",
+          "name": "Temp"
+        }
+      },
+      "description": "Sends a reminder email to the prospect before the tour.",
+      "typeVersion": 1
+    },
+    {
+      "id": "7defe25d-ed6a-430e-8d26-1894c8ef194e",
+      "name": "5. Add Event to Agent's Calendar (Google Calendar)",
+      "type": "n8n-nodes-base.googleCalendar",
+      "position": [
+        260,
+        300
+      ],
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "additionalFields": {}
+      },
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "qx4NhkM90xt1yRR5",
+          "name": "temp"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "57a198d9-3c80-4c80-8bd7-0d7c058160bb",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -980,
+        -60
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 860,
+        "height": 3060,
+        "content": "# Документация по рабочему процессу: Автоматизация планирования туров по недвижимости (Недвижимость)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "942b5de8-b2ac-4049-a994-94f72adcf96b",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -60
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1040,
+        "height": 260,
+        "content": "## Проблема 😩"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5d6eafd1-1688-419d-88a1-dca10952fd1f",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        240
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1280,
+        "height": 260,
+        "content": "Управление турами по недвижимости вручную может стать серьезным узким местом для агентов и агентств недвижимости, что приводит к:"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4fda4a0a-1ae5-457e-8f9a-4cb9465257ac",
+  "connections": {
+    "1. Extract Prospect Data": {
+      "main": [
+        [
+          {
+            "node": "2. Generate Scheduling Link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. Generate Scheduling Link": {
+      "main": [
+        [
+          {
+            "node": "3. Send Scheduling Link (Gmail)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "7. Wait (For Tour Reminder)": {
+      "main": [
+        [
+          {
+            "node": "8. Send Tour Reminder (Gmail)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "0. Form Trigger (Property Tour Request)": {
+      "main": [
+        [
+          {
+            "node": "1. Extract Prospect Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5. Add Event to Agent's Calendar (Google Calendar)": {
+      "main": [
+        [
+          {
+            "node": "6. Send Confirmation Notification (Slack to Agent)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "6. Send Confirmation Notification (Slack to Agent)": {
+      "main": [
+        [
+          {
+            "node": "7. Wait (For Tour Reminder)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4. Webhook: Schedule Confirmation (Waiting for Confirmation)": {
+      "main": [
+        [
+          {
+            "node": "5. Add Event to Agent's Calendar (Google Calendar)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

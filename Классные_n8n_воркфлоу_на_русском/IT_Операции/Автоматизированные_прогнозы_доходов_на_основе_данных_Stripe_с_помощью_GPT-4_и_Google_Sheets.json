@@ -1,0 +1,522 @@
+{
+  "id": "mHSoMMyypmRzfVZn",
+  "meta": {
+    "instanceId": "84ad02d6104594179f43f1ce9cfe3a81637b2faedb57dafcb9e649b7542988db"
+  },
+  "name": "* ✏️ `Подготовить запрос для прогноза`",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "b946638e-ba68-4d73-816e-00f3a63d138f",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        1420,
+        220
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"forecast\": {\n    \"June 2025\": \"$X,XXX.XX\",\n    \"July 2025\": \"$X,XXX.XX\",\n    \"August 2025\": \"$X,XXX.XX\"\n  },\n  \"trend\": \"Increasing / Decreasing / Stable\",\n  \"confidence\": \"High / Medium / Low\",\n  \"insights\": \"Short explanation of why this trend is predicted.\"\n}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "d80c3670-e8c8-43ee-ba12-2e0e18b99862",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1180,
+        220
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "wYwTjEv45IzlAOAu",
+          "name": "OpenAi account 2"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "bb75cafb-9dad-4952-89af-0658c4d88aa4",
+      "name": "Pinecone Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "position": [
+        1200,
+        400
+      ],
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "options": {},
+        "toolName": "Sales_data",
+        "pineconeIndex": {
+          "__rl": true,
+          "mode": "list",
+          "value": "new",
+          "cachedResultName": "new"
+        },
+        "toolDescription": "The data about stripe sales"
+      },
+      "credentials": {
+        "pineconeApi": {
+          "id": "PSI5CiZnLRSkEgJg",
+          "name": "PineconeApi account"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "7d370700-89d9-4163-8070-4a0c643531ca",
+      "name": "Embeddings OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "position": [
+        1140,
+        600
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "wYwTjEv45IzlAOAu",
+          "name": "OpenAi account 2"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "81de1ecf-75de-44fd-9e62-c381e907c1e1",
+      "name": "Run Daily Forecast",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "9ce2e0e4-8784-4ed9-9499-b5f54241d04e",
+      "name": "Fetch Stripe Charges",
+      "type": "n8n-nodes-base.stripe",
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "resource": "charge",
+        "operation": "getAll",
+        "returnAll": true
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c115eb0c-6877-46db-bf03-55e48527dbc5",
+      "name": "Summarize Sales",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const charges = items.map(item => item.json);\nconst summary = charges.reduce((acc, charge) => {\n  const date = new Date(charge.created * 1000).toISOString().split(\"T\")[0];\n  acc[date] = (acc[date] || 0) + charge.amount / 100;\n  return acc;\n}, {});\nreturn [{ json: { summary } }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "fb33581a-9f41-49d7-a722-a68dfe5bc265",
+      "name": "Prepare data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6aa7f5d2-3aa4-4d4c-85df-0d56bb7b6c9e",
+              "name": "summary",
+              "type": "string",
+              "value": "={{ $json.summary }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "d3458681-2654-4e22-8b2d-1711b60ed592",
+      "name": "Forecaster agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1240,
+        0
+      ],
+      "parameters": {
+        "text": "=You are a CFO AI Agent. Based on the following Stripe sales data:\n\n{{ $json.summary }}\n\nAnalyze the trends, identify any patterns (growth, decline, seasonality), and forecast expected daily or weekly revenue for the next 3 months.",
+        "options": {},
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "325e4952-868c-460a-aa78-2e718477cc78",
+      "name": "Save Forecast to Supabase",
+      "type": "n8n-nodes-base.supabase",
+      "position": [
+        2100,
+        -160
+      ],
+      "parameters": {
+        "dataToSend": "autoMapInputData"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9fd6efab-edc6-49be-9516-f2d36e1995b2",
+      "name": "Log Forecast in Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2100,
+        120
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "trend": "={{ $json.output.trend }}",
+            "forecast": "={{ $json.output.forecast }}",
+            "insights": "={{ $json.output.insights }}",
+            "confidence": "={{ $json.output.confidence }}"
+          },
+          "schema": [
+            {
+              "id": "forecast",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "forecast",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "trend",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "trend",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "confidence",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "confidence",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "insights",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "insights",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/108tyyL--yUCbDk4drB__eztLSwjlxcmoRkqYsFnMLrY/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "108tyyL--yUCbDk4drB__eztLSwjlxcmoRkqYsFnMLrY",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/108tyyL--yUCbDk4drB__eztLSwjlxcmoRkqYsFnMLrY/edit?usp=drivesdk",
+          "cachedResultName": "CFO Forecasting"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "K5yYfUnKFTqaRn6A",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "241e625d-7019-4919-9f93-137461ad94bf",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        -1820
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 840,
+        "height": 2120,
+        "content": "## 1️⃣ **🔁 Извлечение данных и предобработка**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f60c6c15-8449-457a-aaad-2ebca8d75318",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        940,
+        -1880
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 840,
+        "height": 2680,
+        "content": "**Узлы:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8e9b2ea7-58bb-4f62-a69c-eed70032019c",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1920,
+        -1220
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 460,
+        "height": 1560,
+        "content": "* 🕒 `Запуск ежедневного прогноза`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7d1186c9-cba1-4876-a405-fa67773b8dad",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1840,
+        -1800
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 320,
+        "content": "* 🟦 `Получить транзакции Stripe`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2b9e9108-8084-4e3f-a620-5bee07040bc3",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1840,
+        -1460
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1289,
+        "height": 4778,
+        "content": "* 🧩 `Суммировать ежедневные продажи`"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {
+    "Fetch Stripe Charges": [
+      {
+        "json": {
+          "id": "ch_1NxXy2LzPp3ZhRAbCD123456",
+          "amount": 3500,
+          "object": "charge",
+          "status": "succeeded",
+          "created": 1716940800,
+          "currency": "usd",
+          "customer": {
+            "id": "cus_N8U1xX5TVgB1vW",
+            "name": "Jane Doe",
+            "email": "jane.doe@example.com"
+          },
+          "description": "Pro plan subscription",
+          "amount_captured": 3500,
+          "amount_refunded": 0,
+          "payment_method_details": {
+            "card": {
+              "brand": "visa",
+              "last4": "4242"
+            },
+            "type": "card"
+          }
+        }
+      },
+      {
+        "json": {
+          "id": "ch_1NxXy3LzPp3ZhRAbCD654321",
+          "amount": 1299,
+          "object": "charge",
+          "status": "succeeded",
+          "created": 1717027200,
+          "currency": "usd",
+          "customer": {
+            "id": "cus_N8U9YT5TWzA7LM",
+            "name": "John Smith",
+            "email": "john.smith@example.com"
+          },
+          "description": "Add-on purchase",
+          "amount_captured": 1299,
+          "amount_refunded": 0,
+          "payment_method_details": {
+            "card": {
+              "brand": "mastercard",
+              "last4": "5555"
+            },
+            "type": "card"
+          }
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "56196260-ac1a-4ef1-87c1-d5a8e1eb438f",
+  "connections": {
+    "Prepare data": {
+      "main": [
+        [
+          {
+            "node": "Forecaster agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize Sales": {
+      "main": [
+        [
+          {
+            "node": "Prepare data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Forecaster agent": {
+      "main": [
+        [
+          {
+            "node": "Save Forecast to Supabase",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log Forecast in Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Forecaster agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Daily Forecast": {
+      "main": [
+        [
+          {
+            "node": "Fetch Stripe Charges",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Stripe Charges": {
+      "main": [
+        [
+          {
+            "node": "Summarize Sales",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "Forecaster agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Forecaster agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

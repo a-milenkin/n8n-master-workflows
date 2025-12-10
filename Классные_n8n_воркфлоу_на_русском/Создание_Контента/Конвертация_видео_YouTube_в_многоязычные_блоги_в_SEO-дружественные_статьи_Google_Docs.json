@@ -1,0 +1,228 @@
+{
+  "id": "sz7fVtyNOadW5zNX",
+  "meta": {
+    "instanceId": "60c025075753afcab9f803964b4caaca9402f435deb4efafbb8e3b93b54d8752",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Этот рабочий процесс n8n автоматизирует процесс преобразования видео YouTube в блог-пост на выбранном языке и сохранения его в документе Google Docs. Пользователь вводит URL видео и выбирает язык через форму. Рабочий процесс обрабатывает остальное — вызывает внешний API для генерации контента блога и добавляет его в Google Doc.",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "ae3f4f01-90be-4296-b2b9-be1a94f6202c",
+      "name": "On form submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        -220,
+        0
+      ],
+      "webhookId": "3662fd44-da10-44f0-8144-2c288683df2d",
+      "parameters": {
+        "options": {},
+        "formTitle": "YouTube Video To Blog",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Video URL",
+              "requiredField": true
+            },
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "language",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "English"
+                  },
+                  {
+                    "option": "Hindi"
+                  },
+                  {
+                    "option": "French"
+                  },
+                  {
+                    "option": "German "
+                  },
+                  {
+                    "option": "Gujarati"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "23e8f2aa-2d50-4ff9-9185-d178bbb23e24",
+      "name": "Google Docs",
+      "type": "n8n-nodes-base.googleDocs",
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "actionsUi": {
+          "actionFields": [
+            {
+              "text": "={{ $json.data }}",
+              "action": "insert"
+            }
+          ]
+        },
+        "operation": "update",
+        "documentURL": "https://docs.google.com/document/d/1ZC52bgdGhpe9clkJrjnTBFq5JfIgqjVNryO1E0FwNG8/edit?tab=t.0",
+        "authentication": "serviceAccount"
+      },
+      "credentials": {
+        "googleApi": {
+          "id": "Rt0RWApx8PL9t0RF",
+          "name": "Google Docs account"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "db017056-3fc6-4ce0-b77b-b548f3357743",
+      "name": "Mapper",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        40,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "184eb6b5-dffb-41ce-8076-dc64d2b017fe",
+              "name": "Video URL",
+              "type": "string",
+              "value": "={{ $json[\"Video URL\"] }}"
+            },
+            {
+              "id": "922d2031-5dde-4ddc-a7ad-9902eb16189e",
+              "name": "language",
+              "type": "string",
+              "value": "={{ $json.language }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "7405eb95-c827-45a9-a80c-9dddcffa8869",
+      "name": "YouTube to Blog",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        280,
+        0
+      ],
+      "parameters": {
+        "url": "https://youtube-to-blog.p.rapidapi.com/ytblogs/index.php",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "videoUrl",
+              "value": "={{ $json[\"Video URL\"] }}"
+            },
+            {
+              "name": "language",
+              "value": "={{ $json.language }}"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-rapidapi-host",
+              "value": "youtube-to-blog.p.rapidapi.com"
+            },
+            {
+              "name": "x-rapidapi-key",
+              "value": "your rapid api key"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "202c7fcf-90d0-487b-ad06-a443c302f561",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -980,
+        -600
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 1700,
+        "content": "# 📽️ Видео YouTube в Блог – рабочий процесс n8n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "53d53037-2508-4825-80e0-9d64e49dae33",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -360,
+        -600
+      ],
+      "parameters": {
+        "width": 1160,
+        "height": 780,
+        "content": "## 📝 Обзор"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e3d7f913-9d83-4a8d-8ded-467a83ed079b",
+  "connections": {
+    "Mapper": {
+      "main": [
+        [
+          {
+            "node": "YouTube to Blog",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "YouTube to Blog": {
+      "main": [
+        [
+          {
+            "node": "Google Docs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Mapper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

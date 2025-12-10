@@ -1,0 +1,348 @@
+{
+  "meta": {
+    "instanceId": "408f9fb9940c3cb18ffdef0e0150fe342d6e655c3a9fac21f0f644e8bedabcd9"
+  },
+  "nodes": [
+    {
+      "id": "38da57b7-2161-415d-8473-783ccdc7b975",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -260,
+        840
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "2cd46d91-105d-4b5e-be43-3343a9da815d",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -780,
+        540
+      ],
+      "parameters": {
+        "width": 365.05232558139534,
+        "height": 401.24529475392126,
+        "content": "## Попробуйте меня!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "40bab53a-fcbc-4acc-8d59-c20b3e1b2697",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        1200,
+        980
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"is_qualified\": true,\n\t\"reason\": \"\"\n}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "d75fb7ab-cfbc-419d-b803-deb9e99114ba",
+      "name": "Should Proceed To Stage 2?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1360,
+        820
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "4dd69ba3-bf07-43b3-86b7-d94b07e9eea6",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.output.is_qualified }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a0f56270-67c2-4fab-b521-aa6f06b0b0fd",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -380,
+        540
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 543.5706868577606,
+        "height": 563.6162790697684,
+        "content": "### Этот рабочий процесс преобразует PDF-резюме кандидата в изображение, которое затем \"читается\" языковой моделью зрения (VLM). VLM оценивает, подходит ли резюме кандидата для желаемой роли."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d21fe4dd-0879-4e5a-a70d-10f09b25eee2",
+      "name": "Download Resume",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        -80,
+        840
+      ],
+      "parameters": {
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1MORAdeev6cMcTJBV2EYALAwll8gCDRav"
+        },
+        "options": {},
+        "operation": "download"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "yOwz41gMQclOadgu",
+          "name": "Google Drive account"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "ea904365-d9d2-4f15-b7c3-7abfeb4c8c50",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        200,
+        540
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 605.0267171444024,
+        "height": 595.3148729042731,
+        "content": "Этот подход можно использовать для борьбы с \"скрытыми подсказками\", внедренными в резюме, чтобы обойти и/или манипулировать автоматизированными ATS-системами с использованием ИИ."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cd00a47f-1ab9-46bf-8ea1-46ac899095e7",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        840,
+        540
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 747.8139534883712,
+        "height": 603.1395348837208,
+        "content": "### Нужна помощь?"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d60214c6-c67e-4433-9121-4d54f782b19d",
+      "name": "PDF-to-Image API",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        340,
+        880
+      ],
+      "parameters": {
+        "url": "https://stirlingpdf.io/api/v1/convert/pdf/img",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "fileInput",
+              "parameterType": "formBinaryData",
+              "inputDataFieldName": "data"
+            },
+            {
+              "name": "imageFormat",
+              "value": "jpg"
+            },
+            {
+              "name": "singleOrMultiple",
+              "value": "single"
+            },
+            {
+              "name": "dpi",
+              "value": "300"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "847de537-ad8f-47f5-a1c1-d207c3fc15ef",
+      "name": "Resize Converted Image",
+      "type": "n8n-nodes-base.editImage",
+      "position": [
+        530,
+        880
+      ],
+      "parameters": {
+        "width": 75,
+        "height": 75,
+        "options": {},
+        "operation": "resize",
+        "resizeOption": "percent"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5fb6ac7e-b910-4dce-bba7-19b638fd817a",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        1000,
+        980
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-1.5-pro-latest"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "dSxo6ns5wn658r8N",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2580b583-544a-47ee-b248-9cca528c9866",
+      "name": "Candidate Resume Analyser",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        1000,
+        820
+      ],
+      "parameters": {
+        "text": "=Evaluate the candidate's resume.",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Assess the given Candiate Resume for the role of Plumber.\nDetermine if the candidate's skills match the role and if they qualify for an in-person interview."
+            },
+            {
+              "type": "HumanMessagePromptTemplate",
+              "messageType": "imageBinary"
+            }
+          ]
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "694669c2-9cf5-43ec-8846-c0ecbc5a77ee",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        280,
+        840
+      ],
+      "parameters": {
+        "width": 225.51725256895617,
+        "height": 418.95152406706313,
+        "content": "Присоединяйтесь к [Discord](https://discord.com/invite/XPKeKXeB7d) или задайте вопрос на [Форуме](https://community.n8n.io/)!"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Download Resume": {
+      "main": [
+        [
+          {
+            "node": "PDF-to-Image API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDF-to-Image API": {
+      "main": [
+        [
+          {
+            "node": "Resize Converted Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resize Converted Image": {
+      "main": [
+        [
+          {
+            "node": "Candidate Resume Analyser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Candidate Resume Analyser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Candidate Resume Analyser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Candidate Resume Analyser": {
+      "main": [
+        [
+          {
+            "node": "Should Proceed To Stage 2?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Download Resume",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

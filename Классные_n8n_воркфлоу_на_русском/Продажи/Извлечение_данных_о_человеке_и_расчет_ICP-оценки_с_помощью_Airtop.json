@@ -1,0 +1,567 @@
+{
+  "id": "UY2lflocNrJbhBkQ",
+  "meta": {
+    "instanceId": "28a947b92b197fc2524eaba16e57560338657b2b0b5796300b2f1cedc1d0d355"
+  },
+  "name": "Извлеките данные о человеке и рассчитайте ICP",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "dab22b77-5792-48a8-9827-360b39a1f4d3",
+      "name": "On form submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        -40,
+        40
+      ],
+      "webhookId": "578979b3-39f8-46cf-89a0-61e8871a468e",
+      "parameters": {
+        "options": {},
+        "formTitle": "Linkedin Profile Extractor",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Person Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Work Email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Airtop Profile (connected to Linkedin)",
+              "requiredField": true
+            }
+          ]
+        },
+        "formDescription": "<h2>Enrich New User's Data</h2>\n<p>This automation adds important information about a customer using name and work email address</p>\n\n<p>The automation requires an Airtop Profile name that is authenticated on Linkedin. Don't have one? Create a free Profile and log-in to X at - <a href=\"https://portal.airtop.ai/browser-profiles\">https://portal.airtop.ai/browser-profiles</a></p>\n"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "c6cbab26-ea9b-4574-aa6c-7f91b8f0302c",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -40,
+        240
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "person_name"
+            },
+            {
+              "name": "work_email"
+            },
+            {
+              "name": "Airtop_profile"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "b31a18d5-c85d-4664-95d4-190450cdb6ab",
+      "name": "Unify Parameters",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        180,
+        140
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e612bf63-72bd-4b61-82c9-786a90b58b7b",
+              "name": "Person_name",
+              "type": "string",
+              "value": "={{ $json[\"Person Name\"] || $json.person_name }}"
+            },
+            {
+              "id": "b8287f93-4ea5-40af-be1b-80ced616ec1a",
+              "name": "Work_email",
+              "type": "string",
+              "value": "={{ $json[\"Work Email\"] || $json.work_email }}"
+            },
+            {
+              "id": "567e5e7d-4efd-4d0a-a93c-6c7aed02c305",
+              "name": "Airtop_profile",
+              "type": "string",
+              "value": "={{ $json[\"Airtop Profile (connected to Linkedin)\"] || $json.Airtop_profile }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "0f7dfe34-b88d-4be0-96fd-a54044f332f9",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -100,
+        -40
+      ],
+      "parameters": {
+        "width": 660,
+        "height": 480,
+        "content": "## Параметры ввода\n** Запустите этот рабочий процесс, используя форму или из другого рабочего процесса"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5848a514-c1e5-4265-a771-3e0de46eb1f5",
+      "name": "Extract Person Data",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "position": [
+        1060,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "OGfsyvA3tBbLytSo",
+          "cachedResultName": "AIRTOP — Extract LinkedIn Profile Information"
+        },
+        "workflowInputs": {
+          "value": {
+            "Linkedin_URL": "={{ $('Find Person Linkedin URL').item.json.data.modelResponse }}",
+            "Airtop_profile": "={{ $('Unify Parameters').item.json.Airtop_profile }}"
+          },
+          "schema": [
+            {
+              "id": "Linkedin_URL",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Linkedin_URL",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Airtop_profile",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Airtop_profile",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "c702cf9a-ccb6-47c0-8af6-4c3b6d76894b",
+      "name": "Find Person Linkedin URL",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "position": [
+        620,
+        140
+      ],
+      "parameters": {
+        "mode": "each",
+        "options": {},
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "BTxosiCF2PaCkBWJ",
+          "cachedResultName": "AIRTOP — LinkedIn Profile Discovery w Verification"
+        },
+        "workflowInputs": {
+          "value": {
+            "Person_info": "={{ $json.Person_name }} - {{ $json.Work_email }}",
+            "Airtop_profile": "={{ $json.Airtop_profile }}"
+          },
+          "schema": [
+            {
+              "id": "Person_info",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Person_info",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Airtop_profile",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Airtop_profile",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "db7f2856-4087-4bb7-a955-258b1ba6e96e",
+      "name": "ICP Scoring",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "position": [
+        1060,
+        260
+      ],
+      "parameters": {
+        "options": {},
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "io8TtPZaVjpZaVrf",
+          "cachedResultName": "AIRTOP — Person ICP Scoring with Linkedin"
+        },
+        "workflowInputs": {
+          "value": {
+            "Linkedin_URL": "={{ $('Find Person Linkedin URL').item.json.data.modelResponse }}",
+            "Airtop_profile": "={{ $('Unify Parameters').item.json.Airtop_profile }}"
+          },
+          "schema": [
+            {
+              "id": "Linkedin_URL",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Linkedin_URL",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Airtop_profile",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Airtop_profile",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "3aaa689c-aedb-4d40-b7c4-fb50ab805ed1",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1280,
+        140
+      ],
+      "parameters": {
+        "numberInputs": 3
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "85d13c4c-4ed7-48a4-a3a2-d5d8c0dd90b3",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        580,
+        -40
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 860,
+        "height": 480,
+        "content": "## Обогащение данных о человеке\n** Найдите профиль Linkedin, извлеките всю информацию и рассчитайте балл ICP"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dac0877b-b090-41f8-a1bc-72f9051420f9",
+      "name": "Is corporate email?",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        400,
+        140
+      ],
+      "parameters": {
+        "options": {
+          "ignoreCase": true
+        },
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": false,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "e1d8bcc5-dfd1-466b-acfb-afc7a31f6539",
+              "operator": {
+                "type": "string",
+                "operation": "notEndsWith"
+              },
+              "leftValue": "={{ $json.Work_email }}",
+              "rightValue": "@gmail.com"
+            },
+            {
+              "id": "92883c4b-0753-40c2-8508-68ac70eb92a9",
+              "operator": {
+                "type": "string",
+                "operation": "notEndsWith"
+              },
+              "leftValue": "={{ $json.Work_email }}",
+              "rightValue": "@qq.com"
+            },
+            {
+              "id": "4f457d3d-1a88-42bb-a296-abce7ffaba68",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              },
+              "leftValue": "={{ $json.Work_email }}",
+              "rightValue": "@hotmail."
+            },
+            {
+              "id": "976a267e-ac44-429f-965b-beac68eb5aac",
+              "operator": {
+                "type": "string",
+                "operation": "notEndsWith"
+              },
+              "leftValue": "={{ $json.Work_email }}",
+              "rightValue": "@proton.me"
+            },
+            {
+              "id": "8a5de40e-d533-444a-b8bf-fbdffde19d89",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              },
+              "leftValue": "={{ $json.Work_email }}",
+              "rightValue": "@msn."
+            },
+            {
+              "id": "96903481-2bc1-4445-a9c8-240f49551e30",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              },
+              "leftValue": "={{ $json.Work_email }}",
+              "rightValue": "@yahoo."
+            },
+            {
+              "id": "39c6a4f8-dd44-4809-b530-073755b5a791",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              },
+              "leftValue": "={{ $json.Work_email }}",
+              "rightValue": "@aol."
+            },
+            {
+              "id": "d9ad3a5b-0407-42a2-b5a2-a8ae9735dfcf",
+              "operator": {
+                "type": "string",
+                "operation": "notEndsWith"
+              },
+              "leftValue": "={{ $json.Work_email }}",
+              "rightValue": ".edu"
+            },
+            {
+              "id": "11cdc4db-8f55-4de2-a60e-d41545acce5c",
+              "operator": {
+                "type": "string",
+                "operation": "notEndsWith"
+              },
+              "leftValue": "={{ $json.Work_email }}",
+              "rightValue": ".net"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "49915a61-79d0-492d-ae2b-5281a216f1d8",
+      "name": "Is valid Linkedin URL?",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        840,
+        140
+      ],
+      "parameters": {
+        "options": {
+          "ignoreCase": true
+        },
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": false,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c4c7e69b-3823-430f-82e6-83b0ebd0a5e5",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.data.modelResponse }}",
+              "rightValue": ""
+            },
+            {
+              "id": "340f952e-7922-4597-9a32-6b5c60f79dc7",
+              "operator": {
+                "type": "string",
+                "operation": "notStartsWith"
+              },
+              "leftValue": "={{ $json.data.modelResponse }}",
+              "rightValue": "NA"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "6a34a9ec-b2a6-492b-8c26-3898139dd0d7",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -820,
+        -280
+      ],
+      "parameters": {
+        "width": 700,
+        "height": 1040,
+        "content": "README\n\n# Автоматизация обогащения данных LinkedIn и оценки ICP\n\n## Случай использования\n\nЭта автоматизация обогащает данные о человеке, используя LinkedIn, и рассчитывает оценку Идеального Клиентского Профиля (ICP) на основе их профессионального присутствия. Это особенно полезно для квалификации лидов, исследования контактов и целевого взаимодействия.\n\n## Что делает эта автоматизация\n\nАвтоматизация обрабатывает следующие входные параметры:\n\n- **Имя человека**: Полное имя индивидума.\n- **Рабочий email**: Корпоративный адрес электронной почты для проверки корпоративной идентичности.\n- **Профиль Airtop (подключенный к LinkedIn)**: [Профиль Airtop с аутентификацией в LinkedIn](https://portal.airtop.ai/browser-profiles) для обогащения.\n\n## Как это работает\n\n1. **Фильтрация email**: Проверяет, является ли email корпоративным (исключает бесплатные и личные домены).\n2. **Поиск профиля LinkedIn**: Ищет и проверяет правильный URL LinkedIn с помощью Airtop.\n3. **Обогащение данных**: Извлекает профессиональные данные из профиля LinkedIn.\n4. **Оценка ICP**: Рассчитывает оценку ICP на основе извлеченных данных и контекста профиля.\n5. **Объединение результатов**: Консолидирует обогащенные данные профиля и результаты ICP в один вывод.\n\n## Требования к настройке\n\n1. [API-ключ Airtop](https://portal.airtop.ai/api-keys)\n2. Аутентифицированный [профиль Airtop](https://portal.airtop.ai/browser-profiles) в LinkedIn.\n\n## Следующие шаги\n\n- **Совместить с интеграцией CRM**: Передать обогащенные и оцененные данные в CRM, такие как HubSpot или Salesforce.\n- **Пакетная обработка**: Автоматизировать для списков лидов, используя Airtop + n8n или SDK Airtop.\n- **Настройка оценки**: Настроить логику оценки, чтобы более точно отражать атрибуты вашего идеального клиента."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9d019e18-0c9e-4fc4-8e2e-27d7154316bc",
+  "connections": {
+    "ICP Scoring": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Unify Parameters": {
+      "main": [
+        [
+          {
+            "node": "Is corporate email?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Unify Parameters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Person Data": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is corporate email?": {
+      "main": [
+        [
+          {
+            "node": "Find Person Linkedin URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is valid Linkedin URL?": {
+      "main": [
+        [
+          {
+            "node": "Extract Person Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "ICP Scoring",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Find Person Linkedin URL": {
+      "main": [
+        [
+          {
+            "node": "Is valid Linkedin URL?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Unify Parameters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

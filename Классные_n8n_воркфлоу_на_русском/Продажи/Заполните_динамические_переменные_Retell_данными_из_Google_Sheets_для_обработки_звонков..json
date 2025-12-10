@@ -1,0 +1,172 @@
+{
+  "meta": {
+    "instanceId": "f4f5d195bb2162a0972f737368404b18be694648d365d6c6771d7b4909d28167",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "9a8d7d07-a1b3-4bca-8e77-10da3a2abc45",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -160,
+        0
+      ],
+      "webhookId": "7f35a3a8-54c3-49d7-879d-6c3429f0e5da",
+      "parameters": {
+        "path": "retell-dynamic-variables",
+        "options": {
+          "ipWhitelist": "100.20.5.228"
+        },
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "79e77d72-6e13-428c-ad10-58e6930e2d90",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={\n  \"call_inbound\": {\n    \"dynamic_variables\": {\n        \"first_name\": \"{{ $json['First Name'] }}\",\n        \"last_name\": \"{{ $json['Last name'] }}\",\n        \"email\": \"{{ $json['E-Mail'] }}\",\n        \"variable_1\": \"{{ $json['User Variable 1'] }}\",\n        \"variable_2\": \"{{ $json['User Variable 2']}}\"\n    },\n    \"metadata\": {\n    }\n  }\n}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "10919781-9750-417f-bba6-293bf99dbc3e",
+      "name": "Get user in DB by Phone Number",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        140,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "={{ $json.body.call_inbound.from_number }}",
+              "lookupColumn": "Phone Number"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TYgk8PK5w2l8Q5NtepdyLvgtuHXBHcODy-2hXOPP6AU/edit#gid=0",
+          "cachedResultName": "Users"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1TYgk8PK5w2l8Q5NtepdyLvgtuHXBHcODy-2hXOPP6AU",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TYgk8PK5w2l8Q5NtepdyLvgtuHXBHcODy-2hXOPP6AU/edit?usp=drivesdk",
+          "cachedResultName": "Retell sample UserDB"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ufBkeygvc1l17m5N",
+          "name": "Baptiste AS - Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "de9a2ff5-690e-4e1e-ab5c-5a8825986871",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -880,
+        -440
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 601,
+        "height": 1105,
+        "content": "## Обработка входящих вебхуков звонков Retell\n\n## Обзор\n- Этот рабочий процесс предоставляет создателям агентов Retell простой способ заполнения [динамических переменных](https://docs.retellai.com/build/dynamic-variables) с использованием n8n.\n- Рабочий процесс извлекает информацию о пользователе из Google Sheets на основе номера телефона и отправляет её обратно в Retell.\n- Он основан на [входящем вебхуке звонка](https://docs.retellai.com/features/inbound-call-webhook) Retell.\n- Retell — это сервис, который позволяет создавать голосовых агентов, которые обрабатывают голосовые звонки просто, основываясь на подсказке или используя конструктор разговорных потоков.\n\n## Предварительные требования\n- Иметь [аккаунт Retell AI](https://www.retellai.com/)\n- [Создать агента Retell](https://docs.retellai.com/get-started/quick-start)\n- [Купить номер телефона](https://docs.retellai.com/deploy/purchase-number) и связать его с вашим агентом\n- Создать Google Sheets - например, [сделать копию этого документа](https://docs.google.com/spreadsheets/d/1TYgk8PK5w2l8Q5NtepdyLvgtuHXBHcODy-2hXOPP6AU/edit?usp=sharing).\n- В вашем Google Sheet должен быть хотя бы один столбец с номером телефона. Остальные столбцы будут использоваться для заполнения динамических переменных вашего агента Retell.\n- Все поля возвращаются как строки в Retell (переменные заменяются как текст).\n\n## Как это работает\n- Вебхук вызывается от Retell. Мы фильтруем вызов, используя их IP-адреса из белого списка.\n- Извлекаются данные из вызова вебхука и используются для получения пользователя из Google Sheets.\n- Данные форматируются в ответе, чтобы соответствовать ожидаемому формату Retell.\n- Retell использует эти данные для замены [динамических переменных](https://docs.retellai.com/build/dynamic-variables#dynamic-variables) в подсказках.\n\n## Как это использовать\nСмотрите описание для скриншотов!\n- Установите имя вебхука (оставьте как POST).\n- Скопируйте URL вебхука (например, `https://your-instance.app.n8n.cloud/webhook/retell-dynamic-variables`) и вставьте его в интерфейс Retell. Перейдите в \"Телефонные номера\", нажмите на номер телефона и включите \"Добавить входящий вебхук\".\n- В вашей подсказке (например, \"приветственное сообщение\") используйте переменную с этой синтаксисом: `{{variable_name}}` (см. [документацию Retell](https://docs.retellai.com/build/dynamic-variables)).\n- Эти переменные будут динамически заменены данными из вашего Google Sheet.\n\n## Заметки\n- В Google Sheets номер телефона должен начинаться с `'+'`.\n- Номера телефонов должны быть отформатированы как в примере: с `+`, кодом страны и без пробелов.\n- Вы можете использовать любую базу данных — просто замените Google Sheets на свою, убедившись, что форматирование номера телефона остается последовательным."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "55b087bf-d51f-4660-94c7-3742915ff79b",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -220,
+        -120
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 220,
+        "height": 300,
+        "content": "Измените путь, если необходимо"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bd6a7c81-5125-4f46-a1ba-86029d3a0eda",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        -120
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 220,
+        "height": 300,
+        "content": "Замените на свои собственные Google Таблицы, включая динамические переменные вашего агента Retell."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7105c832-ffbe-4d36-90ec-b8c868388c4e",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        380,
+        -120
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 220,
+        "height": 300,
+        "content": "Адаптируйте ответ, чтобы он соответствовал вашим динамическим переменным Retell."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get user in DB by Phone Number",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get user in DB by Phone Number": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,346 @@
+{
+  "id": "Cx9PYI2OK1XjhT1M",
+  "meta": null,
+  "name": "Документация API базы данных продуктов Chomp MCP Server",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "a41b49f5-0c55-41dd-a365-efc324769a94",
+      "name": "Setup Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1380,
+        -240
+      ],
+      "parameters": {
+        "color": 4,
+        "height": 1060,
+        "content": "### ⚙️ Инструкции по настройке\n\n1. **Импорт рабочего процесса**: \nЗагрузите этот рабочий процесс в вашу инстанцию n8n\n\n2. **Настройка аутентификации**: \nНастройте учетные данные apiKey\n   - Тип: API Key в запросе\n   - Имя ключа: api_key\n\n3. **Активировать рабочий процесс**:\nВключите рабочий процесс, чтобы запустить сервер MCP\n\n4. **Получить URL MCP**: \nСкопируйте URL вебхука из триггера MCP\n\n5. **Подключить AI-агента**:\nИспользуйте URL MCP в конфигурации вашего AI-агента\n\n\n### 💡 Примечания по использованию\n• Параметры автоматически заполняются ИИ с помощью выражений $fromAI()\n• Доступно 4 конечных точки API в качестве инструментов\n• Ответы сохраняют оригинальную структуру API\n\n\n### 🛠️ Настройка\n• Добавьте узлы преобразования данных, если это необходимо\n• Реализуйте обработку ошибок по своему усмотрению\n• Добавьте узлы для ведения журнала или мониторинга\n\n• Измените значения по умолчанию параметров в любом узле HTTP-запроса по мере необходимости\n\n### 💬 Нужна помощь?\nНапишите мне в [discord](https://discord.me/cfomodz) для получения рекомендаций по интеграции и индивидуальным автоматизациям. Ознакомьтесь с [документацией n8n](https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.toolmcp/) для получения дополнительной информации."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "460cd144-05a1-4a07-a85b-2e38db8e8667",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1120,
+        -240
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 920,
+        "content": "## 🛠️ Документация API базы данных продуктов Chomp MCP Сервер ✅ 4 операции\n\n### Описание\nЭтот API требует ключ API, который вы можете получить, подписавшись на [https://chompthis.com/api](https://chompthis.com/api/). После получения вашего ключа авторизуйте его в интерфейсе и используйте конечные точки, предоставляя необходимые параметры. Примеры и управление ключами API доступны по предоставленным ссылкам.\n\n### 🔧 Как это работает\n\nЭтот рабочий процесс преобразует документацию API базы данных продуктов Chomp в интерфейс, совместимый с MCP, для AI-агентов.\n\n• **MCP Триггер**: Служит конечной точкой вашего сервера для запросов AI-агентов  \n• **HTTP Запросы**: Обрабатывают вызовы API к https://chompthis.com/api/v2  \n• **AI Выражения**: Автоматически заполняют параметры через заполнители `$fromAI()`  \n• **Нативная Интеграция**: Возвращает ответы напрямую AI-агенту  \n\n\n### 📋 Доступные операции (4 конечные точки)\n\n**Продукты (4 операции)**  \nПолучить брендированный продукт по штрих-коду, Получить брендированный продукт по имени, Искать брендированные продукты, Искать ингредиенты продуктов"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ea577bfd-b64b-4639-9392-18084021124d",
+      "name": "Chomp Food Database API Documentation MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        -620,
+        -240
+      ],
+      "webhookId": "00375c14-b231-47a1-9287-79dadac3ae5c",
+      "parameters": {
+        "path": "chomp-food-database-api-documentation-mcp"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6c006134-5479-4b7c-8381-9d624746a857",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        -100
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 900,
+        "height": 200,
+        "content": "## Еда"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7a034d06-0488-4c5a-95db-945d1deb547a",
+      "name": "Get Branded Food by Barcode",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -520,
+        -60
+      ],
+      "parameters": {
+        "url": "=https://chompthis.com/api/v2/food/branded/barcode.php",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "queryAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "code",
+              "value": "={{ $fromAI('code', '#### UPC/EAN barcode **Example** > ```&code=0842234000988```', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Get a branded food item using a barcode\n\nParameters:\n- Query parameters:\n  • code (required) - #### UPC/EAN barcode **Example** > ```&code=0842234000988```"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "610ac60c-53eb-4e2d-b74c-9b2af52e502e",
+      "name": "Get Branded Food by Name",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -320,
+        -60
+      ],
+      "parameters": {
+        "url": "=https://chompthis.com/api/v2/food/branded/name.php",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "queryAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{ $fromAI('name', '#### Search for branded food items using a general food name keyword. This does not have to exactly match the \"official\" name for the food. **Example** > ```&name=Starburst```', 'string') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', '#### Set maximum number of records you want the API to return. The default value is \"**10**.\" **Example** > ```&limit=10```', 'number') }}"
+            },
+            {
+              "name": "page",
+              "value": "={{ $fromAI('page', '#### This is how you paginate the search result. By default, you will see the first 10 records. You must increment the page number to access the next 10 records, and so on. The default value is \"**1**.\" **Example** > ```&page=1```', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Get a branded food item by name\n\nParameters:\n- Query parameters:\n  • name (required) - #### Search for branded food items using a general food name keyword. This does not have to exactly match the \"official\" name for the food. **Example** > ```&name=Starburst```\n  • limit (optional) - #### Set maximum number of records you want the API to return. The default value is \"**10**.\" **Example** > ```&limit=10```\n  • page (optional) - #### This is how you paginate the search result. By default, you will see the first 10 records. You must increment the page number to access the next 10 records, and so on. The default value is \"**1**.\" **Example** > ```&page=1```"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "48be4792-8bcb-4afb-a5d1-9bb894c81547",
+      "name": "Search Branded Food Items",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -120,
+        -60
+      ],
+      "parameters": {
+        "url": "=https://chompthis.com/api/v2/food/branded/search.php",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "queryAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "allergen",
+              "value": "={{ $fromAI('allergen', '#### Filter the search to only include branded foods that contain a specific allergen. **Example** > ```&allergen=Peanuts``` **Important Note**: This parameter cannot be used alone. It must be paired with at least 1 additional parameter.', 'string') }}"
+            },
+            {
+              "name": "brand",
+              "value": "={{ $fromAI('brand', '#### Filter the search to only include branded foods that are owned by a specific brand. **Example** > ```&brand=Starbucks```', 'string') }}"
+            },
+            {
+              "name": "category",
+              "value": "={{ $fromAI('category', '#### Filter the search to only include branded foods from a specific category. **Example** > ```&category=Plant Based Foods```', 'string') }}"
+            },
+            {
+              "name": "country",
+              "value": "={{ $fromAI('country', '#### Filter the search to only include branded foods that are sold in a specific country. **Example** > ```&country=United States``` **Important Note**: This parameter cannot be used alone. It must be paired with at least 1 additional parameter.', 'string') }}"
+            },
+            {
+              "name": "diet",
+              "value": "={{ $fromAI('diet', '#### Filter the search to only include branded foods that are considered compatible with a specific diet. **Important Note**: This parameter cannot be used alone. It must be paired with at least 1 additional parameter.', 'string') }}"
+            },
+            {
+              "name": "ingredient",
+              "value": "={{ $fromAI('ingredient', '#### Filter the search to only include branded foods that contain a specific ingredient. **Example** > ```&ingredient=Salt```', 'string') }}"
+            },
+            {
+              "name": "keyword",
+              "value": "={{ $fromAI('keyword', '#### Filter the search to only include branded foods that are associated with a specific keyword. **Example** > ```&keyword=Organic``` **Important Note**: This parameter cannot be used alone. It must be paired with at least 1 additional parameter.', 'string') }}"
+            },
+            {
+              "name": "mineral",
+              "value": "={{ $fromAI('mineral', '#### Filter the search to only include branded foods that contain a specific mineral. **Example** > ```&mineral=Potassium```', 'string') }}"
+            },
+            {
+              "name": "nutrient",
+              "value": "={{ $fromAI('nutrient', '#### Filter the search to only include branded foods that contain a specific nutrient. **Example** > ```&nutrient=Caffeine``` **Important Note**: This parameter cannot be used alone. It must be paired with at least 1 additional parameter.', 'string') }}"
+            },
+            {
+              "name": "palm_oil",
+              "value": "={{ $fromAI('palm_oil', '#### Filter the search to only include branded foods that contain a specific ingredient made using palm oil. **Example** > ```&palm_oil=E160a Beta Carotene```', 'string') }}"
+            },
+            {
+              "name": "trace",
+              "value": "={{ $fromAI('trace', '### Filter the search to only include branded foods that contain a specific trace ingredient. **Example** > ```&trace=Tree Nuts``` **Important Note**: This parameter cannot be used alone. It must be paired with at least 1 additional parameter.', 'string') }}"
+            },
+            {
+              "name": "vitamin",
+              "value": "={{ $fromAI('vitamin', '#### Filter the search to only include branded foods that contain a specific vitamin. **Example** > ```&vitamin=Biotin```', 'string') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', '#### Set maximum number of records you want the API to return. The default value is \"**10**.\" **Example** > ```&limit=10```', 'number') }}"
+            },
+            {
+              "name": "page",
+              "value": "={{ $fromAI('page', '#### This is how you paginate the search result. By default, you will see the first 10 records. You must increment the page number to access the next 10 records, and so on. The default value is \"**1**.\" **Example** > ```&page=1```', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Get data for branded food items using various search parameters\n\nParameters:\n- Query parameters:\n  • allergen (optional) - #### Filter the search to only include branded foods that contain a specific allergen. **Example** > ```&allergen=Peanuts``` **Important Note**: This parameter cannot be used alone. It must be paired with at least 1 additional parameter.\n  • brand (optional) - #### Filter the search to only include branded foods that are owned by a specific brand. **Example** > ```&brand=Starbucks```\n  • category (optional) - #### Filter the search to only include branded foods from a specific category. **Example** > ```&category=Plant Based Foods```\n  • country (optional) - #### Filter the search to only include branded foods that are sold in a specific country. **Example** > ```&country=United States``` **Important Note**: This parameter cannot be used alone. It must be paired with at least 1 additional parameter.\n  • diet (optional) - #### Filter the search to only include branded foods that are considered compatible with a specific diet. **Important Note**: This parameter cannot be used alone. It must be paired with at least 1 additional parameter.\n  • ingredient (optional) - #### Filter the search to only include branded foods that contain a specific ingredient. **Example** > ```&ingredient=Salt```\n  • keyword (optional) - #### Filter the search to only include branded foods that are associated with a specific keyword. **Example** > ```&keyword=Organic``` **Important Note**: This parameter cannot be used alone. It must be paired with at least 1 additional parameter.\n  • mineral (optional) - #### Filter the search to only include branded foods that contain a specific mineral. **Example** > ```&mineral=Potassium```\n  • nutrient (optional) - #### Filter the search to only include branded foods that contain a specific nutrient. **Example** > ```&nutrient=Caffeine``` **Important Note**: This parameter cannot be used alone. It must be paired with at least 1 additional parameter.\n  • palm_oil (optional) - #### Filter the search to only include branded foods that contain a specific ingredient made using palm oil. **Example** > ```&palm_oil=E160a Beta Carotene```\n  • trace (optional) - ### Filter the search to only include branded foods that contain a specific trace ingredient. **Example** > ```&trace=Tree Nuts``` **Important Note**: This parameter cannot be used alone. It must be paired with at least 1 additional parameter.\n  • vitamin (optional) - #### Filter the search to only include branded foods that contain a specific vitamin. **Example** > ```&vitamin=Biotin```\n  • limit (optional) - #### Set maximum number of records you want the API to return. The default value is \"**10**.\" **Example** > ```&limit=10```\n  • page (optional) - #### This is how you paginate the search result. By default, you will see the first 10 records. You must increment the page number to access the next 10 records, and so on. The default value is \"**1**.\" **Example** > ```&page=1```"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b2c44ba5-871b-4e25-a8e3-1c1beff57036",
+      "name": "Search Food Ingredients",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        80,
+        -60
+      ],
+      "parameters": {
+        "url": "=https://chompthis.com/api/v2/food/ingredient/search.php",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "queryAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "find",
+              "value": "={{ $fromAI('find', 'Search our database for a single ingredient or a specific set of ingredients. **Example #1: Single Ingredient** > ```&find=raw broccoli``` **Example #2: Set of Ingredients** > ```&find=raw broccoli,buttermilk waffle,mashed potatoes``` **Important Notes** * Comma-separated lists cannot contain more than **10 ingredients**. You must perform additional API calls if you are looking up more than 10 ingredients.', 'string') }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $fromAI('limit', '#### Set maximum number of records you want the API to return, per search term. The default value is \"**1**.\" **Example** > ```&limit=3```', 'number') }}"
+            }
+          ]
+        },
+        "toolDescription": "Get raw/generic food ingredient item(s)\n\nParameters:\n- Query parameters:\n  • find (required) - Search our database for a single ingredient or a specific set of ingredients. **Example #1: Single Ingredient** > ```&find=raw broccoli``` **Example #2: Set of Ingredients** > ```&find=raw broccoli,buttermilk waffle,mashed potatoes``` **Important Notes** * Comma-separated lists cannot contain more than **10 ingredients**. You must perform additional API calls if you are looking up more than 10 ingredients.\n  • limit (optional) - #### Set maximum number of records you want the API to return, per search term. The default value is \"**1**.\" **Example** > ```&limit=3```"
+      },
+      "typeVersion": 4.2
+    }
+  ],
+  "active": false,
+  "shared": [
+    {
+      "role": "workflow:owner",
+      "project": {
+        "id": "G5fce9xGuBAsWBXe",
+        "icon": null,
+        "name": "David Ashby <david.ashby.lds@gmail.com>",
+        "type": "personal",
+        "createdAt": "2025-06-04T02:55:02.013Z",
+        "updatedAt": "2025-06-04T02:56:01.361Z",
+        "projectRelations": [
+          {
+            "role": "project:personalOwner",
+            "user": {
+              "id": "715c1c00-cb48-4712-9a32-f1f4b6db2b30",
+              "role": "global:owner",
+              "email": "david.ashby.lds@gmail.com",
+              "disabled": false,
+              "lastName": "Ashby",
+              "settings": {
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1749357655581
+                },
+                "userActivated": true,
+                "userActivatedAt": 1749075994495,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "3N3vVikZb3MckFYm"
+              },
+              "createdAt": "2025-06-04T02:55:01.745Z",
+              "firstName": "David",
+              "isPending": false,
+              "updatedAt": "2025-06-08T04:40:58.399Z",
+              "mfaEnabled": false,
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_n8n_version": "1.95.3",
+                "personalization_survey_submitted_at": "2025-06-04T02:56:07.075Z"
+              }
+            },
+            "userId": "715c1c00-cb48-4712-9a32-f1f4b6db2b30",
+            "createdAt": "2025-06-04T02:55:02.013Z",
+            "projectId": "G5fce9xGuBAsWBXe",
+            "updatedAt": "2025-06-04T02:55:02.013Z"
+          }
+        ]
+      },
+      "createdAt": "2025-07-01T23:49:47.220Z",
+      "projectId": "G5fce9xGuBAsWBXe",
+      "updatedAt": "2025-07-01T23:49:47.220Z",
+      "workflowId": "Cx9PYI2OK1XjhT1M"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "timezone": "America/New_York"
+  },
+  "createdAt": "2025-07-01T23:49:47.218Z",
+  "updatedAt": "2025-07-01T23:49:58.000Z",
+  "versionId": "c551b946-8f90-41c3-a297-8727c2600585",
+  "isArchived": false,
+  "staticData": null,
+  "connections": {
+    "Search Food Ingredients": {
+      "ai_tool": [
+        [
+          {
+            "node": "Chomp Food Database API Documentation MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Branded Food by Name": {
+      "ai_tool": [
+        [
+          {
+            "node": "Chomp Food Database API Documentation MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Branded Food Items": {
+      "ai_tool": [
+        [
+          {
+            "node": "Chomp Food Database API Documentation MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Branded Food by Barcode": {
+      "ai_tool": [
+        [
+          {
+            "node": "Chomp Food Database API Documentation MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "triggerCount": 0
+}

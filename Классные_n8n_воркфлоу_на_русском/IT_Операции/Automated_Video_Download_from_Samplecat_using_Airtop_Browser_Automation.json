@@ -1,0 +1,272 @@
+{
+  "id": "3sBreSJpd5kPX4b2",
+  "meta": {
+    "instanceId": "28a947b92b197fc2524eaba16e57560338657b2b0b5796300b2f1cedc1d0d355",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "# Автоматизация загрузки видеофайлов с Sample.cat с помощью Airtop.ai",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "354c8e55-f322-4f63-bf53-84ff65bbd2d7",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -440,
+        0
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "37e66a0e-bbce-449d-a769-77470b4ea57f",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        380,
+        -240
+      ],
+      "parameters": {
+        "width": 220,
+        "height": 300,
+        "content": "Подождите несколько секунд, чтобы убедиться, что файл готов к загрузке. В качестве альтернативы вы можете зациклить процесс, пока `Get file data` не выведет статус `available`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2a1889bf-b197-4c08-9be9-b2762c1b6f61",
+      "name": "Session",
+      "type": "n8n-nodes-base.airtop",
+      "position": [
+        -220,
+        0
+      ],
+      "parameters": {
+        "additionalFields": {}
+      },
+      "credentials": {
+        "airtopApi": {
+          "id": "Yi4YPNnovLVUjFn5",
+          "name": "Airtop Official Org"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6823c35c-30c0-4dc5-8ef9-f42fb3f8d58b",
+      "name": "Window",
+      "type": "n8n-nodes-base.airtop",
+      "position": [
+        0,
+        -100
+      ],
+      "parameters": {
+        "url": "https://sample.cat/en/webm",
+        "resource": "window",
+        "getLiveView": true,
+        "disableResize": true,
+        "additionalFields": {}
+      },
+      "credentials": {
+        "airtopApi": {
+          "id": "Yi4YPNnovLVUjFn5",
+          "name": "Airtop Official Org"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7a77f04f-c9e8-429f-81cc-c2155b777012",
+      "name": "Terminate",
+      "type": "n8n-nodes-base.airtop",
+      "position": [
+        0,
+        100
+      ],
+      "parameters": {
+        "operation": "terminate"
+      },
+      "credentials": {
+        "airtopApi": {
+          "id": "Yi4YPNnovLVUjFn5",
+          "name": "Airtop Official Org"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "815f96e1-004e-4ad9-96b5-54d74ff4891f",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        440,
+        -100
+      ],
+      "webhookId": "d83ebeef-84d1-4c1b-bf2e-c87e2e0c3d20",
+      "parameters": {
+        "amount": 10
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "0343563a-d6e1-4f82-a3ad-c2c014981024",
+      "name": "Get file data",
+      "type": "n8n-nodes-base.airtop",
+      "position": [
+        660,
+        -100
+      ],
+      "parameters": {
+        "limit": 1,
+        "resource": "file",
+        "sessionIds": "={{ $('Session').item.json.sessionId }}",
+        "outputSingleItem": false
+      },
+      "credentials": {
+        "airtopApi": {
+          "id": "Yi4YPNnovLVUjFn5",
+          "name": "Airtop Official Org"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d7f971b7-45b9-4e44-925d-8d89490828a0",
+      "name": "Click on download button",
+      "type": "n8n-nodes-base.airtop",
+      "position": [
+        220,
+        -100
+      ],
+      "parameters": {
+        "resource": "interaction",
+        "additionalFields": {},
+        "elementDescription": "Blue download button for file \"SD 640x360 (Seawater, drone view video, 30 FPS)\""
+      },
+      "credentials": {
+        "airtopApi": {
+          "id": "Yi4YPNnovLVUjFn5",
+          "name": "Airtop Official Org"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5622799b-7063-414d-825e-b1e091ed7a7b",
+      "name": "Download file",
+      "type": "n8n-nodes-base.airtop",
+      "position": [
+        880,
+        -100
+      ],
+      "parameters": {
+        "fileId": "={{ $json.id }}",
+        "resource": "file",
+        "operation": "get",
+        "outputBinaryFile": true
+      },
+      "credentials": {
+        "airtopApi": {
+          "id": "Yi4YPNnovLVUjFn5",
+          "name": "Airtop Official Org"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "defcc9ed-8c0a-4bbc-aa3a-f60f418f20a8",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1060,
+        -460
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 560,
+        "height": 1120,
+        "content": "README"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a371078e-c97a-4c14-8b39-e67fdd998c02",
+  "connections": {
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Get file data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window": {
+      "main": [
+        [
+          {
+            "node": "Click on download button",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Session": {
+      "main": [
+        [
+          {
+            "node": "Window",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Terminate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get file data": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Click on download button": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

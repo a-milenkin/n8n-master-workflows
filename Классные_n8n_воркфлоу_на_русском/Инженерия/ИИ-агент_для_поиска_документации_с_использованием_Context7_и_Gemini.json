@@ -1,0 +1,416 @@
+{
+  "id": "vqujIu65SFbZUz0n",
+  "meta": {
+    "instanceId": "3612a0c89f35a354ddd1216385240db51b4635fde7cae2a0d5004be915b832f3",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Он предоставляет конечную точку MCP (Протокол многопользовательского сотрудничества) SSE (События, отправляемые сервером).",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "a42ae423-a348-460e-888c-f3df2b82021d",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        440,
+        380
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-2.5-flash-preview-05-20"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "c8jj7D6oz6RJ81qp",
+          "name": "Google Gemini Context7"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "22f3e783-4310-4d15-a875-cbb400a82c1b",
+      "name": "context7-resolve-library-id",
+      "type": "n8n-nodes-mcp.mcpClientTool",
+      "position": [
+        1280,
+        480
+      ],
+      "parameters": {
+        "toolName": "resolve-library-id",
+        "operation": "executeTool",
+        "connectionType": "http",
+        "toolParameters": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Tool_Parameters', `Generate a JSON object with the parameters for this tool.\nThe tool expects a JSON object with one **required** key:\n- \"libraryName\": (string) The common name of the software library or framework.\nExample: {\"libraryName\": \"react\"}`, 'json') }}",
+        "descriptionType": "manual",
+        "toolDescription": "Resolves a general library name (e.g., 'nextjs', 'mongodb') into a unique Context7-compatible library ID (e.g., '/vercel/next.js', '/mongodb/docs'). Use this tool first to get the correct ID before attempting to fetch its documentation."
+      },
+      "credentials": {
+        "mcpClientHttpApi": {
+          "id": "CL3sgNzCgbtRRxtL",
+          "name": "smithery_context7"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "526eab1c-7a08-45eb-8169-7e8d4578c117",
+      "name": "context7-get-library-docs",
+      "type": "n8n-nodes-mcp.mcpClientTool",
+      "position": [
+        1840,
+        480
+      ],
+      "parameters": {
+        "toolName": "get-library-docs",
+        "operation": "executeTool",
+        "connectionType": "http",
+        "toolParameters": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Tool_Parameters', `Generate a JSON object with the parameters for this tool.\nThe tool expects a JSON object with the following keys:\n- \"context7CompatibleLibraryID\": (string, **required**) The exact Context7-compatible library ID (e.g., \"/vercel/next.js\").\n- \"topic\": (string, optional) A specific topic to focus the documentation on (e.g., \"routing\").\n- \"tokens\": (number, optional, default: 10000) Maximum number of tokens for the documentation. Minimum effective value is 10000.\nExample for required only: {\"context7CompatibleLibraryID\": \"/mongodb/docs\"}\nExample with optional: {\"context7CompatibleLibraryID\": \"/vercel/next.js\", \"topic\": \"authentication\", \"tokens\": 15000}`, 'json') }}",
+        "descriptionType": "manual",
+        "toolDescription": "Fetches documentation for a specified library using its Context7-compatible library ID. You can optionally focus on a specific topic within the documentation and set a maximum token limit for the returned content."
+      },
+      "credentials": {
+        "mcpClientHttpApi": {
+          "id": "CL3sgNzCgbtRRxtL",
+          "name": "smithery_context7"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5cafb0d4-19ac-4589-88d8-34b88404e0f1",
+      "name": "Context7 MCP Server Trigger",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        120,
+        -860
+      ],
+      "webhookId": "c597b9e9-33bf-41d9-8602-e63d2bee174b",
+      "parameters": {
+        "path": "dafdfsdfsdf6e8-ea19-43b7-b337-a5iuodsf98vjfewf"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "945d8818-c346-44ba-b4c1-56d166a4f381",
+      "name": "Context7 AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        880,
+        -20
+      ],
+      "parameters": {
+        "text": "={{ $('Context7 Workflow Start').item.json.query }}",
+        "options": {
+          "systemMessage": "You are an AI assistant with access to Context7 tools to help users find software library documentation.\nYour primary functions are to:\n1.  **Resolve Library IDs:** When a user asks for documentation for a library like 'Next.js' or 'MongoDB', first use the `resolve-library-id` tool to find its specific Context7-compatible ID (e.g., '/vercel/next.js'). The input for this tool is the `libraryName`.\n2.  **Get Library Documentation:** Once you have the `context7CompatibleLibraryID` from the previous step, use the `get-library-docs` tool to fetch the documentation.\n    *   The required parameter is `context7CompatibleLibraryID`.\n    *   If the user specifies a particular `topic` (e.g., \"routing in Next.js\"), include this in the `topic` parameter.\n    *   You can also adjust the `tokens` parameter if a different length of documentation is implicitly or explicitly requested, keeping in mind the default and minimum is 10000.\n\nAlways use `resolve-library-id` before `get-library-docs` if you don't already have the exact Context7-compatible library ID. Be precise with the IDs."
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1b0cd3cc-8566-4cb5-932c-005149a2467b",
+      "name": "Context7 Workflow Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        100,
+        -20
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "e955aa60-2b80-45d5-885b-24b7fe56a426",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        700,
+        520
+      ],
+      "parameters": {
+        "sessionKey": "={{ $execution.id }}",
+        "sessionIdType": "customKey"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "4927c593-5762-4a26-87eb-8a7e0a4b3d32",
+      "name": "call_context7_ai_agent",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        280,
+        -460
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "vqujIu65SFbZUz0n",
+          "cachedResultName": "Context7 Smithery AI Agent MCP Server"
+        },
+        "description": "=Обрабатывает запрос на естественном языке для поиска и получения документации по библиотекам программного обеспечения с использованием Context7. Он интеллектуально использует подинструменты, чтобы сначала разрешить имена библиотек в идентификаторы Context7, а затем получить соответствующую документацию.",
+        "workflowInputs": {
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', `The user's natural language question or request for software library documentation. For example: 'How do I implement authentication in Next.js?' or 'Get docs for MongoDB aggregation framework'.`, 'string') }}"
+          },
+          "schema": [
+            {
+              "id": "query",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "query",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "d72a2661-5622-4bfa-9d42-8c96b5fef877",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1700,
+        -40
+      ],
+      "parameters": {
+        "width": 680,
+        "height": 320,
+        "content": "## MCP JSON для Roo Code и т.д."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c0dc815b-3d0f-49e2-8da0-08d2f45d0991",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -260,
+        -1140
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 580,
+        "height": 420,
+        "content": "Чтобы использовать это в Roo Code, Cline и т.д., используйте"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "adc54a99-b04d-40be-a9a4-25f837453c14",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -260,
+        -680
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 580,
+        "height": 340,
+        "content": "\"n8n-context7\": {"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5cc037d1-4155-49dc-86f5-7af9976149bf",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1700,
+        -660
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 680,
+        "height": 600,
+        "content": "\"url\": \"https://n8n.coolify.au/mcp/dafd56e8-ea19-43b7-b337-a5881c3bc541/sse\","
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "79bf63c1-b325-4a3c-950e-30df5aef15e4",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -20,
+        -200
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 360,
+        "height": 200,
+        "content": "\"alwaysAllow\": ["
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2486cacc-b06a-4e30-b363-456930cf0ea5",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        760,
+        -280
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 560,
+        "height": 440,
+        "content": "\"call_context7_ai_agent\""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f5f12aa6-d90a-419c-9baa-2c7c451a71d1",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        580,
+        640
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 360,
+        "height": 200,
+        "content": "]"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d2598e8e-3931-436f-a480-b4bef659bccb",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1100,
+        640
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 480,
+        "height": 500,
+        "content": "}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7bebd852-75e5-427e-a3ee-781cd85f20e6",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1620,
+        640
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 520,
+        "height": 500,
+        "content": "где url - это путь, который вы получаете от узла сервера mcp в n8n."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f4749f9a-6f9e-45c5-b6a9-a89d4dc77dec",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        500,
+        -1380
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1140,
+        "height": 1040,
+        "content": "Этот узел является публичной точкой входа для сервиса AI Agent Context7."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "785e4ebf-bb80-48e3-872c-40d1b9a8d14b",
+  "connections": {
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Context7 AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "call_context7_ai_agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Context7 MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Context7 Workflow Start": {
+      "main": [
+        [
+          {
+            "node": "Context7 AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Context7 AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "context7-get-library-docs": {
+      "ai_tool": [
+        [
+          {
+            "node": "Context7 AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "context7-resolve-library-id": {
+      "ai_tool": [
+        [
+          {
+            "node": "Context7 AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

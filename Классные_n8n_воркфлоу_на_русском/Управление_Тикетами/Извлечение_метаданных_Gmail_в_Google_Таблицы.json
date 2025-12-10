@@ -1,0 +1,283 @@
+{
+  "id": "Mw3kkNKzGTQ5hB2t",
+  "meta": {
+    "instanceId": "ac3395400729d0f53e6b8e43c425ec1af04a99e154bcd808417b3b72fa9dec1f",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Ищет строку темы в нескольких возможных полях:",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "ab804462-804b-4c33-8d17-b9b950ec41b9",
+      "name": "Gmail Trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        -640,
+        0
+      ],
+      "parameters": {
+        "filters": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "F9eGgjqXjaly1d2v",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "30dabca0-384f-4df5-b4bb-87a029584a92",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -20,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Try to pull subject from different common locations\nconst subject =\n  $json.subject ||\n  $json.Subject ||\n  $json.headers?.subject ||\n  \"No Subject\";\n\n// Try to pull body text from common fields\nconst body =\n  $json.body ||\n  $json.text ||\n  $json.snippet ||\n  \"No message found.\";\n\n// Try to pull \"from\" field from common sources\nconst fromHeader =\n  $json.from ||\n  $json.From ||\n  $json.headers?.from ||\n  \"\";\n\n// Initialize name and email placeholders\nlet senderName = \"\";\nlet email = \"\";\n\n// Extract \"Name <email@example.com>\" if present\nconst match = fromHeader.match(/(.*?)<(.+?)>/);\nif (match) {\n  senderName = match[1].trim();\n  email = match[2].trim();\n} else {\n  // If only email address is provided\n  email = fromHeader.trim();\n}\n\n// Attempt to extract name from message body like: \"I am John Doe from ...\"\nlet extractedName = \"\";\nconst nameMatch = body.match(/I am (.*?) from/i);\nif (nameMatch) {\n  extractedName = nameMatch[1].trim();\n}\n\n// Choose final name: prefer extracted from body, else senderName, else fallback\nconst finalName = extractedName || senderName || \"Unknown\";\n\nreturn [{\n  json: {\n    name: finalName,\n    email,\n    subject,\n    message: body,\n    timestamp: new Date().toISOString()\n  }\n}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "99aadc61-1a46-45ee-8f92-4159ffd3d8f7",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        540,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9ad38b82-4d5e-4ec5-9f7e-69142b7576a8",
+              "name": "Full Name",
+              "type": "string",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "id": "fae560c7-88e1-40d8-9721-fc8136646c26",
+              "name": "Email Address",
+              "type": "string",
+              "value": "={{ $json.email }}"
+            },
+            {
+              "id": "6764dbcd-beb0-44c1-a235-bf1c5da47b3d",
+              "name": "Subject",
+              "type": "string",
+              "value": "={{ $json.subject }}"
+            },
+            {
+              "id": "47bfeda7-805c-43ea-afd6-50b1a6851619",
+              "name": "Body of the email",
+              "type": "string",
+              "value": "={{ $json.message }}"
+            },
+            {
+              "id": "fee870b7-0d55-4a66-b9d8-7ad6e6b35107",
+              "name": "Time",
+              "type": "string",
+              "value": "={{ $json.timestamp }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "f81a918b-3f2b-4f07-b9c2-89aa98b1ce36",
+      "name": "Append row in sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        940,
+        0
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Tme": "={{ $json.Time }}",
+            "Name": "={{ $json['Full Name'] }}",
+            "Subject": "={{ $json.Subject }}",
+            "Email Address": "={{ $json['Email Address'] }}",
+            "Body of the email": "={{ $json['Body of the email'] }}"
+          },
+          "schema": [
+            {
+              "id": "Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email Address",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Email Address",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Subject",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Body of the email",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Body of the email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tme",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Tme",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Email Address"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11nRQWiVvGWIbeUhEJIi0EL5dh3KuoSqZCuXv3ktBjxI/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "11nRQWiVvGWIbeUhEJIi0EL5dh3KuoSqZCuXv3ktBjxI",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11nRQWiVvGWIbeUhEJIi0EL5dh3KuoSqZCuXv3ktBjxI/edit?usp=drivesdk",
+          "cachedResultName": "Email Data"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "kGYmhjcnx8Fu3k1c",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "03af6ae2-7b35-4b26-ac11-04289a7376a9",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -200,
+        -1320
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 460,
+        "height": 1480,
+        "content": "## Он извлекает полезные детали (такие как имя, электронная почта, тема и сообщение) из входящих электронных писем или отправок форм — даже если формат данных варьируется."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c6f941e6-8392-4055-9c75-e8e0b940c73b",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -780,
+        -160
+      ],
+      "parameters": {
+        "width": 340,
+        "height": 320,
+        "content": "🧩 Пошаговое объяснение:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0a6106ac-648e-4f57-baf9-829746f6fecc",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1800,
+        -720
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 900,
+        "height": 1920,
+        "content": "✅ 1. Получить тему:"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7facb1ff-d4dc-4141-b177-ca28725fcfb8",
+  "connections": {
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

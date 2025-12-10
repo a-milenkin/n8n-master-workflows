@@ -1,0 +1,209 @@
+{
+  "id": "H2W1Jyu1gKhpQk52",
+  "meta": {
+    "instanceId": "ed6d846a2fce1f660ede2e7da800724cca01dc3d0685524a3c917881b7cfcfe9",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "**Этот рабочий процесс демонстрирует, как автоматизировать сбор информации в реальном времени, проверку фактов и анализ тенденций в ответ на любое сообщение в чате - с использованием мощного AI-агента, памяти и инструмента поиска в реальном времени.**",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "a2b142d1-90ea-42ae-9907-8bc5c4241221",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.manualChatTrigger",
+      "position": [
+        -200,
+        0
+      ],
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "358ad390-f42b-411a-8c09-43ddfc406896",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        160,
+        380
+      ],
+      "parameters": {
+        "model": "gpt-4",
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "qULV9xA6eq3tfpye",
+          "name": "OpenAi - nhu.le"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9dce7253-4994-47f5-a8db-dd7b64f28eb4",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        320,
+        220
+      ],
+      "parameters": {},
+      "typeVersion": 1.2
+    },
+    {
+      "id": "7cf5d7f7-b52b-4512-ba66-7377963b8ce2",
+      "name": "SerpAPI - Research",
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "position": [
+        500,
+        220
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "credentials": {
+        "serpApi": {
+          "id": "2ZhdogyvgJsETC97",
+          "name": "SerpAPI - toan.ngo"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a590584e-ff8e-4db7-b793-cd0c43dab1b0",
+      "name": "AI Agents - Real Time Research",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        260,
+        0
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "aaa5e82d-a0ff-4541-936d-2ddcefe447ac",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -320,
+        -300
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 360,
+        "height": 820,
+        "content": "## 1. Начало, когда получено сообщение в чате"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "77bea2dc-9e15-4cbf-8865-945778138559",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1120,
+        -300
+      ],
+      "parameters": {
+        "width": 740,
+        "height": 1420,
+        "content": "- Рабочий процесс запускается каждый раз, когда получено сообщение в чате (например, вопрос пользователя, запрос на исследование или запрос данных)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b53905ce-0343-4713-9267-6f9b280a5be8",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        60,
+        -300
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 660,
+        "height": 820,
+        "content": "## [n8n Automation] AI-агент для исследования в реальном времени - Попробуйте!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b3e0c845-deaa-4147-940b-92efb4ef9475",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        160,
+        220
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-2.0-flash"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "AlDwotqhFT4EfJXQ",
+          "name": "Google Gemini(PaLM) Api - toan.ngo"
+        }
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "404f0c7d-c796-40c6-b0e6-7944f1223081",
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "SerpAPI - Research": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agents - Real Time Research",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agents - Real Time Research",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agents - Real Time Research",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agents - Real Time Research",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

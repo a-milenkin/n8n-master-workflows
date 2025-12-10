@@ -1,0 +1,330 @@
+{
+  "id": "czQrkJi2yAvqGLRZ",
+  "meta": {
+    "instanceId": "4933ec690637fb3b400e75b72209b423e4ae85e2088079d2359ab06d8bdb7716"
+  },
+  "name": "**Важно**: Замените 'YOUR-BUCKET-NAME' и регион в URL-адресе ответа!",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "e767e593-cbdf-402f-948e-77deb877b223",
+      "name": "Receive Audio File",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        100,
+        540
+      ],
+      "webhookId": "47b1daa6-5891-4616-95d0-99354cb66934",
+      "parameters": {
+        "path": "audio-translator",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "65ba3207-f498-44cb-b4f9-a2691fd5f823",
+      "name": "Transcribe Audio to Text",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        360,
+        540
+      ],
+      "parameters": {
+        "options": {},
+        "resource": "audio",
+        "operation": "transcribe",
+        "binaryPropertyName": "audiofile"
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "FGtyFYOoZEwXYHKN",
+          "name": "OpenAi account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.8
+    },
+    {
+      "id": "363e96e1-6e76-4f32-9e0f-57d5b852cda2",
+      "name": "Translate and Structure Text",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        600,
+        540
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1",
+          "cachedResultName": "GPT-4.1"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "content": "=Вы переводчик. Вы получаете текст и 2 языка. Ваша задача - понять полученный текст, структурировать его в нормальную форму, удалить ненужные повторы. Один язык - на котором текст, переведите текст на второй язык из тех, что вы получили. Верните результат в формате json с следующими полями: Структурированный входной текст в поле: \"structuringMessage\" Переведенный текст в поле: \"translateMessage\" Входной текст:{{ $json.text }} Языки: {{ $('Receive Audio File').item.json.body.languages }}"
+            }
+          ]
+        },
+        "jsonOutput": true
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "FGtyFYOoZEwXYHKN",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "1c6bc4a8-92d6-46f1-9dd9-fed63d5a5d6f",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -500,
+        -20
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 500,
+        "height": 1200,
+        "content": "## AI Аудио Переводчик с Текстом в Речь"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e0a40de0-9532-407a-8c73-44ead921ac1a",
+      "name": "Send Translation Results",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1760,
+        540
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={\n  \"StructuringMessage\": \"{{ $('Prepare Response Data').item.json.structuringMessage }}\",\n  \"translateMessage\": \"{{ $('Prepare Response Data').item.json.translateMessage }}\",\n\"audiofile\":\"https://YOUR-BUCKET-NAME.s3.YOUR-REGION.amazonaws.com/{{ $('Prepare Response Data').item.json.audiofilename }}\"\n}"
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "e7786e6a-9457-41e0-8f99-34e697100ec5",
+      "name": "Prepare Response Data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        980,
+        540
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "158ffe09-151f-40e5-bd48-85cdf8d83123",
+              "name": "structuringMessage",
+              "type": "string",
+              "value": "={{ $json.message.content.structuringMessage }}"
+            },
+            {
+              "id": "ae21f76c-b9f0-4c87-8d02-3f261df27d6f",
+              "name": "translateMessage",
+              "type": "string",
+              "value": "={{ $json.message.content.translateMessage }}"
+            },
+            {
+              "id": "d85be708-67ba-473c-8673-72fa0840ffdd",
+              "name": "audiofilename",
+              "type": "string",
+              "value": "={{ $now.toString().replace(/[^a-zA-Z0-9]/g, '') }}.mp3"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "1ad5cc4c-58e7-4cbb-981c-df5283ba4691",
+      "name": "Step 1 - Transcription",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        280,
+        240
+      ],
+      "parameters": {
+        "height": 280,
+        "content": "Этот рабочий процесс автоматически транскрибирует аудиофайлы, переводит содержание между языками и генерирует речь из переведенного текста."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "10866a78-388a-42ff-b643-11f43ddcb67b",
+      "name": "Generate Translated Audio",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        1260,
+        540
+      ],
+      "parameters": {
+        "input": "={{ $json.translateMessage }}",
+        "options": {},
+        "resource": "audio"
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "797172cf-9200-4ccc-b54f-f57791d295b2",
+      "name": "Upload Audio to S3",
+      "type": "n8n-nodes-base.awsS3",
+      "position": [
+        1520,
+        540
+      ],
+      "parameters": {
+        "fileName": "={{ $('Prepare Response Data').item.json.audiofilename }}",
+        "operation": "upload",
+        "bucketName": "YOUR-BUCKET-NAME",
+        "additionalFields": {
+          "acl": "publicRead"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5c457981-1032-45fd-bdf9-32499d5de85b",
+      "name": "Step 2 - Translation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        560,
+        240
+      ],
+      "parameters": {
+        "width": 320,
+        "height": 300,
+        "content": "### Для кого это"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "771c99ac-ab21-4287-a040-2b12babafac4",
+      "name": "Step 3 - Audio Generation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1160,
+        220
+      ],
+      "parameters": {
+        "height": 300,
+        "content": "- Создатели контента, работающие с многоязычным контентом"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7ee14a51-7e89-460b-b647-1cc6c67a752d",
+      "name": "Step 4 - Storage",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1460,
+        220
+      ],
+      "parameters": {
+        "width": 440,
+        "height": 300,
+        "content": "## 4. Хранение и доставка"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1b12775a-0736-4930-9931-2fc01949c62a",
+      "name": "Security Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        740,
+        800
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 600,
+        "height": 200,
+        "content": "Загрузки в S3 с общим доступом для удобного обмена."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a8dc5123-0faf-40bf-80f2-6a5fe1ffeb4b",
+  "connections": {
+    "Receive Audio File": {
+      "main": [
+        [
+          {
+            "node": "Transcribe Audio to Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Audio to S3": {
+      "main": [
+        [
+          {
+            "node": "Send Translation Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Response Data": {
+      "main": [
+        [
+          {
+            "node": "Generate Translated Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe Audio to Text": {
+      "main": [
+        [
+          {
+            "node": "Translate and Structure Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Translated Audio": {
+      "main": [
+        [
+          {
+            "node": "Upload Audio to S3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Translate and Structure Text": {
+      "main": [
+        [
+          {
+            "node": "Prepare Response Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

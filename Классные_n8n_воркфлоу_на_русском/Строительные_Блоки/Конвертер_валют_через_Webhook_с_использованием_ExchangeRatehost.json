@@ -1,0 +1,141 @@
+{
+  "id": "vQB8xArVsMh8sroM",
+  "meta": {
+    "instanceId": "1777696fb9fddfee653e70940936c2b1e28ba1f1bde53b7182fbd6eb01988706"
+  },
+  "name": "* `to` (3-буквенный код ISO 4217 целевой валюты, например, `EUR`)",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "6f42915a-6851-4e36-b086-29fc6c975d48",
+      "name": "Note: Webhook Trigger",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -160
+      ],
+      "parameters": {
+        "width": 280,
+        "height": 540,
+        "content": "## Входящий вебхук"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "52cb862c-71e1-4960-a0f2-2f6a7c620d7b",
+      "name": "Note: Currency Conversion API Call",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        340,
+        -160
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 280,
+        "height": 540,
+        "content": "Этот узел слушает входящие POST-запросы. Он ожидает JSON-тело со следующими свойствами:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e75b2ecb-7637-4dfc-9ded-d2f8294d64ba",
+      "name": "Note: Webhook Response",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 320,
+        "height": 380,
+        "content": "* `from` (3-буквенный код ISO 4217 исходной валюты, например, `USD`)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aa7f2f15-a806-41a2-94fc-7e3e0b34e66c",
+      "name": "Convert Currency",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        420,
+        220
+      ],
+      "parameters": {
+        "url": "=https://api.exchangerate.host/convert?from={{ $json.body.from }}&to={{ $json.body.to }}&amount={{ $json.body.amount }}",
+        "method": "=GET",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth"
+      },
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "HK0TybEUeSEKTm0j",
+          "name": "ExchangeRate"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "7d362367-2cbc-4761-ac60-a9c0cdf96329",
+      "name": "Receive Conversion Request Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        80,
+        220
+      ],
+      "webhookId": "fe5e86fb-2975-4206-8982-19c52dc6a327-unique-id",
+      "parameters": {
+        "path": "convert-currency",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9cfde3de-fdad-4d16-bed4-08512d57dd73",
+      "name": "Respond with Converted Amount",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        780,
+        220
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "allIncomingItems"
+      },
+      "typeVersion": 1.2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d7c961bc-e3f3-42a4-8238-5b0393417449",
+  "connections": {
+    "Convert Currency": {
+      "main": [
+        [
+          {
+            "node": "Respond with Converted Amount",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receive Conversion Request Webhook": {
+      "main": [
+        [
+          {
+            "node": "Convert Currency",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

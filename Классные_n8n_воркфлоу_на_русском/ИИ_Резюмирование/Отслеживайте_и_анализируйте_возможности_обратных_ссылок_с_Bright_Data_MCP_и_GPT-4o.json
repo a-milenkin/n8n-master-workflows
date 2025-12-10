@@ -1,0 +1,570 @@
+{
+  "id": "9JXJSRBgDOt0cwYz",
+  "meta": {
+    "instanceId": "60046904b104f0f72b2629a9d88fe9f676be4035769f1f08dad1dd38a76b9480",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "* `Ниша`: *AI SaaS инструменты*",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "dfaa75f6-d25a-48e0-a048-8d8c82460a14",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        400,
+        260
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8sEyPDkC5p4w4Jha",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "42419b2c-9ca5-43b9-b08f-bcb0396d4969",
+      "name": "MCP Client",
+      "type": "n8n-nodes-mcp.mcpClientTool",
+      "position": [
+        580,
+        260
+      ],
+      "parameters": {
+        "toolName": "scrape_as_markdown",
+        "operation": "executeTool",
+        "toolParameters": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Tool_Parameters', ``, 'json') }}"
+      },
+      "credentials": {
+        "mcpClientApi": {
+          "id": "eqq94k789oJCd6jU",
+          "name": "MCP Client (STDIO) account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b61ffebf-1045-4404-b673-1486c26afcff",
+      "name": "🚀 Start Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "bd85b0ab-1425-4d0e-af85-f8046593c1d6",
+      "name": "📝 Define Search Parameters",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        200,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fcbac2cc-fcca-42c0-a9ba-a968521105a6",
+              "name": "url",
+              "type": "string",
+              "value": "https://www.designagency.gr/"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "012aee18-e4ec-47f9-b969-60b736d989dd",
+      "name": "🤖 Run Agent with Bright Data MCP",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "text": "=scrape the following website and extract key contant information like address, phone number, email etc. and also tell me what the website is about:\n{{ $json.url }}",
+        "options": {},
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "059a3934-0906-49c5-83dc-035b56692227",
+      "name": "📄 Save Leads to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        900,
+        0
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "url": "={{ $json.output.website.url }}",
+            "email": "={{ $json.output.contacts.emails }}",
+            "address": "={{ $json.output.addresses }}",
+            "description": "={{ $json.output.website.description }}",
+            "Phone number": "={{ $json.output.contacts.phoneNumbers }}",
+            "Website name": "={{ $json.output.website.name }}"
+          },
+          "schema": [
+            {
+              "id": "Website name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Website name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "url",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "url",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "description",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "description",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "address",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "address",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone number",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Phone number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LFtV1-VvGlvPw3nSoUi-fjeB5ygjg3Pl5iR8wGXRbp8/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1LFtV1-VvGlvPw3nSoUi-fjeB5ygjg3Pl5iR8wGXRbp8",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LFtV1-VvGlvPw3nSoUi-fjeB5ygjg3Pl5iR8wGXRbp8/edit?usp=drivesdk",
+          "cachedResultName": "Email outreach leads data"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "r2mDaisH6e9VkwHl",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "29684db7-1c9d-4fd2-873d-ebc6d64ce62e",
+      "name": "🔎 Check if Email is Available",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1100,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "78120462-cbaf-476d-ab48-b1e4afc03e72",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "@gmail.com"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "aeb0886e-1eec-4e91-9839-ea71e00debe0",
+      "name": "📧 Send Outreach Email",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1380,
+        -140
+      ],
+      "webhookId": "5cb4fd74-eff0-42f0-9799-63020be354f9",
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "message": "=Hi {{ $json['Website name'] }},  \n\nI came across **Design Agency** and was really impressed by your creative work in web design and branding. I especially liked how you combine design, SEO, and digital marketing under one roof — that’s so valuable for modern businesses!  \n\nI recently published a resource that I believe would be a great fit for your audience:  \n**[Your Resource Title]** — [Short 1-sentence benefit, e.g., “A guide to boosting SEO through better UX design”].  \n\nI think adding this to one of your relevant blog posts or resource pages could offer your readers extra value.  \n\nWould you be open to taking a quick look? I’d love to hear your thoughts — and of course, I’m happy to share it on my own channels to help promote the page too.  \n\nThanks so much for your time and creative work!  \n\nLooking forward to hearing from you.  \n\nBest regards,  \n[Your Name]  \n[Your Position, e.g., Digital Marketer | Your Company]  \n[Your Website]  \n[Your LinkedIn Profile or Contact Info]\n",
+        "options": {},
+        "subject": "Let’s Collaborate: Valuable Resource for Your Readers",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "AQDSl75AdzK3vmqJ",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "02b3ac99-934a-489d-8f14-47e1ee36faf7",
+      "name": "🚫 Skip Outreach if No Email",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1380,
+        120
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "a3950543-38ed-44ee-b044-65a4558ffcab",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        -720
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 360,
+        "height": 900,
+        "content": "## ✅ **📌 РАЗДЕЛ 1: Ввод и Настройка**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7255586f-1e0f-4650-a06e-0861fb872202",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        400,
+        -880
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 340,
+        "height": 1060,
+        "content": "**🟢 Узлы:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1d43bd29-b044-4288-b5cb-7b76bf2b530d",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        840,
+        -640
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 380,
+        "height": 820,
+        "content": "1️⃣ `🚀 Запустить Ручной Триггер`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2e665145-3d5c-40d3-a551-898f37b3a968",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1300,
+        -640
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 280,
+        "height": 920,
+        "content": "2️⃣ `📝 Определить Параметры Поиска`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a371feea-6722-4a68-b52d-6c9c3e7375b4",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1660,
+        -640
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 380,
+        "height": 240,
+        "content": "**💡 Что Здесь Происходит:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "704dc2f2-087a-4934-8b02-079a9c4a42c9",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1820,
+        -700
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 320,
+        "content": "* **Триггер Узел:** Рабочий процесс начинается вручную — вы (или ваша команда) нажимаете **‘Выполнить рабочий процесс’**, чтобы начать. Это дает вам контроль над тем, когда вы хотите запустить кампанию по охвату."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5feeac4c-e086-47b0-8ba8-89646d2920e1",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1820,
+        -360
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1289,
+        "height": 2778,
+        "content": "* **Редактировать Поля:** Здесь вы определяете **что хотите искать**. Например:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "87917899-ce34-439a-b44c-bfe0abe6a979",
+      "name": "Auto-fixing Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "position": [
+        720,
+        260
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e2b5b46f-ee2d-439b-9be3-b11112e754f8",
+      "name": "OpenAI Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        680,
+        480
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8sEyPDkC5p4w4Jha",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "721b4c1a-892f-4594-80bf-a6cb0032d484",
+      "name": "Structured Output Parser1",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        860,
+        480
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"website\": {\n    \"name\": \"Design Agency\",\n    \"url\": \"https://www.designagency.gr/\",\n    \"description\": \"Design Agency is a 360 Digital Agency that offers services like Graphic Design & Branding, Web Design, SEO, Social Media Marketing, Video Production, and App Development. They focus on creative design, brand strategies, digital marketing, and development, catering to various clients and industries.\"\n  },\n  \"addresses\": [\n    {\n      \"street\": \"Distomou 1\",\n      \"postalCode\": \"18532\",\n      \"city\": \"Pireas\",\n      \"country\": \"GR\"\n    },\n    {\n      \"street\": \"Meidlinger Hauptstrasse 7-9 / TOP EG 8-9\",\n      \"postalCode\": \"1120\",\n      \"city\": \"Vienna\",\n      \"country\": \"AT\"\n    }\n  ],\n  \"contacts\": {\n    \"phoneNumbers\": [\n      \"+30.2130.414.635\"\n    ],\n    \"emails\": \"\"\n  }\n}\n"
+      },
+      "typeVersion": 1.2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f2b6ae55-41cb-4193-838d-95840dfb3bfd",
+  "connections": {
+    "MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "🤖 Run Agent with Bright Data MCP",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "🤖 Run Agent with Bright Data MCP",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📧 Send Outreach Email": {
+      "main": [
+        []
+      ]
+    },
+    "Auto-fixing Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "🤖 Run Agent with Bright Data MCP",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🚀 Start Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "📝 Define Search Parameters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📝 Define Search Parameters": {
+      "main": [
+        [
+          {
+            "node": "🤖 Run Agent with Bright Data MCP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📄 Save Leads to Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "🔎 Check if Email is Available",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔎 Check if Email is Available": {
+      "main": [
+        [
+          {
+            "node": "📧 Send Outreach Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "🚫 Skip Outreach if No Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🤖 Run Agent with Bright Data MCP": {
+      "main": [
+        [
+          {
+            "node": "📄 Save Leads to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

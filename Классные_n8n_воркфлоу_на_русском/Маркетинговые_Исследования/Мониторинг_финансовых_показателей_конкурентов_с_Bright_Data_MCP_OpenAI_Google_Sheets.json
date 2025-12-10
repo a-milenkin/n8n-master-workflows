@@ -1,0 +1,456 @@
+{
+  "id": "tZhYQXv2WOoX0PvT",
+  "meta": {
+    "instanceId": "c38e3b8a7e4240e6cdca062743f016c1029f385bf40345b6291939dfd83bfd77",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "#### ✅ Советы для начинающих:",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "df69b41c-28b1-457b-93e2-1c6523028d01",
+      "name": "🚦 Start Workflow (Manual Trigger)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -60,
+        20
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "9ebe6532-1865-4c87-a443-ed23157dc7fa",
+      "name": "🔗 Enter Yahoo Finance URL for Tesla",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        140,
+        20
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "50cdc310-34d9-4743-a943-f3ad55ab63b8",
+              "name": "teslaURL",
+              "type": "string",
+              "value": "https://finance.yahoo.com/quote/TSLA/financials"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "d96bdd1f-8866-4712-b593-92ba5d1a8d97",
+      "name": "🤖 AI Agent: Scrape Tesla Financial Data",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        420,
+        20
+      ],
+      "parameters": {
+        "text": "=Please scrape the latest financial data for Tesla, Inc. (TSLA) from Yahoo Finance for the latest quarter available. \n\nSearch URL : {{ $json.teslaURL }}\n\nInclude the following information:\n- Revenue for the latest quarter.\n- Total Income\n- Total Expenses\n- Earnings per Share (EPS) for the latest quarter.\n-  net margin for the latest quarter.\n- Profit (Net Income) for the latest quarter.\n\nplease dont give me tha summary of these above financial data.\nPlease provide a detailed breakdown of only  these above financial metrics nothing else.\n",
+        "options": {},
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "8e8438ab-e793-4637-af83-6351f6c41068",
+      "name": "🧠 OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        380,
+        320
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "kmqnyfHdWfA8k1KC",
+          "name": "OpenAi account 3"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "be009492-2ff8-4d69-847f-64d7deb338e0",
+      "name": "🌐 MCP Client Tool ",
+      "type": "n8n-nodes-mcp.mcpClientTool",
+      "position": [
+        540,
+        320
+      ],
+      "parameters": {
+        "toolName": "web_data_yahoo_finance_business",
+        "operation": "executeTool",
+        "toolParameters": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Tool_Parameters', ``, 'json') }}"
+      },
+      "credentials": {
+        "mcpClientApi": {
+          "id": "dGu6Ys11ijXSTxcV",
+          "name": "MCP Client (STDIO) account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2d5d31c7-6f07-47c0-a365-93c64a868fe7",
+      "name": "📊 Get Company Data from Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        900,
+        20
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WvSWlWjowhz0amszpgv7CUBXjJHYZE9vuiVafgqG6tU/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1WvSWlWjowhz0amszpgv7CUBXjJHYZE9vuiVafgqG6tU",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WvSWlWjowhz0amszpgv7CUBXjJHYZE9vuiVafgqG6tU/edit?usp=drivesdk",
+          "cachedResultName": "My financial Data"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "i899RBJ6SKiYYWwx",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "284d8508-67c0-4daa-9cbe-9c41679d542b",
+      "name": "⚖️ Compare Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1100,
+        20
+      ],
+      "parameters": {
+        "jsCode": "// Get the AI agent data (latest data)\nconst aiAgentData = $('🤖 AI Agent: Scrape Tesla Financial Data').first().json.output.financial_data;\n\n// Get the Google Sheet data (old data)\nconst googleSheetData = items[0].json; // Assuming Google Sheet data is in the first item\n\n// Prepare the comparison result\nconst comparisonResult = {\n  \"comparison\": [\n    {\n      \"metric\": \"Total Revenue\",\n      \"your_company_data\": `$${googleSheetData['Total Revenue']}`,\n      \"tesla_data\": aiAgentData.revenue.total_revenue,\n      \"result\": aiAgentData.revenue.total_revenue > `$${googleSheetData['Total Revenue']}` ? \"Outperforming\" : \"Underperforming\"\n    },\n    {\n      \"metric\": \"Quarter Estimate\",\n      \"your_company_data\": `$${googleSheetData['Quarter Estimate']}`,\n      \"tesla_data\": aiAgentData.revenue.quarter_value_estimate,\n      \"result\": aiAgentData.revenue.quarter_value_estimate > `$${googleSheetData['Quarter Estimate']}` ? \"Outperforming\" : \"Underperforming\"\n    },\n    {\n      \"metric\": \"Pretax Income\",\n      \"your_company_data\": `$${googleSheetData['Pretax Income']}`,\n      \"tesla_data\": aiAgentData.total_income.pretax_income,\n      \"result\": aiAgentData.total_income.pretax_income > `$${googleSheetData['Pretax Income']}` ? \"Outperforming\" : \"Underperforming\"\n    },\n    {\n      \"metric\": \"Basic EPS\",\n      \"your_company_data\": googleSheetData['Basic EPS'],\n      \"tesla_data\": aiAgentData.earnings_per_share.basic_eps,\n      \"result\": aiAgentData.earnings_per_share.basic_eps > googleSheetData['Basic EPS'] ? \"Outperforming\" : \"Underperforming\"\n    },\n    {\n      \"metric\": \"Diluted EPS\",\n      \"your_company_data\": googleSheetData['Diluted EPS'],\n      \"tesla_data\": aiAgentData.earnings_per_share.diluted_eps,\n      \"result\": aiAgentData.earnings_per_share.diluted_eps > googleSheetData['Diluted EPS'] ? \"Outperforming\" : \"Underperforming\"\n    },\n    {\n      \"metric\": \"Net Income\",\n      \"your_company_data\": `$${googleSheetData['Net Income']}`,\n      \"tesla_data\": aiAgentData.profit.net_income,\n      \"result\": aiAgentData.profit.net_income > `$${googleSheetData['Net Income']}` ? \"Outperforming\" : \"Underperforming\"\n    },\n    {\n      \"metric\": \"Net Margin\",\n      \"your_company_data\": `${googleSheetData['Net Margin'] * 100}%`,\n      \"tesla_data\": aiAgentData.margins.net_margin,\n      \"result\": parseFloat(aiAgentData.margins.net_margin) > googleSheetData['Net Margin'] ? \"Outperforming\" : \"Underperforming\"\n    },\n    {\n      \"metric\": \"Total Expenses\",\n      \"your_company_data\": `$${googleSheetData['Total Expenses']}`,\n      \"tesla_data\": aiAgentData.total_expenses.total_expenses,\n      \"result\": parseFloat(aiAgentData.total_expenses.total_expenses.replace(/[^\\d.-]/g, '')) < parseFloat(googleSheetData['Total Expenses']) ? \"Outperforming\" : \"Underperforming\"\n    }\n  ]\n};\n\n// Return the comparison result\nreturn [\n  {\n    json: comparisonResult\n  }\n];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "de22bb17-7a3d-4c33-8100-55175000900c",
+      "name": "📧 Send Financial Comparison to Team ",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1440,
+        20
+      ],
+      "webhookId": "44c01443-c821-45c5-b537-2932037b311a",
+      "parameters": {
+        "sendTo": "shahkar.genai@gmail.com",
+        "message": "=Hello team!\n\nThe comparison between us and tesla is given below:\n\nTotal Revenue: {{ $json.comparison[0].result }}\n\nQuarter Estimate: {{ $json.comparison[1].result }}\n\nPretax Income: {{ $json.comparison[2].result }}\n\nBasic EPS: {{ $json.comparison[3].result }}\n\nDiluted EPS: {{ $json.comparison[4].result }}\n\nNet Income: {{ $json.comparison[5].result }}\n\nNet Margin: {{ $json.comparison[6].result }}\n\nTotal Expenses: {{ $json.comparison[7].result }}",
+        "options": {},
+        "subject": "Financial Comparison: Your Company vs Tesla, Inc. (TSLA)",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "fZQRQuE7FmCr9daN",
+          "name": "Gmail account 2"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "c12f86e7-b0bb-4f74-8678-e8c3774b7eed",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -140,
+        -500
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 460,
+        "height": 740,
+        "content": "### 🔹 **РАЗДЕЛ 1: Начало и ввод финансовых данных URL**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d6feb3e2-f701-4bc3-bb1f-4c170cbbd50f",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        360,
+        -760
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 400,
+        "height": 1000,
+        "content": "#### 🧩 Узлы:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "37e68e3f-5516-4a01-a619-b51e2c48b408",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        820,
+        -640
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 440,
+        "height": 880,
+        "content": "* `🔘 Триггер: Ручной запуск`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e33324fb-707d-4d28-88b1-a0496908e43b",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1300,
+        -560
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 360,
+        "height": 800,
+        "content": "* `🔗 Установить URL Yahoo Finance для Tesla`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "94281256-f5d4-4e9c-aa50-0437f2dedd20",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1700,
+        -640
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 2660,
+        "content": "#### 💡 Что происходит:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6a498444-a484-4b15-9160-ab2b738560fb",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1720,
+        -560
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 380,
+        "height": 240,
+        "content": "**Запустите рабочий процесс:** Вы **вручную запускаете** рабочий процесс, нажав на **кнопку выполнения**."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f419f2ec-2704-43e3-9f50-2c6d78ec5bbe",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1700,
+        -980
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 320,
+        "content": "**Введите URL:** Вы **вводите URL Yahoo Finance** для **Tesla** (например, `https://finance.yahoo.com/quote/TSLA/`) в систему, чтобы получить **последние финансовые данные**."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "32991f65-99c8-45e8-9187-f902217e673b",
+      "name": "Auto-fixing Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "position": [
+        660,
+        320
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bc506c4a-617d-4918-9ebd-e303529747f5",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        620,
+        540
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "kmqnyfHdWfA8k1KC",
+          "name": "OpenAi account 3"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "ba558831-0955-425a-9f93-bdf5953a3af5",
+      "name": "📦 Format Financial data as Json Output",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        800,
+        540
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"financial_data\": {\n    \"company\": \"Tesla, Inc.\",\n    \"quarter_end_date\": \"2024-09-30\",\n    \"revenue\": {\n      \"total_revenue\": \"$97.69 billion (annualized)\",\n      \"quarter_value_estimate\": \"$24.42 billion (approx.)\"\n    },\n    \"total_income\": {\n      \"pretax_income\": \"$8.99 billion\"\n    },\n    \"total_expenses\": {\n      \"total_expenses\": \"$89.93 billion (annualized)\"\n    },\n    \"earnings_per_share\": {\n      \"basic_eps\": \"$0.68\",\n      \"diluted_eps\": \"$0.62\"\n    },\n    \"profit\": {\n      \"net_income\": \"$7.13 billion\"\n    },\n    \"margins\": {\n      \"net_margin\": \"6.38% (annualized)\"\n    }\n  }\n}\n"
+      },
+      "typeVersion": 1.3
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ab84de38-8755-4322-abd6-63f0516400d8",
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⚖️ Compare Data": {
+      "main": [
+        [
+          {
+            "node": "📧 Send Financial Comparison to Team ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🌐 MCP Client Tool ": {
+      "ai_tool": [
+        [
+          {
+            "node": "🤖 AI Agent: Scrape Tesla Financial Data",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "🤖 AI Agent: Scrape Tesla Financial Data",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-fixing Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "🤖 AI Agent: Scrape Tesla Financial Data",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🚦 Start Workflow (Manual Trigger)": {
+      "main": [
+        [
+          {
+            "node": "🔗 Enter Yahoo Finance URL for Tesla",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔗 Enter Yahoo Finance URL for Tesla": {
+      "main": [
+        [
+          {
+            "node": "🤖 AI Agent: Scrape Tesla Financial Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📊 Get Company Data from Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "⚖️ Compare Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📦 Format Financial data as Json Output": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🤖 AI Agent: Scrape Tesla Financial Data": {
+      "main": [
+        [
+          {
+            "node": "📊 Get Company Data from Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

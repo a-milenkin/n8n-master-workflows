@@ -1,0 +1,104 @@
+{
+  "id": "1LBhz8JFWZgT5cui",
+  "meta": {
+    "instanceId": "28a947b92b197fc2524eaba16e57560338657b2b0b5796300b2f1cedc1d0d355",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "# Скрапер групп Facebook",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "22789f80-781f-42c4-89c4-ebbf32745a05",
+      "name": "On form submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "bf8d7e5f-f886-4586-affa-03c839ce3d70",
+      "parameters": {
+        "options": {},
+        "formTitle": "Facebook Group Scraper",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Facebook Group URL",
+              "placeholder": "The URL of the Facebook Group feed you want to scrape",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Airtop Profile",
+              "placeholder": "Airtop Profile authenticated to Facebook",
+              "requiredField": true
+            }
+          ]
+        },
+        "formDescription": "This automation will extract information from a Facebook group"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "31c32d54-5fe3-4125-9e29-029a1c955822",
+      "name": "Airtop",
+      "type": "n8n-nodes-base.airtop",
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $json['Facebook Group URL'] }}",
+        "prompt": "This is a Facebook group feed. \nExtract up to 5 non-sponsored posts, for each post extract:\n - Post text\n- Post URL\n- Page/profile URL\n- Timestamp\t\n- Number of likes \n- Number if shares\n- Number of comments\n- Page or profile details\t\n- Post thumbnail",
+        "resource": "extraction",
+        "profileName": "={{ $json['Airtop Profile'] }}",
+        "sessionMode": "new",
+        "additionalFields": {
+          "outputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"posts\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"post_text\": {\n            \"type\": \"string\",\n            \"description\": \"The text content of the post.\"\n          },\n          \"post_url\": {\n            \"type\": \"string\",\n            \"description\": \"The URL of the post.\"\n          },\n          \"page_profile_url\": {\n            \"type\": \"string\",\n            \"description\": \"The URL of the page or profile that made the post.\"\n          },\n          \"timestamp\": {\n            \"type\": \"string\",\n            \"description\": \"The timestamp of when the post was made.\"\n          },\n          \"number_of_likes\": {\n            \"type\": \"integer\",\n            \"description\": \"The number of likes the post has received.\"\n          },\n          \"number_of_shares\": {\n            \"type\": \"integer\",\n            \"description\": \"The number of times the post has been shared.\"\n          },\n          \"number_of_comments\": {\n            \"type\": \"integer\",\n            \"description\": \"The number of comments on the post.\"\n          },\n          \"page_profile_details\": {\n            \"type\": \"string\",\n            \"description\": \"Details about the page or profile that made the post.\"\n          },\n          \"post_thumbnail\": {\n            \"type\": \"string\",\n            \"description\": \"The URL of the post's thumbnail image.\"\n          }\n        },\n        \"required\": [\n          \"post_text\",\n          \"post_url\",\n          \"page_profile_url\",\n          \"timestamp\",\n          \"number_of_likes\",\n          \"number_of_shares\",\n          \"number_of_comments\",\n          \"page_profile_details\",\n          \"post_thumbnail\"\n        ],\n        \"additionalProperties\": false\n      }\n    }\n  },\n  \"required\": [\n    \"posts\"\n  ],\n  \"additionalProperties\": false,\n  \"$schema\": \"http://json-schema.org/draft-07/schema#\"\n}",
+          "paginationMode": "infinite-scroll",
+          "parseJsonOutput": true
+        }
+      },
+      "credentials": {
+        "airtopApi": {
+          "id": "Yi4YPNnovLVUjFn5",
+          "name": "Airtop Official Org"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8ada5770-7a77-4e75-8342-f0cad8146e4d",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -980,
+        -680
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 820,
+        "height": 1380,
+        "content": "README"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "33402a6d-082e-4fb9-8ad0-90275049a366",
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Airtop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

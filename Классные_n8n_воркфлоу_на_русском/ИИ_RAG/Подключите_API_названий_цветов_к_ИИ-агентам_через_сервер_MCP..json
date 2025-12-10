@@ -1,0 +1,322 @@
+{
+  "id": "mv1y6rH9rcvO6FgN",
+  "meta": null,
+  "name": "API сервера имен цветов MCP",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "ba19ce5e-4a48-4b7b-bb32-2b7a0196fd55",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1540,
+        -140
+      ],
+      "parameters": {
+        "width": 580,
+        "height": 1280,
+        "content": "## 🛠️ API названий цветов MCP сервер ✅ 4 операции\n\n### Описание\nAPI, который предоставляет названия цветов на основе их шестнадцатеричного значения\n\n### 🔧 Как это работает\n\nЭтот рабочий процесс преобразует API названий цветов в интерфейс, совместимый с MCP, для AI-агентов.\n\n• **MCP триггер**: служит конечной точкой вашего сервера для запросов AI-агентов  \n• **HTTP запросы**: обрабатывают вызовы API к https://api.color.pizza/v1/  \n• **AI выражения**: автоматически заполняют параметры через заполнители `$fromAI()`  \n• **Нативная интеграция**: возвращает ответы напрямую AI-агенту  \n\n### 📋 Доступные операции (4 конечные точки)\n\n** (1 операция)**  \nget  \n\n**Списки (1 операция)**  \nget  \n\n**Названия (1 операция)**  \nget  \n\n**Образец (1 операция)**  \ngenerate  \n\n### ⚙️ Инструкции по настройке\n\n1. **Импорт рабочего процесса**: Загрузите этот рабочий процесс в вашу инстанцию n8n  \n\n2. **Аутентификация**: Аутентификация не требуется  \n\n3. **Активировать рабочий процесс**: Включите рабочий процесс, чтобы запустить сервер MCP  \n\n4. **Получить URL MCP**: Скопируйте URL вебхука из триггера MCP  \n\n5. **Подключить AI-агента**: Используйте URL MCP в конфигурации вашего AI-агента  \n\n### 💡 Примечания по использованию\n\n• Параметры автоматически заполняются AI с помощью выражений $fromAI()  \n• Доступно 4 конечные точки API в качестве инструментов  \n• Ответы сохраняют оригинальную структуру API  \n### 🛠️ Настройка\n\n• Добавьте узлы преобразования данных, если это необходимо  \n• Реализуйте обработку ошибок по своему усмотрению  \n• Добавьте узлы для ведения журналов или мониторинга  \n\n• Измените значения параметров по умолчанию в любом узле HTTP-запроса по мере необходимости  \n\n### 💬 Нужна помощь?  \nПроверьте [документацию n8n](https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.toolmcp/) или напишите мне в [discord](https://discord.me/cfomodz) для получения рекомендаций по интеграции MCP или настройкам."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4f171b0e-b19a-48d1-9811-02b96abb489e",
+      "name": "Color Name API MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        -580,
+        -140
+      ],
+      "webhookId": "e63ee384-4bbe-4099-8176-c204c993f82a",
+      "parameters": {
+        "path": "color-name-api-mcp"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "18e7cb1e-ac5c-4dc8-8477-08e3fa70ba9d",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -900,
+        100
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 300,
+        "height": 180,
+        "content": "##"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "376f8798-4071-4285-846f-7301c756b900",
+      "name": "Get all colors of the default color name list",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -780,
+        120
+      ],
+      "parameters": {
+        "url": "=https://api.color.pizza/v1//",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "list",
+              "value": "={{ $fromAI('list', 'The name of the color name list to use', 'string') }}"
+            },
+            {
+              "name": "values",
+              "value": "={{ $fromAI('values', 'The hex values of the colors to retrieve without '#'', 'string') }}"
+            },
+            {
+              "name": "noduplicates",
+              "value": "={{ $fromAI('noduplicates', 'Allow duplicate names or not', 'boolean') }}"
+            }
+          ]
+        },
+        "toolDescription": "Get all colors of the default color name list\n\nParameters:\n- Query parameters:\n  • list (optional) - The name of the color name list to use\n  • values (optional) - The hex values of the colors to retrieve without '#'\n  • noduplicates (optional) - Allow duplicate names or not"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "2d0765fc-10bf-4b29-84aa-3c595241591d",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -900,
+        400
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 300,
+        "height": 180,
+        "content": "## Списки"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8226c2ae-b9b1-4d56-bf68-3dd3224d1c35",
+      "name": "Get all colors of the default color name list 1",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -780,
+        420
+      ],
+      "parameters": {
+        "url": "=https://api.color.pizza/v1//lists/",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "toolDescription": "Get all colors of the default color name list"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d3c92726-4bba-416b-abc7-1ab33b57a999",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -900,
+        680
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 300,
+        "height": 180,
+        "content": "## Имена"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c0194bb8-670b-4828-886d-a5d30b3fb3ea",
+      "name": "Get all colors of the default color name list 2",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -780,
+        700
+      ],
+      "parameters": {
+        "url": "=https://api.color.pizza/v1//names/",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{ $fromAI('name', 'The name of the color to retrieve (min 3 characters)', 'string') }}"
+            },
+            {
+              "name": "list",
+              "value": "={{ $fromAI('list', 'The name of the color name list to use', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Get all colors of the default color name list\n\nParameters:\n- Query parameters:\n  • name (required) - The name of the color to retrieve (min 3 characters)\n  • list (optional) - The name of the color name list to use"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "7539ee10-f262-4b1e-97d9-8ed457f4b468",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -900,
+        960
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 300,
+        "height": 180,
+        "content": "## Swatch"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c18a6447-4697-40c4-a5ff-b33da2c78ed0",
+      "name": "Generate a color swatch for any color",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [
+        -780,
+        980
+      ],
+      "parameters": {
+        "url": "=https://api.color.pizza/v1//swatch/",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "color",
+              "value": "={{ $fromAI('color', 'The hex value of the color to retrieve without '#'', 'string') }}"
+            },
+            {
+              "name": "name",
+              "value": "={{ $fromAI('name', 'The name of the color', 'string') }}"
+            }
+          ]
+        },
+        "toolDescription": "Generate a color swatch for any color\n\nParameters:\n- Query parameters:\n  • color (required) - The hex value of the color to retrieve without '#'\n  • name (optional) - The name of the color"
+      },
+      "typeVersion": 4.2
+    }
+  ],
+  "active": false,
+  "shared": [
+    {
+      "role": "workflow:owner",
+      "project": {
+        "id": "G5fce9xGuBAsWBXe",
+        "icon": null,
+        "name": "David Ashby <david.ashby.lds@gmail.com>",
+        "type": "personal",
+        "createdAt": "2025-06-04T02:55:02.013Z",
+        "updatedAt": "2025-06-04T02:56:01.361Z",
+        "projectRelations": [
+          {
+            "role": "project:personalOwner",
+            "user": {
+              "id": "715c1c00-cb48-4712-9a32-f1f4b6db2b30",
+              "role": "global:owner",
+              "email": "david.ashby.lds@gmail.com",
+              "disabled": false,
+              "lastName": "Ashby",
+              "settings": {
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1749357655581
+                },
+                "userActivated": true,
+                "userActivatedAt": 1749075994495,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "3N3vVikZb3MckFYm"
+              },
+              "createdAt": "2025-06-04T02:55:01.745Z",
+              "firstName": "David",
+              "isPending": false,
+              "updatedAt": "2025-06-08T04:40:58.399Z",
+              "mfaEnabled": false,
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_n8n_version": "1.95.3",
+                "personalization_survey_submitted_at": "2025-06-04T02:56:07.075Z"
+              }
+            },
+            "userId": "715c1c00-cb48-4712-9a32-f1f4b6db2b30",
+            "createdAt": "2025-06-04T02:55:02.013Z",
+            "projectId": "G5fce9xGuBAsWBXe",
+            "updatedAt": "2025-06-04T02:55:02.013Z"
+          }
+        ]
+      },
+      "createdAt": "2025-06-30T17:16:52.053Z",
+      "projectId": "G5fce9xGuBAsWBXe",
+      "updatedAt": "2025-06-30T17:16:52.053Z",
+      "workflowId": "mv1y6rH9rcvO6FgN"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "timezone": "America/New_York"
+  },
+  "createdAt": "2025-06-30T17:16:52.051Z",
+  "updatedAt": "2025-06-30T17:20:16.000Z",
+  "versionId": "fa8f1f8d-2ceb-49e1-8ed0-8f7b0441b35a",
+  "isArchived": false,
+  "staticData": null,
+  "connections": {
+    "Generate a color swatch for any color": {
+      "ai_tool": [
+        [
+          {
+            "node": "Color Name API MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get all colors of the default color name list": {
+      "ai_tool": [
+        [
+          {
+            "node": "Color Name API MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get all colors of the default color name list 1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Color Name API MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get all colors of the default color name list 2": {
+      "ai_tool": [
+        [
+          {
+            "node": "Color Name API MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "triggerCount": 0
+}

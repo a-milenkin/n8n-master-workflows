@@ -1,0 +1,513 @@
+{
+  "id": "D2S34DY7VfnEPpyB",
+  "meta": {
+    "instanceId": "60046904b104f0f72b2629a9d88fe9f676be4035769f1f08dad1dd38a76b9480",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "#### 💡 **Советы для начинающих:**",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "605a1234-c0e6-4536-b77f-6847f00373ce",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        420,
+        260
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8sEyPDkC5p4w4Jha",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "555eb402-b520-43e2-95cd-bd17346d03db",
+      "name": "MCP Client",
+      "type": "n8n-nodes-mcp.mcpClientTool",
+      "position": [
+        600,
+        260
+      ],
+      "parameters": {
+        "toolName": "scrape_as_markdown",
+        "operation": "executeTool",
+        "toolParameters": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Tool_Parameters', ``, 'json') }}"
+      },
+      "credentials": {
+        "mcpClientApi": {
+          "id": "eqq94k789oJCd6jU",
+          "name": "MCP Client (STDIO) account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2a0c20ec-11ed-47ab-9d72-386aae3abcfb",
+      "name": "📅 Run weekly Check",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -60,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "c3b79dd1-be34-4f56-82a2-7f5bfad4277b",
+      "name": "🛒 Product Page URL",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        120,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "29b0aaf6-ddbb-4f33-a937-6528a9c1ef13",
+              "name": "url",
+              "type": "string",
+              "value": "https://www.nike.com/w/training-gym-clothing-58jtoz6ymx6"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "807fbabc-d4b7-4ab8-82fe-733df05d9a7f",
+      "name": "🤖 Scrape Competitor Prices (MCP Agent)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "text": "=scrape all the details about every product from the following url:\n{{ $json.url }}",
+        "options": {},
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "52f014cb-7795-4461-b6f0-ba361ac0fc47",
+      "name": "📧 Notify: Prices Logged in Sheet",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        900,
+        -200
+      ],
+      "webhookId": "20bff4a7-f214-4471-8cab-e9669040b7eb",
+      "parameters": {
+        "sendTo": "shahkar.genai@gmail.com",
+        "message": "The Competitor pricing has just logged into google sheets.\n\nPlease take a look and adjust the prices",
+        "options": {},
+        "subject": "Competitor product pricing has just logged into google sheets",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "AQDSl75AdzK3vmqJ",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "118a498c-ee93-4a4c-88a5-9455985e515d",
+      "name": "🧹 Format Products for Google Sheets",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1200,
+        180
+      ],
+      "parameters": {
+        "jsCode": "// Input: 1 item with `output` containing an array of product objects\nconst products = items[0].json.output;\n\n// Return each product as its own item for Google Sheets\nreturn products.map(product => {\n  return {\n    json: {\n      name: product.name,\n      description: product.description,\n      price: product.price,\n      url: product.url\n    }\n  };\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "24a199a7-2cc5-46bd-9b92-0d9878088136",
+      "name": "📄 Save to Google Sheets (Competitor Pricing Log)",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1420,
+        180
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "URL": "={{ $json.url }}",
+            "Name": "={{ $json.name }}",
+            "Price": "={{ $json.price }}",
+            "Description": "={{ $json.description }}"
+          },
+          "schema": [
+            {
+              "id": "Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Description",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Description",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Price",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Price",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "URL",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "URL",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11NLHG0clJ78pV6YWc_Nt3Q8pjzrojiuwDOuvASViOI4/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "11NLHG0clJ78pV6YWc_Nt3Q8pjzrojiuwDOuvASViOI4",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11NLHG0clJ78pV6YWc_Nt3Q8pjzrojiuwDOuvASViOI4/edit?usp=drivesdk",
+          "cachedResultName": "Competitor product pricing"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "r2mDaisH6e9VkwHl",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "c8056167-a856-4bf6-9552-eb37194309b0",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -100,
+        -660
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 360,
+        "height": 840,
+        "content": "### 🔹 **Раздел 1: Настройка расписания и ввода**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7c59258a-4dc0-4b13-8852-22c2b2576d8a",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        420,
+        -820
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 300,
+        "height": 1000,
+        "content": "#### 🧩 Узлы:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "38bfe2a4-a4a9-4969-b44f-50ba7db6b915",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        840,
+        -1000
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 220,
+        "height": 980,
+        "content": "* `📅 Запуск ежедневной проверки` *(Триггер расписания)*"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "93966003-b316-4c00-a830-afe8649e16df",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1160,
+        -580
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 420,
+        "height": 960,
+        "content": "* `🛒 URL страницы продукта` *(Редактировать поля)*"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "07140bb3-58b6-458e-8e9d-f52c81997164",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1680,
+        -580
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 380,
+        "height": 240,
+        "content": "#### 🔍 **Что происходит?**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "55412999-3cad-4a90-9753-a13e14d40bd1",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1920,
+        -640
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 320,
+        "content": "Этот раздел **запускает рабочий процесс** в запланированное время — ежедневно, еженедельно или ежечасно в зависимости от вашей настройки."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "26435f82-80f8-4f71-bb8d-64959689c338",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1920,
+        -300
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1289,
+        "height": 2538,
+        "content": "Затем узел `Редактировать поля` по желанию позволяет вам **вводить вручную или переопределять** URL продукта(ов) для отслеживания. Это делает ваш рабочий процесс гибким."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "abf0acf3-d7eb-4ba1-8b50-386ecfb68eed",
+      "name": "Auto-fixing Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "position": [
+        740,
+        260
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "81ee9366-a769-4468-a29d-5f17ce24d237",
+      "name": "OpenAI Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        720,
+        480
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "8sEyPDkC5p4w4Jha",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "8e60d01a-4743-4d26-b7c5-05e0c42aa5c5",
+      "name": "Structured Output Parser1",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        880,
+        480
+      ],
+      "parameters": {
+        "jsonSchemaExample": "[\n  {\n    \"name\": \"Nike Universa\",\n    \"description\": \"Women's Medium-Support High-Waisted 7/8 Leggings with Pockets\",\n    \"price\": 93.97,\n    \"url\": \"https://www.nike.com/t/universa-womens-medium-support-high-waisted-7-8-leggings-with-pockets-tTQDxt/HQ6813-478\"\n  },\n  {\n    \"name\": \"Nike One\",\n    \"description\": \"Women's Dri-FIT Tank Top\",\n    \"price\": 50,\n    \"url\": \"https://www.nike.com/t/one-womens-dri-fit-tank-top-QHHXIcvJ/IH8605-652\"\n  },\n  {\n    \"name\": \"Nike Primary Fleece\",\n    \"description\": \"Men's Dri-FIT UV Pullover Performance Hoodie\",\n    \"price\": 80,\n    \"url\": \"https://www.nike.com/t/primary-fleece-mens-dri-fit-uv-pullover-performance-hoodie-B10qz3/FZ0969-237\"\n  },\n  {\n    \"name\": \"Nike Swoosh Medium Support\",\n    \"description\": \"Women's Padded Sports Bra\",\n    \"price\": 40,\n    \"url\": \"https://www.nike.com/t/swoosh-medium-support-womens-padded-sports-bra-1mKhIH9g/DX6821-712\"\n  },\n  {\n    \"name\": \"Nike Dri-FIT Legend\",\n    \"description\": \"Men's Fitness T-Shirt\",\n    \"price\": 30,\n    \"url\": \"https://www.nike.com/t/dri-fit-legend-mens-fitness-t-shirt-JmKL0d/DX0989-411\"\n  }\n]\n"
+      },
+      "typeVersion": 1.2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f5a47b0c-868f-4398-9391-86184f4319a3",
+  "connections": {
+    "MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "🤖 Scrape Competitor Prices (MCP Agent)",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "🤖 Scrape Competitor Prices (MCP Agent)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📅 Run weekly Check": {
+      "main": [
+        [
+          {
+            "node": "🛒 Product Page URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🛒 Product Page URL": {
+      "main": [
+        [
+          {
+            "node": "🤖 Scrape Competitor Prices (MCP Agent)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-fixing Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "🤖 Scrape Competitor Prices (MCP Agent)",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧹 Format Products for Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "📄 Save to Google Sheets (Competitor Pricing Log)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🤖 Scrape Competitor Prices (MCP Agent)": {
+      "main": [
+        [
+          {
+            "node": "🧹 Format Products for Google Sheets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "📧 Notify: Prices Logged in Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

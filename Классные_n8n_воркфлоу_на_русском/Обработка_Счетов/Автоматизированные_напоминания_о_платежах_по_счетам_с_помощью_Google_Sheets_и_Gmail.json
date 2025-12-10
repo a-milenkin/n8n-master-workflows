@@ -1,0 +1,183 @@
+{
+  "id": "n3Pu61XoZKS5Rnqz",
+  "meta": {
+    "instanceId": "a287613f1596da776459594685fbf4e2b4a12124f80ab8c8772f5e37bff103ae",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "## Проблема 😩",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "4715b40c-0219-4c12-825a-bd17f18201e6",
+      "name": "1. Daily Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -380,
+        260
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "description": "Triggers the workflow daily to check for invoices.",
+      "typeVersion": 1
+    },
+    {
+      "id": "49793210-3a62-4aa5-8148-e4b4b61c7608",
+      "name": "2. Read Invoice Data (Google Sheets)",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -140,
+        260
+      ],
+      "parameters": {
+        "range": "Invoices!A:F",
+        "options": {},
+        "sheetId": "YOUR_GOOGLE_SHEET_ID"
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "MSnszF5oRAiSGHDo",
+          "name": "temp"
+        }
+      },
+      "description": "Reads invoice details from your specified Google Sheet. Make sure your sheet has columns like: InvoiceID, ClientName, ClientEmail, Amount, DueDate, Status.",
+      "typeVersion": 2
+    },
+    {
+      "id": "0b9b181c-817f-4b93-8f5e-8362409a6189",
+      "name": "3. Filter & Prepare Reminders",
+      "type": "n8n-nodes-base.function",
+      "position": [
+        120,
+        260
+      ],
+      "parameters": {
+        "functionCode": "const now = new Date();\nnow.setHours(0, 0, 0, 0); // Normalize to start of day for accurate comparison\n\nconst remindBeforeDays = 3; // Remind 3 days before due date\nconst remindAfterDays = 7; // Remind up to 7 days after due date\n\nconst itemsToRemind = [];\n\nfor (const item of items) {\n  const invoice = item.json;\n  \n  // --- ASSUMPTIONS: Adjust these field names to match your Google Sheet columns ---\n  const invoiceId = invoice.InvoiceID;\n  const clientName = invoice.ClientName || 'Pelanggan Yth.'; // Default name if not provided\n  const clientEmail = invoice.ClientEmail;\n  const amount = invoice.Amount;\n  const dueDateStr = invoice.DueDate; // e.g., 'YYYY-MM-DD' or 'MM/DD/YYYY'\n  const status = invoice.Status; // e.g., 'Paid', 'Pending', 'Overdue'\n\n  // Skip if already paid or missing critical info\n  if (!invoiceId || !clientEmail || !amount || !dueDateStr || (status && status.toLowerCase() === 'paid')) {\n    continue;\n  }\n\n  const dueDate = new Date(dueDateStr);\n  if (isNaN(dueDate.getTime())) { // Check for invalid date\n    console.warn(`Invalid DueDate for InvoiceID ${invoiceId}: ${dueDateStr}`);\n    continue;\n  }\n  dueDate.setHours(0, 0, 0, 0); // Normalize to start of day\n\n  const timeDiff = dueDate.getTime() - now.getTime();\n  const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)); // Days until due date (positive) or since due date (negative)\n\n  let reminderType = null;\n  let subjectPrefix = '';\n  let bodyText = '';\n\n  if (daysDiff >= 0 && daysDiff <= remindBeforeDays) {\n    reminderType = 'due_soon'; // Invoice due in X days\n    subjectPrefix = `Pengingat: Faktur #${invoiceId} Akan Jatuh Tempo!`;\n    bodyText = `Faktur Anda #${invoiceId} sebesar Rp${amount} akan jatuh tempo pada ${dueDateStr}. Mohon segera lakukan pembayaran.`;\n  } else if (daysDiff < 0 && daysDiff >= -remindAfterDays) {\n    reminderType = 'overdue'; // Invoice overdue by X days\n    subjectPrefix = `Segera! Faktur #${invoiceId} Sudah Jatuh Tempo!`;\n    bodyText = `Faktur Anda #${invoiceId} sebesar Rp${amount} telah melewati jatuh tempo pada ${dueDateStr}. Mohon segera lakukan pembayaran Anda.`;\n  }\n\n  if (reminderType) {\n    itemsToRemind.push({\n      json: {\n        clientName: clientName,\n        clientEmail: clientEmail,\n        invoiceId: invoiceId,\n        amount: amount,\n        dueDate: dueDateStr,\n        reminderType: reminderType,\n        daysDiff: Math.abs(daysDiff),\n        subject: subjectPrefix,\n        body: bodyText\n      }\n    });\n  }\n}\n\nreturn itemsToRemind;"
+      },
+      "description": "Filters invoices that are due soon or overdue, and prepares email content for each.",
+      "typeVersion": 1
+    },
+    {
+      "id": "70a688ea-b6c3-46fc-8784-6dbb31ee5602",
+      "name": "4. If Invoices to Remind?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        380,
+        260
+      ],
+      "parameters": {},
+      "description": "Checks if there are any invoices that need reminders.",
+      "typeVersion": 1
+    },
+    {
+      "id": "b1a9f0fb-952a-4ca9-b71e-1aa4e6601f74",
+      "name": "5. Send Invoice Reminder (Gmail)",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        620,
+        260
+      ],
+      "parameters": {
+        "subject": "={{ $json.subject }}",
+        "additionalFields": {}
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "QFfaHpKmgq4YPiRN",
+          "name": "Temp"
+        }
+      },
+      "description": "Sends a personalized invoice reminder email to the client.",
+      "typeVersion": 1
+    },
+    {
+      "id": "b3c00aab-cfc2-4d30-97d7-02cffdb8311d",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -480,
+        200
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1300,
+        "height": 240,
+        "content": "## Поток"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e227328a-de6b-429c-a6be-1dfefb9e85b9",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -480,
+        480
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 940,
+        "height": 2400,
+        "content": "# Документация по рабочему процессу: Автоматическое напоминание о счете"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a2ff031f-c190-4ca6-b3ee-06b6c3dd7c21",
+  "connections": {
+    "1. Daily Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "2. Read Invoice Data (Google Sheets)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4. If Invoices to Remind?": {
+      "main": [
+        [
+          {
+            "node": "5. Send Invoice Reminder (Gmail)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "3. Filter & Prepare Reminders": {
+      "main": [
+        [
+          {
+            "node": "4. If Invoices to Remind?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. Read Invoice Data (Google Sheets)": {
+      "main": [
+        [
+          {
+            "node": "3. Filter & Prepare Reminders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

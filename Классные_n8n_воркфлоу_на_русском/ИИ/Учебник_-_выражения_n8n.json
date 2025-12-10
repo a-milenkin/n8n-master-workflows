@@ -1,0 +1,660 @@
+{
+  "meta": {
+    "instanceId": "e409ea34548a2afe2dffba31130cd1cf2e98ebe2afaeed2a63caf2a0582d1da0"
+  },
+  "nodes": [
+    {
+      "id": "8d116e01-e52f-4a6b-85e4-bdbeb980f9f9",
+      "name": "Start Tutorial",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -700,
+        300
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "67db85ae-7f2e-4823-867e-44709a01f6f3",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -960,
+        -100
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 640,
+        "height": 560,
+        "content": "# Учебник - Освоение выражений n8n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d0e948fc-e924-4fbd-b7a3-caee971d16cf",
+      "name": "Source Data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -80,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "12345",
+              "name": "name",
+              "type": "string",
+              "value": "Alice"
+            },
+            {
+              "id": "67890",
+              "name": "age",
+              "type": "number",
+              "value": 30
+            },
+            {
+              "id": "abcde",
+              "name": "is_active",
+              "type": "boolean",
+              "value": true
+            },
+            {
+              "id": "fghij",
+              "name": "skills",
+              "type": "array",
+              "value": "[\"JavaScript\",\"Python\",\"n8n\"]"
+            },
+            {
+              "id": "klmno",
+              "name": "projects",
+              "type": "array",
+              "value": "[{\"name\":\"Project A\",\"status\":\"Done\"},{\"name\":\"Project B\",\"status\":\"In Progress\"}]"
+            },
+            {
+              "id": "pqrst",
+              "name": "contact",
+              "type": "object",
+              "value": "{\"email\":\"alice@example.com\",\"phone\":null}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "c940a0b9-8982-4d61-b434-ca6f7ff46bc9",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -300,
+        -60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 520,
+        "height": 520,
+        "content": "Добро пожаловать! Вы знаете, что такое JSON. Теперь давайте научимся, как **использовать его**. Этот рабочий процесс научит вас, как извлекать данные из одного узла и использовать их в другом, используя мощные выражения n8n."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dcf9916f-a260-40fa-9503-2f9e5041b666",
+      "name": "1. The Basics",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "12345",
+              "name": "user_name",
+              "type": "string",
+              "value": "={{ $('Source Data').item.json.name }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "45b5e6a7-b588-4859-86e1-a6a73b67d837",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        240,
+        -120
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 500,
+        "height": 580,
+        "content": "**Что такое выражение?**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "10c04c66-e07c-4ee5-8b2b-6d4de7c31c9f",
+      "name": "3. Working with Arrays",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1680,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "12345",
+              "name": "second_skill",
+              "type": "string",
+              "value": "={{ $('Source Data').last().json.skills[1] }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "c4d1f2e2-bd7f-4c96-863d-45cc473d05a6",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1460,
+        -60
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 540,
+        "height": 520,
+        "content": "Выражение — это небольшой фрагмент кода внутри двойных фигурных скобок `{{ }}`, который заменяется динамическим значением, когда рабочий процесс запускается. Это \"клей\", который соединяет ваши узлы."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4b112b69-d29d-4963-9ee2-fe434bcbb2f7",
+      "name": "4. Going Deeper",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2240,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "12345",
+              "name": "user_email",
+              "type": "string",
+              "value": "={{ $('Source Data').last().json.contact.email }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "f157c7e6-ce9b-4049-a8b3-d309eec3048b",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2020,
+        -20
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 540,
+        "height": 480,
+        "content": "**Как использовать этот учебник:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ce9265d7-9bab-45d2-8fec-e50bc11c9760",
+      "name": "5. The Combo Move",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2820,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "12345",
+              "name": "first_project_status",
+              "type": "string",
+              "value": "={{ $('Source Data').last().json.projects[0].status }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "8e612af5-7404-49b8-b908-44467b4f257a",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2580,
+        -20
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 580,
+        "height": 480,
+        "content": "Первый узел, **\"Исходные данные\"**, содержит все данные, которые мы будем использовать. Выполните его один раз, чтобы увидеть, что внутри."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "21ee04f0-1465-4166-bca9-e1b3a9dd21f6",
+      "name": "6. A Touch of Magic",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        3420,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "12345",
+              "name": "name_in_caps",
+              "type": "string",
+              "value": "={{ $('Source Data').last().json.name.toUpperCase() }}"
+            },
+            {
+              "id": "67890",
+              "name": "age_in_dog_years",
+              "type": "number",
+              "value": "={{ Math.round($('Source Data').last().json.age / 7) }}"
+            },
+            {
+              "id": "abcde",
+              "name": "age_data_type",
+              "type": "string",
+              "value": "={{ typeof $('Source Data').last().json.age }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "6d307691-2789-467a-b005-5fb92b821a9b",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3180,
+        -60
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 580,
+        "height": 520,
+        "content": "Следуйте пути сверху вниз. Каждый узел — это новый урок."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "14e8aec7-6681-49a9-a9fc-df14f2af2800",
+      "name": "9. The \"All Items\" View",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        5340,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "12345",
+              "name": "all_skills_string",
+              "type": "string",
+              "value": "={{ $('Split Out Skills').all().map(item => item.json.skills).join(', ') }}"
+            }
+          ]
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 3.4
+    },
+    {
+      "id": "df1f2512-f89b-4602-973c-20bd5c9257a7",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4900,
+        -60
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 780,
+        "height": 520,
+        "content": "Прочитайте стикер для каждого урока, затем посмотрите на конфигурацию узла и его вывод, чтобы понять концепцию."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "238fc0f7-1616-4fb0-8368-3eae3dcaa61b",
+      "name": "Final Exam",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        5920,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "12345",
+              "name": "final_summary",
+              "type": "string",
+              "value": "=User {{ $('2. The n8n Selectors').last().json.user_name_from_first }} is {{ $('Source Data').last().json.age }}.\n\nTheir best skill is {{ $('3. Working with Arrays').last().json.second_skill }}.\n\nTheir first project was {{ $('Source Data').last().json.projects[0].name }}, which is now {{ $('5. The Combo Move').last().json.first_project_status }}.\n\nAll skills: {{ $('9. The \"All Items\" View').last().json.all_skills_string }}."
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "2a2763a7-8190-410b-a257-1448de25d2f5",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5700,
+        40
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 520,
+        "height": 420,
+        "content": "## Наш источник данных"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0a3679ae-61cd-4745-b11f-5341a519a820",
+      "name": "2. The n8n Selectors",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1060,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "12345",
+              "name": "user_name_from_first",
+              "type": "string",
+              "value": "={{ $('Source Data').last().json.name }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "4da0dce4-325c-4e91-af03-11e65f764f61",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        760,
+        -160
+      ],
+      "parameters": {
+        "width": 680,
+        "height": 620,
+        "content": "Этот узел содержит все образцы данных для нашего учебника. Рассматривайте его как файловый шкаф. Все остальные узлы будут обращаться к этому шкафу, чтобы извлечь конкретные куски информации."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f1327f83-1163-4879-8caa-06c5b8e2bbaa",
+      "name": "7. Inspecting Objects",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        3980,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "12345",
+              "name": "contact_keys",
+              "type": "array",
+              "value": "={{ Object.keys($('Source Data').last().json.contact) }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "29aad30e-74ed-48ff-b8c4-93cd31d34eea",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3780,
+        -60
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 500,
+        "height": 520,
+        "content": "Взгляните на его вывод, чтобы ознакомиться со структурой."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "11b91408-ab82-4d5e-9dc8-4b9d54e0a60f",
+      "name": "8. Utility Functions",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        4540,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "12345",
+              "name": "contact_as_string",
+              "type": "string",
+              "value": "={{ JSON.stringify($('Source Data').last().json.contact, null, 2) }}"
+            },
+            {
+              "id": "06003b65-7482-4d5a-b2c0-1794859ab461",
+              "name": "skills",
+              "type": "array",
+              "value": "={{ $('Source Data').last().json.skills }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "a0a39b92-f42e-4bb9-a601-bbc1fa5589b7",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4300,
+        -60
+      ],
+      "parameters": {
+        "width": 580,
+        "height": 520,
+        "content": "У нас есть:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "90c7d692-e2b8-4a89-8acb-138f9db1f316",
+      "name": "Split Out Skills",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        5120,
+        300
+      ],
+      "parameters": {
+        "include": "allOtherFields",
+        "options": {},
+        "fieldToSplitOut": "skills"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Source Data": {
+      "main": [
+        [
+          {
+            "node": "1. The Basics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1. The Basics": {
+      "main": [
+        [
+          {
+            "node": "2. The n8n Selectors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Tutorial": {
+      "main": [
+        [
+          {
+            "node": "Source Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4. Going Deeper": {
+      "main": [
+        [
+          {
+            "node": "5. The Combo Move",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Skills": {
+      "main": [
+        [
+          {
+            "node": "9. The \"All Items\" View",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5. The Combo Move": {
+      "main": [
+        [
+          {
+            "node": "6. A Touch of Magic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "6. A Touch of Magic": {
+      "main": [
+        [
+          {
+            "node": "7. Inspecting Objects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. The n8n Selectors": {
+      "main": [
+        [
+          {
+            "node": "3. Working with Arrays",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "8. Utility Functions": {
+      "main": [
+        [
+          {
+            "node": "Split Out Skills",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "7. Inspecting Objects": {
+      "main": [
+        [
+          {
+            "node": "8. Utility Functions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3. Working with Arrays": {
+      "main": [
+        [
+          {
+            "node": "4. Going Deeper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "9. The \"All Items\" View": {
+      "main": [
+        [
+          {
+            "node": "Final Exam",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

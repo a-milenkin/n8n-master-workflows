@@ -1,0 +1,492 @@
+{
+  "meta": {
+    "instanceId": "e5aa7986ab694604988fd614f16d3dd8cb275c306d75d6a818e14c909713473c"
+  },
+  "nodes": [
+    {
+      "id": "0db7b2f0-dfb2-4c92-98c8-d5eb27ca54f3",
+      "name": "Telegram Bot Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "position": [
+        -280,
+        380
+      ],
+      "webhookId": "ab3c5adb-2300-4fcc-9d5c-7402e7456415",
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {
+          "download": true
+        }
+      },
+      "description": "Listens for incoming messages with images from a Telegram bot",
+      "typeVersion": 1.2
+    },
+    {
+      "id": "434d739e-54d7-4f75-955f-e1181ff23db8",
+      "name": "Workflow Start Documentation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -380,
+        -20
+      ],
+      "parameters": {
+        "width": 400,
+        "height": 560,
+        "content": "## 📱 Триггер сообщения Telegram\n\nЭтот рабочий процесс начинается, когда ваш Telegram-бот получает сообщение, содержащее изображение. Бот ждет, пока пользователи отправят фото с подписью, которая описывает желаемые изменения.\n\n### Требования:\n- Настроенный токен бота Telegram\n- Изображения должны отправляться с описательной подписью\n- У бота должны быть разрешения на загрузку файлов\n\n### Выходные данные:\n- Полный объект сообщения с данными фото\n- Текст подписи (используется как подсказка для редактирования ИИ)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dc5ddb08-76b8-4a1f-a2fb-315c64199157",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1000,
+        -220
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 400,
+        "height": 560,
+        "content": "## 🖼️ Процесс обработки изображений\n\nЭтот рабочий процесс демонстрирует полный процесс обработки изображений с использованием ИИ:\n\n1. Получает изображения через Telegram\n2. Редактирует их с помощью API редактирования изображений OpenAI\n3. Отправляет отредактированный результат обратно пользователю\n4. При желании генерирует вариации с помощью Replicate\n\n### Сценарии использования:\n- Макеты продуктов\n- Креативное редактирование фотографий\n- Итерации дизайна с помощью ИИ\n- Пользовательские преобразования изображений"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b4682f5b-4c6e-4ba0-a40b-c2851c64bfef",
+      "name": "OpenAI API Documentation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        60,
+        -240
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 340,
+        "height": 680,
+        "content": "## 🎨 API редактирования изображений OpenAI\n\nОтправляет изображение в OpenAI с подписью в качестве подсказки для редактирования на основе ИИ.\n\n### Конфигурация:\n- Модель: `gpt-image-1`\n- Формат: `multipart/form-data`\n- Качество: Низкое (быстрее, дешевле)\n- Размер: 1024x1024 (стандартный)\n\n### Параметры ввода:\n- `image`: Двоичный файл из Telegram\n- `prompt`: Подпись из сообщения пользователя\n- Необязательные параметры: качество, размер, n (количество вариаций)\n\n### Аутентификация:\n- Требуется ключ API OpenAI, настроенный в учетных данных n8n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a7266711-bee5-40a2-afc2-86affd226abc",
+      "name": "Conversion Documentation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        460,
+        -120
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 380,
+        "height": 580,
+        "content": "## 📤 Конвертация формата файла\n\nПреобразует изображение в кодировке base64 от OpenAI в правильный бинарный формат файла для отправки обратно пользователю.\n\n### Технические детали:\n- Преобразует JSON-ответ API в бинарный формат\n- Источник: поле `data[0].b64_json`\n- Конвертирует в формат изображения PNG\n- Сохраняет качество изображения и метаданные\n\n### Выходные данные:\n- Бинарные данные изображения, готовые к передаче\n- MIME-тип: image/png"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f651bd6f-dc2f-4d60-b896-2c860ef0673f",
+      "name": "Edit Image (OpenAI)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        160,
+        280
+      ],
+      "parameters": {
+        "url": "https://api.openai.com/v1/images/edits",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "authentication": "predefinedCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "image",
+              "parameterType": "formBinaryData",
+              "inputDataFieldName": "data"
+            },
+            {
+              "name": "prompt",
+              "value": "={{ $json.message.caption }}"
+            },
+            {
+              "name": "model",
+              "value": "gpt-image-1"
+            },
+            {
+              "name": "n",
+              "value": "1"
+            },
+            {
+              "name": "size",
+              "value": "1024x1024"
+            },
+            {
+              "name": "quality",
+              "value": "low"
+            }
+          ]
+        },
+        "nodeCredentialType": "openAiApi"
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "10eOcgAxufRENylm",
+          "name": "OpenAi account"
+        }
+      },
+      "description": "Sends image to OpenAI for AI-powered editing based on the caption",
+      "typeVersion": 4.2
+    },
+    {
+      "id": "8e50ff8a-6c4b-486e-9307-9624fc7ff274",
+      "name": "Convert to Binary Image",
+      "type": "n8n-nodes-base.convertToFile",
+      "position": [
+        580,
+        280
+      ],
+      "parameters": {
+        "options": {
+          "fileName": "edited_image.png",
+          "mimeType": "image/png"
+        },
+        "operation": "toBinary",
+        "sourceProperty": "data[0].b64_json"
+      },
+      "description": "Converts base64 encoded image to binary format for sending",
+      "typeVersion": 1.1
+    },
+    {
+      "id": "e8096804-b5a7-4f2f-943b-e4a5db0929fb",
+      "name": "Send Edited Image",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        880,
+        740
+      ],
+      "webhookId": "6d8b80b6-8450-49c9-98dc-0f34e14da588",
+      "parameters": {
+        "chatId": "={{ $json.message.chat.id }}",
+        "operation": "sendPhoto",
+        "binaryData": true,
+        "additionalFields": {
+          "caption": "Here's your edited image! ✨"
+        }
+      },
+      "description": "Sends the edited image back to the user via Telegram",
+      "typeVersion": 1.2
+    },
+    {
+      "id": "d33a7637-4046-40a9-90e6-6d8b8fc2f4b6",
+      "name": "Replicate Documentation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1460,
+        120
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 400,
+        "height": 700,
+        "content": "## 🧠 Репликация генерации изображений ИИ\n\nИспользует API Replicate для создания дополнительных вариаций изображений, сгенерированных ИИ.\n\n### Технические детали:\n- Модель: pixverse/pixverse-v4\n- Использует URL изображения из файлового хранилища Telegram\n- Применяет пользовательский запрос для улучшения оригинального изображения\n\n### Аутентификация:\n- Требуется токен API Replicate\n- Обрабатывает асинхронный процесс с опросом\n\n### Входные данные:\n- URL оригинального изображения из Telegram\n- Улучшенный запрос для креативного направления"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d0894342-ab6a-473c-9ad0-667987801a9f",
+      "name": "Wait Node Documentation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2000,
+        180
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 280,
+        "height": 600,
+        "content": "## ⏱️ Механизм опроса\n\nОжидает, пока Replicate обработает запрос на генерацию изображения.\n\n### Конфигурация:\n- Время ожидания 45 секунд\n- Позволяет асинхронному API завершить обработку\n- Предотвращает ошибки таймаута\n\n### Альтернативные варианты:\n- Может быть заменен на опрос HTTP-запросов\n- Вебхук может быть использован, если поддерживается API"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5f0417a3-7682-481c-b642-c2b45142839e",
+      "name": "File Retrieval Documentation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1100,
+        -40
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 340,
+        "height": 560,
+        "content": "## 📡 Система получения файлов\n\nИзвлекает путь к файлу с серверов Telegram для генерации прямого URL.\n\n### Технические детали:\n- Использует конечную точку getFile API бота Telegram\n- Извлекает file_id из полученного фото\n- Генерирует URL, к которому может получить доступ Replicate\n\n### Примечание по безопасности:\n- Токен бота раскрыт в URL\n- Рассмотрите возможность использования переменных окружения\n- Ограниченный срок доступа к файлу"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "906ba4d2-445c-477f-8732-be7e9d828ba0",
+      "name": "Generate Variation (Replicate)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1620,
+        640
+      ],
+      "parameters": {
+        "url": "https://api.replicate.com/v1/models/pixverse/pixverse-v4/predictions",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"input\": {\n    \"prompt\": \"{{ $json.message.caption || 'a creative enhancement of this image' }}\",\n    \"quality\": \"720p\",\n    \"image\": \"https://api.telegram.org/file/bot{{$credentials.telegramBot.botToken}}/{{ $json.result.file_path }}\"\n}}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$credentials.replicateApi.apiKey}}"
+            }
+          ]
+        }
+      },
+      "description": "Sends the original image to Replicate for AI-powered variation",
+      "typeVersion": 4.2
+    },
+    {
+      "id": "ab244f36-31e3-4dea-9c8e-e4935335810a",
+      "name": "Retrieve Generated Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2540,
+        840
+      ],
+      "parameters": {
+        "url": "={{ $json.urls.get }}",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$credentials.replicateApi.apiKey}}"
+            }
+          ]
+        }
+      },
+      "description": "Gets the final generated image from Replicate after processing",
+      "typeVersion": 4.2
+    },
+    {
+      "id": "fee42f2b-09d2-47f9-842a-52139e8c8de6",
+      "name": "Send Variation Image",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        2740,
+        280
+      ],
+      "webhookId": "c2af49c2-2c87-4020-928a-ce18f14e557f",
+      "parameters": {
+        "file": "={{ $json.output }}",
+        "chatId": "={{ $json.message.chat.id }}",
+        "operation": "sendDocument",
+        "additionalFields": {
+          "caption": "Here's an AI-generated variation of your image! 🚀"
+        }
+      },
+      "description": "Sends the AI-generated variation back to the user",
+      "typeVersion": 1.2
+    },
+    {
+      "id": "93c43617-3c40-451f-b3b5-eb1d276db1ba",
+      "name": "Get File Path",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1220,
+        340
+      ],
+      "parameters": {
+        "url": "https://api.telegram.org/bot{{$credentials.telegramBot.botToken}}/getFile",
+        "options": {},
+        "jsonBody": "={\n  \"file_id\": \"{{ $json.result.photo[0].file_id }}\"\n}\n",
+        "sendBody": true,
+        "specifyBody": "json"
+      },
+      "description": "Retrieves the file path from Telegram's servers",
+      "typeVersion": 4.2
+    },
+    {
+      "id": "71391d58-693a-4c6e-9180-a7b5819bdd3f",
+      "name": "Wait for Processing",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        2080,
+        600
+      ],
+      "webhookId": "eb746bd1-bead-4d9c-b5d5-6c1a1b605c20",
+      "parameters": {
+        "amount": 45
+      },
+      "description": "Waits for Replicate to complete the image generation (45 seconds)",
+      "typeVersion": 1.1
+    },
+    {
+      "id": "736f5bc9-3785-486d-a93a-d6e9cbd5e45b",
+      "name": "Setup Documentation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1000,
+        380
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 400,
+        "content": "## 📝 Инструкции по настройке\n\n1. Настройте учетные данные:\n   - API-ключ OpenAI\n   - Токен бота Telegram\n   - API-ключ Replicate\n\n2. Обновите идентификаторы чатов, чтобы они соответствовали вашим пользователям/группам в Telegram\n\n3. Протестируйте рабочий процесс, отправив изображение с подписью вашему боту\n\n4. Необязательно: отрегулируйте подсказки и параметры для настройки поведения ИИ"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2873e80c-d160-4bbc-88e7-89097adaa0bd",
+      "name": "Note: Send Replicate Output",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2640,
+        20
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 300,
+        "height": 440,
+        "content": "### Телеграм: Отправить вывод Replicate\n\nОтправляет финальное видео, сгенерированное Replicate, обратно пользователю через Телеграм в виде документа.\n\n**Примечание:** `Chat ID` динамически извлекается из триггерного узла (`={{ $json.message.chat.id }}`)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "65e13c0b-cf11-4c15-8de4-a6633e621a43",
+      "name": "Note: Get Replicate Result",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2420,
+        580
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 360,
+        "height": 400,
+        "content": "### Replicate API: Получить результат\n\nПериодически (после ожидания) вызывает URL, предоставленный Replicate, для получения результата предсказания. Этот узел загружает финальный видеовывод.\n\n**Примечание:** Замените `{{ $env[\"REPLICATE_API_TOKEN\"] }}` на ваш фактический токен API Replicate. Формат ответа установлен на `Base64`, чтобы подготовить вывод для отправки через Telegram."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d6f4bd9c-6016-45a1-9318-c37aa5786e34",
+      "name": "Note: Send Edited Image",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        800,
+        500
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 280,
+        "height": 380,
+        "content": "### Телеграм: Отправить Отредактированное Изображение\n\nОтправляет изображение, отредактированное OpenAI, обратно пользователю, который инициировал рабочий процесс.\n\n**Примечание:** `Chat ID` динамически извлекается из узла триггера (`={{ $json.message.chat.id }}`)."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get File Path": {
+      "main": [
+        [
+          {
+            "node": "Generate Variation (Replicate)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Edited Image": {
+      "main": [
+        [
+          {
+            "node": "Get File Path",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Image (OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "Convert to Binary Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Processing": {
+      "main": [
+        [
+          {
+            "node": "Retrieve Generated Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Bot Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Image (OpenAI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to Binary Image": {
+      "main": [
+        [
+          {
+            "node": "Send Edited Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve Generated Image": {
+      "main": [
+        [
+          {
+            "node": "Send Variation Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Variation (Replicate)": {
+      "main": [
+        [
+          {
+            "node": "Wait for Processing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

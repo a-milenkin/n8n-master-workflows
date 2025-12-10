@@ -1,0 +1,392 @@
+{
+  "id": "jpviET9waC9J5cmy",
+  "meta": {
+    "instanceId": "84ad02d6104594179f43f1ce9cfe3a81637b2faedb57dafcb9e649b7542988db",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "---",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "b91b2e44-7fa5-44ce-a328-e6416bc6aed9",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "014ab620-9f80-40af-85ba-13a606021bfa",
+      "name": "Read Domains from Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Hs9LcBpC-kaGgD_QjkkqBEJzDeAd85RW_L1fXTYEdCA/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1Hs9LcBpC-kaGgD_QjkkqBEJzDeAd85RW_L1fXTYEdCA",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Hs9LcBpC-kaGgD_QjkkqBEJzDeAd85RW_L1fXTYEdCA/edit?usp=drivesdk",
+          "cachedResultName": "BuiltWith Domain"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Rp7XiR3hxJfv03ZO",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "07215599-c91a-474c-935f-c94c34e8b9b9",
+      "name": "Fetch detail via BuiltWith",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "url": "https://api.builtwith.com/v21/api.json",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "KEY",
+              "value": "YOUR_API_KEY"
+            },
+            {
+              "name": "LOOKUP",
+              "value": "={{ $json.Domain }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "49ec52b1-5f97-4871-ac6c-564fa444b7ec",
+      "name": "Extract Tech Stack Info",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        700,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const result = $json.Results?.[0];\nconst domain = result?.Lookup || null;\nconst path = result?.Result?.Paths?.[0];\nconst url = path?.Url || null;\n\nlet extracted = null;\n\n// Loop through Groups to find the first available Tech entry\nfor (const group of path?.Groups || []) {\n  const category = group.Name;\n  const tech = group.Tech?.[0];\n  \n  if (tech) {\n    extracted = {\n      Technology: tech.Name,\n      Category: category,\n      \"First Detected\": tech.FirstDetected,\n      \"Last Detected\": tech.LastDetected,\n      Domain: domain,\n      URL: url\n    };\n    break; // Stop after first match\n  }\n}\n\nreturn extracted ? [extracted] : [];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e2b7063b-614f-4ded-a883-bffc4bcb6c3c",
+      "name": "Update Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1020,
+        0
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "URL": "={{ $json.URL }}",
+            "Category": "={{ $json.Category }}",
+            "Technology": "={{ $json.Technology }}",
+            "row_number": "={{ $('Read Domains from Google Sheets').item.json.row_number }}",
+            "Last Detected": "={{ $json[\"Last Detected\"] }}",
+            "First Detected": "={{ $json[\"First Detected\"] }}"
+          },
+          "schema": [
+            {
+              "id": "Domain",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Domain",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Technology",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Technology",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Category",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "First Detected",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "First Detected",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Detected",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Last Detected",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "URL",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "URL",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "row_number"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Hs9LcBpC-kaGgD_QjkkqBEJzDeAd85RW_L1fXTYEdCA/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1Hs9LcBpC-kaGgD_QjkkqBEJzDeAd85RW_L1fXTYEdCA",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Hs9LcBpC-kaGgD_QjkkqBEJzDeAd85RW_L1fXTYEdCA/edit?usp=drivesdk",
+          "cachedResultName": "BuiltWith Domain"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Rp7XiR3hxJfv03ZO",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "11d4cd39-98d4-4b0f-8159-035bac593f39",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        -800
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 420,
+        "height": 1000,
+        "content": "## 🧩 **Раздел 1: Сбор данных**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e8ec39a6-ac8e-40ab-abc6-835600ef9c09",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        420,
+        -900
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 1100,
+        "content": "📄➡️📤"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "926c3af0-de90-43a9-a2c8-efe838548e09",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        900,
+        -780
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 360,
+        "height": 980,
+        "content": "**Узлы:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e00e4ddd-e314-4562-9f3f-df18bb27949a",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1620,
+        -800
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 320,
+        "content": "* `🖱️ Ручной триггер`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "28a6ebbd-74ad-47f4-9ad8-354b68316953",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1620,
+        -460
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1289,
+        "height": 2818,
+        "content": "* `📗 Чтение доменов из Google Sheets`"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {
+    "Fetch detail via BuiltWith": [
+      {
+        "json": {
+          "Results": [
+            {
+              "Lookup": "webflow.com",
+              "Result": {
+                "Paths": [
+                  {
+                    "Url": "http://webflow.com",
+                    "Groups": [
+                      {
+                        "Name": "Web Hosting Providers",
+                        "Tech": [
+                          {
+                            "Name": "Amazon Web Services",
+                            "LastDetected": "2025-06-06",
+                            "FirstDetected": "2022-01-10"
+                          }
+                        ]
+                      },
+                      {
+                        "Name": "JavaScript Libraries",
+                        "Tech": [
+                          {
+                            "Name": "React",
+                            "LastDetected": "2025-06-06",
+                            "FirstDetected": "2021-05-01"
+                          },
+                          {
+                            "Name": "jQuery",
+                            "LastDetected": "2024-12-01",
+                            "FirstDetected": "2020-09-15"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f2928e0a-050f-4b50-b11b-7435cc08265c",
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read Domains from Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Tech Stack Info": {
+      "main": [
+        [
+          {
+            "node": "Update Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch detail via BuiltWith": {
+      "main": [
+        [
+          {
+            "node": "Extract Tech Stack Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Domains from Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Fetch detail via BuiltWith",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

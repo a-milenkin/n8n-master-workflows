@@ -1,0 +1,1212 @@
+{
+  "meta": {
+    "creator": "Lucas Peyrin",
+    "instanceId": "e409ea34548a2afe2dffba31130cd1cf2e98ebe2afaeed2a63caf2a0582d1da0",
+    "fingerprint": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVhdG9yIjoiIiwiaXNzIjoibjhuIiwiaWF0IjoxNzUzMTQ0MDU0fQ.wnimKzcmWe7ihoVF2LKDp24GNwgHh-nFEGhNJd1iP_s",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "a514f04d-0f18-4016-bb0f-20f598210dff",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Start Project",
+      "type": "n8n-nodes-base.manualTrigger",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        -784,
+        -1184
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "3fac5b1b-d94c-4b0a-a3d2-3edf5fd2934b",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "The Dispatcher",
+      "type": "n8n-nodes-base.switch",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        16,
+        -384
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "write_description",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "9ba4d141-2f64-4b74-8e72-a3da836e3f8f",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.process }}",
+                    "rightValue": "write_description"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "write_ad_copy",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "88b909d3-9bc2-4ae8-841d-58b88df591ef",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.process }}",
+                    "rightValue": "write_ad_copy"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "write_email",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "664df8e3-81f2-43e6-b852-c02693fa6ef2",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.process }}",
+                    "rightValue": "write_email"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "58e0764e-1d4a-4ff3-9274-1943ad2b6645",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Split Out Tasks",
+      "type": "n8n-nodes-base.splitOut",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        -224,
+        -1184
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "tasks"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "da60465a-b7b4-4746-a9a5-c4bca8e66a78",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "The Project Brief",
+      "type": "n8n-nodes-base.set",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        -448,
+        -1184
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "550d27f1-bb91-4290-ab17-f055d08920be",
+              "name": "tasks",
+              "type": "array",
+              "value": "=[{\"process\":\"write_description\",\"data\":{\"product\":\"Super Widget\"}},{\"process\":\"write_ad_copy\",\"data\":{\"product\":\"Super Widget\",\"tone\":\"Excited\"}},{\"process\":\"write_email\",\"data\":{\"product\":\"Super Widget\",\"audience\":\"Tech CEOs\"}}]"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "4145b00b-b9f5-4573-a44b-529709d9de61",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Wait for All Teams to Finish",
+      "type": "n8n-nodes-base.wait",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        592,
+        -1184
+      ],
+      "webhookId": "834824f3-7ace-4224-bb60-53ff8f12e89d",
+      "parameters": {
+        "resume": "webhook",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "executeOnce": true,
+      "typeVersion": 1.1
+    },
+    {
+      "id": "6edc8c72-8372-4a4f-9698-f5279c90663e",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Assign Tasks to Teams",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        128,
+        -1184
+      ],
+      "parameters": {
+        "options": {
+          "waitForSubWorkflow": false
+        },
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "workflowInputs": {
+          "value": {
+            "data": "={{ $json.data }}",
+            "status": "initialise",
+            "process": "={{ $json.process }}",
+            "resume_url": "={{ $execution.resumeUrl }}",
+            "main_execution_id": "={{ $execution.id }}"
+          },
+          "schema": [
+            {
+              "id": "main_execution_id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "main_execution_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "process",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "process",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "data",
+              "type": "object",
+              "display": true,
+              "required": false,
+              "displayName": "data",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "resume_url",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "resume_url",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "typeVersion": 1.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "5493e3ed-ae58-48df-8315-cf4599525b7a",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Receive Work Order",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        -432,
+        -176
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "main_execution_id"
+            },
+            {
+              "name": "process"
+            },
+            {
+              "name": "data",
+              "type": "object"
+            },
+            {
+              "name": "status"
+            },
+            {
+              "name": "resume_url"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "11b9ba94-349b-4af2-921e-b1933cc2b9b6",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "The AI Specialist",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        416,
+        0
+      ],
+      "parameters": {
+        "options": {
+          "temperature": 0
+        }
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "AXawYbABK5aZbGBE",
+          "name": "IA2S"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0d9fb81e-a2ca-40e6-841a-bf0341b4b902",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Description Team",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        320,
+        -560
+      ],
+      "parameters": {
+        "text": "=Write a product description for: {{$json.data.product}}",
+        "options": {
+          "systemMessage": "No preamble. Just what you're asked for."
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "b6ebf60e-dcff-4f6c-aefc-8bd1bc65c848",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Ad Copy Team",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        320,
+        -368
+      ],
+      "parameters": {
+        "text": "=Write ad copy for: {{$json.data.product}}. The tone should be: {{$json.data.tone}}",
+        "options": {
+          "systemMessage": "No preamble. Just what you're asked for."
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "f2029b42-6a36-4220-bc4f-8c8b12dcb977",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Email Team",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        320,
+        -176
+      ],
+      "parameters": {
+        "text": "=Write a cold email about {{$json.data.product}} for the following audience: {{$json.data.audience}}",
+        "options": {
+          "systemMessage": "No preamble. Just what you're asked for."
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "41ddaf46-6e78-4463-9454-0bc6aa9c6075",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Report Back to Manager",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        784,
+        -368
+      ],
+      "parameters": {
+        "mode": "each",
+        "options": {
+          "waitForSubWorkflow": false
+        },
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "workflowInputs": {
+          "value": {
+            "data": "={{ $json }}",
+            "status": "completed",
+            "process": "={{ $('Receive Work Order').last().json.process }}",
+            "main_execution_id": "={{ $('Receive Work Order').last().json.main_execution_id }}"
+          },
+          "schema": [
+            {
+              "id": "main_execution_id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "main_execution_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "process",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "process",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "data",
+              "type": "object",
+              "display": true,
+              "required": false,
+              "displayName": "data",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "resume_url",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "resume_url",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "b54e5478-9723-48ef-94aa-563726294d3b",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        -544,
+        -1520
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1904,
+        "height": 544,
+        "content": "## Основной рабочий процесс (Менеджер проекта)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "07aa4fd8-fa34-481a-8735-c21b0a5458dd",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        -544,
+        -944
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1600,
+        "height": 1680,
+        "content": "Этот верхний поток — это **Менеджер проекта**. Его единственная задача — начать проект, назначить задачи и ждать, пока все команды сообщат, что их работа завершена."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b454585f-b383-4b60-8766-6f114aee7baf",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "The Project Dashboard (Code)",
+      "type": "n8n-nodes-base.code",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        16,
+        352
+      ],
+      "parameters": {
+        "jsCode": "// This node is the brain of the whole operation.\n// It uses Static Data, which is like a shared whiteboard for the workflow.\n\n// Get the shared whiteboard data.\nconst staticData = $getWorkflowStaticData('global');\nif (!staticData.projects) {\n  staticData.projects = {};\n}\n\n// Get the status from the incoming item.\nconst status = $json.status;\n\n// --- CASE 1: A new project is starting --- //\nif (status === 'initialise') {\n  const mainId = $json.main_execution_id;\n  const resumeUrl = $json.resume_url;\n  const tasksToRun = $input.all();\n\n  // Create a new section on our dashboard for this project.\n  staticData.projects[mainId] = {\n    resumeUrl: resumeUrl,\n    tasks: {}\n  };\n\n  // Add each task to the dashboard with a 'pending' status and start time.\n  for (const task of tasksToRun) {\n    const processName = task.json.process;\n    staticData.projects[mainId].tasks[processName] = {\n      status: 'pending',\n      startTime: new Date().toISOString()\n    };\n  }\n  console.log(`Project ${mainId} initialized with ${tasksToRun.length} tasks.`);\n\n  // Send the tasks out to the specialist teams.\n  return tasksToRun;\n}\n\n// --- CASE 2: A specialist team has finished a task --- //\nif (status === 'completed') {\n  const mainId = $json.main_execution_id;\n  const completedProcess = $json.process;\n  const resultData = $json.data;\n  const projectDashboard = staticData.projects[mainId];\n\n  if (!projectDashboard) {\n    console.log(`No dashboard found for mainId: ${mainId}.`);\n    return []; // Stop if the project doesn't exist.\n  }\n\n  // Update the task on the dashboard.\n  const task = projectDashboard.tasks[completedProcess];\n  task.status = 'completed';\n  task.endTime = new Date().toISOString();\n  task.result = resultData;\n  // Calculate duration in seconds\n  const durationMs = new Date(task.endTime) - new Date(task.startTime);\n  task.duration_seconds = parseFloat((durationMs / 1000).toFixed(2));\n\n  console.log(`Task ${completedProcess} for project ${mainId} marked as completed in ${task.duration_seconds}s.`);\n\n  // Check if ALL tasks on the dashboard are now 'completed'.\n  const allDone = Object.values(projectDashboard.tasks).every(t => t.status === 'completed');\n\n  if (allDone) {\n    console.log(`All tasks for project ${mainId} are done. Resuming main workflow.`);\n    const resumeUrl = projectDashboard.resumeUrl;\n    const finalResponse = projectDashboard.tasks;\n\n    // Clean up the dashboard for this project.\n    delete staticData.projects[mainId];\n\n    // Return a special item that will trigger the 'Resume Parent Workflow' node.\n    return [{\n      json: {\n        end_process: true,\n        resume_url: resumeUrl,\n        response: finalResponse\n      }\n    }];\n  }\n\n  // If not all tasks are done, we do nothing and wait for the next team to report back.\n  return [];\n}\n\n// By default, if the status is not 'initialise' or 'completed', do nothing.\nreturn [];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7f8dde47-d0d1-4a6d-8835-747acfead126",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Start Process",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        816,
+        528
+      ],
+      "parameters": {
+        "mode": "each",
+        "options": {
+          "waitForSubWorkflow": false
+        },
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "workflowInputs": {
+          "value": {
+            "data": "={{ $json.data }}",
+            "status": "pending",
+            "process": "={{ $json.process }}",
+            "main_execution_id": "={{ $json.main_execution_id }}"
+          },
+          "schema": [
+            {
+              "id": "main_execution_id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "main_execution_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "process",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "process",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "data",
+              "type": "object",
+              "display": true,
+              "required": false,
+              "displayName": "data",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "5d738915-c7aa-476c-ac3f-2db43c55848a",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Check Work Order Status",
+      "type": "n8n-nodes-base.if",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        -208,
+        -176
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "bed89853-0399-4038-8650-5d578d34e5fb",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "pending"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "c44019a3-fd3a-4c75-9dcb-18f46da0f84a",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Is Project Complete?",
+      "type": "n8n-nodes-base.if",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        416,
+        352
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "aab184da-7adb-4008-9ccd-99152b55e837",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.end_process }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "a05d0e03-c51a-4bfd-ac45-d285f17d7696",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Resume Parent Workflow",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        816,
+        144
+      ],
+      "parameters": {
+        "url": "={{ $json.resume_url }}",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ $json.response }}",
+        "sendBody": true,
+        "specifyBody": "json"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "8dab80dc-6ea8-47b1-bfde-546cd6a853a5",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Project Complete!",
+      "type": "n8n-nodes-base.set",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        1056,
+        -1184
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c8f45ef6-748c-42e0-937b-48766f039259",
+              "name": "email",
+              "type": "string",
+              "value": "={{ $json.body.write_email.result.output }}"
+            },
+            {
+              "id": "c3db0b0f-86c6-4de3-980d-f3d8570b132b",
+              "name": "ad_copy",
+              "type": "string",
+              "value": "={{ $json.body.write_ad_copy.result.output }}"
+            },
+            {
+              "id": "d6894be9-9835-41dd-8cec-e40044b84d2e",
+              "name": "description",
+              "type": "string",
+              "value": "={{ $json.body.write_description.result.output }}"
+            },
+            {
+              "id": "e7f8a9b0-c1d2-e3f4-a5b6-c7d8e9f0a1b2",
+              "name": "seconds_saved",
+              "type": "number",
+              "value": "={{ $json.body.values().map(item => item.duration_seconds).sum() - $json.body.values().map(item => item.duration_seconds).max() }}"
+            },
+            {
+              "id": "5477e4af-b915-4129-b573-5c35ea15aa08",
+              "name": "task_duration_seconds",
+              "type": "number",
+              "value": "={{ $json.body.values().map(item => item.duration_seconds).max() }}"
+            },
+            {
+              "id": "bb5305a7-1d69-4d68-8610-500e19a947e4",
+              "name": "task_duration_without_parallelisation",
+              "type": "number",
+              "value": "={{ $json.body.values().map(item => item.duration_seconds).sum() }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "8ca34e6a-bfe6-4fbd-8744-c8b7d00e9c56",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        -512,
+        -1408
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 448,
+        "height": 400,
+        "content": "## Подпроцесс (Специализированные команды)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c76dcf95-13a2-45e5-961f-1342e33aec62",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        -48,
+        -1408
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 448,
+        "height": 400,
+        "content": "Этот нижний поток представляет собой **Специализированные команды**. Он получает единый рабочий заказ, выполняет задачу и сообщает о своем статусе на Панели управления проектом."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "da5e23d0-9167-4ac9-9c76-c81f6e492bd3",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        416,
+        -1408
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 448,
+        "height": 400,
+        "content": "### Краткое описание проекта"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "73387584-46dc-4bfb-816b-20d88a2f88a4",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        880,
+        -1408
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 448,
+        "height": 400,
+        "content": "Этот узел определяет все независимые задачи, которые нам нужно выполнить для этого проекта. Каждая задача имеет имя `process` и необходимые `data`."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "27335a12-cede-465c-8b71-309d5dd5d37b",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        -512,
+        -336
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 336,
+        "content": "### Назначить задачи (Fan-Out)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0f42ccf2-bdab-4882-b1c7-90d91d2f74b2",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        -80,
+        -528
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 288,
+        "height": 336,
+        "content": "Это момент **Fan-Out**. Этот узел вызывает наш подпроцесс для каждой задачи."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6d1b4c86-c663-4420-a2da-60e4fc87ddab",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        256,
+        -720
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 848,
+        "content": "**Критическая настройка:** `Ожидать подпроцесс` выключено. Это означает, что основной рабочий процесс не ждет. Он запускает все задачи и немедленно переходит к узлу `Ожидание`."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c82f2081-50a5-488c-bbde-d59c5adcb2bc",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        688,
+        -576
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 288,
+        "height": 384,
+        "content": "### Ожидать завершения (Пауза)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a7841998-7c67-448c-8c98-c94e851402c7",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note14",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        -256,
+        32
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 480,
+        "height": 512,
+        "content": "Этот узел **приостанавливает** основной рабочий процесс на неопределенный срок. Это Менеджер проекта, ожидающий в своем офисе."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a0e3bb3c-71ca-485d-8daf-67f8df6ba97d",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note15",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        704,
+        -64
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 320,
+        "height": 368,
+        "content": "Он возобновится только тогда, когда другой узел (в нашем случае, узел `Возобновить родительский рабочий процесс`) сделает запрос `POST` к его уникальному `resume_url`."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "410c8b95-c5fc-4ad0-85a3-e2f647a23cd3",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note16",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        -256,
+        -816
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 496,
+        "height": 816,
+        "content": "### Проект завершен! (Fan-In)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1d9b9fc4-d181-4555-a9c4-febf7c1fa459",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        -1152,
+        -1600
+      ],
+      "parameters": {
+        "width": 576,
+        "height": 616,
+        "content": "Это момент **Fan-In**. Этот узел запускается только *после* того, как узел `Ожидание` был возобновлен."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7ad3b188-ad65-42e1-870b-ace7e61a5d9b",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        704,
+        320
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 320,
+        "height": 384,
+        "content": "Он получает окончательные, агрегированные данные от всех параллельных задач и теперь может продолжить с остальной частью рабочего процесса."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "751c86aa-9223-4431-a252-560b16c4d4c3",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "© 2025 Lucas Peyrin",
+      "creator": "Lucas Peyrin",
+      "position": [
+        1088,
+        -544
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 540,
+        "height": 1280,
+        "content": "### Получить рабочий заказ"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Email Team": {
+      "main": [
+        [
+          {
+            "node": "Report Back to Manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ad Copy Team": {
+      "main": [
+        [
+          {
+            "node": "Report Back to Manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Project": {
+      "main": [
+        [
+          {
+            "node": "The Project Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "The Dispatcher": {
+      "main": [
+        [
+          {
+            "node": "Description Team",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ad Copy Team",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email Team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Tasks": {
+      "main": [
+        [
+          {
+            "node": "Assign Tasks to Teams",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Description Team": {
+      "main": [
+        [
+          {
+            "node": "Report Back to Manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "The AI Specialist": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Description Team",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Ad Copy Team",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Email Team",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "The Project Brief": {
+      "main": [
+        [
+          {
+            "node": "Split Out Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receive Work Order": {
+      "main": [
+        [
+          {
+            "node": "Check Work Order Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Project Complete?": {
+      "main": [
+        [
+          {
+            "node": "Resume Parent Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Start Process",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assign Tasks to Teams": {
+      "main": [
+        [
+          {
+            "node": "Wait for All Teams to Finish",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Work Order Status": {
+      "main": [
+        [
+          {
+            "node": "The Dispatcher",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "The Project Dashboard (Code)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "The Project Dashboard (Code)": {
+      "main": [
+        [
+          {
+            "node": "Is Project Complete?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for All Teams to Finish": {
+      "main": [
+        [
+          {
+            "node": "Project Complete!",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
