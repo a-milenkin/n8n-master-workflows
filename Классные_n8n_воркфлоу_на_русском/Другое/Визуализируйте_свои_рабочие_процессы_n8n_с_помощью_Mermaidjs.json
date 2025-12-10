@@ -4,7 +4,7 @@
     "instanceId": "fb924c73af8f703905bc09c9ee8076f48c17b596ed05b18c0ff86915ef8a7c4a",
     "templateCredsSetupCompleted": true
   },
-  "name": "Workflow dashboard with mermaid.js",
+  "name": "### Поскольку облачная версия не поддерживает переменные окружения, пожалуйста, обновите следующие поля:",
   "tags": [],
   "nodes": [
     {
@@ -271,7 +271,7 @@
         "color": 3,
         "width": 470.91551628883894,
         "height": 419.34820384538847,
-        "content": "## IMPORTANT NOTE FOR CLOUD USERS\n### Since the cloud version doesn't support environmental variables, please update the following fields:\n\n1. **instance_url**. Change the `{{$env[\"N8N_PROTOCOL\"]}}://{{$env[\"N8N_HOST\"]}}` expression to your cloud instance URL\n2. **webhook_path**. Change the `{{$env[\"N8N_ENDPOINT_WEBHOOK\"] || \"webhook\"}}` simply to the `webhook`. So that the production webhook is called correclty."
+        "content": "## ВАЖНОЕ ЗАМЕЧАНИЕ ДЛЯ ПОЛЬЗОВАТЕЛЕЙ ОБЛАКА"
       },
       "typeVersion": 1
     },

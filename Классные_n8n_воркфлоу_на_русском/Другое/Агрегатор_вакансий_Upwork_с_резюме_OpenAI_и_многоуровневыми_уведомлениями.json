@@ -1,0 +1,457 @@
+{
+  "id": "Q4LhFRDraaQuorBs",
+  "meta": {
+    "instanceId": "84ad02d6104594179f43f1ce9cfe3a81637b2faedb57dafcb9e649b7542988db",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Аггрегатор и уведомитель вакансий Upwork",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "834d0a42-1398-4cd4-aaf3-b1164e00b4a8",
+      "name": "Daily Upwork Job Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "a0d54dfe-fc68-4020-b2ed-d191a57d5897",
+      "name": "Fetch Upwork Jobs (Apify)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "url": "https://api.apify.com/v2/actor-tasks/<YOUR_TASK_ID>/run-sync-get-dataset-items?token=<YOUR_API_TOKEN>",
+        "method": "POST",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a9812fc7-0fa5-492a-91aa-392d0c8ee43b",
+      "name": "Format Job Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "24bd782a-a34f-4b98-8d8f-21763181677b",
+              "name": "title",
+              "type": "string",
+              "value": "={{ $json.title }}"
+            },
+            {
+              "id": "ee879b3d-339a-44c2-9e11-f653edab2e7f",
+              "name": "url",
+              "type": "string",
+              "value": "={{ $json.url }}"
+            },
+            {
+              "id": "b5ff7975-667b-4997-ac8f-acbe9a3b3b85",
+              "name": "description",
+              "type": "string",
+              "value": "={{ $json.description }}"
+            },
+            {
+              "id": "29051fc3-e4f8-4e39-a024-d7b943271acc",
+              "name": "budget",
+              "type": "string",
+              "value": "={{ $json.budget }}"
+            },
+            {
+              "id": "a6492128-a58a-4735-b427-12265f81da3a",
+              "name": "datePosted",
+              "type": "string",
+              "value": "={{ $json.datePosted }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "a996aa35-8f0d-4e1a-997b-4aadd402f65c",
+      "name": "Log Jobs to Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        740,
+        0
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "url": "={{ $json.url }}",
+            "title": "={{ $json.title }}",
+            "budget": "={{ $json.budget }}",
+            "datePosted": "={{ $json.datePosted }}",
+            "description": "={{ $json.description }}"
+          },
+          "schema": [
+            {
+              "id": "title",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "title",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "url",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "url",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "description",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "description",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "budget",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "budget",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "datePosted",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "datePosted",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dEU6uMB4ehiGXjIExjtFQHvUjANRODawKMBGKDaTcEc/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1dEU6uMB4ehiGXjIExjtFQHvUjANRODawKMBGKDaTcEc",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dEU6uMB4ehiGXjIExjtFQHvUjANRODawKMBGKDaTcEc/edit?usp=drivesdk",
+          "cachedResultName": "Upwork Scraper"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "v021NCWuTwSSSXPP",
+          "name": "Google Sheets account 2"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "e0cd68e5-4d6d-479a-8a48-1faccc9f3ff7",
+      "name": "Summarize Job Listings",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        960,
+        0
+      ],
+      "parameters": {
+        "text": "=Provide a summary of the upwork jobs. It should be in email format\n\nTitle: {{ $json.title }}\nURL: {{ $json.url }}\nDescription:{{ $json.description }}\nBudget:{{ $json.budget }}\nDate posted: {{ $json.datePosted }}",
+        "options": {},
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "30002e32-6046-4e5c-a27f-a0d58f380ae9",
+      "name": "Send Job Summary Email",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1500,
+        0
+      ],
+      "webhookId": "6937d724-5ede-4c56-83fd-fde84496eabd",
+      "parameters": {
+        "sendTo": "shahkar.genai@gmail.com",
+        "message": "={{ $json.output.Summary }}",
+        "options": {},
+        "subject": "={{ $json.output.subject }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YMHjS2nJsRGP7svY",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "a1fb5d66-b780-4b6b-96be-3391b6196301",
+      "name": "OpenAI Job Summarizer",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        900,
+        260
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "wYwTjEv45IzlAOAu",
+          "name": "OpenAi account 2"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "f79a7336-80fc-4832-862b-51d0d737d5a3",
+      "name": "Parse Summary Output",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        1160,
+        260
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"subject\": \"Upwork Job Opportunity: Webflow Expert Needed for Portfolio Website\",\n  \"Summary\": \"The client is seeking a designer with strong experience in Webflow to create a responsive and elegant portfolio site.\"\n}\n"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "85465ead-0a06-455c-9308-866c092d8ef5",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        -560
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 640,
+        "height": 760,
+        "content": "### 🔁 **Раздел 1: Поиск и подготовка вакансий**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3699ba73-75ee-4bf2-91eb-8d0d05143321",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        680,
+        -620
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 620,
+        "height": 1040,
+        "content": "📦 **Название группы**: `📥 Получить и подготовить вакансии Upwork`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2289feb5-9ab1-4dbb-a77e-f4742f0f341d",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1400,
+        -420
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 340,
+        "height": 600,
+        "content": "#### ✅ **Включенные узлы:**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "95727922-4856-4481-acff-519638ac5d23",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1520,
+        -560
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1300,
+        "height": 320,
+        "content": "`🕒 Ежедневный триггер вакансий Upwork`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c161b105-70a6-431a-91e2-9031ccba8fe4",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1520,
+        -220
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1289,
+        "height": 3058,
+        "content": "`🌐 Получить вакансии Upwork (Apify)`"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {
+    "Fetch Upwork Jobs (Apify)": [
+      {
+        "json": {
+          "url": "https://www.upwork.com/job/Looking-Webflow-Expert-Build-Portfolio-Website_~01abcd123456efghij",
+          "title": "Looking for a Webflow Expert to Build a Portfolio Website",
+          "budget": "$300",
+          "datePosted": "2025-06-03T08:45:00Z",
+          "description": "Need a designer with strong Webflow experience to create a responsive and elegant portfolio site."
+        }
+      },
+      {
+        "json": {
+          "url": "https://www.upwork.com/job/React-Developer-Needed-SaaS-Dashboard_~0123abcd4567efghij",
+          "title": "React Developer Needed for SaaS Dashboard",
+          "budget": "$500",
+          "datePosted": "2025-06-03T06:30:00Z",
+          "description": "Looking for an experienced React developer to work on our SaaS product dashboard UI. Experience with Tailwind is a plus."
+        }
+      },
+      {
+        "json": {
+          "url": "https://www.upwork.com/job/Copywriter-Landing-Page-Finance_~0a1b2c3d4e5f67890",
+          "title": "Copywriter for Landing Page Content (Finance Industry)",
+          "budget": "$150",
+          "datePosted": "2025-06-02T21:15:00Z",
+          "description": "We need SEO-optimized copy for a fintech landing page. Prior experience in finance writing preferred."
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8c929fc6-2198-4adf-89c3-ff0a2b296fdd",
+  "connections": {
+    "Format Job Fields": {
+      "main": [
+        [
+          {
+            "node": "Log Jobs to Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Summary Output": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Summarize Job Listings",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Job Summarizer": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarize Job Listings",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize Job Listings": {
+      "main": [
+        [
+          {
+            "node": "Send Job Summary Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Upwork Job Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Upwork Jobs (Apify)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Jobs to Google Sheet": {
+      "main": [
+        [
+          {
+            "node": "Summarize Job Listings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Upwork Jobs (Apify)": {
+      "main": [
+        [
+          {
+            "node": "Format Job Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

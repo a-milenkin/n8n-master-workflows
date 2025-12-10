@@ -4,7 +4,7 @@
     "instanceId": "4b761cc6ed5ba54435cd56551f1d8f4e82e89d5a18fc96f22d0649b94ad18c78",
     "templateCredsSetupCompleted": true
   },
-  "name": "Когда PDF создается PDFMonkey, получите PDF-файл и используйте его по мере необходимости.",
+  "name": "Когда PDF создается PDFMonkey, получите файл PDF и используйте его по мере необходимости.",
   "tags": [],
   "nodes": [
     {
@@ -18,7 +18,7 @@
       "parameters": {
         "width": 860,
         "height": 500,
-        "content": "# Реагировать на обратный вызов PDFMonkey"
+        "content": "# Реагируйте на обратный вызов PDFMonkey"
       },
       "typeVersion": 1
     },

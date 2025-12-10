@@ -1,0 +1,218 @@
+{
+  "meta": {
+    "instanceId": "2f17285f1745a5069c9edd8be78921f40c6549f5b2e1cfd76834c7f73edd2c07",
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "02628817-d072-4caa-b935-945d09f57a85",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "7361f9a8-d834-49d3-b0c1-bb4510f654cc",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        220,
+        0
+      ],
+      "webhookId": "326419f6-008b-4814-b55d-efaae118eab7",
+      "parameters": {
+        "limit": 1,
+        "simple": false,
+        "filters": {
+          "sender": "decodeai@ghost.io"
+        },
+        "options": {},
+        "operation": "getAll"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "pwMK2jDEWY5arMX3",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "39e63d5f-db0d-4fc6-a5e8-a9ac3c2a703c",
+      "name": "Split Out",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        816,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "message.content.news_items"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "70e64a00-8dc0-4ef4-a4fd-3ac2e50c8fb3",
+      "name": "Extract News Items",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "o3-mini-2025-01-31",
+          "cachedResultName": "O3-MINI-2025-01-31"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "content": "=Учитывая следующее содержание информационного бюллетеня, определите и подведите итоги 5 основных новостей. Сосредоточьтесь на фактических обновлениях, таких как новые инструменты ИИ, запуски продуктов или стратегические инвестиции. Для каждого пункта извлеките заголовок и предоставьте краткое резюме. Пожалуйста, игнорируйте чисто рекламные разделы (например, призывы записаться на демонстрации или рекламные объявления продуктов)."
+            }
+          ]
+        },
+        "jsonOutput": true
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "29u49HnATSs6YuKN",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "cecf013b-bcf2-49a3-acc2-b81e355446b6",
+      "name": "Create LinkedIn Posts",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        1040,
+        0
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "o3-mini-2025-01-31",
+          "cachedResultName": "O3-MINI-2025-01-31"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "content": "<text>"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "29u49HnATSs6YuKN",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "31412fb3-ef9a-4c98-840b-a97fd7075181",
+      "name": "LinkedIn",
+      "type": "n8n-nodes-base.linkedIn",
+      "position": [
+        1420,
+        0
+      ],
+      "parameters": {
+        "text": "={{ $json.message.content }}",
+        "person": "EI5XKdiMv1",
+        "additionalFields": {}
+      },
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "G3JLFJtB5Y7q9FSY",
+          "name": "LinkedIn account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a80f43a1-35c8-4f41-8d96-6e64e4ae0cf7",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -20,
+        -620
+      ],
+      "parameters": {
+        "width": 900,
+        "height": 520,
+        "content": "{{ $json.text }}"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail": {
+      "main": [
+        [
+          {
+            "node": "Extract News Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Create LinkedIn Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract News Items": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create LinkedIn Posts": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

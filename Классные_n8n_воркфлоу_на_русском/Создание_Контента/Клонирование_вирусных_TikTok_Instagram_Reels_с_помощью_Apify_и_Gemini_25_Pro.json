@@ -4,7 +4,7 @@
     "instanceId": "06e5009344f682419c20ccd4ecdcb5223bbb91761882af93ac6d468dbc2cbf8d",
     "templateCredsSetupCompleted": true
   },
-  "name": "Сделает запрос в API понимания видео Gemini",
+  "name": "Сделает запрос в API Gemini Video Understanding",
   "tags": [],
   "nodes": [
     {
@@ -408,7 +408,7 @@
         "color": 6,
         "width": 840,
         "height": 500,
-        "content": "Введите URL любого видео, сгенерированного ИИ на TikTok / Instagram, и эта автоматизация:"
+        "content": "Введите URL любого AI-сгенерированного видео на TikTok / Instagram, и эта автоматизация:"
       },
       "typeVersion": 1
     },

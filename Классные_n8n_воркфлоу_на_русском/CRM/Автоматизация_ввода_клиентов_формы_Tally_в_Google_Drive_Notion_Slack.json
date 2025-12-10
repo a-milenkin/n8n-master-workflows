@@ -188,7 +188,7 @@
         "color": 4,
         "width": 600,
         "height": 440,
-        "content": " Client Onboarding Workflow – Setup Guide\n🎯 What this workflow does:\nAutomates client onboarding from a Tally form:\n\nCreates a Google Drive folder\n\nAdds client data to a Notion database\n\nSends a Slack notification to your team\n\n🔧 Manual Setup Instructions\n📥 Tally Form\n\nThis workflow listens for form submissions at:\nhttps://<your-n8n-domain>/webhook/tally-submission\n\nExpected fields: Name, Email, Project Type, Budget\n\n📂 Google Drive\n\nThe parent folder ID is hardcoded → update this:\n1rCt7cyX7b3FQSJRDB8bRT4ho9QEUh0mA\n\nAdd your Google OAuth2 credentials to the node.\n\n🧠 Notion\n\nDatabase ID is hardcoded → replace it with yours:\n230bb34e-b122-800a-87e4-c5f2e30500b9\n\nMake sure your database has fields:\nName, Email, Project Type, Budget, Onboarding Link\n\nAttach your Notion OAuth2 credentials.\n\n🔔 Slack\n\nThe channel #client-notifications is hardcoded → change it if needed.\n\nSlack OAuth2 is required to post messages.\n\n⚠️ This workflow uses hardcoded values (no env vars). Be sure to manually replace folder IDs, database IDs, and Slack channels with your own.\n\n✅ All nodes use OAuth2 — no API keys are exposed."
+        "content": "Процесс onboarding клиентов – Руководство по настройке"
       },
       "typeVersion": 1
     },

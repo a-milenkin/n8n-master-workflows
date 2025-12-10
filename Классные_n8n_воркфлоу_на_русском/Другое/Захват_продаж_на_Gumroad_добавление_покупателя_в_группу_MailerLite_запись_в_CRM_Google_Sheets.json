@@ -1,0 +1,275 @@
+{
+  "id": "06v55r6E13Wfvo66",
+  "meta": {
+    "instanceId": "dfec462482c1b16c8ef1928d51584c7f0ae64b3bfaa72e08675b15754b903bd2",
+    "templateCredsSetupCompleted": true
+  },
+  "name": "- Перейдите в Настройки > Дополнительно и создайте новое приложение",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "789f1dec-d2d2-4e09-9530-719d354d259c",
+      "name": "Assign to group",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        140,
+        -280
+      ],
+      "parameters": {
+        "url": "=https://connect.mailerlite.com/api/subscribers/{{ $json.id }}/groups/152489030254069581",
+        "method": "POST",
+        "options": {},
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mailerLiteApi"
+      },
+      "credentials": {
+        "mailerLiteApi": {
+          "id": "i9V49FSxbwJhAGfI",
+          "name": "Mailer Lite account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "53c0df02-5571-485c-91ce-6be2f62fd6d6",
+      "name": "Gumroad Sale Trigger",
+      "type": "n8n-nodes-base.gumroadTrigger",
+      "position": [
+        -520,
+        -280
+      ],
+      "webhookId": "06a01b99-cbf1-4694-8502-94ac51670ba4",
+      "parameters": {
+        "resource": "sale"
+      },
+      "credentials": {
+        "gumroadApi": {
+          "id": "wgjGSvLjsRBJImsQ",
+          "name": "Gumroad account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ee782134-e2d4-4f8b-a9d9-a09a919577ab",
+      "name": "append row in CRM",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        480,
+        -280
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "date": "={{ $('Gumroad Sale Trigger').item.json.sale_timestamp }}",
+            "email": "={{ $('Gumroad Sale Trigger').item.json.email }}",
+            "country": "={{ $('Gumroad Sale Trigger').item.json.ip_country }}",
+            "product name": "={{ $('Gumroad Sale Trigger').item.json.product_name }}"
+          },
+          "schema": [
+            {
+              "id": "date",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "product name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "product name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "country",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "country",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XYMstoZ4j3O5T-UYz21ky7P5bkUtzYXQGYCQTRVWCI4/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1XYMstoZ4j3O5T-UYz21ky7P5bkUtzYXQGYCQTRVWCI4",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XYMstoZ4j3O5T-UYz21ky7P5bkUtzYXQGYCQTRVWCI4/edit?usp=drivesdk",
+          "cachedResultName": "Gumroad sales CRM"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Ou2SgvNZctBeYWT5",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "98ff519b-3065-4c6b-bdeb-2d9095e3f52a",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -680,
+        -540
+      ],
+      "parameters": {
+        "width": 460,
+        "height": 460,
+        "content": "## Триггер на новую продажу Gumroad"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f5ccfe9f-c56c-4394-bebf-1f7438a0dcdf",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -140,
+        -660
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 480,
+        "height": 580,
+        "content": "### Требования"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e4cea86a-494f-4c3c-9743-3e8eca461a04",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        420,
+        -460
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 480,
+        "height": 380,
+        "content": "- Учетная запись [Gumroad]()"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e81b7ae0-510e-454e-82ff-6d42bde9e81a",
+      "name": "add subscriber to MailerLite",
+      "type": "n8n-nodes-base.mailerLite",
+      "position": [
+        -60,
+        -280
+      ],
+      "parameters": {
+        "email": "={{ $json.email }}",
+        "additionalFields": {
+          "customFieldsUi": {
+            "customFieldsValues": [
+              {
+                "value": "={{ $json.ip_country }}",
+                "fieldId": "country"
+              }
+            ]
+          }
+        }
+      },
+      "credentials": {
+        "mailerLiteApi": {
+          "id": "i9V49FSxbwJhAGfI",
+          "name": "Mailer Lite account"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9cc00d13-81d9-4584-9066-4b00b2ff7a47",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -160,
+        -60
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 520,
+        "height": 180,
+        "content": "- Продукт, указанный в списке. Мы использовали наш [здесь](https://1node.gumroad.com/l/topaitools)"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3b94b27b-05cc-4996-9f1f-33ba7c3632ae",
+  "connections": {
+    "Assign to group": {
+      "main": [
+        [
+          {
+            "node": "append row in CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gumroad Sale Trigger": {
+      "main": [
+        [
+          {
+            "node": "add subscriber to MailerLite",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "add subscriber to MailerLite": {
+      "main": [
+        [
+          {
+            "node": "Assign to group",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

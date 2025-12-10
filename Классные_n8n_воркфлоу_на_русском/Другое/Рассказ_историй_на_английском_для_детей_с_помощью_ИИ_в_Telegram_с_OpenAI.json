@@ -1,0 +1,401 @@
+{
+  "meta": {
+    "instanceId": "84ba6d895254e080ac2b4916d987aa66b000f88d4d919a6b9c76848f9b8a7616",
+    "templateId": "2233"
+  },
+  "nodes": [
+    {
+      "id": "757a7e67-073a-4fa1-b571-2ddd147b35f6",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1000,
+        1240
+      ],
+      "parameters": {
+        "model": "gpt-3.5-turbo-16k-0613",
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "kDo5LhPmHS2WQE0b",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "761ed83a-2cfb-474a-b596-922e5a7e2717",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        660,
+        1060
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 12
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "41faf334-30d6-4cc0-9a94-9c486ec3fa6c",
+      "name": "OpenAI Chat Model2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1520,
+        1420
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "kDo5LhPmHS2WQE0b",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d9ad0a3a-2ce6-4071-8262-8176b3eecf36",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1780,
+        220
+      ],
+      "parameters": {
+        "width": 1004.4263690337257,
+        "height": 811.7188223885136,
+        "content": "### Настройка рабочего процесса для \"Рассказывания детских историй на английском с использованием ИИ в Telegram\""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b550e4ff-167d-4b12-8dff-0511a435cd7c",
+      "name": "Create a Prompt for DALL-E",
+      "type": "@n8n/n8n-nodes-langchain.chainSummarization",
+      "position": [
+        1500,
+        1280
+      ],
+      "parameters": {
+        "options": {
+          "summarizationMethodAndPrompts": {
+            "values": {
+              "prompt": "Summarize the characters in this story based on their appearance and describe them if they are humans or animals and how they look like and what kind of are they, the prompt should be no-text in the picture, make sure the text is free from any prohibited or inappropriate content:\n\n\n\n\"{text}\"\n\n\nCONCISE SUMMARY:",
+              "summarizationMethod": "stuff"
+            }
+          }
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "024a3615-9e90-4e47-81e3-21febfc2f0c9",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        380,
+        240
+      ],
+      "parameters": {
+        "width": 611.6882702103559,
+        "height": 651.7145525871413,
+        "content": "В этом руководстве мы проведем вас через процесс настройки рабочего процесса для создания и обмена увлекательными детскими историями с использованием предоставленной конфигурации. Давайте погрузимся в шаги, необходимые для того, чтобы оживить эти фантастические сказки на вашем канале Telegram:"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "11bfff09-33c6-48ab-b9e6-2e5349a87ca5",
+      "name": "Recursive Character Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "position": [
+        1160,
+        1260
+      ],
+      "parameters": {
+        "options": {},
+        "chunkSize": 500,
+        "chunkOverlap": 300
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9da21054-961e-4b7a-973e-1c180571ce92",
+      "name": "Create a story",
+      "type": "@n8n/n8n-nodes-langchain.chainSummarization",
+      "position": [
+        1080,
+        1060
+      ],
+      "parameters": {
+        "options": {
+          "summarizationMethodAndPrompts": {
+            "values": {
+              "prompt": "Create a captivating short tale for kids, whisking them away to magical lands brimming with wisdom. Explore diverse themes in a fun and simple way, weaving in valuable messages. Dive into cultural adventures with lively language that sparks curiosity. Let your story inspire young minds through enchanting narratives that linger long after the last word. Begin crafting your imaginative tale now! (Approximately 900 characters)\n\n\n\"{text}\"\n\nCONCISE SUMMARY:",
+              "summarizationMethod": "stuff"
+            }
+          }
+        },
+        "chunkingMode": "advanced"
+      },
+      "executeOnce": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "35579446-e11c-416b-b34a-b31e8461a1b3",
+      "name": "Generate Audio for the story",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        1520,
+        1060
+      ],
+      "parameters": {
+        "input": "={{ $json.response.text }}",
+        "options": {},
+        "resource": "audio"
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "kDo5LhPmHS2WQE0b",
+          "name": "OpenAi account"
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 1.3
+    },
+    {
+      "id": "453d149f-a2a7-4fc9-ba3b-85b42df1c29b",
+      "name": "Generate a Picture for the story",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        1840,
+        1280
+      ],
+      "parameters": {
+        "prompt": "=Produce an image ensuring that no text is generated within the visual content. {{ $json.response.text }}",
+        "options": {},
+        "resource": "image"
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "kDo5LhPmHS2WQE0b",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "8f324f12-b21e-4d0c-b7fa-5e2f93ba08aa",
+      "name": "Send Story Text",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1520,
+        840
+      ],
+      "parameters": {
+        "text": "={{ $json.response.text }}",
+        "chatId": "={{ $('Config').item.json.chatId }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "k3RE6o9brmFRFE9p",
+          "name": "Telegram account"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "51a08f75-1c34-48a0-86de-b47e435ef618",
+      "name": "Send Audio for the story",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1720,
+        1060
+      ],
+      "parameters": {
+        "chatId": "={{ $('Config').item.json.chatId }}",
+        "operation": "sendAudio",
+        "binaryData": true,
+        "additionalFields": {
+          "caption": "End of the Story for today ....."
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "k3RE6o9brmFRFE9p",
+          "name": "Telegram account"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "3f890a4d-26ea-452a-8ed5-917282e8b0d8",
+      "name": "Send Story Picture",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        2020,
+        1280
+      ],
+      "parameters": {
+        "chatId": "={{ $('Config').item.json.chatId }}",
+        "operation": "sendPhoto",
+        "binaryData": true,
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "k3RE6o9brmFRFE9p",
+          "name": "Telegram account"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "1cbec52c-b545-45df-885f-57c287f81017",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        880,
+        1060
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "327667cb-b5b0-4f6f-915c-544696ed8e5a",
+              "name": "chatId",
+              "type": "string",
+              "value": "-4170994782"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.3
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Create a story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a story": {
+      "main": [
+        [
+          {
+            "node": "Generate Audio for the story",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create a Prompt for DALL-E",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Story Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Create a story",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Create a Prompt for DALL-E",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a Prompt for DALL-E": {
+      "main": [
+        [
+          {
+            "node": "Generate a Picture for the story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Audio for the story": {
+      "main": [
+        [
+          {
+            "node": "Send Audio for the story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate a Picture for the story": {
+      "main": [
+        [
+          {
+            "node": "Send Story Picture",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Create a story",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

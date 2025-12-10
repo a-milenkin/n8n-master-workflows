@@ -1,6 +1,6 @@
 {
   "id": "110",
-  "name": "Получить SSL сертификат",
+  "name": "Получить SSL-сертификат",
   "nodes": [
     {
       "name": "On clicking 'execute'",

@@ -4,7 +4,7 @@
     "instanceId": "1b9b471cfc35c494898c60da53fb540b12dc98f14d03ea21d431e8d5b791e453",
     "templateCredsSetupCompleted": true
   },
-  "name": "Связаться со мной: iamabdullahdilshad@gmail.com",
+  "name": "Связаться со мной по адресу : iamabdullahdilshad@gmail.com",
   "tags": [],
   "nodes": [
     {
@@ -174,7 +174,7 @@
         "color": 7,
         "width": 560,
         "height": 400,
-        "content": "Узлы AI-транскрибатора и резюмирования"
+        "content": "Узлы AI-транскрипции и суммирования"
       },
       "typeVersion": 1
     },
@@ -221,7 +221,7 @@
         "color": 5,
         "width": 672,
         "height": 832,
-        "content": "Создано: Абдулла Дилшад"
+        "content": "Создано : Абдулла Дилшад"
       },
       "typeVersion": 1
     }

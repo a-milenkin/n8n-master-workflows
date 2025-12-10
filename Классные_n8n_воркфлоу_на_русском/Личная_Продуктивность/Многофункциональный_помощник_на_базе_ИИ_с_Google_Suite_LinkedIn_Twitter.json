@@ -184,7 +184,7 @@
         "color": 5,
         "width": 620,
         "height": 440,
-        "content": "## Инструменты MCP Google Календарь"
+        "content": "## Инструменты MCP Google Календаря"
       },
       "typeVersion": 1
     },
@@ -200,7 +200,7 @@
         "color": 5,
         "width": 900,
         "height": 900,
-        "content": "## Инструменты MCP Google Почта"
+        "content": "## Инструменты MCP Google Почты"
       },
       "typeVersion": 1
     },
@@ -439,7 +439,7 @@
         "color": 5,
         "width": 620,
         "height": 900,
-        "content": "## Инструменты MCP Google Диск"
+        "content": "## Инструменты MCP Google Диска"
       },
       "typeVersion": 1
     },
@@ -582,7 +582,7 @@
       ],
       "parameters": {
         "jsCode": "return {json: {\n  \"id\": \"1164082728121204736\",\n  \"name\": \"Jayant harilela\",\n  \"username\": \"JHarilela\"\n}}",
-        "description": "Вызовите этот инструмент, чтобы получить данные о текущем пользователе @jharilela в Twitter"
+        "description": "Вызовите этот инструмент, чтобы получить данные учетной записи @jharilela текущего пользователя в Twitter"
       },
       "typeVersion": 1.3
     },

@@ -4,7 +4,7 @@
     "instanceId": "dd69efaf8212c74ad206700d104739d3329588a6f3f8381a46a481f34c9cc281",
     "templateCredsSetupCompleted": true
   },
-  "name": "Auto-Generate Social Media Briefs for Sales Meetings Using AI & Google Calendar",
+  "name": "### Запуск по расписанию – 5 утра",
   "tags": [],
   "nodes": [
     {
@@ -454,7 +454,7 @@
         "color": 2,
         "width": 1000,
         "height": 1420,
-        "content": "## Workflow Purpose (Step-by-Step)\n\n### Schedule Trigger – 5 AM\n→ Triggers the workflow automatically every morning at 5 AM.\n\n### Initialize Workflow\n→ Sets up default values or configurations needed for processing.\n\n### Fetch Today’s Meetings from Google Calendar\n→ Retrieves all meetings scheduled for the current day.\n\n### Extract Attendee Email Domains\n→ Extracts email domains of meeting attendees for company identification.\n\n### Loop Through Attendees\n→ Iterates over each attendee to perform enrichment and analysis.\n\n### Split Attendee Details\n→ Separates individual attendee data for precise processing.\n\n### Enrich Company Information\n→ Looks up company details using attendee email domains.\n\n### Wait for Company Enrichment\n→ Adds a delay to ensure enrichment API finishes before next step.\n\n### Check Enrichment Status\n→ Ensures only valid/enriched companies proceed to the next steps.\n\n### Fetch Latest LinkedIn & Twitter Posts\n→ Retrieves the most recent social media posts for the company.\n### \nExtract Key Post Insights\n→ Filters out non-relevant content and keeps business-useful data.\n\n### Summarize Social Activity with AI\n→ Uses AI to generate a short, sales-relevant summary of the posts.\n\n### Format Summary for Email\n→ Prepares the summary data in a readable format.\n\n### Merge Summary with Context\n→ Wraps summary along with attendee, time, and company info.\n\n### Wait Before Sending\n→ Optional pause to manage API rate or ensure proper timing.\n\n### Generate HTML Email Template\n→ Builds a clean, short HTML email ready to send.\n\n### Send via WhatsApp\n→ Sends the summary to WhatsApp for quick access on the go.\n\n### Send via Gmail\n→ Sends the summary to email as a professional follow-up.\n\n"
+        "content": "## Цель рабочего процесса (по шагам)"
       },
       "typeVersion": 1
     }

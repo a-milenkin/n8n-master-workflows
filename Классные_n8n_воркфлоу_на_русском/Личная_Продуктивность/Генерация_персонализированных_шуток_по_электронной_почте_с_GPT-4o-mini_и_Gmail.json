@@ -55,7 +55,7 @@
         "messages": {
           "values": [
             {
-              "content": "=Твоя задача — придумать шутку, которая содержит эти слова:"
+              "content": "=Твоя задача — придумать шутку, содержащую эти слова:"
             }
           ]
         }
@@ -103,7 +103,7 @@
         "color": 7,
         "width": 180,
         "height": 300,
-        "content": "{{ $('On form submission').item.json['Nombre 1'] }}"
+        "content": "{{ $('При отправке формы').item.json['Имя 1'] }}"
       },
       "typeVersion": 1
     },
@@ -144,7 +144,7 @@
         "color": 7,
         "width": 260,
         "height": 100,
-        "content": "{{ $('On form submission').item.json['Nombre 2'] }}"
+        "content": "{{ $('При отправке формы').item.json['Имя 2'] }}"
       },
       "typeVersion": 1
     },
@@ -176,7 +176,7 @@
         "color": 7,
         "width": 180,
         "height": 300,
-        "content": "Скажи шутку на этом языке: {{ $json.language }}"
+        "content": "Сделай шутку на этом языке: {{ $json.language }}"
       },
       "typeVersion": 1
     }

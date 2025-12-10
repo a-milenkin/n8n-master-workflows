@@ -1,7 +1,7 @@
 {
   "id": "mwwfFVuzjYo6d4J9",
   "meta": null,
-  "name": "Humantic AI Tool MCP Server",
+  "name": "**Профиль**: создать, получить, обновить",
   "tags": [],
   "nodes": [
     {
@@ -15,7 +15,7 @@
       "parameters": {
         "width": 420,
         "height": 760,
-        "content": "## 🛠️ Humantic AI Tool MCP Server\n\n### 📋 Available Operations (3 total)\n\n**Profile**: create, get, update\n\n### ⚙️ Setup Instructions\n\n1. **Import Workflow**: Load this workflow into your n8n instance\n\n1. **🔑 Add Credentials**: Configure Humantic AI Tool authentication in one tool node then open and close all others.\n2. **🚀 Activate**: Enable this workflow to start your MCP server\n3. **🔗 Get URL**: Copy webhook URL from MCP trigger (right side)\n4. **🤖 Connect**: Use MCP URL in your AI agent configurations\n\n### ✨ Ready-to-Use Features\n\n• Zero configuration - all 3 operations pre-built\n• AI agents automatically populate parameters via `$fromAI()` expressions\n• Every resource and operation combination available\n• Native n8n error handling and response formatting\n• Modify parameter defaults in any tool node as needed\n\n### 💬 Need Help?\nCheck the [n8n documentation](https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.toolmcp/) or ping me on [discord](https://discord.me/cfomodz) for MCP integration guidance or customizations."
+        "content": "## 🛠️ Инструмент Humantic AI MCP Сервер"
       },
       "typeVersion": 1
     },
@@ -110,7 +110,7 @@
         "color": 4,
         "width": 840,
         "height": 180,
-        "content": "## Profile"
+        "content": "### 📋 Доступные операции (всего 3)"
       },
       "typeVersion": 1
     }

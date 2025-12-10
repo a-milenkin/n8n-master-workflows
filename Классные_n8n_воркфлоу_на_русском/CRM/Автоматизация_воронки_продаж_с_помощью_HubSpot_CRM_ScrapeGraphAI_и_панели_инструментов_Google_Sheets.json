@@ -1,0 +1,709 @@
+{
+  "name": "**Аналитика и отчетность** - Панель инструментов Google Sheets",
+  "tags": [
+    {
+      "id": "sales-automation",
+      "name": "Sales Automation",
+      "createdAt": "2024-01-15T10:00:00.000Z",
+      "updatedAt": "2024-01-15T10:00:00.000Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "sales-pipeline-trigger",
+      "name": "Automated Lead Monitor Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        400,
+        800
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 2
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "crm-webhook-trigger",
+      "name": "CRM New Lead Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        400,
+        600
+      ],
+      "webhookId": "new-lead-webhook",
+      "parameters": {
+        "path": "new-lead-webhook",
+        "options": {
+          "noResponseBody": false
+        },
+        "httpMethod": "POST"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "crm-leads-scraper",
+      "name": "AI CRM Leads Scraper",
+      "type": "n8n-nodes-scrapegraphai.scrapegraphAi",
+      "position": [
+        800,
+        500
+      ],
+      "parameters": {
+        "userPrompt": "Extract new leads from this CRM dashboard. Focus on lead information, contact details, and source data. Use this schema for response: { \"request_id\": \"unique_id\", \"status\": \"completed\", \"platform\": \"CRM System\", \"leads\": [{ \"lead_id\": \"LEAD-12345\", \"first_name\": \"John\", \"last_name\": \"Smith\", \"email\": \"john@company.com\", \"phone\": \"+1-555-0123\", \"company_name\": \"Acme Corp\", \"job_title\": \"Marketing Director\", \"lead_source\": \"Website Form\", \"campaign_source\": \"Google Ads\", \"lead_score\": null, \"status\": \"New\", \"created_date\": \"2024-01-15T10:30:00Z\", \"last_activity\": \"2024-01-15T10:30:00Z\", \"industry\": null, \"company_size\": null, \"annual_revenue\": null, \"website\": \"https://acmecorp.com\", \"linkedin_profile\": null, \"notes\": \"Interested in enterprise solution\", \"tags\": [\"enterprise\", \"marketing\"], \"assigned_sales_rep\": null, \"priority\": \"Medium\" }] }",
+        "websiteUrl": "https://your-crm.com/leads/dashboard?status=new"
+      },
+      "credentials": {
+        "scrapegraphAIApi": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "company-enrichment-scraper",
+      "name": "AI Company Enrichment Scraper",
+      "type": "n8n-nodes-scrapegraphai.scrapegraphAi",
+      "position": [
+        800,
+        700
+      ],
+      "parameters": {
+        "userPrompt": "Extract detailed company information from this LinkedIn company page for sales intelligence. Focus on company size, industry, recent news, and key personnel. Use this schema: { \"request_id\": \"unique_id\", \"status\": \"completed\", \"platform\": \"LinkedIn\", \"company_data\": { \"company_name\": \"Acme Corp\", \"industry\": \"Technology\", \"company_size\": \"201-500 employees\", \"headquarters\": \"San Francisco, CA\", \"founded\": \"2010\", \"website\": \"https://acmecorp.com\", \"description\": \"Leading provider of innovative solutions\", \"specialties\": [\"Software\", \"AI\", \"Machine Learning\"], \"recent_posts\": [{ \"title\": \"Company expansion announcement\", \"date\": \"2024-01-10T00:00:00Z\", \"engagement\": 125 }], \"key_personnel\": [{ \"name\": \"Jane CEO\", \"title\": \"Chief Executive Officer\", \"linkedin_url\": \"https://linkedin.com/in/janeceo\" }], \"company_updates\": [\"Recently raised Series B funding\", \"Expanding to European market\"], \"tech_stack\": [\"Salesforce\", \"HubSpot\", \"Slack\"], \"competitors\": [\"Competitor1\", \"Competitor2\"] } }",
+        "websiteUrl": "={{ 'https://www.linkedin.com/company/' + $json.company_name.toLowerCase().replace(/[^a-z0-9]/g, '-') }}"
+      },
+      "credentials": {
+        "scrapegraphAIApi": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "financial-data-scraper",
+      "name": "AI Financial Data Scraper",
+      "type": "n8n-nodes-scrapegraphai.scrapegraphAi",
+      "position": [
+        800,
+        900
+      ],
+      "parameters": {
+        "userPrompt": "Extract funding and financial information from this Crunchbase company profile for lead qualification. Use this schema: { \"request_id\": \"unique_id\", \"status\": \"completed\", \"platform\": \"Crunchbase\", \"financial_data\": { \"company_name\": \"Acme Corp\", \"total_funding\": \"$50M\", \"last_funding_round\": \"Series B\", \"last_funding_date\": \"2023-06-15T00:00:00Z\", \"funding_amount\": \"$25M\", \"valuation\": \"$200M\", \"investors\": [\"VC Fund 1\", \"Angel Investor\"], \"employee_count\": 350, \"growth_stage\": \"Growth\", \"revenue_estimate\": \"$10M-50M\", \"funding_history\": [{ \"round\": \"Series A\", \"amount\": \"$10M\", \"date\": \"2021-03-01\" }], \"acquisition_history\": [], \"ipo_status\": \"Private\", \"contact_info\": { \"email\": \"contact@acmecorp.com\", \"phone\": \"+1-555-ACME\" } } }",
+        "websiteUrl": "={{ 'https://www.crunchbase.com/organization/' + $json.company_name.toLowerCase().replace(/[^a-z0-9]/g, '-') }}"
+      },
+      "credentials": {
+        "scrapegraphAIApi": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "lead-intelligence-processor",
+      "name": "Lead Intelligence Processor",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1200,
+        700
+      ],
+      "parameters": {
+        "jsCode": "// Advanced Sales Pipeline Automation & Lead Intelligence Processing\nconst inputData = $input.all();\nconst processedLeads = [];\n\n// Configuration for lead scoring and qualification\nconst salesConfig = {\n  leadScoringWeights: {\n    company_size: {\n      '1-10 employees': 10,\n      '11-50 employees': 25,\n      '51-200 employees': 40,\n      '201-500 employees': 60,\n      '501-1000 employees': 80,\n      '1000+ employees': 100\n    },\n    industry_fit: {\n      'Technology': 90,\n      'Software': 95,\n      'Financial Services': 85,\n      'Healthcare': 80,\n      'Manufacturing': 70,\n      'Retail': 60,\n      'Education': 50,\n      'Non-profit': 20\n    },\n    funding_stage: {\n      'Seed': 30,\n      'Series A': 50,\n      'Series B': 70,\n      'Series C+': 85,\n      'IPO': 90,\n      'Profitable': 95\n    },\n    lead_source: {\n      'Website Form': 60,\n      'Demo Request': 90,\n      'Webinar': 70,\n      'Content Download': 40,\n      'Referral': 85,\n      'Cold Outreach': 20,\n      'Trade Show': 75,\n      'Partner': 80\n    },\n    job_title: {\n      'CEO': 95, 'CTO': 90, 'VP': 85, 'Director': 75,\n      'Manager': 60, 'Coordinator': 40, 'Specialist': 50,\n      'Analyst': 45, 'Assistant': 25\n    }\n  },\n  idealCustomerProfile: {\n    min_employees: 50,\n    target_industries: ['Technology', 'Software', 'Financial Services'],\n    min_funding: 5000000, // $5M\n    target_titles: ['CEO', 'CTO', 'VP', 'Director'],\n    priority_sources: ['Demo Request', 'Referral', 'Website Form']\n  },\n  automationTriggers: {\n    high_score_threshold: 70,\n    enterprise_threshold: 85,\n    immediate_follow_up_threshold: 90\n  }\n};\n\n// Advanced lead scoring algorithm\nfunction calculateLeadScore(lead, companyData, financialData) {\n  let totalScore = 0;\n  const scoringDetails = [];\n  \n  // Company size scoring\n  const companySize = companyData?.company_size || lead.company_size || 'Unknown';\n  const companySizeScore = salesConfig.leadScoringWeights.company_size[companySize] || 15;\n  totalScore += companySizeScore;\n  scoringDetails.push({ factor: 'Company Size', value: companySize, score: companySizeScore });\n  \n  // Industry fit scoring\n  const industry = companyData?.industry || lead.industry || 'Unknown';\n  const industryScore = salesConfig.leadScoringWeights.industry_fit[industry] || 30;\n  totalScore += industryScore;\n  scoringDetails.push({ factor: 'Industry Fit', value: industry, score: industryScore });\n  \n  // Funding stage scoring\n  const fundingStage = financialData?.last_funding_round || 'Unknown';\n  const fundingScore = salesConfig.leadScoringWeights.funding_stage[fundingStage] || 25;\n  totalScore += fundingScore;\n  scoringDetails.push({ factor: 'Funding Stage', value: fundingStage, score: fundingScore });\n  \n  // Lead source scoring\n  const leadSource = lead.lead_source || 'Unknown';\n  const sourceScore = salesConfig.leadScoringWeights.lead_source[leadSource] || 30;\n  totalScore += sourceScore;\n  scoringDetails.push({ factor: 'Lead Source', value: leadSource, score: sourceScore });\n  \n  // Job title scoring\n  const jobTitle = lead.job_title || '';\n  let titleScore = 30; // default\n  Object.entries(salesConfig.leadScoringWeights.job_title).forEach(([title, score]) => {\n    if (jobTitle.toLowerCase().includes(title.toLowerCase())) {\n      titleScore = Math.max(titleScore, score);\n    }\n  });\n  totalScore += titleScore;\n  scoringDetails.push({ factor: 'Job Title', value: jobTitle, score: titleScore });\n  \n  // Engagement and intent signals\n  let engagementScore = 0;\n  if (lead.lead_source === 'Demo Request') engagementScore += 20;\n  if (lead.notes && lead.notes.toLowerCase().includes('enterprise')) engagementScore += 15;\n  if (lead.notes && lead.notes.toLowerCase().includes('urgent')) engagementScore += 10;\n  if (lead.tags && lead.tags.includes('high-intent')) engagementScore += 15;\n  \n  totalScore += engagementScore;\n  scoringDetails.push({ factor: 'Engagement Signals', value: 'Multiple factors', score: engagementScore });\n  \n  // Company traction scoring\n  let tractionScore = 0;\n  if (financialData?.total_funding) {\n    const fundingAmount = parseFloat(financialData.total_funding.replace(/[^0-9.]/g, '')) * 1000000;\n    if (fundingAmount > 50000000) tractionScore += 25;\n    else if (fundingAmount > 10000000) tractionScore += 20;\n    else if (fundingAmount > 5000000) tractionScore += 15;\n    else if (fundingAmount > 1000000) tractionScore += 10;\n  }\n  \n  if (companyData?.recent_posts && companyData.recent_posts.length > 0) {\n    tractionScore += 10; // Active on social media\n  }\n  \n  totalScore += tractionScore;\n  scoringDetails.push({ factor: 'Company Traction', value: 'Funding + Activity', score: tractionScore });\n  \n  return {\n    total_score: Math.min(totalScore, 100), // Cap at 100\n    scoring_details: scoringDetails,\n    score_breakdown: {\n      company_size: companySizeScore,\n      industry_fit: industryScore,\n      funding_stage: fundingScore,\n      lead_source: sourceScore,\n      job_title: titleScore,\n      engagement: engagementScore,\n      traction: tractionScore\n    }\n  };\n}\n\n// Lead qualification and categorization\nfunction qualifyLead(lead, leadScore, companyData, financialData) {\n  const qualification = {\n    grade: 'C', // Default\n    category: 'Standard',\n    priority: 'Low',\n    fit_assessment: [],\n    red_flags: [],\n    opportunity_indicators: []\n  };\n  \n  // Grade assignment based on score\n  if (leadScore.total_score >= 85) qualification.grade = 'A+';\n  else if (leadScore.total_score >= 75) qualification.grade = 'A';\n  else if (leadScore.total_score >= 65) qualification.grade = 'B+';\n  else if (leadScore.total_score >= 55) qualification.grade = 'B';\n  else if (leadScore.total_score >= 45) qualification.grade = 'C+';\n  \n  // Category and priority assignment\n  if (leadScore.total_score >= salesConfig.automationTriggers.enterprise_threshold) {\n    qualification.category = 'Enterprise';\n    qualification.priority = 'Critical';\n  } else if (leadScore.total_score >= salesConfig.automationTriggers.high_score_threshold) {\n    qualification.category = 'High-Value';\n    qualification.priority = 'High';\n  } else if (leadScore.total_score >= 50) {\n    qualification.category = 'Qualified';\n    qualification.priority = 'Medium';\n  } else {\n    qualification.category = 'Nurture';\n    qualification.priority = 'Low';\n  }\n  \n  // Fit assessment\n  if (companyData?.company_size && companyData.company_size.includes('200+')) {\n    qualification.fit_assessment.push('Target company size');\n  }\n  \n  if (salesConfig.idealCustomerProfile.target_industries.includes(companyData?.industry)) {\n    qualification.fit_assessment.push('Target industry match');\n  }\n  \n  if (financialData?.last_funding_round && ['Series B', 'Series C+', 'IPO'].includes(financialData.last_funding_round)) {\n    qualification.fit_assessment.push('Well-funded company');\n  }\n  \n  // Red flags detection\n  if (companyData?.company_size && companyData.company_size.includes('1-10')) {\n    qualification.red_flags.push('Very small company');\n  }\n  \n  if (lead.email && lead.email.includes('gmail.com')) {\n    qualification.red_flags.push('Personal email address');\n  }\n  \n  if (!companyData?.website && !lead.website) {\n    qualification.red_flags.push('No company website');\n  }\n  \n  // Opportunity indicators\n  if (lead.lead_source === 'Demo Request') {\n    qualification.opportunity_indicators.push('Requested product demo');\n  }\n  \n  if (lead.notes && lead.notes.toLowerCase().includes('budget')) {\n    qualification.opportunity_indicators.push('Mentioned budget');\n  }\n  \n  if (companyData?.recent_posts && companyData.recent_posts.some(post => \n    post.title.toLowerCase().includes('hiring') || post.title.toLowerCase().includes('expansion'))) {\n    qualification.opportunity_indicators.push('Company in growth phase');\n  }\n  \n  return qualification;\n}\n\n// Sales automation recommendations\nfunction generateSalesActions(lead, qualification, leadScore) {\n  const actions = {\n    immediate_actions: [],\n    follow_up_sequence: [],\n    sales_rep_assignment: 'Auto-assign',\n    meeting_priority: 'Standard',\n    email_template: 'standard_intro',\n    calendar_booking_type: 'discovery_call'\n  };\n  \n  // Immediate actions based on score and qualification\n  if (leadScore.total_score >= salesConfig.automationTriggers.immediate_follow_up_threshold) {\n    actions.immediate_actions.push('Send immediate personal email');\n    actions.immediate_actions.push('Schedule same-day call');\n    actions.sales_rep_assignment = 'Senior AE';\n    actions.meeting_priority = 'Urgent';\n    actions.email_template = 'high_value_intro';\n  } else if (leadScore.total_score >= salesConfig.automationTriggers.enterprise_threshold) {\n    actions.immediate_actions.push('Add to priority sequence');\n    actions.immediate_actions.push('Research company background');\n    actions.sales_rep_assignment = 'Enterprise AE';\n    actions.meeting_priority = 'High';\n    actions.email_template = 'enterprise_intro';\n  } else if (leadScore.total_score >= salesConfig.automationTriggers.high_score_threshold) {\n    actions.immediate_actions.push('Add to qualified lead sequence');\n    actions.sales_rep_assignment = 'Standard AE';\n    actions.email_template = 'qualified_intro';\n  } else {\n    actions.immediate_actions.push('Add to nurture sequence');\n    actions.sales_rep_assignment = 'Junior AE';\n    actions.email_template = 'nurture_intro';\n  }\n  \n  // Follow-up sequence generation\n  if (qualification.category === 'Enterprise') {\n    actions.follow_up_sequence = [\n      'Day 1: Personal welcome email + calendar invite',\n      'Day 2: Follow-up call attempt',\n      'Day 3: Executive summary email',\n      'Day 5: Case study sharing',\n      'Day 7: Executive meeting proposal'\n    ];\n  } else if (qualification.category === 'High-Value') {\n    actions.follow_up_sequence = [\n      'Day 1: Welcome email with demo offer',\n      'Day 3: Follow-up call',\n      'Day 5: Product demo scheduling',\n      'Day 10: ROI calculator sharing'\n    ];\n  } else {\n    actions.follow_up_sequence = [\n      'Day 1: Welcome email',\n      'Day 7: Educational content',\n      'Day 14: Industry insights',\n      'Day 21: Product webinar invitation'\n    ];\n  }\n  \n  return actions;\n}\n\n// Main processing logic\nfor (const data of inputData) {\n  try {\n    const lead = data.leads?.[0] || data;\n    const companyData = data.company_data || {};\n    const financialData = data.financial_data || {};\n    \n    // Calculate lead score\n    const leadScore = calculateLeadScore(lead, companyData, financialData);\n    \n    // Qualify lead\n    const qualification = qualifyLead(lead, leadScore, companyData, financialData);\n    \n    // Generate sales actions\n    const salesActions = generateSalesActions(lead, qualification, leadScore);\n    \n    // Create comprehensive lead record\n    const processedLead = {\n      ...lead,\n      lead_score: leadScore.total_score,\n      scoring_details: leadScore.scoring_details,\n      score_breakdown: leadScore.score_breakdown,\n      qualification: qualification,\n      sales_actions: salesActions,\n      processing_timestamp: new Date().toISOString(),\n      enriched_data: {\n        company: companyData,\n        financial: financialData\n      }\n    };\n    \n    processedLeads.push(processedLead);\n  } catch (error) {\n    console.error('Error processing lead:', error);\n  }\n}\n\nreturn processedLeads;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "lead-categorization-splitter",
+      "name": "Lead Categorization Splitter",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1400,
+        700
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "enterprise-leads",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.qualification.category }}",
+              "rightValue": "Enterprise"
+            },
+            {
+              "id": "high-value-leads",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.qualification.category }}",
+              "rightValue": "High-Value"
+            },
+            {
+              "id": "qualified-leads",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.qualification.category }}",
+              "rightValue": "Qualified"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "crm-contact-creator",
+      "name": "CRM Contact Creator",
+      "type": "n8n-nodes-base.hubspot",
+      "position": [
+        1600,
+        600
+      ],
+      "parameters": {
+        "resource": "contact",
+        "operation": "create",
+        "additionalFields": {
+          "email": "={{ $json.email }}",
+          "phone": "={{ $json.phone }}",
+          "status": "Qualified Lead",
+          "company": "={{ $json.company_name }}",
+          "jobTitle": "={{ $json.job_title }}",
+          "lastName": "={{ $json.last_name }}",
+          "firstName": "={{ $json.first_name }}",
+          "leadScore": "={{ $json.lead_score }}",
+          "leadSource": "={{ $json.lead_source }}",
+          "customFields": {
+            "red_flags": "={{ JSON.stringify($json.qualification.red_flags) }}",
+            "lead_grade": "={{ $json.qualification.grade }}",
+            "lead_category": "={{ $json.qualification.category }}",
+            "lead_priority": "={{ $json.qualification.priority }}",
+            "email_template": "={{ $json.sales_actions.email_template }}",
+            "fit_assessment": "={{ JSON.stringify($json.qualification.fit_assessment) }}",
+            "scoring_details": "={{ JSON.stringify($json.scoring_details) }}",
+            "meeting_priority": "={{ $json.sales_actions.meeting_priority }}",
+            "immediate_actions": "={{ JSON.stringify($json.sales_actions.immediate_actions) }}",
+            "follow_up_sequence": "={{ JSON.stringify($json.sales_actions.follow_up_sequence) }}",
+            "sales_rep_assignment": "={{ $json.sales_actions.sales_rep_assignment }}",
+            "enriched_company_data": "={{ JSON.stringify($json.enriched_data.company) }}",
+            "opportunity_indicators": "={{ JSON.stringify($json.qualification.opportunity_indicators) }}",
+            "enriched_financial_data": "={{ JSON.stringify($json.enriched_data.financial) }}"
+          }
+        }
+      },
+      "credentials": {
+        "hubspotApi": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "crm-deal-creator",
+      "name": "CRM Deal Creator",
+      "type": "n8n-nodes-base.hubspot",
+      "position": [
+        1600,
+        800
+      ],
+      "parameters": {
+        "resource": "deal",
+        "operation": "create",
+        "additionalFields": {
+          "amount": "={{ $json.enriched_data.financial.revenue_estimate || '50000' }}",
+          "dealname": "={{ $json.company_name + ' - ' + $json.job_title + ' Deal' }}",
+          "closedate": "={{ new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] }}",
+          "dealstage": "Qualification",
+          "customFields": {
+            "industry": "={{ $json.enriched_data.company.industry || 'Unknown' }}",
+            "lead_grade": "={{ $json.qualification.grade }}",
+            "lead_score": "={{ $json.lead_score }}",
+            "deal_source": "={{ $json.lead_source }}",
+            "company_size": "={{ $json.enriched_data.company.company_size || 'Unknown' }}",
+            "deal_priority": "={{ $json.qualification.priority }}",
+            "funding_stage": "={{ $json.enriched_data.financial.last_funding_round || 'Unknown' }}",
+            "lead_category": "={{ $json.qualification.category }}",
+            "expected_value": "={{ $json.enriched_data.financial.revenue_estimate || '50000' }}",
+            "assigned_sales_rep": "={{ $json.sales_actions.sales_rep_assignment }}"
+          }
+        }
+      },
+      "credentials": {
+        "hubspotApi": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "welcome-email-sender",
+      "name": "Welcome Email Sender",
+      "type": "n8n-nodes-base.sendEmail",
+      "position": [
+        1800,
+        700
+      ],
+      "parameters": {
+        "message": "={{ '<h2>Welcome ' + $json.first_name + '!</h2><p>Thank you for your interest in our solutions. Based on your profile at ' + $json.company_name + ', we believe we can help you achieve your goals.</p><p><strong>Next Steps:</strong></p><ul>' + $json.sales_actions.immediate_actions.map(action => '<li>' + action + '</li>').join('') + '</ul><p>We look forward to connecting with you!</p>' }}",
+        "subject": "={{ 'Welcome ' + $json.first_name + ' - Next Steps for ' + $json.company_name }}",
+        "toEmail": "={{ $json.email }}",
+        "emailType": "html",
+        "additionalFields": {
+          "replyTo": "sales@yourcompany.com",
+          "fromName": "Sales Team"
+        }
+      },
+      "credentials": {
+        "sendEmail": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sales-task-creator",
+      "name": "Sales Task Creator",
+      "type": "n8n-nodes-base.hubspot",
+      "position": [
+        1800,
+        900
+      ],
+      "parameters": {
+        "resource": "task",
+        "operation": "create",
+        "additionalFields": {
+          "status": "Not Started",
+          "dueDate": "={{ new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() }}",
+          "subject": "={{ 'Follow up with ' + $json.first_name + ' ' + $json.last_name + ' from ' + $json.company_name }}",
+          "priority": "={{ $json.qualification.priority === 'Critical' ? 'High' : $json.qualification.priority }}",
+          "description": "={{ 'Lead Score: ' + $json.lead_score + '\\nGrade: ' + $json.qualification.grade + '\\nCategory: ' + $json.qualification.category + '\\nImmediate Actions: ' + $json.sales_actions.immediate_actions.join(', ') + '\\nFollow-up Sequence: ' + $json.sales_actions.follow_up_sequence.join('\\n') }}",
+          "customFields": {
+            "deal_value": "={{ $json.enriched_data.financial.revenue_estimate || '50000' }}",
+            "lead_grade": "={{ $json.qualification.grade }}",
+            "lead_score": "={{ $json.lead_score }}",
+            "assigned_sales_rep": "={{ $json.sales_actions.sales_rep_assignment }}"
+          }
+        }
+      },
+      "credentials": {
+        "hubspotApi": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "slack-notification-sender",
+      "name": "Slack Notification Sender",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2000,
+        700
+      ],
+      "parameters": {
+        "text": "={{ '🚨 NEW HIGH-VALUE LEAD: ' + $json.first_name + ' ' + $json.last_name + ' from ' + $json.company_name + '\\n📊 Lead Score: ' + $json.lead_score + ' (' + $json.qualification.grade + ')\\n🎯 Category: ' + $json.qualification.category + '\\n💰 Estimated Value: ' + ($json.enriched_data.financial.revenue_estimate || 'Unknown') + '\\n👤 Assigned to: ' + $json.sales_actions.sales_rep_assignment + '\\n⚡ Priority: ' + $json.qualification.priority }}",
+        "channel": "sales-alerts",
+        "otherOptions": {
+          "username": "Sales Pipeline Bot",
+          "icon_emoji": ":rocket:"
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dashboard-logger",
+      "name": "Dashboard Logger",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2000,
+        900
+      ],
+      "parameters": {
+        "options": {
+          "headerRow": true
+        },
+        "operation": "append",
+        "sheetName": "Processed Leads",
+        "documentId": "sales-pipeline-dashboard",
+        "valuesToSend": {
+          "matchingColumns": [
+            {
+              "value": "={{ new Date().toISOString() }}",
+              "column": "Timestamp"
+            },
+            {
+              "value": "={{ $json.lead_id }}",
+              "column": "Lead ID"
+            },
+            {
+              "value": "={{ $json.first_name + ' ' + $json.last_name }}",
+              "column": "Name"
+            },
+            {
+              "value": "={{ $json.company_name }}",
+              "column": "Company"
+            },
+            {
+              "value": "={{ $json.job_title }}",
+              "column": "Job Title"
+            },
+            {
+              "value": "={{ $json.email }}",
+              "column": "Email"
+            },
+            {
+              "value": "={{ $json.lead_score }}",
+              "column": "Lead Score"
+            },
+            {
+              "value": "={{ $json.qualification.grade }}",
+              "column": "Grade"
+            },
+            {
+              "value": "={{ $json.qualification.category }}",
+              "column": "Category"
+            },
+            {
+              "value": "={{ $json.qualification.priority }}",
+              "column": "Priority"
+            },
+            {
+              "value": "={{ $json.lead_source }}",
+              "column": "Lead Source"
+            },
+            {
+              "value": "={{ $json.sales_actions.sales_rep_assignment }}",
+              "column": "Assigned Rep"
+            },
+            {
+              "value": "={{ $json.enriched_data.company.company_size || 'Unknown' }}",
+              "column": "Company Size"
+            },
+            {
+              "value": "={{ $json.enriched_data.company.industry || 'Unknown' }}",
+              "column": "Industry"
+            },
+            {
+              "value": "={{ $json.enriched_data.financial.last_funding_round || 'Unknown' }}",
+              "column": "Funding Stage"
+            },
+            {
+              "value": "={{ $json.enriched_data.financial.revenue_estimate || 'Unknown' }}",
+              "column": "Estimated Value"
+            },
+            {
+              "value": "={{ $json.sales_actions.immediate_actions.join('; ') }}",
+              "column": "Immediate Actions"
+            },
+            {
+              "value": "={{ $json.qualification.red_flags.join('; ') }}",
+              "column": "Red Flags"
+            },
+            {
+              "value": "={{ $json.qualification.opportunity_indicators.join('; ') }}",
+              "column": "Opportunity Indicators"
+            }
+          ]
+        },
+        "valueToMatchOn": "",
+        "columnToMatchOn": ""
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 4
+    },
+    {
+      "id": "overview-sticky-note",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        400,
+        100
+      ],
+      "parameters": {
+        "color": 0,
+        "width": 600,
+        "height": 400,
+        "content": "# 🎯 Обзор автоматизации продаж"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "triggers-sticky-note",
+      "name": "Lead Monitoring System",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        280,
+        450
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 500,
+        "height": 350,
+        "content": "Этот комплексный рабочий процесс автоматизирует весь процесс обработки лидов от первоначального захвата до интеграции с CRM и уведомлений команды."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "scraper-sticky-note",
+      "name": "CRM Data Extraction",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        680,
+        450
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 500,
+        "height": 350,
+        "content": "## Ключевые компоненты"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "enrichment-sticky-note",
+      "name": "Data Enrichment System",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        680,
+        850
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 500,
+        "height": 350,
+        "content": "**Двойная триггерная система** - Запланированный мониторинг + вебхуки в реальном времени"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "scoring-sticky-note",
+      "name": "Lead Intelligence Processing",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1080,
+        450
+      ],
+      "parameters": {
+        "color": 1,
+        "width": 550,
+        "height": 450,
+        "content": "**Обогащение данных на основе ИИ** - Интеграция с LinkedIn и Crunchbase"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "routing-sticky-note",
+      "name": "Lead Categorization & Routing",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1280,
+        450
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 500,
+        "height": 350,
+        "content": "**Расширенная оценка лидов** - Алгоритм от 0 до 100 баллов с несколькими факторами"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "crm-sticky-note",
+      "name": "CRM & Sales Automation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1480,
+        450
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 550,
+        "height": 400,
+        "content": "**Умная маршрутизация и интеграция с CRM** - Автоматическое создание контактов/сделок"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "collaboration-sticky-note",
+      "name": "Team Notifications & Analytics",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1880,
+        450
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 550,
+        "height": 400,
+        "content": "**Интеллектуальное последующее взаимодействие** - Персонализированные последовательности электронных писем"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "config-sticky-note",
+      "name": "Setup & Configuration Guide",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1080,
+        100
+      ],
+      "parameters": {
+        "color": 0,
+        "width": 550,
+        "height": 400,
+        "content": "**Сотрудничество в команде** - Уведомления в Slack и назначение задач"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "updatedAt": "2024-01-15T10:00:00.000Z",
+  "versionId": "1",
+  "staticData": null,
+  "connections": {
+    "AI CRM Leads Scraper": {
+      "main": [
+        [
+          {
+            "node": "AI Company Enrichment Scraper",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AI Financial Data Scraper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Financial Data Scraper": {
+      "main": [
+        [
+          {
+            "node": "Lead Intelligence Processor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Intelligence Processor": {
+      "main": [
+        [
+          {
+            "node": "Lead Categorization Splitter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM New Lead Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI CRM Leads Scraper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Categorization Splitter": {
+      "main": [
+        [
+          {
+            "node": "CRM Contact Creator",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "CRM Deal Creator",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Welcome Email Sender",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Sales Task Creator",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Slack Notification Sender",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Dashboard Logger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Company Enrichment Scraper": {
+      "main": [
+        [
+          {
+            "node": "Lead Intelligence Processor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Automated Lead Monitor Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI CRM Leads Scraper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "triggerCount": 2
+}
